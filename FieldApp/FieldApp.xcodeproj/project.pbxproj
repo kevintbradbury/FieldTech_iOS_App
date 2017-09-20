@@ -16,6 +16,8 @@
 		0AC8EF6F1F71826200E86DD6 /* FieldAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF6E1F71826200E86DD6 /* FieldAppUITests.swift */; };
 		0AC8EF7D1F71842F00E86DD6 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */; };
 		0AC8EF7F1F71854C00E86DD6 /* DataStructure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF7E1F71854C00E86DD6 /* DataStructure.swift */; };
+		0AC8EF811F71E31000E86DD6 /* GeoCodingAPIcall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */; };
+		0AC8EF831F71E69400E86DD6 /* APITestCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF821F71E69400E86DD6 /* APITestCall.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +53,8 @@
 		0AC8EF701F71826200E86DD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocationManager.swift; path = LocationManager/LocationManager.swift; sourceTree = "<group>"; };
 		0AC8EF7E1F71854C00E86DD6 /* DataStructure.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStructure.swift; sourceTree = "<group>"; };
+		0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoCodingAPIcall.swift; sourceTree = "<group>"; };
+		0AC8EF821F71E69400E86DD6 /* APITestCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APITestCall.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,8 @@
 				0AC8EF7E1F71854C00E86DD6 /* DataStructure.swift */,
 				0AC8EF501F71826200E86DD6 /* ViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
+				0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */,
+				0AC8EF821F71E69400E86DD6 /* APITestCall.swift */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
 				0AC8EF551F71826200E86DD6 /* Assets.xcassets */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
@@ -268,7 +274,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AC8EF831F71E69400E86DD6 /* APITestCall.swift in Sources */,
 				0AC8EF511F71826200E86DD6 /* ViewController.swift in Sources */,
+				0AC8EF811F71E31000E86DD6 /* GeoCodingAPIcall.swift in Sources */,
 				0AC8EF7F1F71854C00E86DD6 /* DataStructure.swift in Sources */,
 				0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */,
 				0AC8EF7D1F71842F00E86DD6 /* LocationManager.swift in Sources */,

@@ -11,7 +11,7 @@ import CoreLocation
 import UIKit
 
 class UserData {
- 
+    
     var userID: Int?
     var userName: String?
     var userLocation: CLLocationCoordinate2D?
@@ -54,7 +54,40 @@ class UserData {
             return UserJobInfo(userName: userName, workWeekHours: weekHours, userPoints: points, employeeJobs: jobs)
         }
     }
+    
+    struct TimeCard {
+        
+        let weekBeginDate: String?
+        let sunday: NSDictionary?
+        let monday: NSDictionary?
+        let tuesday: NSDictionary?
+        let wednesday: NSDictionary?
+        let thursday: NSDictionary?
+        let friday: NSDictionary?
+        let saturday: NSDictionary?
+        let totalHours: Int?
+        
+        static func fromJSON(dictionary: NSDictionary) -> TimeCard? {
+            
+            guard let beginDate = dictionary["weekBeginDate"] as? String,
+                let sunday = dictionary["sunday"] as? NSDictionary,
+                let monday = dictionary["monday"] as? NSDictionary,
+                let tuesday = dictionary["tuesday"] as? NSDictionary,
+                let wednesday = dictionary["wednesday"] as? NSDictionary,
+                let thursday = dictionary["thursday"] as? NSDictionary,
+                let friday = dictionary["friday"] as? NSDictionary,
+                let saturday = dictionary["saturday"] as? NSDictionary,
+                let total = dictionary["totalHours"] as? Int
+                else {
+                    print("failed fromJSON method, in TimeCard Struct")
+                    return nil
+            }
+            
+            return TimeCard(weekBeginDate: beginDate, sunday: sunday, monday: monday, tuesday: tuesday, wednesday: wednesday, thursday: thursday, friday: friday, saturday: saturday, totalHours: total)
+        }
+    }
 }
+
 
 class Job {
     
@@ -63,32 +96,36 @@ class Job {
     
     struct UserJob {
         
-        let jobName: String
         let poNumber: Int
-        let jobBudgetHours: Double?
-        let employeeJobHours: Double?
+        let jobName: String
+        let storeName: String
         let jobAddress: String
         let jobCity: String
-        let jobLocation: CLLocationCoordinate2D
+        let jobState: String
+//        let jobBudgetHours: String?
+//        let employeeJobHours: String?
+//        let jobLocation: CLLocationCoordinate2D
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let jobName = dictionary["jobName"] as? String,
-                let purchaseOrderNumber = dictionary["purchaseOrderNumber"] as? Int,
-                let budgetHours = dictionary["jobBudgetHours"] as? Double,
-                let employeeHours = dictionary["employeeJobHours"] as? Double,
-                let address = dictionary["jobAddress"] as? String,
-                let city = dictionary["jobCity"] as? String,
-                let location = dictionary["jobLocation"] as? NSDictionary
+            guard let purchaseOrderNumber = dictionary["PO"] as? Int,
+                let jobName = dictionary["JobName"] as? String,
+                let store = dictionary["Store"] as? String,
+                let address = dictionary["Address"] as? String,
+                let city = dictionary["City"] as? String,
+                let state = dictionary["State"] as? String
+//                let budgetHours = dictionary["jobBudgetHours"] as? String,
+//                let employeeHours = dictionary["employeeJobHours"] as? String,
+//                let location = dictionary["jobLocation"] as? NSDictionary
                 else {
                     print("failed fromJSON method, in UserJobs Struct")
                     return nil
             }
-            guard let latitude = location["latitude"] as? CLLocationDegrees else {return nil}
+/*          guard let latitude = location["latitude"] as? CLLocationDegrees else {return nil}
             guard let longitude = location["longitude"] as? CLLocationDegrees else {return nil}
-            let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-            
-            return UserJob(jobName: jobName, poNumber: purchaseOrderNumber, jobBudgetHours: budgetHours, employeeJobHours: employeeHours, jobAddress: address, jobCity: city, jobLocation: coordinates)
+            let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)      */
+
+            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, storeName: store, jobAddress: address, jobCity: city, jobState: state)
         }
     }
     
@@ -97,48 +134,75 @@ class Job {
 class ContactInfo {
     
     let departmentEmail = "admin@millworkbrothers.com"
-    let faxNumber = 123
-    let textNumbers: NSDictionary = [
+    let faxNumber: Int64 = 5628021113
+    let textNumbers: [String:Int64] = [
         "Pete" : 123,
         "Natalie" : 123,
         "Jesus" : 123,
-        "Office" : 123
+        "Office" : 5625842155
     ]
     
 }
 
-class FieldUtilities {
-
+class FieldActions {
+    
     var requestedUser: String?
-    
-class SuppliesRequests {
-    
-    let hardwareLocations: Array = ["Home Depot", "Lowes", "Ace Hardware", "Orchards"]
-    var chosenLocation: String?
-    let maxDistance = 5  // Miles?
-    var receiptPhoto = UIImage()
-    var arrived: Bool?
     var poNumber: Int?
     let poFolder = URL(string: "P O Server Folder")
+    var date: Date?
     var jobName: String?
-    
-    let material: Array = ["material1", "material2", "etc."]
-    var materialQuantity: Int?
     var neededBy: String?
     var description: String?
-    var receiptUploaded: Bool?
-    var fieldSuppliesDestinationFolder = URL(string: "Supplies Server Folder")
+    
+    class SuppliesRequest {
+        
+        let hardwareLocations: Array = ["Home Depot", "Lowes", "Ace Hardware", "Orchards"]
+        var chosenLocation: String?
+        let maxDistance = 5  // Miles?
+        var receiptPhoto = UIImage()
+        var arrived: Bool?
+        let material: Array = ["material1", "material2", "etc."]
+        var materialQuantity: Int?
+        var receiptUploaded: Bool?
+        var fieldSuppliesDestinationFolder = URL(string: "Supplies Server Folder")
+        
+    }
+    
+    class ToolRental {
+        
+        let toolType: Array = ["drill", "hammer", "powerTools", "etc."]
+        let brand = ["brand1", "brand2", "brand3"]
+        var toolQuantity: Int?
+        var duration: Int?
+        var toolPhoto: UIImage?
+        var photoUploaded: Bool?
+        let rentalLogDestination = URL(string: "Tool Rental Server Folder")
+        let supervisorEmail = "super@millworkbrothers.com"
+        var rentalIn: Date?
+        var rentalOut: Date? //This value is to record the actual return date.
+        var returnDate: Date? //This is the user entered date value.
+        let reminderPeriods = [24, 48, 72, 96]
+        var rentalAuthorized: Bool?
+        
+    }
+    
+    class ChangeOrders {
+        
+        var location: String? //Field Installers reference OR documentation purposes?
+        var material: String?
+        var colorSpec: String?
+        var quantity: Int?
+        
+    }
+    
+    class PhotoUpload {
+        
+        var projectPhotos: [UIImage]?
+        let presetEmail = "supervisor@millworkbrothers.com"
+    }
     
 }
 
-class ToolRental {
-    
-    var requestedUser: String?
-    let toolType: Array = ["drill", "hammer", "powerTools", "etc."]
-    let brand = ["brand1", "brand2", "brand3"]
-    var quantity: Int?
-    
-    
-}
 
-}
+
+
