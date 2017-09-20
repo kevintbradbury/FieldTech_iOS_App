@@ -15,11 +15,10 @@ class UserData {
     var userID: Int?
     var userName: String?
     var userLocation: CLLocationCoordinate2D?
-    var distanceFromJob: Int?
     var proximityConfirm: Bool?
     var timeIn: Int?
     var timeOut: Int?
-    //field set to minutes, values set to minutes
+    //keys set to minutes, values set to seconds
     let timer: NSDictionary = [
         15 : 600,
         30 : 1500,
@@ -86,6 +85,12 @@ class UserData {
             return TimeCard(weekBeginDate: beginDate, sunday: sunday, monday: monday, tuesday: tuesday, wednesday: wednesday, thursday: thursday, friday: friday, saturday: saturday, totalHours: total)
         }
     }
+    
+//    func checkJobProximity(userLocation: CLLocationCoordinate2D, jobLocation: CLLocationCoordinate2D) -> Bool {
+//        let maxDistance = 1609.34 // Meters = One Mile
+//        return Bool
+//    }
+
 }
 
 

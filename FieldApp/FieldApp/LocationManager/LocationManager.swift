@@ -39,7 +39,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
         locationManager.delegate = self
         locationManager.distanceFilter = kCLDistanceFilterNone
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestAlwaysAuthorization()
         
         alreadyInitialized = true
     }

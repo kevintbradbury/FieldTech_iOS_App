@@ -34,5 +34,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Uses the camera to document materials and Tool rentals</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Uses location to determine where you are</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Uses location to determine where you are</string>
 </dict>
 </plist>

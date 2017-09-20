@@ -10,13 +10,13 @@ import Foundation
 
 class GeoCodingCall {
     
+    let url = "https://maps.googleapis.com/maps/api/geocode/json?address="
     let apiKey = "&key=" + "AIzaSyDbWfZ30A-Ry2q-lZ3pb6klHy_WkUJVgic"
     var address = ""
-    var city = ""
-    var state = ""
-    var url = "https://maps.googleapis.com/maps/api/geocode/json?address="
+    var city = ", "
+    var state = ", "
  
-    func fetchCoordinates(key: String,address: String, city: String, state: String, url: String) {
+    func fetchCoordinates(address: String, city: String, state: String) {
         
     }
     
