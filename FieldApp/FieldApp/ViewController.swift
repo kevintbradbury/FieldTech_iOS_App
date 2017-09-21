@@ -27,16 +27,8 @@ class ViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        UserLocation.instance.requestLocation(){ coordinate in
-            
-            self.location = coordinate
-            
-            if (self.location?.latitude)! > CLLocationDegrees(0.0) {
-                print(self.location)
-            } else {
-                print("location failed")
-            }
-        }
+        getLocation()
+        GeoCodingCall().fetchCoordinates()
     }
 
     override func didReceiveMemoryWarning() {
@@ -55,6 +47,20 @@ class ViewController: UIViewController {
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
             print("Index 0 of JSON Jobs data \(self.jobs[0])")
+        }
+    }
+    
+    func getLocation() {
+        
+        UserLocation.instance.requestLocation(){ coordinate in
+            
+            self.location = coordinate
+            
+            if (self.location?.latitude)! > CLLocationDegrees(0.0) {
+                print(self.location)
+            } else {
+                print("location failed")
+            }
         }
     }
 

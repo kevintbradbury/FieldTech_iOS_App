@@ -9,13 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FieldApp/APITestCall.swift"
-            timestampString = "527562499.50894"
+            filePath = "FieldApp/GeoCodingAPIcall.swift"
+            timestampString = "527646871.33086"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
-            landmarkName = "parseJobs(from:)"
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "fetchCoordinates()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
