@@ -11,7 +11,7 @@ import Foundation
 import CoreLocation
 
 class ViewController: UIViewController {
-
+    
     var jobs: [Job.UserJob] = []
     let main = OperationQueue.main
     var location = UserData.init().userLocation
@@ -23,11 +23,7 @@ class ViewController: UIViewController {
         
         UserLocation.instance.initialize()
         getJobs() {jobs in
-            self.getLocation()
-            self.jobAddress = "\(jobs[0].jobAddress), \(jobs[0].jobCity), \(jobs[0].jobState)"
-            GeoCoding.locationForAddressCode(address: self.jobAddress) { location in
-                
-            }
+            self.checkJobProximity()
         }
     }
     
@@ -36,12 +32,12 @@ class ViewController: UIViewController {
         
         
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     func getJobs(callback: @escaping ([Job.UserJob]) -> ()) {
         
         APITestCall().fetchJobInfo() { jobs in
@@ -53,7 +49,7 @@ class ViewController: UIViewController {
             self.main.addOperation {
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
-            print("Index 0 of JSON Jobs data \(self.jobs[0])")
+            print("Index 0 Job is --> \(self.jobs[0].jobName) \n")
         }
     }
     
@@ -64,12 +60,30 @@ class ViewController: UIViewController {
             self.location = coordinate
             
             if (self.location?.latitude)! > CLLocationDegrees(0.0) {
-                print("User location is --> \(self.location?.latitude) by \(self.location?.longitude)")
+                print("User location is --> \(String(describing: self.location?.latitude)) by \(String(describing: self.location?.longitude)) \n")
             } else {
                 print("location failed")
             }
         }
     }
-
+    
+    func checkJobProximity() {
+        
+        self.getLocation()
+        self.jobAddress = "\(jobs[0].jobAddress), \(jobs[0].jobCity), \(jobs[0].jobState)"
+        GeoCoding.locationForAddressCode(address: self.jobAddress) { location in
+            let distance = GeoCoding.getDistance(userLocation: self.location!, jobLocation: location!)
+            print("Miles from job location is --> \(distance) \n")
+            
+            if distance > 1.0 {
+                print("distance is equal to --> \(distance) \n")
+                print("NO <-- User is not in proximity to Job location \n")
+            } else {
+                print("YES <-- User is in proximity to Job location \n")
+            }
+        }
+    }
+    
+    
 }
 

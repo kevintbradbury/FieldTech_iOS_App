@@ -31,23 +31,30 @@ class GeoCoding {
             //Pick the first placemark and center the map there.
             if let placemark = placemarks?.first, let location = placemark.location?.coordinate {
                 callback(location)
-                print("geocoding location is : \(location)")
+                print("geocoding location is --> \(location)")
                 return
             }
-            
             callback(nil)
         }
     }
     
-    static func getDistance(userLocation: CLLocationCoordinate2D, storeLocation: CLLocationCoordinate2D) -> Double {
+    static func getDistance(userLocation: CLLocationCoordinate2D, jobLocation: CLLocationCoordinate2D) -> Double {
         
-        let userCoordinate = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+        let userCoordinates = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+        let jobCoordinates = CLLocation(latitude: jobLocation.latitude, longitude: jobLocation.longitude)
+        let distanceInMeters = userCoordinates.distance(from: jobCoordinates)
         
-        let storeCoordinate = CLLocation(latitude: storeLocation.latitude, longitude: storeLocation.longitude)
+        let distanceInMiles = metersToMiles(meters: distanceInMeters)
         
-        let distanceInMeters = userCoordinate.distance(from: storeCoordinate)
+        return distanceInMiles
         
-        return distanceInMeters
+    }
+    
+    static func metersToMiles(meters: Double) -> Double{
+        
+        let miles = meters * 0.000621371
+        
+        return miles
         
     }
     
@@ -59,12 +66,6 @@ class GeoCoding {
         
     }
     
-    static func metersToMiles(meters: Double) -> Double{
-        
-        let miles = meters * 0.000621371
-        
-        return miles
-        
-    }
+    
     
 }
