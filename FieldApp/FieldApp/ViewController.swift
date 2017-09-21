@@ -15,20 +15,26 @@ class ViewController: UIViewController {
     var jobs: [Job.UserJob] = []
     let main = OperationQueue.main
     var location = UserData.init().userLocation
+    var jobAddress = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        getJobs()
         UserLocation.instance.initialize()
+        getJobs() {jobs in
+            self.getLocation()
+            self.jobAddress = "\(jobs[0].jobAddress), \(jobs[0].jobCity), \(jobs[0].jobState)"
+            GeoCoding.locationForAddressCode(address: self.jobAddress) { location in
+                
+            }
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        getLocation()
-        GeoCodingCall().fetchCoordinates()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -36,10 +42,11 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    func getJobs() {
+    func getJobs(callback: @escaping ([Job.UserJob]) -> ()) {
         
         APITestCall().fetchJobInfo() { jobs in
             self.jobs = jobs
+            callback(jobs)
             
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             
@@ -57,7 +64,7 @@ class ViewController: UIViewController {
             self.location = coordinate
             
             if (self.location?.latitude)! > CLLocationDegrees(0.0) {
-                print(self.location)
+                print("User location is --> \(self.location?.latitude) by \(self.location?.longitude)")
             } else {
                 print("location failed")
             }

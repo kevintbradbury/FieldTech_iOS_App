@@ -7,46 +7,64 @@
 //
 
 import Foundation
+import CoreLocation
+import AddressBook
+import AddressBookUI
 
-class GeoCodingCall {
+class GeoCoding {
     
-    let apiURL = "https://maps.googleapis.com/maps/api/geocode/json?address="
-    let apiKey = "&key=" + "AIzaSyDbWfZ30A-Ry2q-lZ3pb6klHy_WkUJVgic"
-    
-     let testaddress = "1951+W+Malvern+Ave"
-     let testcity = "Fullerton"
-     let teststate = "CA"
-    
-    func fetchCoordinates(/*address: String, city: String, state: String*/) -> Any {
+    static func locationForAddressCode(address: String, callback: @escaping (CLLocationCoordinate2D?) -> Void) {
         
-        var combinedString = "\(apiURL)\(testaddress), +\(testcity), +\(teststate)\(apiKey)"
+        let testaddress = "1951 W Malvern Ave"
+        let testcity = "Fullerton"
+        let teststate = "CA"
         
-        var jsonData: [Any?] = []
+        let combinedString = "\(testaddress), \(testcity), \(teststate)"
+        let geocoder = CLGeocoder()
         
-        let url = URL(string: combinedString)!
-        let request = URLRequest(url: url)
-        let session = URLSession.shared
-        let task = session.dataTask(with: request) {data, response, error in
+        geocoder.geocodeAddressString(address) { (placemarks, error) in
             
-            if error != nil {
-                
-                print("failed to fetch JSON from AWS")
-                return
+            if let error = error {
+                print("geocoding failed due to --> \(error)")
             }
-            guard let verifiedData = data else {
-                
-                print("could not verify data from dataTask")
+            
+            //Pick the first placemark and center the map there.
+            if let placemark = placemarks?.first, let location = placemark.location?.coordinate {
+                callback(location)
+                print("geocoding location is : \(location)")
                 return
             }
             
-            guard let json = try? JSONSerialization.jsonObject(with: verifiedData, options: []) else {
-                return
-            }
+            callback(nil)
         }
-        print("Our Geocoding JSON is \(jsonData)")
-        return jsonData
+    }
+    
+    static func getDistance(userLocation: CLLocationCoordinate2D, storeLocation: CLLocationCoordinate2D) -> Double {
         
-        task.resume()
+        let userCoordinate = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+        
+        let storeCoordinate = CLLocation(latitude: storeLocation.latitude, longitude: storeLocation.longitude)
+        
+        let distanceInMeters = userCoordinate.distance(from: storeCoordinate)
+        
+        return distanceInMeters
+        
+    }
+    
+    static func milesToMeters(miles: Double) -> Double {
+        
+        let meters = miles * 1609.34
+        
+        return meters
+        
+    }
+    
+    static func metersToMiles(meters: Double) -> Double{
+        
+        let miles = meters * 0.000621371
+        
+        return miles
+        
     }
     
 }
