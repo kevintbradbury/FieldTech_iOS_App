@@ -7,7 +7,9 @@
 //
 
 import XCTest
-@testable import FieldApp
+import FirebaseCore
+
+//@testable import FieldApp
 
 class FieldAppTests: XCTestCase {
     
