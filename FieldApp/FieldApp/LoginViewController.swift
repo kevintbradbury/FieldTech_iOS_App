@@ -129,7 +129,7 @@ class LoginViewController: UIViewController {
                 verificationCodeToString = verificationCode.text!
                 
                 if let authVerificationID = UserDefaults.standard.string(forKey: "authVerificationID") {
-                    print("verfID is --> \(authVerificationID) \n verificationCode is \(verificationCodeToString)")
+
                     let credential = PhoneAuthProvider.provider().credential(withVerificationID: authVerificationID, verificationCode: verificationCodeToString)
                     
                     //Add Firebase sign in here
@@ -137,6 +137,7 @@ class LoginViewController: UIViewController {
                         if let error = error {
                             print("received the following error from credentials --> \(error) \n")
                         }
+                        self.phoneNumberFIeld.text?.removeAll()
                     }
                 }
             }
