@@ -8,6 +8,8 @@ target 'FieldApp' do
   # Pods for FieldApp
 pod 'Firebase/Core'
 pod 'Firebase/Auth'
+pod 'Firebase/Database'
+pod 'Firebase/Storage'
 
   target 'FieldAppTests' do
     inherit! :search_paths
