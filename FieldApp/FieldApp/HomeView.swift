@@ -82,7 +82,7 @@ extension HomeView {
     
     func showUploadMethods() {
         
-        var actionsheet = UIAlertController(title: "Choose Upload method", message: "You can upload by Camera or from yourimageStorageRef Photos", preferredStyle: UIAlertControllerStyle.actionSheet)
+        var actionsheet = UIAlertController(title: "Choose Upload method", message: "You can upload by Camera or from your Photos", preferredStyle: UIAlertControllerStyle.actionSheet)
         
         let chooseCamera = UIAlertAction(title: "Camera", style: UIAlertActionStyle.default) { (action) -> Void in
             //present Camera
@@ -123,9 +123,9 @@ extension HomeView {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM.dd.yyyy"
         let result = formatter.string(from: date)
-        print("\n imageName will be: image\(result)\(jobs[1].storeName)\(jobs[1].poNumber).jpg")
+        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
 
-        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)\(jobs[0].poNumber).jpg")
+        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
         
         let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
             

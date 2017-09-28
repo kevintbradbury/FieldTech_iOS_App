@@ -1,0 +1,62 @@
+[
+ {
+   "idNumber": 1,
+   "FirstName": "Contreras",
+   "LastName": "Fransisco",
+   "Code": 1578
+ },
+ {
+   "idNumber": 2,
+   "FirstName": " De La Cruz",
+   "LastName": "Luis",
+   "Code": 4654
+ },
+ {
+   "idNumber": 3,
+   "FirstName": "Dominguiez",
+   "LastName": "Darian",
+   "Code": 6872
+ },
+ {
+   "idNumber": 4,
+   "FirstName": "Estrada",
+   "LastName": "Jose",
+   "Code": 9846
+ },
+ {
+   "idNumber": 5,
+   "FirstName": "Garcia",
+   "LastName": "Miguel",
+   "Code": 8793
+ },
+ {
+   "idNumber": 6,
+   "FirstName": "Gomez",
+   "LastName": "Lucio",
+   "Code": 9753
+ },
+ {
+   "idNumber": 7,
+   "FirstName": "Marin",
+   "LastName": "Rafael",
+   "Code": 5468
+ },
+ {
+   "idNumber": 8,
+   "FirstName": "Noriega",
+   "LastName": "Ronald",
+   "Code": 8793
+ },
+ {
+   "idNumber": 9,
+   "FirstName": "Salguero",
+   "LastName": "Rafael",
+   "Code": 7489
+ },
+ {
+   "idNumber": 10,
+   "FirstName": "Vazquez",
+   "LastName": " David",
+   "Code": 4135
+ }
+]
