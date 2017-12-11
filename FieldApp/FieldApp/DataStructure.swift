@@ -32,16 +32,20 @@ class UserData {
     var completedWorkPhotos: [UIImage]?
     var locationConfirm: Bool?
     
-    struct UserJobInfo {
+    struct UserInfo {
         
         let userName: String
+        let employeeID: Int?
+        let employeePhone: Int?
         let workWeekHours: Int?
         let userPoints: Int?
         let employeeJobs: NSArray
         
-        static func fromJSON(dictionary: NSDictionary) -> UserJobInfo? {
+        static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             
-            guard let userName = dictionary["userName"] as? String,
+            guard let userName = dictionary["username"] as? String,
+                let userId = dictionary["employeeID"] as? Int,
+                let userNumber = dictionary["phoneNumber"] as? Int,
                 let weekHours = dictionary["workWeekHours"] as? Int,
                 let points = dictionary["userPoints"] as? Int,
                 let jobs = dictionary["employeeJobs"] as? NSArray
@@ -50,7 +54,7 @@ class UserData {
                     return nil
             }
             
-            return UserJobInfo(userName: userName, workWeekHours: weekHours, userPoints: points, employeeJobs: jobs)
+            return UserInfo(userName: userName, employeeID: userId, employeePhone: userNumber, workWeekHours: weekHours, userPoints: points, employeeJobs: jobs)
         }
     }
     
@@ -85,12 +89,6 @@ class UserData {
             return TimeCard(weekBeginDate: beginDate, sunday: sunday, monday: monday, tuesday: tuesday, wednesday: wednesday, thursday: thursday, friday: friday, saturday: saturday, totalHours: total)
         }
     }
-    
-//    func checkJobProximity(userLocation: CLLocationCoordinate2D, jobLocation: CLLocationCoordinate2D) -> Bool {
-//        let maxDistance = 1609.34 // Meters = One Mile
-//        return Bool
-//    }
-
 }
 
 

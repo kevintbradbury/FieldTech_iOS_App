@@ -129,13 +129,13 @@
 			isa = PBXGroup;
 			children = (
 				0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */,
+				0AC8EF821F71E69400E86DD6 /* APITestCall.swift */,
 				0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */,
 				0AC8EF7E1F71854C00E86DD6 /* DataStructure.swift */,
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
 				0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */,
-				0AC8EF821F71E69400E86DD6 /* APITestCall.swift */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
 				0AC8EF551F71826200E86DD6 /* Assets.xcassets */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,

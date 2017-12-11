@@ -25,14 +25,12 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     let main = OperationQueue.main
     var location = UserData.init().userLocation
     var jobAddress = ""
+    var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
+    var employeeInfo: Any?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
-        getJobs() { jobs in
-            self.jobs = jobs
-            self.checkJobProximity()
-        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -67,7 +65,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         photoToUpload.contentMode = .scaleAspectFit
         photoToUpload.image = selectedPhoto
         
-        self.createPhotoRef(photo: selectedPhoto)
+        self.uploadPhoto(photo: selectedPhoto)
         
         dismiss(animated: true)
     }
@@ -108,7 +106,8 @@ extension HomeView {
         
         self.present(actionsheet, animated: true)
     }
-    func createPhotoRef(photo: UIImage) {
+    
+    func uploadPhoto(photo: UIImage) {
         
         guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
             print("Could not get JPEG representation of UIImage")
@@ -135,6 +134,7 @@ extension HomeView {
             }
             if error == nil {
                 let downloadURL = metadata.downloadURL()
+                self.confirmUpload()
             }
         }
         uploadTask.enqueue()
@@ -143,29 +143,25 @@ extension HomeView {
 }
 
 extension HomeView {
-    
-    func getJobs(callback: @escaping ([Job.UserJob]) -> ()) {
+    //([Job.UserJob]) -> ()
+    //            jobs in
+    //            self.jobs = jobsr
+    //            callback(jobs)
+
+    func getEmployeeInfo(callback: @escaping (UserData.UserInfo) -> ()) {
         
-        APITestCall().fetchJobInfo() { jobs in
-            self.jobs = jobs
-            callback(jobs)
-            
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            
+        APICalls().fetchEmployee(employeeId: 1234) { user in
+            callback(user)
             self.main.addOperation {
-                UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
-            print("Index 0 Job is --> \(self.jobs[0].jobName) \n")
         }
     }
     
     func getLocation(completition: @escaping (CLLocationCoordinate2D) -> Void) {
         
         UserLocation.instance.requestLocation(){ coordinate in
-            
             self.location = coordinate
             print("User location is --> \(coordinate) \n")
-
             completition(coordinate)
         }
     }
@@ -187,5 +183,15 @@ extension HomeView {
             }
         }
         
+    }
+    
+    func confirmUpload() {
+        var actionsheet = UIAlertController(title: "Successful", message: "Photo was uploaded successfully", preferredStyle: UIAlertControllerStyle.alert)
+        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
+            actionsheet.dismiss(animated: true, completion: nil)
+        }
+
+        actionsheet.addAction(ok)
+        self.present(actionsheet, animated: true)
     }
 }

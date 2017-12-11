@@ -13,10 +13,10 @@ import Firebase
 
 class LoginViewController: UIViewController {
     
-    @IBOutlet weak var phoneNumberFIeld: UITextField!
+    @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
     
-
+    var authId: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,13 +43,14 @@ class LoginViewController: UIViewController {
     
     @IBAction func loginPressed(_ sender: Any) {
         
-        if phoneNumberFIeld.text == nil { return }
-        authPhoneNumber(phoneNumber: phoneNumberFIeld.text!)
-        showVerfWin()
+        if phoneNumberField.text == nil { return }
+        authPhoneNumber(phoneNumber: phoneNumberField.text!)
+        //Check number against db here
+        APICalls().isEmployeePhone(phoneNumber: phoneNumberField.text!, view: self)
     }
     
     func authPhoneNumber(phoneNumber: String) {
-        var phoneNumberToString = "+1"; phoneNumberToString += phoneNumberFIeld.text!
+        var phoneNumberToString = "+1"; phoneNumberToString += phoneNumberField.text!
         
         PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumberToString) { (verificationID, error) in
             DispatchQueue.main.async {
@@ -63,40 +64,51 @@ class LoginViewController: UIViewController {
         }
     }
     
-    func showVerfWin() {
-        let alert = UIAlertController(title: "Verification", message: "Enter verification code received via SMS", preferredStyle: .alert)
+//    func showVerfWin() {
+//        let alert = UIAlertController(title: "Verification", message: "Enter verification code received via SMS", preferredStyle: .alert)
+//
+//        let confirmCodeAlert = UIAlertAction(title: "Send", style: .default) { action in
+//
+//            let verificationCode = alert.textFields![0]
+//            var verificationCodeToString = "";
+//            if verificationCode.text != nil {
+//                verificationCodeToString = verificationCode.text!
+//
+//                if let authVerificationID = UserDefaults.standard.string(forKey: "authVerificationID") {
+//
+//                    let credential = PhoneAuthProvider.provider().credential(withVerificationID: authVerificationID, verificationCode: verificationCodeToString)
+//
+//                    //Add Firebase sign in here
+//                    Auth.auth().signIn(with: credential) { (user, error) in
+//                        if let error = error {
+//                            print("received the following error from credentials --> \(error) \n")
+//                        }
+//                        self.phoneNumberField.text?.removeAll()
+//                    }
+//                }
+//            }
+//        }
+//
+//        alert.addTextField { textFieldPhoneNumber in
+//            textFieldPhoneNumber.placeholder = "Verification code"
+//            textFieldPhoneNumber.keyboardType = UIKeyboardType.phonePad
+//            textFieldPhoneNumber.isSecureTextEntry = true
+//        }
+//        alert.addAction(confirmCodeAlert)
+//
+//        self.present(alert, animated: true, completion: nil)
+//    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let vc = segue.destination as! HomeView
         
-        let confirmCodeAlert = UIAlertAction(title: "Send", style: .default) { action in
-            
-            let verificationCode = alert.textFields![0]
-            var verificationCodeToString = "";
-            if verificationCode.text != nil {
-                verificationCodeToString = verificationCode.text!
-                
-                if let authVerificationID = UserDefaults.standard.string(forKey: "authVerificationID") {
-
-                    let credential = PhoneAuthProvider.provider().credential(withVerificationID: authVerificationID, verificationCode: verificationCodeToString)
-                    
-                    //Add Firebase sign in here
-                    Auth.auth().signIn(with: credential) { (user, error) in
-                        if let error = error {
-                            print("received the following error from credentials --> \(error) \n")
-                        }
-                        self.phoneNumberFIeld.text?.removeAll()
-                    }
-                }
-            }
+        if segue.identifier == "login" {
+            vc.firAuthId = authId
         }
-        
-        alert.addTextField { textFieldPhoneNumber in
-            textFieldPhoneNumber.placeholder = "Verification code"
-            textFieldPhoneNumber.keyboardType = UIKeyboardType.phonePad
-            textFieldPhoneNumber.isSecureTextEntry = true
-        }
-        alert.addAction(confirmCodeAlert)
-        
-        self.present(alert, animated: true, completion: nil)
     }
     
+
 }
+
+
 

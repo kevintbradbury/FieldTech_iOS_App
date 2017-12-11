@@ -22,12 +22,14 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Uses the camera to document Materials and Tool rentals</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Uses the library to document Materials and Tool rentals</string>
-	<key>NSLocationAlwaysUsageDescription</key>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Uses location to determine where you are</string>
 	<key>NSLocationUsageDescription</key>
 	<string>Uses location to determine where you are</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Uses location to determine where you are</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Uses the library to document Materials and Tool rentals</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
