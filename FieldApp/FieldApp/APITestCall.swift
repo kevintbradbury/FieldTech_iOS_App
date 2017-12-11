@@ -81,7 +81,7 @@ class APICalls {
         }
         task.resume()
     }
-    func isEmployeePhone(phoneNumber: String, view: UIViewController) {
+    func isEmployeePhone(view: UIViewController) {
         let alert = UIAlertController(title: "Verification", message: "Enter your employee number", preferredStyle: .alert)
         var foundUser: UserData.UserInfo?
         let confirmEmployeeAlert = UIAlertAction(title: "Send", style: .default) { action in

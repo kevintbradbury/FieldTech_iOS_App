@@ -41,6 +41,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
                 self.dismiss(animated: true)
             }
         }
+        APICalls().isEmployeePhone(view: self)
     }
 
     @IBAction func logoutPressed(_ sender: Any) {
