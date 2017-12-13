@@ -34,27 +34,28 @@ class UserData {
     
     struct UserInfo {
         
-        let userName: String
-        let employeeID: Int?
-        let employeePhone: Int?
-        let workWeekHours: Int?
-        let userPoints: Int?
+        let employeeID: Int
         let employeeJobs: NSArray
+        let userName: String
+//                let employeePhone: Int?
+//                let workWeekHours: Int?
+//                let userPoints: Int?
+
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             
-            guard let userName = dictionary["username"] as? String,
-                let userId = dictionary["employeeID"] as? Int,
-                let userNumber = dictionary["phoneNumber"] as? Int,
-                let weekHours = dictionary["workWeekHours"] as? Int,
-                let points = dictionary["userPoints"] as? Int,
-                let jobs = dictionary["employeeJobs"] as? NSArray
+            guard let userId = dictionary["employeeID"] as? Int,
+                let jobs = dictionary["employeeJobs"] as? NSArray,
+                let userName = dictionary["username"] as? String
+//                let userNumber = dictionary["phoneNumber"] as? Int,
+//                let weekHours = dictionary["workWeekHours"] as? Int,
+//                let points = dictionary["userPoints"] as? Int,
                 else {
                     print("failed fromJSON method, in TimeInOut Struct")
                     return nil
             }
             
-            return UserInfo(userName: userName, employeeID: userId, employeePhone: userNumber, workWeekHours: weekHours, userPoints: points, employeeJobs: jobs)
+            return UserInfo(employeeID: userId, employeeJobs: jobs, userName: userName)
         }
     }
     

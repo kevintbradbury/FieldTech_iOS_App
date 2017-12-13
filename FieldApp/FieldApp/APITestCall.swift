@@ -57,7 +57,9 @@ class APICalls {
         
         let route = "employee/" + String(employeeId)
         let url = URL(string: jsonString + route)!
-        let request = URLRequest(url: url)
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0 * 1000)
+            request.httpMethod = "GET"
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
         let session = URLSession.shared;
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
@@ -68,14 +70,11 @@ class APICalls {
                     print("could not verify data from dataTask")
                     return
                 }
-                print(response)
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
                     print("json serialization failed")
                     return
                 }
-                
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
-                print("user is : \(user) \n")
                 callback(user)
             }
         }
