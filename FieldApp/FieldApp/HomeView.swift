@@ -18,6 +18,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var logoutButton: UIButton!
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
+    @IBOutlet weak var userLabel: UILabel!
     
     let firebaseAuth = Auth.auth()
     let picker = UIImagePickerController()
@@ -41,7 +42,14 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
                 self.dismiss(animated: true)
             }
         }
-        APICalls().isEmployeePhone(view: self)
+        APICalls().isEmployeePhone(view: self) { foundUser in
+            self.main.addOperation {
+                self.userLabel.text = foundUser.userName
+                self.getLocation() { coordinate in
+                    APICalls().convertToJSON()
+                }
+            }
+        }
     }
 
     @IBAction func logoutPressed(_ sender: Any) {

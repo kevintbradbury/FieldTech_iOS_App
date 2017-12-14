@@ -32,10 +32,10 @@ class UserData {
     var completedWorkPhotos: [UIImage]?
     var locationConfirm: Bool?
     
-    struct UserInfo {
+    struct UserInfo: Encodable {
         
         let employeeID: Int
-        let employeeJobs: NSArray
+        let employeeJobs: [String]
         let userName: String
 //                let employeePhone: Int?
 //                let workWeekHours: Int?
@@ -51,15 +51,15 @@ class UserData {
 //                let weekHours = dictionary["workWeekHours"] as? Int,
 //                let points = dictionary["userPoints"] as? Int,
                 else {
-                    print("failed fromJSON method, in TimeInOut Struct")
+                    print("failed fromJSON method, in UserInfo Struct")
                     return nil
             }
             
-            return UserInfo(employeeID: userId, employeeJobs: jobs, userName: userName)
+            return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName)
         }
-    }
-    
-    struct TimeCard {
+}
+
+struct TimeCard {
         
         let weekBeginDate: String?
         let sunday: NSDictionary?
@@ -93,7 +93,7 @@ class UserData {
 }
 
 
-class Job {
+class Job: Codable {
     
     var jobName: String?
     var poNumber: Int?
@@ -108,7 +108,7 @@ class Job {
         let jobState: String
 //        let jobBudgetHours: String?
 //        let employeeJobHours: String?
-//        let jobLocation: CLLocationCoordinate2D
+//        let jobLocation: CLLocationCoordinate2D?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             

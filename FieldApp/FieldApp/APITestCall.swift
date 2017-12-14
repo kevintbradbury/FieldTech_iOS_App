@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import Foundation
 import CoreLocation
 import Firebase
 
@@ -16,6 +15,9 @@ import Firebase
 class APICalls {
     
     let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
+    var job: Job.UserJob?
+    var employee: UserData.UserInfo?
+    var coordinates: CLLocationCoordinate2D?
     
     func fetchJobInfo(callback: @escaping ([Job.UserJob]) -> ()) {
         
@@ -50,9 +52,38 @@ class APICalls {
         }
         return jobsArray
     }
+    func isEmployeePhone(view: UIViewController, callback: @escaping (UserData.UserInfo) -> ()) {
+        let alert = UIAlertController(title: "Employee ID Number", message: "Enter your employee number", preferredStyle: .alert)
+        var foundUser: UserData.UserInfo?
+        let confirmEmployeeAlert = UIAlertAction(title: "Send", style: .destructive) { action in
+            
+            let employeeNumber = alert.textFields![0]
+            var employeeNumberToInt: Int?;
+            
+            if employeeNumber.text != nil {
+                
+                employeeNumberToInt = Int(employeeNumber.text!)
+                
+                self.fetchEmployee(employeeId: employeeNumberToInt!) { user in
+                    foundUser = user
+                    if foundUser != nil {
+                        print(foundUser!)
+                        callback(foundUser!)
+                    }
+                }
+            }
+        }
+        
+        alert.addTextField { textFieldEmployeeNumber in
+            textFieldEmployeeNumber.placeholder = "Employee Number"
+            textFieldEmployeeNumber.keyboardType = UIKeyboardType.phonePad
+            textFieldEmployeeNumber.isSecureTextEntry = true
+        }
+        alert.addAction(confirmEmployeeAlert)
+        
+        view.present(alert, animated: true, completion: nil)
+    }
     
-    //  --- Still need to resolve employee data
-    //callback: @escaping (UserData) -> ()
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
         
         let route = "employee/" + String(employeeId)
@@ -63,7 +94,7 @@ class APICalls {
         let session = URLSession.shared;
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
-                print("failed to fetch JSON from database")
+                print("failed to fetch JSON from database \n \(String(describing: response))")
                 return
             } else {
                 guard let verifiedData = data else {
@@ -80,68 +111,74 @@ class APICalls {
         }
         task.resume()
     }
-    func isEmployeePhone(view: UIViewController) {
-        let alert = UIAlertController(title: "Verification", message: "Enter your employee number", preferredStyle: .alert)
-        var foundUser: UserData.UserInfo?
-        let confirmEmployeeAlert = UIAlertAction(title: "Send", style: .default) { action in
-            
-            let employeeNumber = alert.textFields![0]
-            var employeeNumberToInt: Int?;
-            
-            if employeeNumber.text != nil {
-                
-                employeeNumberToInt = Int(employeeNumber.text!)
-                
-                self.fetchEmployee(employeeId: employeeNumberToInt!) { user in
-                    if (user.employeeID == nil) {
-                        alert.dismiss(animated: true, completion: nil)
-                        return
-                    } else {
-                        foundUser = user
-                        print(foundUser)
-                        self.showVerfWin(view: view)
-                    }
+    
+    func sendCoordinates(){
+        
+        let route = "job/" + String(describing: employee?.employeeID)
+        let url = URL(string: jsonString + route)!
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0 * 1000)
+        request.httpMethod = "PUT"
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        let data = convertToJSON()
+        
+        let session = URLSession.shared;
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response))")
+                return
+            } else {
+                guard let verifiedData = data else {
+                    print("could not verify data from dataTask")
+                    return
                 }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
+                    print("json serialization failed")
+                    return
+                }
+//                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
+
             }
         }
+        task.resume()
+    }
+    struct UserInfoCodeable: Encodable {
         
-        alert.addTextField { textFieldEmployeeNumber in
-            textFieldEmployeeNumber.placeholder = "Employee Number"
-            textFieldEmployeeNumber.keyboardType = UIKeyboardType.phonePad
-            textFieldEmployeeNumber.isSecureTextEntry = true
+        var employeeID: Int
+        var employeeJobs: [String]
+        var userName: String
+    }
+    
+    func convertToJSON() -> Data {
+        var data = Data()
+        //var employeeLocation = UserData().userLocation
+        let employee = UserInfoCodeable(employeeID: 0, employeeJobs: ["ABC"], userName: "")
+        
+        let jsonEncoder = JSONEncoder()
+        do {
+            let jsonData = try jsonEncoder.encode(employee)
+            let jsonString = String(data: jsonData, encoding: .utf8)
+            print("JSON String is: " + jsonString!)
+            data = jsonData
         }
-        alert.addAction(confirmEmployeeAlert)
-        
-        view.present(alert, animated: true, completion: nil)
+        catch {
+            print(error)
+        }
+        return data
     }
     
     func showVerfWin(view: UIViewController) {
-        let alert = UIAlertController(title: "Verification", message: "Enter verification code received via SMS", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Password", message: "Enter your password", preferredStyle: .alert)
         
-        let confirmCodeAlert = UIAlertAction(title: "Send", style: .default) { action in
+        let confirmCodeAlert = UIAlertAction(title: "Okay", style: .default) { action in
             
-            let verificationCode = alert.textFields![0]
-            var verificationCodeToString = "";
-            if verificationCode.text != nil {
-                verificationCodeToString = verificationCode.text!
-                
-                if let authVerificationID = UserDefaults.standard.string(forKey: "authVerificationID") {
-                    
-                    let credential = PhoneAuthProvider.provider().credential(withVerificationID: authVerificationID, verificationCode: verificationCodeToString)
-                    
-                    //Add Firebase sign in here
-                    Auth.auth().signIn(with: credential) { (user, error) in
-                        if let error = error {
-                            print("received the following error from credentials --> \(error) \n")
-                        }
-                        LoginViewController().phoneNumberField.text?.removeAll()
-                    }
-                }
+            let password = alert.textFields![0]
+            if password.text != nil {
+                //alert.dismiss(animated: true, completion: nil)
             }
         }
         
         alert.addTextField { textFieldPhoneNumber in
-            textFieldPhoneNumber.placeholder = "Verification code"
+            textFieldPhoneNumber.placeholder = "Password"
             textFieldPhoneNumber.keyboardType = UIKeyboardType.phonePad
             textFieldPhoneNumber.isSecureTextEntry = true
         }
