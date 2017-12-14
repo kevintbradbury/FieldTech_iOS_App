@@ -32,6 +32,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
+        UserLocation.instance.initialize()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -46,7 +47,8 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
             self.main.addOperation {
                 self.userLabel.text = foundUser.userName
                 self.getLocation() { coordinate in
-                    APICalls().convertToJSON()
+                    var locationArray = [String(coordinate.longitude), String(coordinate.latitude)]
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray)
                 }
             }
         }

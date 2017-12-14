@@ -15,9 +15,6 @@ import Firebase
 class APICalls {
     
     let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
-    var job: Job.UserJob?
-    var employee: UserData.UserInfo?
-    var coordinates: CLLocationCoordinate2D?
     
     func fetchJobInfo(callback: @escaping ([Job.UserJob]) -> ()) {
         
@@ -112,14 +109,16 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String]){
         
-        let route = "job/" + String(describing: employee?.employeeID)
+        let route = "employee/" + String(describing: employee.employeeID)
         let url = URL(string: jsonString + route)!
+        let data = convertToJSON(employee: employee, location: location)
+        
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0 * 1000)
-        request.httpMethod = "PUT"
+        request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        let data = convertToJSON()
+        request.httpBody = data
         
         let session = URLSession.shared;
         let task = session.dataTask(with: request) {data, response, error in
@@ -146,16 +145,17 @@ class APICalls {
         var employeeID: Int
         var employeeJobs: [String]
         var userName: String
+        var employeeLocation: [String]
     }
     
-    func convertToJSON() -> Data {
+    func convertToJSON(employee: UserData.UserInfo, location: [String]) -> Data {
+
+        var person = UserInfoCodeable(employeeID: employee.employeeID, employeeJobs: employee.employeeJobs, userName: employee.userName, employeeLocation: location)
         var data = Data()
-        //var employeeLocation = UserData().userLocation
-        let employee = UserInfoCodeable(employeeID: 0, employeeJobs: ["ABC"], userName: "")
         
         let jsonEncoder = JSONEncoder()
         do {
-            let jsonData = try jsonEncoder.encode(employee)
+            let jsonData = try jsonEncoder.encode(person)
             let jsonString = String(data: jsonData, encoding: .utf8)
             print("JSON String is: " + jsonString!)
             data = jsonData
@@ -164,27 +164,6 @@ class APICalls {
             print(error)
         }
         return data
-    }
-    
-    func showVerfWin(view: UIViewController) {
-        let alert = UIAlertController(title: "Password", message: "Enter your password", preferredStyle: .alert)
-        
-        let confirmCodeAlert = UIAlertAction(title: "Okay", style: .default) { action in
-            
-            let password = alert.textFields![0]
-            if password.text != nil {
-                //alert.dismiss(animated: true, completion: nil)
-            }
-        }
-        
-        alert.addTextField { textFieldPhoneNumber in
-            textFieldPhoneNumber.placeholder = "Password"
-            textFieldPhoneNumber.keyboardType = UIKeyboardType.phonePad
-            textFieldPhoneNumber.isSecureTextEntry = true
-        }
-        alert.addAction(confirmCodeAlert)
-        
-        view.present(alert, animated: true, completion: nil)
     }
     
 }
