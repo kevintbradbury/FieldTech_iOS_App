@@ -47,7 +47,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
             self.main.addOperation {
                 self.userLabel.text = foundUser.userName
                 self.getLocation() { coordinate in
-                    var locationArray = [String(coordinate.longitude), String(coordinate.latitude)]
+                    var locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
                     APICalls().sendCoordinates(employee: foundUser, location: locationArray)
                 }
             }
@@ -172,7 +172,6 @@ extension HomeView {
         
         UserLocation.instance.requestLocation(){ coordinate in
             self.location = coordinate
-            print("User location is --> \(coordinate) \n")
             completition(coordinate)
         }
     }

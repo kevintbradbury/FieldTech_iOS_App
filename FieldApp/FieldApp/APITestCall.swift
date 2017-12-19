@@ -64,7 +64,6 @@ class APICalls {
                 self.fetchEmployee(employeeId: employeeNumberToInt!) { user in
                     foundUser = user
                     if foundUser != nil {
-                        print(foundUser!)
                         callback(foundUser!)
                     }
                 }
@@ -119,6 +118,7 @@ class APICalls {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.httpBody = data
+        print("httpBody Data as a String -- " + String(data: request.httpBody!, encoding: .utf8)!)
         
         let session = URLSession.shared;
         let task = session.dataTask(with: request) {data, response, error in
@@ -134,34 +134,41 @@ class APICalls {
                     print("json serialization failed")
                     return
                 }
+
+//            --->  Need to handle bad/unauthorized response here
+                
 //                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
 
             }
         }
         task.resume()
     }
+    
     struct UserInfoCodeable: Encodable {
-        
-        var employeeID: Int
-        var employeeJobs: [String]
-        var userName: String
-        var employeeLocation: [String]
+
+        //        let employeeJobs: [String]
+        let userName: String
+        let employeeID: String
+        let coordinateLat: String
+        let coordinateLong: String
     }
     
     func convertToJSON(employee: UserData.UserInfo, location: [String]) -> Data {
-
-        var person = UserInfoCodeable(employeeID: employee.employeeID, employeeJobs: employee.employeeJobs, userName: employee.userName, employeeLocation: location)
+        
+        var person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1])
+//                                      employeeJobs: employee.employeeJobs
+        var combinedString = person.userName + " -- " + person.employeeID  + " |"
+            combinedString += person.coordinateLat + ", " + person.coordinateLong + "|"
+        
         var data = Data()
         
-        let jsonEncoder = JSONEncoder()
         do {
-            let jsonData = try jsonEncoder.encode(person)
-            let jsonString = String(data: jsonData, encoding: .utf8)
-            print("JSON String is: " + jsonString!)
-            data = jsonData
+            let jsonEncoder = JSONEncoder()
+            data = try jsonEncoder.encode(person)
         }
         catch {
             print(error)
+            data = combinedString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
         }
         return data
     }
