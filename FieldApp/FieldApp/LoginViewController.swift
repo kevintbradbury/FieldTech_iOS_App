@@ -99,7 +99,7 @@ class LoginViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let vc = segue.destination as! HomeView
+        let vc = segue.destination as! EmployeeIDEntry
         
         if segue.identifier == "login" {
             vc.firAuthId = authId

@@ -49,64 +49,10 @@ class APICalls {
         }
         return jobsArray
     }
-    func isEmployeePhone(view: UIViewController, callback: @escaping (UserData.UserInfo) -> ()) {
-        let alert = UIAlertController(title: "Employee ID Number", message: "Enter your employee number", preferredStyle: .alert)
-        var foundUser: UserData.UserInfo?
-        let confirmEmployeeAlert = UIAlertAction(title: "Send", style: .destructive) { action in
-            
-            let employeeNumber = alert.textFields![0]
-            var employeeNumberToInt: Int?;
-            
-            if employeeNumber.text != nil {
-                
-                employeeNumberToInt = Int(employeeNumber.text!)
-                
-                self.fetchEmployee(employeeId: employeeNumberToInt!) { user in
-                    foundUser = user
-                    if foundUser != nil {
-                        callback(foundUser!)
-                    }
-                }
-            }
-        }
-        
-        alert.addTextField { textFieldEmployeeNumber in
-            textFieldEmployeeNumber.placeholder = "Employee Number"
-            textFieldEmployeeNumber.keyboardType = UIKeyboardType.phonePad
-            textFieldEmployeeNumber.isSecureTextEntry = true
-        }
-        alert.addAction(confirmEmployeeAlert)
-        
-        view.present(alert, animated: true, completion: nil)
-    }
     
-    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
-        
-        let route = "employee/" + String(employeeId)
-        let url = URL(string: jsonString + route)!
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0 * 1000)
-            request.httpMethod = "GET"
-            request.addValue("application/json", forHTTPHeaderField: "Accept")
-        let session = URLSession.shared;
-        let task = session.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response))")
-                return
-            } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
-                }
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                    print("json serialization failed")
-                    return
-                }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
-                callback(user)
-            }
-        }
-        task.resume()
-    }
+    
+    
+    
     
     func sendCoordinates(employee: UserData.UserInfo, location: [String]){
         
@@ -134,11 +80,9 @@ class APICalls {
                     print("json serialization failed")
                     return
                 }
-
-//            --->  Need to handle bad/unauthorized response here
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
                 
-//                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
-
+//            --->  Need to handle bad/unauthorized response here
             }
         }
         task.resume()
@@ -146,17 +90,17 @@ class APICalls {
     
     struct UserInfoCodeable: Encodable {
 
-        //        let employeeJobs: [String]
         let userName: String
         let employeeID: String
         let coordinateLat: String
         let coordinateLong: String
+//        let employeeJobs: [String]
     }
     
     func convertToJSON(employee: UserData.UserInfo, location: [String]) -> Data {
         
         var person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1])
-//                                      employeeJobs: employee.employeeJobs
+        //employeeJobs: employee.employeeJobs
         var combinedString = person.userName + " -- " + person.employeeID  + " |"
             combinedString += person.coordinateLat + ", " + person.coordinateLong + "|"
         
