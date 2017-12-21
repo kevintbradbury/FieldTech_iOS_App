@@ -1,0 +1,82 @@
+[
+ {
+   "PO": 1241,
+   "JobName": "Barstow & Lenwood",
+   "Store": "Starbucks 24933",
+   "Address": "2834 Lenwood Street",
+   "City": "Barstow",
+   "State": "CA"
+ },
+ {
+   "PO": 1243,
+   "JobName": "Indio & Jackson",
+   "Store": "Starbucks 5951",
+   "Address": "42250 Jackson Street",
+   "City": "Indio",
+   "State": " CA"
+ },
+ {
+   "PO": 1242,
+   "JobName": "Signal Hill & Spring",
+   "Store": "Starbucks 580",
+   "Address": "999 Spring Street",
+   "City": "Signal Hill",
+   "State": "CA"
+ },
+ {
+   "PO": 1235,
+   "JobName": "Los Gatos & Union",
+   "Store": "Starbucks 5424",
+   "Address": "15569 Union Ave",
+   "City": "Los Gatos",
+   "State": "CA"
+ },
+ {
+   "PO": 1238,
+   "JobName": "Grand & Norwalk",
+   "Store": "Starbucks 29579",
+   "Address": "14322 Pioneer Boulevard",
+   "City": "Norwalk",
+   "State": "CA"
+ },
+ {
+   "PO": 1239,
+   "JobName": "State College & Ocean",
+   "Store": "Starbucks 27974",
+   "Address": "707 East Ocean Boulevard",
+   "City": "Long Beach",
+   "State": "CA"
+ },
+ {
+   "PO": 1234,
+   "JobName": "Grand & Foothill",
+   "Store": "Starbucks 27447",
+   "Address": "417 West Foothill Boulevard",
+   "City": "Glendora",
+   "State": "CA"
+ },
+ {
+   "PO": 1237,
+   "JobName": "Mission Viejo & Alicia",
+   "Store": "Starbucks 23315",
+   "Address": "24012 Alicia Parkway",
+   "City": "Mission Viejo",
+   "State": "CA"
+ },
+ {
+   "PO": 1240,
+   "JobName": "Grand & Arthur",
+   "Store": "Starbucks 16347",
+   "Address": "17913 Mac Arthur Boulevard",
+   "City": "Irvine",
+   "State": "CA"
+ },
+ {
+   "PO": 1236,
+   "JobName": "Western & Fountain",
+   "Store": "Starbucks 10709",
+   "Address": "1277 North Western Ave",
+   "City": " Los Angeles",
+   "State": "CA"
+ }
+]

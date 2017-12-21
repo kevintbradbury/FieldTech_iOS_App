@@ -32,29 +32,34 @@ class UserData {
     var completedWorkPhotos: [UIImage]?
     var locationConfirm: Bool?
     
-    struct UserJobInfo {
+    struct UserInfo: Encodable {
         
+        let employeeID: Int
+        let employeeJobs: [String]
         let userName: String
-        let workWeekHours: Int?
-        let userPoints: Int?
-        let employeeJobs: NSArray
+//                let employeePhone: Int?
+//                let workWeekHours: Int?
+//                let userPoints: Int?
+
         
-        static func fromJSON(dictionary: NSDictionary) -> UserJobInfo? {
+        static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             
-            guard let userName = dictionary["userName"] as? String,
-                let weekHours = dictionary["workWeekHours"] as? Int,
-                let points = dictionary["userPoints"] as? Int,
-                let jobs = dictionary["employeeJobs"] as? NSArray
+            guard let userId = dictionary["employeeID"] as? Int,
+                let jobs = dictionary["employeeJobs"] as? NSArray,
+                let userName = dictionary["username"] as? String
+//                let userNumber = dictionary["phoneNumber"] as? Int,
+//                let weekHours = dictionary["workWeekHours"] as? Int,
+//                let points = dictionary["userPoints"] as? Int,
                 else {
-                    print("failed fromJSON method, in TimeInOut Struct")
+                    print("failed fromJSON method, in UserInfo Struct")
                     return nil
             }
             
-            return UserJobInfo(userName: userName, workWeekHours: weekHours, userPoints: points, employeeJobs: jobs)
+            return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName)
         }
-    }
-    
-    struct TimeCard {
+}
+
+struct TimeCard {
         
         let weekBeginDate: String?
         let sunday: NSDictionary?
@@ -85,16 +90,10 @@ class UserData {
             return TimeCard(weekBeginDate: beginDate, sunday: sunday, monday: monday, tuesday: tuesday, wednesday: wednesday, thursday: thursday, friday: friday, saturday: saturday, totalHours: total)
         }
     }
-    
-//    func checkJobProximity(userLocation: CLLocationCoordinate2D, jobLocation: CLLocationCoordinate2D) -> Bool {
-//        let maxDistance = 1609.34 // Meters = One Mile
-//        return Bool
-//    }
-
 }
 
 
-class Job {
+class Job: Codable {
     
     var jobName: String?
     var poNumber: Int?
@@ -109,7 +108,7 @@ class Job {
         let jobState: String
 //        let jobBudgetHours: String?
 //        let employeeJobHours: String?
-//        let jobLocation: CLLocationCoordinate2D
+//        let jobLocation: CLLocationCoordinate2D?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
