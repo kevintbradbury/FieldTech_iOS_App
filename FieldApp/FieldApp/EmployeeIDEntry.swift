@@ -15,6 +15,7 @@ class EmployeeIDEntry: UIViewController {
     
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -30,6 +31,7 @@ class EmployeeIDEntry: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        activityIndicator.isHidden = true
         super.viewDidAppear(true)
     }
     
@@ -44,12 +46,14 @@ class EmployeeIDEntry: UIViewController {
             self.foundUser = user
             callback(self.foundUser!)
             self.main.addOperation {
+                self.activityIndicator.isHidden = true
                 self.performSegue(withIdentifier: "home", sender: self)
             }
         }
     }
     
     @IBAction func sendIDNumber(_ sender: Any) {
+        activityIndicator.isHidden = false
         isEmployeePhone() { foundUser in
             self.getLocation() { coordinate in
                 let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
@@ -89,6 +93,7 @@ class EmployeeIDEntry: UIViewController {
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
                     self.main.addOperation {
+                        self.activityIndicator.isHidden = true
                         incorrectID()
                     }
                     return
@@ -102,6 +107,7 @@ class EmployeeIDEntry: UIViewController {
             let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
             
             let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
+                self.employeeID.text = ""
                 actionsheet.dismiss(animated: true, completion: nil)
             }
             actionsheet.addAction(ok)

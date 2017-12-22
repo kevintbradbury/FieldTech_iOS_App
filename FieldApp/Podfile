@@ -10,6 +10,8 @@ pod 'Firebase/Core'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
 pod 'Firebase/Storage'
+pod 'Alamofire'
+pod 'SwiftyJSON'
 
   target 'FieldAppTests' do
     inherit! :search_paths

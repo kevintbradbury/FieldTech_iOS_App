@@ -11,6 +11,8 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import CoreLocation
+import Alamofire
+import SwiftyJSON
 
 class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -19,6 +21,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
+    @IBOutlet weak var uploadBar: UIProgressView!
     
     let firebaseAuth = Auth.auth()
     let picker = UIImagePickerController()
@@ -37,6 +40,8 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
+        uploadBar.isHidden = true
+        uploadBar.progress = 0.0
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil {
@@ -62,13 +67,19 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-        //let imagePath = info[UIImagePickerControllerReferenceURL]
         
         photoToUpload.contentMode = .scaleAspectFit
         photoToUpload.image = selectedPhoto
         
-        self.uploadPhoto(photo: selectedPhoto)
-        
+        uploadBar.isHidden = false
+        uploadBar.progress = 0.0
+        upload(image: (selectedPhoto),
+               progressCompletion: {[unowned self] percent in
+                self.uploadBar.setProgress(percent, animated: true)
+            },
+               completion: {[unowned self] tags, colors in
+        })
+        //        self.uploadToFirebase(photo: selectedPhoto)
         dismiss(animated: true)
     }
     
@@ -99,7 +110,6 @@ extension HomeView {
             self.present(self.picker, animated: true, completion: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in
-            //Removes photo from upload
             print("chose Cancel")
         }
         actionsheet.addAction(chooseCamera)
@@ -109,7 +119,82 @@ extension HomeView {
         self.present(actionsheet, animated: true)
     }
     
-    func uploadPhoto(photo: UIImage) {
+    struct PhotoColor {
+        var red: Int?
+        var green: Int?
+        var blue: Int?
+        var colorName: String?
+    }
+    
+    func upload(image: UIImage,
+                progressCompletion: @escaping (_ percent: Float) -> Void,
+                completion: @escaping (_ tags: [String], _ colors: [PhotoColor]) -> Void ) {
+        
+        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
+        let jobNumber = String(1234) // PO - Grand and Foothill
+        let url = address + jobNumber + "/upload"
+        guard let photoName = employeeInfo?.employeeJobs[0] else {return}
+        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
+            print("Couldn't get JPEG representation")
+            return
+        }
+//        let request = Alamofire.upload(imageData, to: url)
+//        request.validate()
+//        request.response { response in
+//            print(response)
+//        }
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                multipartFormData.append(imageData,
+                                         withName: photoName,
+                                         fileName: "\(photoName).jpg",
+                    mimeType: "image/jpeg")
+            },
+            to: url,
+            headers: ["Content-Type":"image/jpeg"],
+            encodingCompletion: { encodingResult in
+                print("encoding result -- \(encodingResult)")
+                switch encodingResult {
+
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        progressCompletion(Float(progress.fractionCompleted))
+                    }
+                    upload.validate()
+                    upload.responseJSON { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)")
+                            completion([String](), [HomeView.PhotoColor]())
+                            return
+                        }
+                        guard let responseJSON = response.result.value as? [String: Any],
+                            let uploadedFiles = responseJSON["uploaded"] as? [[String: Any]],
+                            let firstFile = uploadedFiles.first,
+                            let firstFileID = firstFile["id"] as? String else {
+                                print("invalid information received from service")
+                                completion([String](), [HomeView.PhotoColor]())
+                                return
+                        }
+                        print("Content uploaded with ID: \(firstFileID)")
+                        self.main.addOperation {
+                            self.uploadBar.isHidden = true
+                            self.confirmUpload()
+                        }
+                        completion([String](), [HomeView.PhotoColor]())
+                    }
+
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+        }
+
+        )
+    }
+    
+    func uploadToFirebase(photo: UIImage) {
+        
+        var address = "https://mb-server-app-kbradbury.c9users.io/"
         
         guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
             print("Could not get JPEG representation of UIImage")

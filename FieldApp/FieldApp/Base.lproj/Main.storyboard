@@ -91,10 +91,16 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Xgx-TL-7uV">
+                                <rect key="frame" x="142" y="191" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="Xgx-TL-7uV" id="Vfo-7v-hPP"/>
                         <outlet property="employeeID" destination="cgM-Ze-PLd" id="ang-Xn-Vpj"/>
                         <outlet property="sendButton" destination="8V0-xo-CLS" id="Mw3-Qj-lTu"/>
                         <segue destination="dvo-Ab-kYb" kind="show" identifier="home" id="86Y-O0-QvX"/>
@@ -150,6 +156,10 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="HAw-3p-Ha5">
+                                <rect key="frame" x="40" y="335" width="240" height="2"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </progressView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -158,12 +168,13 @@
                         <outlet property="homeButton" destination="pmF-ul-qVq" id="hUx-C2-Sdq"/>
                         <outlet property="logoutButton" destination="kzM-Sf-a7X" id="3p0-tV-PU4"/>
                         <outlet property="photoToUpload" destination="5ge-3m-kXQ" id="vNh-WE-qbH"/>
+                        <outlet property="uploadBar" destination="HAw-3p-Ha5" id="lT9-Qe-z4g"/>
                         <outlet property="userLabel" destination="zhP-4P-kVW" id="ouC-NF-shE"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JgU-go-kFO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2184" y="30"/>
+            <point key="canvasLocation" x="2182.5" y="29.577464788732396"/>
         </scene>
     </scenes>
 </document>
