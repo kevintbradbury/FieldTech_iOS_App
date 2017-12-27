@@ -78,12 +78,12 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         uploadBar.progress = 0.0
         
         dismiss(animated: true)
-        uploadPhoto(photoData: imageData, poNumber: (employeeInfo?.employeeJobs[0])!)
-//        upload(image: (selectedPhoto),
-//               progressCompletion: {[unowned self] percent in
-//                self.uploadBar.setProgress(percent, animated: true)
-//        })
-        //        self.uploadToFirebase(photo: selectedPhoto)
+//        uploadPhoto(photoData: imageData, poNumber: (employeeInfo?.employeeJobs[0])!)
+        upload(image: (selectedPhoto),
+               progressCompletion: {[unowned self] percent in
+                self.uploadBar.setProgress(percent, animated: true)
+        })
+//                self.uploadToFirebase(photo: selectedPhoto)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
