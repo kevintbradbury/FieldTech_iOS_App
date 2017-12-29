@@ -54,11 +54,15 @@ class EmployeeIDEntry: UIViewController {
     
     @IBAction func sendIDNumber(_ sender: Any) {
         activityIndicator.isHidden = false
-        isEmployeePhone() { foundUser in
-            self.getLocation() { coordinate in
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+        if employeeID.text != "" {
+            isEmployeePhone() { foundUser in
+                self.getLocation() { coordinate in
+                    let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+                }
             }
+        } else {
+            incorrectID()
         }
     }
     
@@ -94,7 +98,7 @@ class EmployeeIDEntry: UIViewController {
                     print("json serialization failed")
                     self.main.addOperation {
                         self.activityIndicator.isHidden = true
-                        incorrectID()
+                        self.incorrectID()
                     }
                     return
                 }
@@ -103,16 +107,18 @@ class EmployeeIDEntry: UIViewController {
         }
         task.resume()
         
-        func incorrectID() {
-            let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
-            
-            let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
-                self.employeeID.text = ""
-                actionsheet.dismiss(animated: true, completion: nil)
-            }
-            actionsheet.addAction(ok)
-            self.present(actionsheet, animated: true, completion: nil)
+        
+    }
+    
+    func incorrectID() {
+        let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
+        
+        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
+            self.employeeID.text = ""
+            actionsheet.dismiss(animated: true, completion: nil)
         }
+        actionsheet.addAction(ok)
+        self.present(actionsheet, animated: true, completion: nil)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

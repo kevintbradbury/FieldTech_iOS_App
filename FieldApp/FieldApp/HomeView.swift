@@ -36,6 +36,9 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         super.viewDidLoad()
         picker.delegate = self
         UserLocation.instance.initialize()
+        if employeeInfo?.userName != nil {
+            userLabel.text = employeeInfo?.userName
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -77,12 +80,14 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         uploadBar.isHidden = false
         uploadBar.progress = 0.0
         
+        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
+        
         dismiss(animated: true)
-//        uploadPhoto(photoData: imageData, poNumber: (employeeInfo?.employeeJobs[0])!)
-        upload(image: (selectedPhoto),
-               progressCompletion: {[unowned self] percent in
-                self.uploadBar.setProgress(percent, animated: true)
-        })
+        uploadPhoto(photoData: imageData, poNumber: poNumber)
+//        upload(image: (selectedPhoto),
+//               progressCompletion: {[unowned self] percent in
+//                self.uploadBar.setProgress(percent, animated: true)
+//        })
 //                self.uploadToFirebase(photo: selectedPhoto)
     }
     
@@ -123,11 +128,11 @@ extension HomeView {
     }
     
     func uploadPhoto(photoData: Data, poNumber: String){
-        
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
         let route = "job/1234/upload"
         let url = URL(string: jsonString + route)!
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0 * 5000)
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         request.httpMethod = "POST"
         request.addValue("image/jpeg", forHTTPHeaderField: "mimeType")
         request.httpBody = photoData
@@ -144,7 +149,7 @@ extension HomeView {
                 }
                 
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
-                
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
         }
         task.resume()
@@ -167,11 +172,11 @@ extension HomeView {
             multipartFormData: { multipartFormData in
                 multipartFormData.append(imageData,
                                          withName: fileName,
-                                         mimeType: "image/jpg")
+                                         mimeType: "image/jpeg")
                 print(imageData)
         },
             to: url,
-            //            headers: ["Content-Type":"image/jpeg"],
+            headers: ["Content-Type":"image/jpeg"],
             encodingCompletion: { encodingResult in
                 switch encodingResult {
                     
@@ -185,10 +190,6 @@ extension HomeView {
                             print("error while uploading file: \(response.result.error)")
                             return
                         }
-                        self.main.addOperation {
-                            self.uploadBar.isHidden = true
-                            self.confirmUpload()
-                        }
                     }
                     
                 case .failure(let encodingError):
@@ -199,8 +200,6 @@ extension HomeView {
     }
     
     func uploadToFirebase(photo: UIImage) {
-        
-        var address = "https://mb-server-app-kbradbury.c9users.io/"
         
         guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
             print("Could not get JPEG representation of UIImage")
