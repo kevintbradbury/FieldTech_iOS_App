@@ -31,7 +31,6 @@ class EmployeeIDEntry: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        activityIndicator.isHidden = true
         super.viewDidAppear(true)
     }
     

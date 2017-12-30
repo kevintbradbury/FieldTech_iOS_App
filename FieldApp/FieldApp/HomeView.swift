@@ -14,7 +14,7 @@ import CoreLocation
 import Alamofire
 import SwiftyJSON
 
-class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, URLSessionDelegate, URLSessionDataDelegate {
     
     @IBOutlet weak var homeButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
@@ -41,12 +41,10 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         if employeeInfo?.userName != nil {
             userLabel.text = employeeInfo?.userName
         }
-        uploadBar.progress = 0.0
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        uploadBar.isHidden = true
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil {
@@ -204,39 +202,19 @@ extension HomeView {
         )
     }
     
-    func uploadToFirebase(photo: UIImage) {
-        
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
-            print("Could not get JPEG representation of UIImage")
-            return
-        }
-        
-        let storage = Storage.storage()
-        let data = imageData
-        let storageRef = storage.reference()
-        
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd.yyyy"
-        let result = formatter.string(from: date)
-        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
-        
-        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
-        
-        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
-            
-            guard let metadata = metadata else {
-                print("uploadtask error \(String(describing: error))")
-                return
-            }
-            if error == nil {
-                _ = metadata.downloadURL()
-                self.confirmUpload()
-            }
-        }
-        uploadTask.enqueue()
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+        expectedContentLength = Int(response.expectedContentLength)
+        print(expectedContentLength)
+        completionHandler(URLSession.ResponseDisposition.allow)
     }
-    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        buffer.append(data)
+        let percentageDownloaded = Float(buffer.length) / Float(expectedContentLength)
+        uploadBar.progress = percentageDownloaded
+    }
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        uploadBar.progress = 1.0
+    }
 }
 
 extension HomeView {
@@ -276,4 +254,36 @@ extension HomeView {
         }
     }
     
+    func uploadToFirebase(photo: UIImage) {
+        
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
+            print("Could not get JPEG representation of UIImage")
+            return
+        }
+        
+        let storage = Storage.storage()
+        let data = imageData
+        let storageRef = storage.reference()
+        
+        let date = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM.dd.yyyy"
+        let result = formatter.string(from: date)
+        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
+        
+        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
+        
+        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
+            
+            guard let metadata = metadata else {
+                print("uploadtask error \(String(describing: error))")
+                return
+            }
+            if error == nil {
+                _ = metadata.downloadURL()
+                self.confirmUpload()
+            }
+        }
+        uploadTask.enqueue()
+    }
 }
