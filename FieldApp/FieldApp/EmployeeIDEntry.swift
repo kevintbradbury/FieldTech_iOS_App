@@ -97,7 +97,6 @@ class EmployeeIDEntry: UIViewController {
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
                     self.main.addOperation {
-                        self.activityIndicator.isHidden = true
                         self.incorrectID()
                     }
                     return
@@ -116,6 +115,9 @@ class EmployeeIDEntry: UIViewController {
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             self.employeeID.text = ""
             actionsheet.dismiss(animated: true, completion: nil)
+            self.main.addOperation {
+                self.activityIndicator.isHidden = true
+            }
         }
         actionsheet.addAction(ok)
         self.present(actionsheet, animated: true, completion: nil)

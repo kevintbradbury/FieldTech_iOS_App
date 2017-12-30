@@ -31,6 +31,8 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var jobAddress = ""
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var employeeInfo: UserData.UserInfo?
+    var buffer: NSMutableData = NSMutableData()
+    var expectedContentLength = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,12 +41,12 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         if employeeInfo?.userName != nil {
             userLabel.text = employeeInfo?.userName
         }
+        uploadBar.progress = 0.0
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         uploadBar.isHidden = true
-        uploadBar.progress = 0.0
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil {
@@ -70,25 +72,16 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-        guard let imageData = UIImageJPEGRepresentation(selectedPhoto, 0.5) else {
-            print("Couldn't get JPEG representation")
-            return
-        }
+        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
+
         photoToUpload.contentMode = .scaleAspectFit
         photoToUpload.image = selectedPhoto
         
+        dismiss(animated: true)
+        
         uploadBar.isHidden = false
         uploadBar.progress = 0.0
-        
-        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
-        
-        dismiss(animated: true)
-        uploadPhoto(photoData: imageData, poNumber: poNumber)
-//        upload(image: (selectedPhoto),
-//               progressCompletion: {[unowned self] percent in
-//                self.uploadBar.setProgress(percent, animated: true)
-//        })
-//                self.uploadToFirebase(photo: selectedPhoto)
+        uploadPhoto(photo: selectedPhoto, poNumber: poNumber)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -127,29 +120,42 @@ extension HomeView {
         self.present(actionsheet, animated: true)
     }
     
-    func uploadPhoto(photoData: Data, poNumber: String){
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+    func uploadPhoto(photo: UIImage, poNumber: String){
+        self.main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        }
+        
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
+            print("Couldn't get JPEG representation")
+            return
+        }
         let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
         let route = "job/1234/upload"
         let url = URL(string: jsonString + route)!
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
-        request.httpMethod = "POST"
-        request.addValue("image/jpeg", forHTTPHeaderField: "mimeType")
-        request.httpBody = photoData
-        print("request body is -- \(request.httpBody)")
         let session = URLSession.shared;
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
+        
+        request.httpMethod = "POST"
+        request.addValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        request.httpBody = imageData
+        
         let task = session.dataTask(with: request) {data, response, error in
+            
             if error != nil {
                 print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
                 return
             } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
+                if let responseObj = response as? HTTPURLResponse {
+                    if responseObj.statusCode == 201 {
+                        self.main.addOperation {
+                            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                            self.confirmUpload()
+                        }
+                    } else {
+                        print("error sending photo to server")
+                        return
+                    }
                 }
-                
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
-                UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
         }
         task.resume()
@@ -157,26 +163,24 @@ extension HomeView {
     
     func upload(image: UIImage,
                 progressCompletion: @escaping (_ percent: Float) -> Void) {
+        //        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
         let address = "https://mb-server-app-kbradbury.c9users.io/job/"
         let jobNumber = String(1234) // PO - Grand and Foothill
         let url = address + jobNumber + "/upload"
-        guard let photoName = employeeInfo?.employeeJobs[0] else {return}
+        guard let photoName = employeeInfo?.employeeJobs[0] else { return }
         let fileName = photoName + ".jpg"
-        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else {
-            print("Couldn't get JPEG representation")
-            return
-        }
+        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else { return }
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
+                
                 multipartFormData.append(imageData,
                                          withName: fileName,
                                          mimeType: "image/jpeg")
                 print(imageData)
         },
             to: url,
-            headers: ["Content-Type":"image/jpeg"],
             encodingCompletion: { encodingResult in
                 switch encodingResult {
                     
@@ -195,6 +199,7 @@ extension HomeView {
                 case .failure(let encodingError):
                     print(encodingError)
                 }
+                //                UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
         )
     }
