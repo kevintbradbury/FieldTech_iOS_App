@@ -15,6 +15,7 @@ class EmployeeIDEntry: UIViewController {
     
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -26,6 +27,8 @@ class EmployeeIDEntry: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        activityIndicator.isHidden = true
+        activityIndicator.hidesWhenStopped = true
         UserLocation.instance.initialize()
     }
     
@@ -44,17 +47,23 @@ class EmployeeIDEntry: UIViewController {
             self.foundUser = user
             callback(self.foundUser!)
             self.main.addOperation {
-                self.performSegue(withIdentifier: "home", sender: self)
+                self.activityIndicator.isHidden = true
+                self.performSegue(withIdentifier: "return", sender: self)
             }
         }
     }
     
     @IBAction func sendIDNumber(_ sender: Any) {
-        isEmployeePhone() { foundUser in
-            self.getLocation() { coordinate in
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+        activityIndicator.startAnimating()
+        if employeeID.text != "" {
+            isEmployeePhone() { foundUser in
+                self.getLocation() { coordinate in
+                    let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+                }
             }
+        } else {
+            incorrectID()
         }
     }
     
@@ -89,7 +98,7 @@ class EmployeeIDEntry: UIViewController {
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
                     self.main.addOperation {
-                        incorrectID()
+                        self.incorrectID()
                     }
                     return
                 }
@@ -98,21 +107,27 @@ class EmployeeIDEntry: UIViewController {
         }
         task.resume()
         
-        func incorrectID() {
-            let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
-            
-            let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
-                actionsheet.dismiss(animated: true, completion: nil)
+        
+    }
+    
+    func incorrectID() {
+        let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
+        
+        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
+            self.employeeID.text = ""
+            actionsheet.dismiss(animated: true, completion: nil)
+            self.main.addOperation {
+                self.activityIndicator.stopAnimating()
             }
-            actionsheet.addAction(ok)
-            self.present(actionsheet, animated: true, completion: nil)
         }
+        actionsheet.addAction(ok)
+        self.present(actionsheet, animated: true, completion: nil)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let vc = segue.destination as! HomeView
         
-        if segue.identifier == "home" {
+        if segue.identifier == "return" {
             vc.employeeInfo = foundUser
             vc.firAuthId = firAuthId
         }
