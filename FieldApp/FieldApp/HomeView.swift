@@ -11,6 +11,8 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import CoreLocation
+import Alamofire
+import SwiftyJSON
 
 class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -19,6 +21,10 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
+    @IBOutlet weak var uploadBar: UIProgressView!
+    @IBOutlet weak var clockInOut: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var activityBckgd: UIView!
     
     let firebaseAuth = Auth.auth()
     let picker = UIImagePickerController()
@@ -28,11 +34,21 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var jobAddress = ""
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var employeeInfo: UserData.UserInfo?
+    var buffer: NSMutableData = NSMutableData()
+    var expectedContentLength = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        activityIndicator.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        
         picker.delegate = self
         UserLocation.instance.initialize()
+        
+        if employeeInfo?.userName != nil {
+            clockedInUI()
+            userLabel.text = "Clocked In \n" + (employeeInfo?.userName)!
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -58,18 +74,20 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBAction func chooseUploadMethod(_ sender: Any) {
         showUploadMethods()
     }
+    @IBAction func goClockInOut(_ sender: Any) {
+        performSegue(withIdentifier: "clock_in", sender: self)
+    }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-        //let imagePath = info[UIImagePickerControllerReferenceURL]
-        
+//        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
+
         photoToUpload.contentMode = .scaleAspectFit
         photoToUpload.image = selectedPhoto
         
-        self.uploadPhoto(photo: selectedPhoto)
-        
         dismiss(animated: true)
+        uploadPhoto(photo: selectedPhoto, poNumber: "1234")
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -99,7 +117,6 @@ extension HomeView {
             self.present(self.picker, animated: true, completion: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in
-            //Removes photo from upload
             print("chose Cancel")
         }
         actionsheet.addAction(chooseCamera)
@@ -109,39 +126,89 @@ extension HomeView {
         self.present(actionsheet, animated: true)
     }
     
-    func uploadPhoto(photo: UIImage) {
+    func uploadPhoto(photo: UIImage, poNumber: String){
+        self.main.addOperation {
+            self.inProgress()
+        }
         
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
-            print("Could not get JPEG representation of UIImage")
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
+            print("Couldn't get JPEG representation")
             return
         }
+        let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
+        let route = "job/1234/upload"
+        let url = URL(string: jsonString + route)!
+        let session = URLSession.shared;
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         
-        let storage = Storage.storage()
-        let data = imageData
-        let storageRef = storage.reference()
+        request.httpMethod = "POST"
+        request.addValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        request.httpBody = imageData
         
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd.yyyy"
-        let result = formatter.string(from: date)
-        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
-        
-        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
-        
-        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
+        let task = session.dataTask(with: request) {data, response, error in
             
-            guard let metadata = metadata else {
-                print("uploadtask error \(String(describing: error))")
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
                 return
-            }
-            if error == nil {
-                _ = metadata.downloadURL()
-                self.confirmUpload()
+            } else {
+                if let responseObj = response as? HTTPURLResponse {
+                    if responseObj.statusCode == 201 {
+                        self.main.addOperation {
+                            self.completedProgress()
+                            self.confirmUpload()
+                        }
+                    } else {
+                        print("error sending photo to server")
+                        return
+                    }
+                }
             }
         }
-        uploadTask.enqueue()
+        task.resume()
     }
     
+    func upload(image: UIImage,
+                progressCompletion: @escaping (_ percent: Float) -> Void) {
+        //        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        
+        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
+        let jobNumber = String(1234) // PO - Grand and Foothill
+        let url = address + jobNumber + "/upload"
+        guard let photoName = employeeInfo?.employeeJobs[0] else { return }
+        let fileName = photoName + ".jpg"
+        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else { return }
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                
+                multipartFormData.append(imageData,
+                                         withName: fileName,
+                                         mimeType: "image/jpeg")
+                print(imageData)
+        },
+            to: url,
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                    
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        progressCompletion(Float(progress.fractionCompleted))
+                    }
+                    //                    upload.validate()
+                    upload.responseJSON { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)")
+                            return
+                        }
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+                //                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        }
+        )
+    }
 }
 
 extension HomeView {
@@ -181,4 +248,56 @@ extension HomeView {
         }
     }
     
+    func uploadToFirebase(photo: UIImage) {
+        
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
+            print("Could not get JPEG representation of UIImage")
+            return
+        }
+        
+        let storage = Storage.storage()
+        let data = imageData
+        let storageRef = storage.reference()
+        
+        let date = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM.dd.yyyy"
+        let result = formatter.string(from: date)
+        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
+        
+        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
+        
+        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
+            
+            guard let metadata = metadata else {
+                print("uploadtask error \(String(describing: error))")
+                return
+            }
+            if error == nil {
+                _ = metadata.downloadURL()
+                self.confirmUpload()
+            }
+        }
+        uploadTask.enqueue()
+    }
+
+    func inProgress() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        activityBckgd.isHidden = false
+//        choosePhotoButton.alpha = 0.1
+        choosePhotoButton.setImage(nil, for: .normal)
+        activityIndicator.startAnimating()
+    }
+
+    func completedProgress() {
+        activityBckgd.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.stopAnimating()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+    }
+    
+    func clockedInUI() {
+        userLabel.backgroundColor = UIColor.green
+        userLabel.textColor = UIColor.white
+    }
 }

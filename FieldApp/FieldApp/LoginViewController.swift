@@ -30,7 +30,7 @@ class LoginViewController: UIViewController {
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user != nil {
-                self.performSegue(withIdentifier: "login", sender: self)
+                self.performSegue(withIdentifier: "home", sender: self)
             }
         }
         Auth.auth().languageCode = "en"
@@ -99,9 +99,9 @@ class LoginViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let vc = segue.destination as! EmployeeIDEntry
+        let vc = segue.destination as! HomeView
         
-        if segue.identifier == "login" {
+        if segue.identifier == "home" {
             vc.firAuthId = authId
         }
     }
