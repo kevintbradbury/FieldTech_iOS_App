@@ -25,6 +25,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var clockInOut: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
+    @IBOutlet weak var calendarButton: UIButton!
     
     let firebaseAuth = Auth.auth()
     let picker = UIImagePickerController()
@@ -76,6 +77,9 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     }
     @IBAction func goClockInOut(_ sender: Any) {
         performSegue(withIdentifier: "clock_in", sender: self)
+    }
+    @IBAction func goToSchedule(_ sender: Any) {
+        performSegue(withIdentifier: "schedule", sender: self)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -169,7 +173,6 @@ extension HomeView {
     
     func upload(image: UIImage,
                 progressCompletion: @escaping (_ percent: Float) -> Void) {
-        //        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
         let address = "https://mb-server-app-kbradbury.c9users.io/job/"
         let jobNumber = String(1234) // PO - Grand and Foothill
@@ -205,7 +208,6 @@ extension HomeView {
                 case .failure(let encodingError):
                     print(encodingError)
                 }
-                //                UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
         )
     }
