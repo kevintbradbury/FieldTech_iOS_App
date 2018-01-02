@@ -27,6 +27,8 @@ class EmployeeIDEntry: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        activityIndicator.isHidden = true
+        activityIndicator.hidesWhenStopped = true
         UserLocation.instance.initialize()
     }
     
@@ -46,13 +48,13 @@ class EmployeeIDEntry: UIViewController {
             callback(self.foundUser!)
             self.main.addOperation {
                 self.activityIndicator.isHidden = true
-                self.performSegue(withIdentifier: "home", sender: self)
+                self.performSegue(withIdentifier: "return", sender: self)
             }
         }
     }
     
     @IBAction func sendIDNumber(_ sender: Any) {
-        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
         if employeeID.text != "" {
             isEmployeePhone() { foundUser in
                 self.getLocation() { coordinate in
@@ -115,7 +117,7 @@ class EmployeeIDEntry: UIViewController {
             self.employeeID.text = ""
             actionsheet.dismiss(animated: true, completion: nil)
             self.main.addOperation {
-                self.activityIndicator.isHidden = true
+                self.activityIndicator.stopAnimating()
             }
         }
         actionsheet.addAction(ok)
@@ -125,7 +127,7 @@ class EmployeeIDEntry: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let vc = segue.destination as! HomeView
         
-        if segue.identifier == "home" {
+        if segue.identifier == "return" {
             vc.employeeInfo = foundUser
             vc.firAuthId = firAuthId
         }

@@ -14,7 +14,7 @@ import CoreLocation
 import Alamofire
 import SwiftyJSON
 
-class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, URLSessionDelegate, URLSessionDataDelegate {
+class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @IBOutlet weak var homeButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
@@ -22,6 +22,9 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
     @IBOutlet weak var uploadBar: UIProgressView!
+    @IBOutlet weak var clockInOut: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var activityBckgd: UIView!
     
     let firebaseAuth = Auth.auth()
     let picker = UIImagePickerController()
@@ -36,10 +39,15 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        activityIndicator.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        
         picker.delegate = self
         UserLocation.instance.initialize()
+        
         if employeeInfo?.userName != nil {
-            userLabel.text = employeeInfo?.userName
+            clockedInUI()
+            userLabel.text = "Clocked In \n" + (employeeInfo?.userName)!
         }
     }
     
@@ -66,20 +74,20 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBAction func chooseUploadMethod(_ sender: Any) {
         showUploadMethods()
     }
+    @IBAction func goClockInOut(_ sender: Any) {
+        performSegue(withIdentifier: "clock_in", sender: self)
+    }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
+//        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
 
         photoToUpload.contentMode = .scaleAspectFit
         photoToUpload.image = selectedPhoto
         
         dismiss(animated: true)
-        
-        uploadBar.isHidden = false
-        uploadBar.progress = 0.0
-        uploadPhoto(photo: selectedPhoto, poNumber: poNumber)
+        uploadPhoto(photo: selectedPhoto, poNumber: "1234")
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -120,7 +128,7 @@ extension HomeView {
     
     func uploadPhoto(photo: UIImage, poNumber: String){
         self.main.addOperation {
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            self.inProgress()
         }
         
         guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
@@ -146,7 +154,7 @@ extension HomeView {
                 if let responseObj = response as? HTTPURLResponse {
                     if responseObj.statusCode == 201 {
                         self.main.addOperation {
-                            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                            self.completedProgress()
                             self.confirmUpload()
                         }
                     } else {
@@ -200,20 +208,6 @@ extension HomeView {
                 //                UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
         )
-    }
-    
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        expectedContentLength = Int(response.expectedContentLength)
-        print(expectedContentLength)
-        completionHandler(URLSession.ResponseDisposition.allow)
-    }
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        buffer.append(data)
-        let percentageDownloaded = Float(buffer.length) / Float(expectedContentLength)
-        uploadBar.progress = percentageDownloaded
-    }
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        uploadBar.progress = 1.0
     }
 }
 
@@ -285,5 +279,25 @@ extension HomeView {
             }
         }
         uploadTask.enqueue()
+    }
+
+    func inProgress() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        activityBckgd.isHidden = false
+//        choosePhotoButton.alpha = 0.1
+        choosePhotoButton.setImage(nil, for: .normal)
+        activityIndicator.startAnimating()
+    }
+
+    func completedProgress() {
+        activityBckgd.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.stopAnimating()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+    }
+    
+    func clockedInUI() {
+        userLabel.backgroundColor = UIColor.green
+        userLabel.textColor = UIColor.white
     }
 }
