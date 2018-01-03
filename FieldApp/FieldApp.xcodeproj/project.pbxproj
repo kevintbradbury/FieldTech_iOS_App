@@ -145,10 +145,10 @@
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
+				062005A51FFC642900F1E193 /* ScheduleView.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
 				0AC8EF5A1F71826200E86DD6 /* Info.plist */,
-				062005A51FFC642900F1E193 /* ScheduleView.swift */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";

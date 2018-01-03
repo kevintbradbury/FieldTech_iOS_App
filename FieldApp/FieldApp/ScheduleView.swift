@@ -19,7 +19,6 @@ class ScheduleView: UIViewController {
         super.viewDidLoad()
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
-        calendarView.register(CalendarCell.self, forCellWithReuseIdentifier: "customCalendarCell")
     }
 }
 
@@ -39,6 +38,8 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         formatter.timeZone = Calendar.current.timeZone
         formatter.locale = Calendar.current.locale
         
+        
+        
         let startDate = formatter.date(from: "01 01 2018")
         let endDate = formatter.date(from: "12 31 2018")
         
@@ -57,8 +58,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         
         let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: "customCalendarCell", for: indexPath) as! CalendarCell
         
-//        cell.dateLabel.text = cellState.text
-        
+        cell.dateLabel.text = cellState.text
         return cell
     }
 }

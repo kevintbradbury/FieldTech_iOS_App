@@ -10,6 +10,6 @@ import Foundation
 import JTAppleCalendar
 
 class CalendarCell: JTAppleCell {
-    @IBOutlet var dateLabel: UILabel!
+    @IBOutlet weak var dateLabel: UILabel!
     
 }
