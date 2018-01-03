@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		062005A01FFC527700F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0620059F1FFC527700F1E193 /* ScheduleView.swift */; };
+		062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A11FFC572100F1E193 /* CalendarCell.swift */; };
+		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
 		0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */; };
 		0AB8AE851F7AC80900E1ACFC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0AB8AE841F7AC74E00E1ACFC /* GoogleService-Info.plist */; };
@@ -45,7 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0620059F1FFC527700F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ScheduleView.swift; path = /Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/ScheduleView.swift; sourceTree = "<absolute>"; };
+		062005A11FFC572100F1E193 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
+		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
 		0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -136,16 +138,17 @@
 				0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */,
 				0AC8EF821F71E69400E86DD6 /* APICalls.swift */,
 				0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */,
+				062005A11FFC572100F1E193 /* CalendarCell.swift */,
 				0AC8EF7E1F71854C00E86DD6 /* DataStructure.swift */,
 				06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */,
 				0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */,
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
-				0620059F1FFC527700F1E193 /* ScheduleView.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
 				0AC8EF5A1F71826200E86DD6 /* Info.plist */,
+				062005A51FFC642900F1E193 /* ScheduleView.swift */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";
@@ -507,10 +510,11 @@
 				0AC8EF511F71826200E86DD6 /* LoginViewController.swift in Sources */,
 				0AC8EF811F71E31000E86DD6 /* GeoCodingAPIcall.swift in Sources */,
 				0AC8EF7F1F71854C00E86DD6 /* DataStructure.swift in Sources */,
-				062005A01FFC527700F1E193 /* ScheduleView.swift in Sources */,
+				062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */,
 				0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */,
 				0AC8EF7D1F71842F00E86DD6 /* LocationManager.swift in Sources */,
 				06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */,
+				062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/ScheduleView.swift">
-   </FileRef>
-   <FileRef
       location = "group:FieldApp.xcodeproj">
    </FileRef>
    <FileRef
