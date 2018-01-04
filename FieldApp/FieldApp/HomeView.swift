@@ -139,36 +139,12 @@ extension HomeView {
             print("Couldn't get JPEG representation")
             return
         }
-        let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
-        let route = "job/1234/upload"
-        let url = URL(string: jsonString + route)!
-        let session = URLSession.shared;
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
-        
-        request.httpMethod = "POST"
-        request.addValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-        request.httpBody = imageData
-        
-        let task = session.dataTask(with: request) {data, response, error in
-            
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
-            } else {
-                if let responseObj = response as? HTTPURLResponse {
-                    if responseObj.statusCode == 201 {
-                        self.main.addOperation {
-                            self.completedProgress()
-                            self.confirmUpload()
-                        }
-                    } else {
-                        print("error sending photo to server")
-                        return
-                    }
-                }
+        APICalls().sendPhoto(imageData: imageData) { responseObj in
+            self.main.addOperation {
+                self.completedProgress()
+                self.confirmUpload()
             }
         }
-        task.resume()
     }
     
     func upload(image: UIImage,
@@ -225,18 +201,9 @@ extension HomeView {
         self.present(actionsheet, animated: true)
     }
     
-    func getEmployeeInfo(callback: @escaping (UserData.UserInfo) -> ()) {
-        
-        EmployeeIDEntry().fetchEmployee(employeeId: 1234) { user in
-            callback(user)
-            self.main.addOperation {
-            }
-        }
-    }
-    
     func checkJobProximity() {
         
-        EmployeeIDEntry().getLocation() { completition in
+        UserLocation.instance.requestLocation(){ coordinate in
             self.jobAddress = "\(self.jobs[0].jobAddress), \(self.jobs[0].jobCity), \(self.jobs[0].jobState)"
             GeoCoding.locationForAddressCode(address: self.jobAddress) { location in
                 let distance = GeoCoding.getDistance(userLocation: self.location!, jobLocation: location!)
@@ -250,38 +217,7 @@ extension HomeView {
         }
     }
     
-    func uploadToFirebase(photo: UIImage) {
-        
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
-            print("Could not get JPEG representation of UIImage")
-            return
-        }
-        
-        let storage = Storage.storage()
-        let data = imageData
-        let storageRef = storage.reference()
-        
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd.yyyy"
-        let result = formatter.string(from: date)
-        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
-        
-        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
-        
-        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
-            
-            guard let metadata = metadata else {
-                print("uploadtask error \(String(describing: error))")
-                return
-            }
-            if error == nil {
-                _ = metadata.downloadURL()
-                self.confirmUpload()
-            }
-        }
-        uploadTask.enqueue()
-    }
+
 
     func inProgress() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true

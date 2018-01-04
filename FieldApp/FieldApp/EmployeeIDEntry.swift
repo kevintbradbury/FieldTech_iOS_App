@@ -54,6 +54,7 @@ class EmployeeIDEntry: UIViewController {
     }
     
     @IBAction func sendIDNumber(_ sender: Any) {
+        
         activityIndicator.startAnimating()
         if employeeID.text != "" {
             isEmployeePhone() { foundUser in
@@ -65,49 +66,6 @@ class EmployeeIDEntry: UIViewController {
         } else {
             incorrectID()
         }
-    }
-    
-    func getLocation(completition: @escaping (CLLocationCoordinate2D) -> Void) {
-        
-        UserLocation.instance.requestLocation(){ coordinate in
-            self.location = coordinate
-            completition(coordinate)
-        }
-    }
-    
-    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
-        
-        let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
-        let route = "employee/" + String(employeeId)
-        let url = URL(string: jsonString + route)!
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 10.0 * 1000)
-        request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        let session = URLSession.shared;
-        let task = session.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
-            } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
-                }
-                
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                    print("json serialization failed")
-                    self.main.addOperation {
-                        self.incorrectID()
-                    }
-                    return
-                }
-                callback(user)
-            }
-        }
-        task.resume()
-        
-        
     }
     
     func incorrectID() {
@@ -131,5 +89,45 @@ class EmployeeIDEntry: UIViewController {
             vc.employeeInfo = foundUser
             vc.firAuthId = firAuthId
         }
+    }
+    
+    func getLocation(completition: @escaping (CLLocationCoordinate2D) -> Void) {
+        
+        UserLocation.instance.requestLocation(){ coordinate in
+            self.location = coordinate
+            if self.location != nil {
+                completition(self.location!)
+            }
+        }
+    }
+    
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
+        
+        let route = "employee/" + String(employeeId)
+        let request = APICalls().setupRequest(route: route, method: "GET")
+        let session = URLSession.shared;
+        
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
+                return
+            } else {
+                guard let verifiedData = data else {
+                    print("could not verify data from dataTask")
+                    return
+                }
+                
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
+                    print("json serialization failed")
+                    self.main.addOperation {
+                        self.incorrectID()
+                    }
+                    return
+                }
+                callback(user)
+            }
+        }
+        task.resume()
     }
 }
