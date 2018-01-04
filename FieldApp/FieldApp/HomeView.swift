@@ -21,7 +21,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
-    @IBOutlet weak var uploadBar: UIProgressView!
+    
     @IBOutlet weak var clockInOut: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
