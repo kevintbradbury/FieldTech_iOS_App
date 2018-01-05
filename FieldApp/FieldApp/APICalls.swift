@@ -18,7 +18,7 @@ class APICalls {
     
     func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob]) -> ()) {
         
-        let route = jsonString + "employee/" + employeeID + "/jobs"
+        let route = "employee/" + employeeID + "/jobs"
         let request = setupRequest(route: route, method: "GET")
         let session = URLSession.shared;
         
@@ -142,15 +142,22 @@ class APICalls {
 extension APICalls {
     
     func parseJobs(from data: Data) -> [Job.UserJob] {
+        
         var jobsArray: [Job.UserJob] = []
-        guard let json = try? JSONSerialization.jsonObject(with: data, options: []),
-            let jsonArray = json as? NSArray else {
-                return jobsArray
+        
+        guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
+                fatalError("couldn't parse json objects as an Array")
         }
         
-        for index in jsonArray {
-            guard let job = Job.UserJob.jsonToDictionary(dictionary: index as! NSDictionary) else { continue }
-            jobsArray.append(job)
+        for jobJson in json {
+            
+            guard let jobDictionary = jobJson as? [String : Any] else {
+                fatalError("couldn't cast index json to type Dictionary")
+            }
+            
+            if let job = Job.UserJob.jsonToDictionary(dictionary: jobDictionary as NSDictionary) {
+                jobsArray.append(job)
+            }
         }
         return jobsArray
     }
@@ -165,7 +172,7 @@ extension APICalls {
     
     func convertToJSON(employee: UserData.UserInfo, location: [String]) -> Data {
         
-        var person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1])
+        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1])
         
         var combinedString = person.userName + " -- " + person.employeeID  + " |"
         combinedString += person.coordinateLat + ", " + person.coordinateLong + "|"
@@ -202,9 +209,9 @@ extension APICalls {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM.dd.yyyy"
         let result = formatter.string(from: date)
-        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
+        print("\n imageName will be: image\(result)\(jobs[1].jobName)_PO_\(jobs[1].poNumber).jpg")
         
-        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
+        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].jobName)_PO_\(jobs[0].poNumber).jpg")
         
         let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
             

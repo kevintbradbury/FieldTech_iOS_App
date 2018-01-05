@@ -17,6 +17,8 @@ class ScheduleView: UIViewController {
     @IBOutlet weak var yearLabel: UILabel!
     
     let formatter = DateFormatter()
+    var employee: UserData.UserInfo?
+    var jobsArray: [Job.UserJob] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,6 +26,16 @@ class ScheduleView: UIViewController {
         calendarView.calendarDataSource = self
         calendarView.visibleDates { visibleDates in
             self.setUpCalendarViews(visibleDates: visibleDates)
+        }
+        if let unwrappedEmployee = employee {
+            let idToString = String(unwrappedEmployee.employeeID)
+            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
+                self.jobsArray = jobs
+                self.jobsArray.sort {
+                    ($0.installDate > $1.installDate)
+                }
+                print(self.jobsArray)
+            }
         }
     }
 }

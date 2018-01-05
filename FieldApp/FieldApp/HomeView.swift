@@ -28,15 +28,14 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var calendarButton: UIButton!
     
     let firebaseAuth = Auth.auth()
-    let picker = UIImagePickerController()
-    var jobs: [Job.UserJob] = []
-    let main = OperationQueue.main
-    var location = UserData.init().userLocation
-    var jobAddress = ""
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
+    let main = OperationQueue.main
+    let picker = UIImagePickerController()
+
     var employeeInfo: UserData.UserInfo?
-    var buffer: NSMutableData = NSMutableData()
-    var expectedContentLength = 0
+    var jobs: [Job.UserJob] = []
+    var jobAddress = ""
+    var location = UserData.init().userLocation
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -176,7 +175,7 @@ extension HomeView {
                     //                    upload.validate()
                     upload.responseJSON { response in
                         guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)")
+                            print("error while uploading file: \(String(describing: response.result.error))")
                             return
                         }
                     }
@@ -204,25 +203,23 @@ extension HomeView {
     func checkJobProximity() {
         
         UserLocation.instance.requestLocation(){ coordinate in
-            self.jobAddress = "\(self.jobs[0].jobAddress), \(self.jobs[0].jobCity), \(self.jobs[0].jobState)"
-            GeoCoding.locationForAddressCode(address: self.jobAddress) { location in
-                let distance = GeoCoding.getDistance(userLocation: self.location!, jobLocation: location!)
+            
+            guard let jobLocation = self.jobs[0].jobLocation else { return }
+            
+            let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
                 print("Miles from job location is --> \(distance) \n")
                 if distance > 1.0 {
                     print("NO <-- User is not in proximity to Job location \n")
                 } else {
                     print("YES <-- User is in proximity to Job location \n")
                 }
-            }
+            
         }
     }
     
-
-
     func inProgress() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         activityBckgd.isHidden = false
-//        choosePhotoButton.alpha = 0.1
         choosePhotoButton.setImage(nil, for: .normal)
         activityIndicator.startAnimating()
     }
@@ -237,5 +234,15 @@ extension HomeView {
     func clockedInUI() {
         userLabel.backgroundColor = UIColor.green
         userLabel.textColor = UIColor.white
+    }
+}
+
+extension HomeView {
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "schedule" {
+            let vc = segue.destination as! ScheduleView
+            vc.employee = employeeInfo
+        }
     }
 }
