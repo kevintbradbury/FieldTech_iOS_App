@@ -24,7 +24,7 @@ class APICalls {
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
-                print("failed to fetch JSON from AWS")
+                print("failed to fetch JSON")
                 return
             }
             guard let verifiedData = data else {
