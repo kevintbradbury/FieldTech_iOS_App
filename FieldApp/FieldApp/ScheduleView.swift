@@ -15,6 +15,7 @@ class ScheduleView: UIViewController {
     @IBOutlet weak var calendarView: JTAppleCalendarView!
     @IBOutlet weak var monthLabel: UILabel!
     @IBOutlet weak var yearLabel: UILabel!
+    @IBOutlet weak var backButton: UIButton!
     
     let formatter = DateFormatter()
     var employee: UserData.UserInfo?
@@ -27,17 +28,23 @@ class ScheduleView: UIViewController {
         calendarView.visibleDates { visibleDates in
             self.setUpCalendarViews(visibleDates: visibleDates)
         }
+        
         if let unwrappedEmployee = employee {
             let idToString = String(unwrappedEmployee.employeeID)
             APICalls().fetchJobInfo(employeeID: idToString) { jobs in
                 self.jobsArray = jobs
                 self.jobsArray.sort {
-                    ($0.installDate > $1.installDate)
+                    ($0.installDate < $1.installDate)
                 }
                 print(self.jobsArray)
             }
         }
     }
+    
+    @IBAction func dismissVC(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
+    
 }
 
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
@@ -47,10 +54,22 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         let cell = cell as! CalendarCell
         
         cell.dateLabel.text = cellState.text
+        
+        if cellState.dateBelongsTo != .thisMonth {
+            cell.dateLabel.textColor = UIColor.lightGray
+            cell.backgroundColor = UIColor.white
+        }
+        
+        for job in jobsArray {
+            let adjustedDateTime = job.installDate+(28800)
+            if cellState.date == adjustedDateTime {
+                cell.backgroundColor = UIColor.yellow
+            }
+        }
     }
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
-        formatter.dateFormat = "MM dd yyyy"
+        formatter.dateFormat = "MM-dd-yyyy"
         formatter.timeZone = Calendar.current.timeZone
         formatter.locale = Calendar.current.locale
         
@@ -58,40 +77,38 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         let currentCalendar = Calendar.current
         let currentYear = currentCalendar.component(.year, from: date)
         let currentMonth = currentCalendar.component(.month, from: date)
+        let currentDay = currentCalendar.component(.day, from: date)
+        let dayOfWeek = currentCalendar.component(.weekday, from: date)
         
         func startDateString() -> String {
-            var month = 0
-            var year = 0
             var startDate = ""
             
-            if currentMonth >= 07 {
-                month = currentMonth - 6
-                year = currentYear
-            } else if currentMonth < 07 {
-                month = currentMonth + 6
-                year = currentYear - 1
-            }
-            
-            startDate = String(month) + " 01 " + String(year)
-            print("startDate string -- \(startDate)")
+            startDate = String(currentMonth) + "-" + String(currentDay) + "-" + String(currentYear)
             return startDate
         }
         
         func endDateString() -> String {
             var month = 0
+            var day = 0
             var year = 0
             var endDate = ""
             
-            if currentMonth >= 07 {
-                month = currentMonth - 6
-                year = currentYear + 1
-            } else if currentMonth < 07 {
-                month = currentMonth + 6
+            if currentDay >= 15 {
+                day = currentDay - 14
+                if currentMonth == 12 {
+                    month = 1
+                    year = currentYear + 1
+                } else {
+                    month = currentMonth + 1
+                    year = currentYear
+                }
+            } else {
+                day = currentDay + 14
+                month = currentMonth
                 year = currentYear
             }
             
-            endDate = String(month) + " 01 " + String(year)
-            print("endDateString is -- \(endDate)")
+            endDate = String(month) + "-" + String(day) + "-" + String(year)
             return endDate
         }
         
@@ -100,13 +117,30 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         
         let parameters = ConfigurationParameters(startDate: startDate!,
                                                  endDate: endDate!,
-                                                 numberOfRows: 6,
+                                                 numberOfRows: 1,
                                                  calendar: Calendar.current,
                                                  generateInDates: .forAllMonths,
-                                                 generateOutDates: .tillEndOfGrid,
+                                                 generateOutDates: .off,
                                                  firstDayOfWeek: .sunday)
         
         return parameters
+    }
+    struct DateObj {
+        let month: String
+        let day: String
+        let year: String
+    }
+    
+    func getMonthDayYearObjs(date: Date) -> DateObj {
+        formatter.dateFormat = "MM"
+        let month = formatter.string(from: date)
+        formatter.dateFormat = "dd"
+        let day = formatter.string(from: date)
+        formatter.dateFormat = "yyyy"
+        let year = formatter.string(from: date)
+        let dateObj = DateObj(month: month, day: day, year: year)
+        
+        return dateObj
     }
     
     func calendar(_ calendar: JTAppleCalendarView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTAppleCell {
@@ -115,10 +149,24 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         
         cell.dateLabel.text = cellState.text
         
-        if cellState.dateBelongsTo == .thisMonth {
-            cell.dateLabel.textColor = UIColor.black
-        } else {
-            cell.dateLabel.textColor = UIColor.white
+        if cellState.dateBelongsTo != .thisMonth {
+            cell.dateLabel.textColor = UIColor.lightGray
+            cell.backgroundColor = UIColor.white
+        }
+        
+        for job in jobsArray {
+            let jobDate = getMonthDayYearObjs(date: job.installDate); let cellDate = getMonthDayYearObjs(date: cellState.date)
+//            let adjustedDateTime = job.installDate+(28800)
+            if jobDate.year == cellDate.year {
+                if jobDate.month == cellDate.month {
+                    if jobDate.day == cellDate.day {
+                        
+                        calendarView.reloadData()
+                        cell.backgroundColor = UIColor.yellow
+                        
+                    } else { continue }
+                } else { continue }
+            } else { continue }
         }
         
         return cell
@@ -127,18 +175,21 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else {return}
         
-        validCell.backgroundColor = UIColor.cyan
+        
     }
+    
     func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else {return}
         
-        validCell.backgroundColor = UIColor.lightGray
+        
     }
+    
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         setUpCalendarViews(visibleDates: visibleDates)
     }
     
     func setUpCalendarViews(visibleDates: DateSegmentInfo) {
+        calendarView.isPrefetchingEnabled = true
         
         calendarView.minimumLineSpacing = 0
         calendarView.minimumInteritemSpacing = 0
@@ -151,5 +202,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         monthLabel.text = formatter.string(from: date)
         
     }
+    
+    
 }
 

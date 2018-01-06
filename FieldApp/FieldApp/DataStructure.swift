@@ -138,7 +138,7 @@ class Job: Codable {
 //                let longitude = Double(location[1]){
                 coordinates = CLLocationCoordinate2D(latitude: location[0], longitude: location[1])
 //            }
-            let dateString = stringToDate(date: date)
+            let dateString = stringToDate(string: date)
 //            guard let po = Int(purchaseOrderNumber) else {
 //                fatalError()
 //            }
@@ -146,12 +146,12 @@ class Job: Codable {
             return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, installDate: dateString, jobLocation: coordinates)
         }
         
-        static func stringToDate(date: String) -> Date {
+        static func stringToDate(string: String) -> Date {
             
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
             
-            guard let dateString = dateFormatter.date(from: date) else {
+            guard let dateString = dateFormatter.date(from: string) else {
                 fatalError("failed to cast string to type: date")
             }
             
