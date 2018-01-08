@@ -20,7 +20,7 @@ class ScheduleView: UIViewController {
     let formatter = DateFormatter()
     var employee: UserData.UserInfo?
     var jobsArray: [Job.UserJob] = []
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         calendarView.calendarDelegate = self
@@ -28,7 +28,10 @@ class ScheduleView: UIViewController {
         calendarView.visibleDates { visibleDates in
             self.setUpCalendarViews(visibleDates: visibleDates)
         }
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
         if let unwrappedEmployee = employee {
             let idToString = String(unwrappedEmployee.employeeID)
             APICalls().fetchJobInfo(employeeID: idToString) { jobs in
@@ -153,22 +156,19 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             cell.dateLabel.textColor = UIColor.lightGray
             cell.backgroundColor = UIColor.white
         }
-        
+
         for job in jobsArray {
-            let jobDate = getMonthDayYearObjs(date: job.installDate); let cellDate = getMonthDayYearObjs(date: cellState.date)
-//            let adjustedDateTime = job.installDate+(28800)
-            if jobDate.year == cellDate.year {
-                if jobDate.month == cellDate.month {
-                    if jobDate.day == cellDate.day {
-                        
-                        calendarView.reloadData()
-                        cell.backgroundColor = UIColor.yellow
-                        
-                    } else { continue }
-                } else { continue }
-            } else { continue }
+            let adjustedDateTime = job.installDate+(28800)
+            if adjustedDateTime == cellState.date {
+                calendarView.reloadData()
+                cell.backgroundColor = UIColor.yellow
+                return cell
+                
+            } else {
+                cell.backgroundColor = UIColor.white
+                return cell
+            }
         }
-        
         return cell
     }
     

@@ -146,13 +146,15 @@ extension APICalls {
         var jobsArray: [Job.UserJob] = []
         
         guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
-                fatalError("couldn't parse json objects as an Array")
+                print("couldn't parse json objects as an Array")
+            return jobsArray
         }
         
         for jobJson in json {
             
             guard let jobDictionary = jobJson as? [String : Any] else {
-                fatalError("couldn't cast index json to type Dictionary")
+                print("couldn't cast index json to type Dictionary")
+                return jobsArray
             }
             
             if let job = Job.UserJob.jsonToDictionary(dictionary: jobDictionary as NSDictionary) {
