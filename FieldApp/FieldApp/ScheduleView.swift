@@ -165,7 +165,6 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
                 return cell
                 
             } else {
-                cell.backgroundColor = UIColor.white
                 return cell
             }
         }
