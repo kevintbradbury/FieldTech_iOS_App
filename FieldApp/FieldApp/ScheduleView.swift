@@ -74,7 +74,6 @@ class ScheduleView: UIViewController {
             }
         }
     }
-    
 }
 
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
@@ -278,10 +277,10 @@ extension ScheduleView {
         let month = formatter.string(from: date)
         formatter.dateFormat = "dd"
         let day = formatter.string(from: date)
-        formatter.dateFormat = "yy"
+        formatter.dateFormat = "yyyy"
         let year = formatter.string(from: date)
         let dateObj = DateObj(month: month, day: day, year: year)
-        let dateString = month + " " + day + " " + year
+        let dateString = month + " " + day + ", " + year
         
         return dateString
     }
