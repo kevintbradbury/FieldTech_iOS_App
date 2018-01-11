@@ -152,13 +152,13 @@ extension APICalls {
         
         for jobJson in json {
             
-            guard let jobDictionary = jobJson as? [String : Any] else {
+            if let jobDictionary = jobJson as? [String : Any]  {
+                if let job = Job.UserJob.jsonToDictionary(dictionary: jobDictionary as NSDictionary) {
+                    jobsArray.append(job)
+                }
+            } else {
                 print("couldn't cast index json to type Dictionary")
                 return jobsArray
-            }
-            
-            if let job = Job.UserJob.jsonToDictionary(dictionary: jobDictionary as NSDictionary) {
-                jobsArray.append(job)
             }
         }
         return jobsArray

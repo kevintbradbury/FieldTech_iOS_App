@@ -37,15 +37,11 @@ class ScheduleView: UIViewController {
         calendarView.calendarDataSource = self
         calendarView.visibleDates { visibleDates in
             self.setUpCalendarViews(visibleDates: visibleDates)
+            self.clearJobInfo()
             self.main.addOperation {
                 self.activityIndicator.startAnimating()
             }
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        
         if let unwrappedEmployee = self.employee {
             let idToString = String(unwrappedEmployee.employeeID)
             APICalls().fetchJobInfo(employeeID: idToString) { jobs in
@@ -62,12 +58,15 @@ class ScheduleView: UIViewController {
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+    }
+    
     @IBAction func dismissVC(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
     
     @IBAction func goGetDirections(_ sender: Any) {
-        
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
                 openMapsWithDirections(to: matchingJob.jobLocation!, destination: matchingJob.jobName)
@@ -148,15 +147,13 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             self.jobNameLbl.text = matchingJob.jobName
             self.poNumberLbl.text = "PO# " + String(matchingJob.poNumber)
             self.installDateLbl.text = installDate
+            self.directionsBtn.isHidden = false
         }
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else {return}
-        
-        self.jobNameLbl.text = ""
-        self.poNumberLbl.text = ""
-        self.installDateLbl.text = ""
+        clearJobInfo()
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
@@ -165,6 +162,13 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 }
 
 extension ScheduleView {
+    
+    func clearJobInfo() {
+        jobNameLbl.text = ""
+        poNumberLbl.text = ""
+        installDateLbl.text = ""
+        directionsBtn.isHidden = true
+    }
     
     func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
         let options = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
