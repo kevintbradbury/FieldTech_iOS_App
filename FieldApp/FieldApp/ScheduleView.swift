@@ -16,6 +16,7 @@ class ScheduleView: UIViewController {
     @IBOutlet weak var monthLabel: UILabel!
     @IBOutlet weak var yearLabel: UILabel!
     @IBOutlet weak var backButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     let formatter = DateFormatter()
     var employee: UserData.UserInfo?
@@ -24,10 +25,14 @@ class ScheduleView: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        activityIndicator.hidesWhenStopped = true
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
         calendarView.visibleDates { visibleDates in
             self.setUpCalendarViews(visibleDates: visibleDates)
+            self.main.addOperation {
+                self.activityIndicator.startAnimating()
+            }
         }
     }
     
@@ -43,6 +48,7 @@ class ScheduleView: UIViewController {
                 }
                 print(self.jobsArray)
                 self.main.addOperation {
+                    self.activityIndicator.stopAnimating()
                     self.calendarView.reloadData()
                 }
             }
@@ -65,15 +71,35 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         
         if cellState.dateBelongsTo != .thisMonth {
             cell.dateLabel.textColor = UIColor.lightGray
-            cell.backgroundColor = UIColor.white
+        } else {
+            cell.dateLabel.textColor = UIColor.black
         }
         
-        for job in jobsArray {
-            let adjustedDateTime = job.installDate+(28800)
-            if cellState.date == adjustedDateTime {
+        var dateIsEqual = false
+        var i = 0
+        var jobIndex = 0
+        
+        func checkJobsDates(cellstateDate: Date, withHandler completion: () -> Void) {
+            
+            for job in jobsArray {
+                let adjustedDateTime = job.installDate+(28800)
+                if adjustedDateTime == cellstateDate {
+                    dateIsEqual = true
+                    jobIndex = i
+                    print(job.jobName)
+                }
+                i += 1
+            }
+            completion()
+        }
+        func setJobInfo() {
+            if dateIsEqual == true {
+                guard let job = jobsArray[jobIndex] as? Job.UserJob else { return }
                 cell.backgroundColor = UIColor.yellow
+                cell.jobName.text = job.jobName
             }
         }
+        checkJobsDates(cellstateDate: cellState.date, withHandler: setJobInfo)
     }
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
@@ -156,9 +182,12 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: "customCalendarCell", for: indexPath) as! CalendarCell
         
         cell.dateLabel.text = cellState.text
+        cell.highlightView.isHidden = true
         
         if cellState.dateBelongsTo != .thisMonth {
             cell.dateLabel.textColor = UIColor.lightGray
+            cell.backgroundColor = UIColor.white
+        } else {
             cell.backgroundColor = UIColor.white
         }
         var dateIsEqual = false
@@ -179,9 +208,10 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         }
         func setJobInfo() {
             if dateIsEqual == true {
-                guard let job = jobsArray[i] as? Job.UserJob else { return }
-                cell.backgroundColor = UIColor.yellow
+                guard let job = jobsArray[jobIndex] as? Job.UserJob else { return }
+                cell.highlightView.isHidden = false
                 cell.jobName.text = job.jobName
+                print(jobIndex)
             }
         }
         checkJobsDates(with: setJobInfo)
@@ -204,8 +234,8 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func setUpCalendarViews(visibleDates: DateSegmentInfo) {
         calendarView.isPrefetchingEnabled = true
         
-        calendarView.minimumLineSpacing = 0
-        calendarView.minimumInteritemSpacing = 0
+        calendarView.minimumLineSpacing = 1
+        calendarView.minimumInteritemSpacing = 1
         
         guard let date = visibleDates.monthDates.first?.date else {return}
         
