@@ -20,7 +20,8 @@ class ScheduleView: UIViewController {
     let formatter = DateFormatter()
     var employee: UserData.UserInfo?
     var jobsArray: [Job.UserJob] = []
-
+    let main = OperationQueue.main
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         calendarView.calendarDelegate = self
@@ -32,7 +33,8 @@ class ScheduleView: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        if let unwrappedEmployee = employee {
+        
+        if let unwrappedEmployee = self.employee {
             let idToString = String(unwrappedEmployee.employeeID)
             APICalls().fetchJobInfo(employeeID: idToString) { jobs in
                 self.jobsArray = jobs
@@ -40,6 +42,9 @@ class ScheduleView: UIViewController {
                     ($0.installDate < $1.installDate)
                 }
                 print(self.jobsArray)
+                self.main.addOperation {
+                    self.calendarView.reloadData()
+                }
             }
         }
     }
@@ -156,31 +161,40 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             cell.dateLabel.textColor = UIColor.lightGray
             cell.backgroundColor = UIColor.white
         }
-
-        for job in jobsArray {
-            let adjustedDateTime = job.installDate+(28800)
-            if adjustedDateTime == cellState.date {
-                calendarView.reloadData()
+        var dateIsEqual = false
+        var i = 0
+        var jobIndex = 0
+        
+        func checkJobsDates(with completion: () -> Void) {
+            
+            for job in jobsArray {
+                let adjustedDateTime = job.installDate+(28800)
+                if adjustedDateTime == cellState.date {
+                    dateIsEqual = true
+                    jobIndex = i
+                }
+                i += 1
+            }
+            completion()
+        }
+        func setJobInfo() {
+            if dateIsEqual == true {
+                guard let job = jobsArray[i] as? Job.UserJob else { return }
                 cell.backgroundColor = UIColor.yellow
-                return cell
-                
-            } else {
-                return cell
+                cell.jobName.text = job.jobName
             }
         }
+        checkJobsDates(with: setJobInfo)
+        
         return cell
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else {return}
-        
-        
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else {return}
-        
-        
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {

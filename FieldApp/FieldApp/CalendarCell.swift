@@ -12,5 +12,6 @@ import JTAppleCalendar
 class CalendarCell: JTAppleCell {
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var highlightView: UIView!
+    @IBOutlet weak var jobName: UILabel!
     
 }
