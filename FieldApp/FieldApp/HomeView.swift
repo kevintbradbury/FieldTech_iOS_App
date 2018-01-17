@@ -21,21 +21,21 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
-    @IBOutlet weak var uploadBar: UIProgressView!
+    
     @IBOutlet weak var clockInOut: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
+    @IBOutlet weak var calendarButton: UIButton!
     
     let firebaseAuth = Auth.auth()
-    let picker = UIImagePickerController()
-    var jobs: [Job.UserJob] = []
-    let main = OperationQueue.main
-    var location = UserData.init().userLocation
-    var jobAddress = ""
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
+    let main = OperationQueue.main
+    let picker = UIImagePickerController()
+
     var employeeInfo: UserData.UserInfo?
-    var buffer: NSMutableData = NSMutableData()
-    var expectedContentLength = 0
+    var jobs: [Job.UserJob] = []
+    var jobAddress = ""
+    var location = UserData.init().userLocation
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,6 +76,9 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     }
     @IBAction func goClockInOut(_ sender: Any) {
         performSegue(withIdentifier: "clock_in", sender: self)
+    }
+    @IBAction func goToSchedule(_ sender: Any) {
+        performSegue(withIdentifier: "schedule", sender: self)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -135,41 +138,16 @@ extension HomeView {
             print("Couldn't get JPEG representation")
             return
         }
-        let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
-        let route = "job/1234/upload"
-        let url = URL(string: jsonString + route)!
-        let session = URLSession.shared;
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
-        
-        request.httpMethod = "POST"
-        request.addValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-        request.httpBody = imageData
-        
-        let task = session.dataTask(with: request) {data, response, error in
-            
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
-            } else {
-                if let responseObj = response as? HTTPURLResponse {
-                    if responseObj.statusCode == 201 {
-                        self.main.addOperation {
-                            self.completedProgress()
-                            self.confirmUpload()
-                        }
-                    } else {
-                        print("error sending photo to server")
-                        return
-                    }
-                }
+        APICalls().sendPhoto(imageData: imageData) { responseObj in
+            self.main.addOperation {
+                self.completedProgress()
+                self.confirmUpload()
             }
         }
-        task.resume()
     }
     
     func upload(image: UIImage,
                 progressCompletion: @escaping (_ percent: Float) -> Void) {
-        //        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
         let address = "https://mb-server-app-kbradbury.c9users.io/job/"
         let jobNumber = String(1234) // PO - Grand and Foothill
@@ -197,7 +175,7 @@ extension HomeView {
                     //                    upload.validate()
                     upload.responseJSON { response in
                         guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)")
+                            print("error while uploading file: \(String(describing: response.result.error))")
                             return
                         }
                     }
@@ -205,7 +183,6 @@ extension HomeView {
                 case .failure(let encodingError):
                     print(encodingError)
                 }
-                //                UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
         )
     }
@@ -223,68 +200,26 @@ extension HomeView {
         self.present(actionsheet, animated: true)
     }
     
-    func getEmployeeInfo(callback: @escaping (UserData.UserInfo) -> ()) {
-        
-        EmployeeIDEntry().fetchEmployee(employeeId: 1234) { user in
-            callback(user)
-            self.main.addOperation {
-            }
-        }
-    }
-    
     func checkJobProximity() {
         
-        EmployeeIDEntry().getLocation() { completition in
-            self.jobAddress = "\(self.jobs[0].jobAddress), \(self.jobs[0].jobCity), \(self.jobs[0].jobState)"
-            GeoCoding.locationForAddressCode(address: self.jobAddress) { location in
-                let distance = GeoCoding.getDistance(userLocation: self.location!, jobLocation: location!)
+        UserLocation.instance.requestLocation(){ coordinate in
+            
+            guard let jobLocation = self.jobs[0].jobLocation else { return }
+            
+            let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
                 print("Miles from job location is --> \(distance) \n")
                 if distance > 1.0 {
                     print("NO <-- User is not in proximity to Job location \n")
                 } else {
                     print("YES <-- User is in proximity to Job location \n")
                 }
-            }
+            
         }
     }
     
-    func uploadToFirebase(photo: UIImage) {
-        
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
-            print("Could not get JPEG representation of UIImage")
-            return
-        }
-        
-        let storage = Storage.storage()
-        let data = imageData
-        let storageRef = storage.reference()
-        
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd.yyyy"
-        let result = formatter.string(from: date)
-        print("\n imageName will be: image\(result)\(jobs[1].storeName)_PO_\(jobs[1].poNumber).jpg")
-        
-        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].storeName)_PO_\(jobs[0].poNumber).jpg")
-        
-        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
-            
-            guard let metadata = metadata else {
-                print("uploadtask error \(String(describing: error))")
-                return
-            }
-            if error == nil {
-                _ = metadata.downloadURL()
-                self.confirmUpload()
-            }
-        }
-        uploadTask.enqueue()
-    }
-
     func inProgress() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         activityBckgd.isHidden = false
-//        choosePhotoButton.alpha = 0.1
         choosePhotoButton.setImage(nil, for: .normal)
         activityIndicator.startAnimating()
     }
@@ -299,5 +234,15 @@ extension HomeView {
     func clockedInUI() {
         userLabel.backgroundColor = UIColor.green
         userLabel.textColor = UIColor.white
+    }
+}
+
+extension HomeView {
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "schedule" {
+            let vc = segue.destination as! ScheduleView
+            vc.employee = employeeInfo
+        }
     }
 }

@@ -12,6 +12,7 @@ pod 'Firebase/Database'
 pod 'Firebase/Storage'
 pod 'Alamofire'
 pod 'SwiftyJSON'
+pod 'JTAppleCalendar', '~> 7.0'
 
   target 'FieldAppTests' do
     inherit! :search_paths

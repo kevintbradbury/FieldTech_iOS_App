@@ -37,19 +37,19 @@ class UserData {
         let employeeID: Int
         let employeeJobs: [String]
         let userName: String
-//                let employeePhone: Int?
-//                let workWeekHours: Int?
-//                let userPoints: Int?
-
+        //                let employeePhone: Int?
+        //                let workWeekHours: Int?
+        //                let userPoints: Int?
+        
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             
             guard let userId = dictionary["employeeID"] as? Int,
                 let jobs = dictionary["employeeJobs"] as? NSArray,
                 let userName = dictionary["username"] as? String
-//                let userNumber = dictionary["phoneNumber"] as? Int,
-//                let weekHours = dictionary["workWeekHours"] as? Int,
-//                let points = dictionary["userPoints"] as? Int,
+                //                let userNumber = dictionary["phoneNumber"] as? Int,
+                //                let weekHours = dictionary["workWeekHours"] as? Int,
+                //                let points = dictionary["userPoints"] as? Int,
                 else {
                     print("failed fromJSON method, in UserInfo Struct")
                     return nil
@@ -57,9 +57,9 @@ class UserData {
             
             return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName)
         }
-}
-
-struct TimeCard {
+    }
+    
+    struct TimeCard {
         
         let weekBeginDate: String?
         let sunday: NSDictionary?
@@ -102,36 +102,63 @@ class Job: Codable {
         
         let poNumber: Int
         let jobName: String
-        let storeName: String
-        let jobAddress: String
-        let jobCity: String
-        let jobState: String
+        let installDate: Date
+        let jobLocation: CLLocationCoordinate2D?
+        
+//        let jobAddress: String
+//        let jobCity: String
+//        let jobState: String
 //        let jobBudgetHours: String?
 //        let employeeJobHours: String?
-//        let jobLocation: CLLocationCoordinate2D?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let purchaseOrderNumber = dictionary["PO"] as? Int,
-                let jobName = dictionary["JobName"] as? String,
-                let store = dictionary["Store"] as? String,
-                let address = dictionary["Address"] as? String,
-                let city = dictionary["City"] as? String,
-                let state = dictionary["State"] as? String
+            guard let date = dictionary["installDate"] as? String else { print("couldnt parse dateObject")
+                return nil }
+            guard let location = dictionary["jobLocation"] as? [Double] else { print("couldnt parse jobLocation")
+                return nil }
+            guard let purchaseOrderNumber = dictionary["poNumber"] as? Int else { print("couldnt parse poNumber")
+                return nil }
+            guard let jobName = dictionary["storeName"] as? String else { print("couldnt parse storeName")
+                return nil }
+                
+//                let address = dictionary["Address"] as? String,
+//                let city = dictionary["City"] as? String,
+//                let state = dictionary["State"] as? String,
 //                let budgetHours = dictionary["jobBudgetHours"] as? String,
-//                let employeeHours = dictionary["employeeJobHours"] as? String,
-//                let location = dictionary["jobLocation"] as? NSDictionary
-                else {
-                    print("failed fromJSON method, in UserJobs Struct")
-                    return nil
-            }
-/*          guard let latitude = location["latitude"] as? CLLocationDegrees else {return nil}
-            guard let longitude = location["longitude"] as? CLLocationDegrees else {return nil}
-            let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)      */
+//                let employeeHours = dictionary["employeeJobHours"] as? String
+            
+//            else {
+//                print("failed fromJSON method, in UserJobs Struct")
+//                return nil
+//            }
 
-            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, storeName: store, jobAddress: address, jobCity: city, jobState: state)
+            var coordinates = CLLocationCoordinate2DMake(0.0, 0.0)
+//            if let latitude = Double(location[0]),
+//                let longitude = Double(location[1]){
+                coordinates = CLLocationCoordinate2D(latitude: location[0], longitude: location[1])
+//            }
+            let dateString = stringToDate(string: date)
+//            guard let po = Int(purchaseOrderNumber) else {
+//                fatalError()
+//            }
+            
+            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, installDate: dateString, jobLocation: coordinates)
+        }
+        
+        static func stringToDate(string: String) -> Date {
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            
+            guard let dateString = dateFormatter.date(from: string) else {
+                fatalError("failed to cast string to type: date")
+            }
+            
+            return dateString
         }
     }
+    
     
 }
 
