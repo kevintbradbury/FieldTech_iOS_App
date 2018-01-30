@@ -16,6 +16,10 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var enterIDText: UILabel!
+    @IBOutlet weak var clockIn: UIButton!
+    @IBOutlet weak var clockOut: UIButton!
+    @IBOutlet weak var backBtn: UIButton!
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -30,6 +34,7 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         UserLocation.instance.initialize()
+        hideTextfield()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -39,9 +44,13 @@ class EmployeeIDEntry: UIViewController {
     func isEmployeePhone(callback: @escaping (UserData.UserInfo) -> ()) {
         
         var employeeNumberToInt: Int?;
-        guard let employeeNumber = employeeID.text else { return }
-        
-        employeeNumberToInt = Int(employeeNumber)
+        if foundUser?.employeeID != nil {
+            guard let employeeNumber = foundUser?.employeeID else { return }
+            employeeNumberToInt = Int(employeeNumber)
+        } else {
+            guard let employeeNumber = employeeID.text else { return }
+            employeeNumberToInt = Int(employeeNumber)
+        }
         
         fetchEmployee(employeeId: employeeNumberToInt!) { user in
             self.foundUser = user
@@ -64,13 +73,38 @@ class EmployeeIDEntry: UIViewController {
                 }
             }
         } else {
-            incorrectID()
+            self.incorrectID()
         }
     }
     
+    @IBAction func backToHome(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func goClockIn(_ sender: Any) {
+        clockInClockOut()
+    }
+    
+    @IBAction func goClockOut(_ sender: Any) {
+        clockInClockOut()
+    }
+    
+    func clockInClockOut() {
+        activityIndicator.startAnimating()
+        if foundUser?.employeeID != nil {
+            isEmployeePhone() { foundUser in
+                self.getLocation() { coordinate in
+                    let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+                }
+            }
+        } else {
+            self.incorrectID()
+        }
+    }
     func incorrectID() {
         let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
-        
+
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             self.employeeID.text = ""
             actionsheet.dismiss(animated: true, completion: nil)
@@ -84,6 +118,8 @@ class EmployeeIDEntry: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let vc = segue.destination as! HomeView
+        
+        UserDefaults.standard.set(foundUser?.employeeID, forKey: "employeeID")
         
         if segue.identifier == "return" {
             vc.employeeInfo = foundUser
@@ -129,5 +165,16 @@ class EmployeeIDEntry: UIViewController {
             }
         }
         task.resume()
+    }
+    
+    func hideTextfield() {
+        if foundUser != nil {
+            employeeID.isHidden = true
+            sendButton.isHidden = true
+            enterIDText.isHidden = true
+        } else {
+            clockIn.isHidden = true
+            clockOut.isHidden = true
+        }
     }
 }

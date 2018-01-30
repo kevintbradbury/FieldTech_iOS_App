@@ -49,7 +49,7 @@ class UserData {
                 let userName = dictionary["username"] as? String
                 //                let userNumber = dictionary["phoneNumber"] as? Int,
                 //                let weekHours = dictionary["workWeekHours"] as? Int,
-                //                let points = dictionary["userPoints"] as? Int,
+                //                let points = dictionary["userPoints"] as? Int,  
                 else {
                     print("failed fromJSON method, in UserInfo Struct")
                     return nil
