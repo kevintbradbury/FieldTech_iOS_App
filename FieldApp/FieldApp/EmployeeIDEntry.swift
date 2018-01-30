@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 import CoreLocation
 import Firebase
+import UserNotifications
+import UserNotificationsUI
 
 class EmployeeIDEntry: UIViewController {
     
@@ -21,7 +23,8 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var backBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
-
+    @IBOutlet weak var lunchBreakBtn: UIButton!
+    
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
     var jobAddress = ""
@@ -29,6 +32,10 @@ class EmployeeIDEntry: UIViewController {
     var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
+    var timer = Timer()
+    var counter = 0
+    let notificationCenter = UNUserNotificationCenter.current()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,6 +98,11 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockOut(_ sender: Any) {
         clockInClockOut()
     }
+    
+    @IBAction func lunchBrkPunchOut(_ sender: Any) {
+        chooseBreakLength()
+    }
+    
     
     func clockInClockOut() {
         inProgress()
@@ -182,17 +194,18 @@ extension EmployeeIDEntry {
     
     func hideTextfield() {
         if foundUser != nil {
+            guard let punchedIn = self.foundUser?.punchedIn else { return }
             self.main.addOperation {
                 self.employeeID.isHidden = true
                 self.sendButton.isHidden = true
                 
-                guard let punchedIn = self.foundUser?.punchedIn else { return }
-                
                 if punchedIn == true {
                     self.clockIn.isHidden = true
+                    self.lunchBreakBtn.isHidden = false
                     self.enterIDText.text = "Clock Out"
                 } else if punchedIn == false {
                     self.clockOut.isHidden = true
+                    self.lunchBreakBtn.isHidden = true
                     self.enterIDText.text = "Clock In"
                 } else {
                     return
@@ -223,4 +236,93 @@ extension EmployeeIDEntry {
             self.performSegue(withIdentifier: "return", sender: self)
         }
     }
+}
+
+extension EmployeeIDEntry {
+    
+    func goOnLunch(breakLength: Int) {
+        let options: UNAuthorizationOptions = [.alert, .sound]
+        let snoozeAction = UNNotificationAction(identifier: "SNOOZE", title: "Snooze", options: UNNotificationActionOptions(rawValue: 0))
+        let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: .foreground)
+        let deleteAction = UNNotificationAction(identifier: "UYLDeleteAction", title: "Selete", options: [.destructive])
+        let category = UNNotificationCategory(identifier: "UYLReminderCategory", actions: [snoozeAction, stopAction, deleteAction], intentIdentifiers: [], options: [])
+        
+        notificationCenter.setNotificationCategories([category])
+        notificationCenter.requestAuthorization(options: options) { (granted, error) in
+            if !granted {
+                print("there was an error or the user did not authorize alerts")
+                print(error)
+            }
+        }
+        notificationCenter.getNotificationSettings { (settings) in
+            if settings.authorizationStatus != .authorized {
+                print("user did not authorize alerts")
+            }
+        }
+        
+        let content = UNMutableNotificationContent()
+        let timeInSeconds = Double(breakLength / 3)  //  * 60)
+        //currently using 3 as Divisor to check if corrent value is passed
+        content.title = "Sorry, break time is over"
+        content.sound = UNNotificationSound.default()
+        content.categoryIdentifier = "UYLReminderCategory"
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInSeconds, repeats: false)
+        let identifier = "UYLocalNotification"
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        notificationCenter.add(request, withCompletionHandler: { (error) in
+            if error != nil {
+                print("there was an error")
+                print(error)
+            }
+        })
+        
+        
+    
+    }
+    
+    func chooseBreakLength() {
+        
+        let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: UIAlertControllerStyle.actionSheet)
+        
+        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in
+            self.goOnLunch(breakLength: 30)
+        }
+        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in
+            self.goOnLunch(breakLength: 60)
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in
+            print("chose Cancel")
+        }
+        actionsheet.addAction(chooseThirty)
+        actionsheet.addAction(chooseSixty)
+        actionsheet.addAction(cancel)
+        
+        self.present(actionsheet, animated: true)
+    }
+}
+
+
+
+class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        switch response.actionIdentifier {
+        case UNNotificationDismissActionIdentifier:
+            print("Dismiss Action")
+        case UNNotificationDefaultActionIdentifier:
+            print("Default")
+        default:
+            print("unknown action")
+        }
+        completionHandler()
+    }
+    
+    
+    
 }

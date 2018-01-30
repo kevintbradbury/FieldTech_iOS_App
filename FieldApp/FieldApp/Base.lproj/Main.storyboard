@@ -71,13 +71,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </view>
+                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JJN-tO-qBs">
+                                <rect key="frame" x="107" y="420" width="105" height="105"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="105" id="ibe-PB-YgW"/>
+                                    <constraint firstAttribute="height" constant="105" id="ifG-lF-EEg"/>
+                                </constraints>
+                                <state key="normal" title="Lunch Break" image="lunch"/>
+                                <connections>
+                                    <action selector="lunchBrkPunchOut:" destination="bq0-eu-ofj" eventType="touchUpInside" id="YAd-c5-5TE"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8V0-xo-CLS">
-                                <rect key="frame" x="142" y="306" width="36" height="30"/>
+                                <rect key="frame" x="142" y="266" width="36" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="3CK-zj-Ua9"/>
                                     <constraint firstAttribute="width" constant="36" id="EKe-gT-Xsk"/>
@@ -89,7 +95,7 @@
                                 </connections>
                             </button>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Employee ID Number" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cgM-Ze-PLd">
-                                <rect key="frame" x="82" y="269" width="157" height="30"/>
+                                <rect key="frame" x="82" y="229" width="157" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="0io-kW-gGN"/>
                                     <constraint firstAttribute="width" constant="157" id="JP5-8r-LUv"/>
@@ -99,7 +105,7 @@
                                 <textInputTraits key="textInputTraits" keyboardType="numberPad" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter Employee ID" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cRn-CE-CNR">
-                                <rect key="frame" x="90" y="107" width="140" height="21"/>
+                                <rect key="frame" x="90" y="83" width="140" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="140" id="3BL-r7-jIu"/>
                                     <constraint firstAttribute="height" constant="21" id="zW1-rN-Kqp"/>
@@ -109,7 +115,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AFE-De-iRq">
-                                <rect key="frame" x="90" y="143" width="140" height="130"/>
+                                <rect key="frame" x="90" y="119" width="140" height="130"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="140" id="FXg-4V-d0x"/>
                                     <constraint firstAttribute="height" constant="130" id="tRO-ug-l8U"/>
@@ -120,7 +126,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mkf-uE-ifr">
-                                <rect key="frame" x="89" y="293" width="142" height="132"/>
+                                <rect key="frame" x="89" y="268" width="142" height="132"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="142" id="3PG-gP-lU0"/>
                                     <constraint firstAttribute="height" constant="132" id="GFa-gX-gTV"/>
@@ -141,6 +147,11 @@
                                     <action selector="backToHome:" destination="bq0-eu-ofj" eventType="touchUpInside" id="BoZ-K5-mzg"/>
                                 </connections>
                             </button>
+                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Xgx-TL-7uV">
                                 <rect key="frame" x="141" y="265" width="37" height="37"/>
                                 <constraints>
@@ -158,14 +169,15 @@
                             <constraint firstItem="Xgx-TL-7uV" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="9fr-4L-0Id"/>
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Ckc-PT-RTV"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="F6A-AU-53E"/>
+                            <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
-                            <constraint firstItem="Mkf-uE-ifr" firstAttribute="top" secondItem="AFE-De-iRq" secondAttribute="bottom" constant="20" id="SrQ-ey-zYI"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
-                            <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" id="cj2-Tl-Eli"/>
+                            <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-40" id="cj2-Tl-Eli"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" constant="20" id="mzN-h5-frs"/>
-                            <constraint firstItem="cgM-Ze-PLd" firstAttribute="top" secondItem="cRn-CE-CNR" secondAttribute="bottom" constant="141" id="nTI-5j-gbW"/>
-                            <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="75" id="u72-vk-TtN"/>
-                            <constraint firstItem="AFE-De-iRq" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-76" id="vbu-Bo-RLo"/>
+                            <constraint firstItem="Mkf-uE-ifr" firstAttribute="top" secondItem="AFE-De-iRq" secondAttribute="bottom" constant="19" id="sNR-8g-Myf"/>
+                            <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="Mkf-uE-ifr" secondAttribute="bottom" constant="20" id="taf-7J-8dh"/>
+                            <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="50" id="u72-vk-TtN"/>
+                            <constraint firstItem="AFE-De-iRq" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-100" id="vbu-Bo-RLo"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="trailing" secondItem="pLG-Ve-Unv" secondAttribute="trailingMargin" id="xOu-9c-mHb"/>
                             <constraint firstItem="Xgx-TL-7uV" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" id="zFr-Yt-D9Z"/>
                         </constraints>
@@ -178,6 +190,7 @@
                         <outlet property="clockOut" destination="Mkf-uE-ifr" id="XNj-f5-aZ7"/>
                         <outlet property="employeeID" destination="cgM-Ze-PLd" id="ang-Xn-Vpj"/>
                         <outlet property="enterIDText" destination="cRn-CE-CNR" id="vT9-eK-YLF"/>
+                        <outlet property="lunchBreakBtn" destination="JJN-tO-qBs" id="xhy-im-VUa"/>
                         <outlet property="sendButton" destination="8V0-xo-CLS" id="Mw3-Qj-lTu"/>
                         <segue destination="dvo-Ab-kYb" kind="presentation" identifier="return" id="PNM-CA-SzQ"/>
                     </connections>
@@ -598,6 +611,7 @@
         <image name="clockOut" width="700" height="700"/>
         <image name="hotel_req" width="700" height="700"/>
         <image name="log_out" width="700" height="700"/>
+        <image name="lunch" width="700" height="700"/>
         <image name="schedule" width="700" height="700"/>
         <image name="time_off" width="700" height="700"/>
         <image name="tools" width="700" height="700"/>
