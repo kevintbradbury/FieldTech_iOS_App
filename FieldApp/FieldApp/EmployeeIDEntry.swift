@@ -20,6 +20,7 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockIn: UIButton!
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var backBtn: UIButton!
+    @IBOutlet weak var activityBckgd: UIView!
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -90,12 +91,13 @@ class EmployeeIDEntry: UIViewController {
     }
     
     func clockInClockOut() {
-        activityIndicator.startAnimating()
+        inProgress()
         if foundUser?.employeeID != nil {
             isEmployeePhone() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
                     APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+                    self.completedProgress()
                 }
             }
         } else {
@@ -167,6 +169,11 @@ class EmployeeIDEntry: UIViewController {
         task.resume()
     }
     
+    
+}
+
+extension EmployeeIDEntry {
+    
     func hideTextfield() {
         if foundUser != nil {
             employeeID.isHidden = true
@@ -176,5 +183,18 @@ class EmployeeIDEntry: UIViewController {
             clockIn.isHidden = true
             clockOut.isHidden = true
         }
+    }
+    
+    func inProgress() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        activityBckgd.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    func completedProgress() {
+        activityBckgd.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.stopAnimating()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 }

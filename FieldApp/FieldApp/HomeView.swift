@@ -99,7 +99,8 @@ extension HomeView {
     
     func checkForUserInfo() {
         if employeeInfo?.employeeID != nil {
-            self.clockedInUI()
+            self.main.addOperation { self.clockedInUI() }
+            //Need accurate UI for punch in & punch out
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgress()
@@ -107,9 +108,13 @@ extension HomeView {
                     self.employeeInfo = user
                     
                     if self.employeeInfo?.userName != nil {
-                        self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
+                        self.main.addOperation {
+                            self.completedProgress()
+                            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
+                            self.userLabel.backgroundColor = UIColor.cyan
+//                            self.userLabel.textColor = UIColor.white
+                        }
                     }
-                    self.completedProgress()
                 }
             }
         }
@@ -234,7 +239,6 @@ extension HomeView {
     func inProgress() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         activityBckgd.isHidden = false
-        choosePhotoButton.setImage(nil, for: .normal)
         activityIndicator.startAnimating()
     }
     
