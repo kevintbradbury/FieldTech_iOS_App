@@ -36,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String]){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (UserData.UserInfo) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -58,9 +58,11 @@ class APICalls {
                     print("json serialization failed")
                     return
                 }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
-                
-                //            --->  Need to handle bad/unauthorized response here
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
+                    print("json serialization failed")
+                    return
+                }
+                callback(user)
             }
         }
         task.resume()

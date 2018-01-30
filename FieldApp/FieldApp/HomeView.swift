@@ -99,11 +99,18 @@ extension HomeView {
     
     func checkForUserInfo() {
         if employeeInfo?.employeeID != nil {
-            self.main.addOperation { self.clockedInUI() }
-            //Need accurate UI for punch in & punch out
+            print("punched in -- ")
+            print(self.employeeInfo?.punchedIn)
+            //
+            if employeeInfo?.punchedIn == true {
+                self.main.addOperation { self.clockedInUI() }
+            } else if employeeInfo?.punchedIn == false {
+                self.main.addOperation { self.clockedOutUI() }
+            } else { return }
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgress()
+                
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
                     self.employeeInfo = user
                     
@@ -111,8 +118,11 @@ extension HomeView {
                         self.main.addOperation {
                             self.completedProgress()
                             self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
-                            self.userLabel.backgroundColor = UIColor.cyan
-//                            self.userLabel.textColor = UIColor.white
+                            self.userLabel.backgroundColor = UIColor.blue
+                            self.userLabel.textColor = UIColor.white
+                            //
+                            print("punched in -- ")
+                            print(self.employeeInfo?.punchedIn)
                         }
                     }
                 }

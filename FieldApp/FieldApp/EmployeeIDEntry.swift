@@ -21,13 +21,13 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var backBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
-    
+
+    let firebaseAuth = Auth.auth()
+    let main = OperationQueue.main
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
-    let firebaseAuth = Auth.auth()
     var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
-    let main = OperationQueue.main
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     
     override func viewDidLoad() {
@@ -56,10 +56,6 @@ class EmployeeIDEntry: UIViewController {
         fetchEmployee(employeeId: employeeNumberToInt!) { user in
             self.foundUser = user
             callback(self.foundUser!)
-            self.main.addOperation {
-                self.activityIndicator.isHidden = true
-                self.performSegue(withIdentifier: "return", sender: self)
-            }
         }
     }
     
@@ -70,7 +66,13 @@ class EmployeeIDEntry: UIViewController {
             isEmployeePhone() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { user in
+                        self.foundUser = user
+                        self.main.addOperation {
+                            self.activityIndicator.isHidden = true
+                            self.performSegue(withIdentifier: "return", sender: self)
+                        }
+                    }
                 }
             }
         } else {
@@ -93,13 +95,18 @@ class EmployeeIDEntry: UIViewController {
     func clockInClockOut() {
         inProgress()
         if foundUser?.employeeID != nil {
-            isEmployeePhone() { foundUser in
-                self.getLocation() { coordinate in
-                    let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray)
+            guard let uwrappedUser = foundUser else { return }
+            self.getLocation() { coordinate in
+                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { user in
+                    self.foundUser = user
                     self.completedProgress()
+                    self.main.addOperation {
+                        self.performSegue(withIdentifier: "return", sender: self)
+                    }
                 }
             }
+            
         } else {
             self.incorrectID()
         }
@@ -129,12 +136,12 @@ class EmployeeIDEntry: UIViewController {
         }
     }
     
-    func getLocation(completition: @escaping (CLLocationCoordinate2D) -> Void) {
+    func getLocation(callback: @escaping (CLLocationCoordinate2D) -> ()) {
         
         UserLocation.instance.requestLocation(){ coordinate in
             self.location = coordinate
             if self.location != nil {
-                completition(self.location!)
+                callback(self.location!)
             }
         }
     }
@@ -179,6 +186,16 @@ extension EmployeeIDEntry {
             employeeID.isHidden = true
             sendButton.isHidden = true
             enterIDText.isHidden = true
+            
+            guard let punchedIn = foundUser?.punchedIn else { return }
+            
+            if punchedIn == true {
+                clockIn.isHidden = true
+            } else if punchedIn == false {
+                clockOut.isHidden = true
+            } else {
+                return
+            }
         } else {
             clockIn.isHidden = true
             clockOut.isHidden = true
