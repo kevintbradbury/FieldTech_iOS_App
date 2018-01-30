@@ -101,9 +101,6 @@ class EmployeeIDEntry: UIViewController {
                 APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { user in
                     self.foundUser = user
                     self.completedProgress()
-                    self.main.addOperation {
-                        self.performSegue(withIdentifier: "return", sender: self)
-                    }
                 }
             }
             
@@ -122,7 +119,9 @@ class EmployeeIDEntry: UIViewController {
             }
         }
         actionsheet.addAction(ok)
-        self.present(actionsheet, animated: true, completion: nil)
+        self.main.addOperation {
+            self.present(actionsheet, animated: true, completion: nil)
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -183,35 +182,45 @@ extension EmployeeIDEntry {
     
     func hideTextfield() {
         if foundUser != nil {
-            employeeID.isHidden = true
-            sendButton.isHidden = true
-            enterIDText.isHidden = true
-            
-            guard let punchedIn = foundUser?.punchedIn else { return }
-            
-            if punchedIn == true {
-                clockIn.isHidden = true
-            } else if punchedIn == false {
-                clockOut.isHidden = true
-            } else {
-                return
+            self.main.addOperation {
+                self.employeeID.isHidden = true
+                self.sendButton.isHidden = true
+                
+                guard let punchedIn = self.foundUser?.punchedIn else { return }
+                
+                if punchedIn == true {
+                    self.clockIn.isHidden = true
+                    self.enterIDText.text = "Clock Out"
+                } else if punchedIn == false {
+                    self.clockOut.isHidden = true
+                    self.enterIDText.text = "Clock In"
+                } else {
+                    return
+                }
             }
         } else {
-            clockIn.isHidden = true
-            clockOut.isHidden = true
+            self.main.addOperation {
+                self.clockIn.isHidden = true
+                self.clockOut.isHidden = true
+            }
         }
     }
     
     func inProgress() {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        activityBckgd.isHidden = false
-        activityIndicator.startAnimating()
+        self.main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            self.activityBckgd.isHidden = false
+            self.activityIndicator.startAnimating()
+        }
     }
     
     func completedProgress() {
-        activityBckgd.isHidden = true
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.stopAnimating()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        self.main.addOperation {
+            self.activityBckgd.isHidden = true
+            self.activityIndicator.hidesWhenStopped = true
+            self.activityIndicator.stopAnimating()
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            self.performSegue(withIdentifier: "return", sender: self)
+        }
     }
 }
