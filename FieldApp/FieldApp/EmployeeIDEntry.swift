@@ -32,16 +32,13 @@ class EmployeeIDEntry: UIViewController {
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
+    let notificationCenter = UNUserNotificationCenter.current()
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
     var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
-    var timer = Timer()
-    var counter = 0
-    let notificationCenter = UNUserNotificationCenter.current()
-    var audioPlayer: AVAudioPlayer?
-
+    var alarmStopped = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -249,9 +246,9 @@ extension EmployeeIDEntry {
     func goOnLunch(breakLength: Int) {
         
         let options: UNAuthorizationOptions = [.alert, .sound]
-        let snoozeAction = UNNotificationAction(identifier: "SNOOZE", title: "Snooze", options: UNNotificationActionOptions(rawValue: 0))
+//        let snoozeAction = UNNotificationAction(identifier: "SNOOZE", title: "Snooze", options: UNNotificationActionOptions(rawValue: 0))
         let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: .destructive)
-        let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [snoozeAction, stopAction], intentIdentifiers: [], options: [])
+        let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [stopAction], intentIdentifiers: [], options: [])
         
         notificationCenter.setNotificationCategories([alarmCategory])
         notificationCenter.requestAuthorization(options: options) { (granted, error) in
@@ -288,28 +285,12 @@ extension EmployeeIDEntry {
     }
     
     func playSound() {
-        AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-        AudioServicesPlaySystemSound(1036)
-
-//        let url = URL(fileURLWithPath: Bundle.main.path(forResource: "Anticipate", ofType: "caf")!)
-        var error: NSError?
-//        do {
-//            audioPlayer = try  AVAudioPlayer(contentsOf: url)
-//        } catch let error1 as NSError {
-//            error = error1
-//        }
-        
-        if let err = error {
-            print("audoplayer error \(error?.localizedDescription)")
-        } else {
-            audioPlayer?.delegate = self as? AVAudioPlayerDelegate
-            audioPlayer?.prepareToPlay()
+        while alarmStopped == false {
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
         }
-        audioPlayer?.numberOfLoops = -1
-        audioPlayer?.play()
     }
     func stopAudio() {
-        audioPlayer?.stop()
+        alarmStopped = true
     }
     
     func chooseBreakLength() {
@@ -334,7 +315,7 @@ extension EmployeeIDEntry {
     }
     
     
-    //Doesn't set an alarm but does add an event to calendar
+    //Doesn't set an alarm but does add an event to calendar, which may be useeful for adding jobs to internal calendar
     func setAnAlarm() {
         var calendar: EKCalendar?
         let eventstore = EKEventStore()
@@ -343,10 +324,11 @@ extension EmployeeIDEntry {
                 
                     let event = EKEvent(eventStore: eventstore)
                     event.startDate = Date()
-                    event.endDate = event.startDate.addingTimeInterval(TimeInterval(10))
+                    event.endDate = event.startDate.addingTimeInterval(TimeInterval(60 * 60))
                     event.calendar = eventstore.defaultCalendarForNewEvents
                     event.title = "Break is over"
-                    event.addAlarm(EKAlarm())
+                event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
+                
                     
                     do {
                         try eventstore.save(event, span: .thisEvent, commit: true)
@@ -369,8 +351,8 @@ class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
-        EmployeeIDEntry().playSound()
         completionHandler([.alert, .sound])
+        EmployeeIDEntry().playSound()
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
@@ -382,7 +364,7 @@ class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
             print("Default")
         case "STOP_ACTION":
             EmployeeIDEntry().stopAudio()
-            print("stop action")
+            print("stop alarm")
         case "SNOOZE":
             print("Snooze action")
             
