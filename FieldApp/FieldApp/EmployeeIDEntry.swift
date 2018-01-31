@@ -282,8 +282,7 @@ extension EmployeeIDEntry {
                 let earlyContent = UNMutableNotificationContent()
                 let earlyidentifier = "fiveMinReminder"
                 earlyContent.title = "Break is almost over"
-                
-                earlyContent.sound = UNNotificationSound.init(named: String(SystemSoundID(1036)))
+                earlyContent.sound = UNNotificationSound.default()
                 earlyContent.categoryIdentifier = "alarm.category"
                 
                 let earlytrigger = UNTimeIntervalNotificationTrigger(timeInterval: tenMinBefore, repeats: false)
