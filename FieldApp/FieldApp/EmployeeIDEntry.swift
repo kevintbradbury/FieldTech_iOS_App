@@ -245,10 +245,19 @@ extension EmployeeIDEntry {
     
     func goOnLunch(breakLength: Int) {
         
-        let options: UNAuthorizationOptions = [.alert, .sound]
-//        let snoozeAction = UNNotificationAction(identifier: "SNOOZE", title: "Snooze", options: UNNotificationActionOptions(rawValue: 0))
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: .destructive)
         let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [stopAction], intentIdentifiers: [], options: [])
+        
+        let identifier = "EndOFBreak"
+        let timeInSeconds = Double(breakLength)  // * 60) | currently 3 as Divisor to check correct value passed
+        let content = UNMutableNotificationContent()
+        content.title = "Sorry, break time is over"
+        content.sound = UNNotificationSound.default()
+        content.categoryIdentifier = "alarm.category"
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInSeconds, repeats: false)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
         notificationCenter.setNotificationCategories([alarmCategory])
         notificationCenter.requestAuthorization(options: options) { (granted, error) in
@@ -262,35 +271,34 @@ extension EmployeeIDEntry {
                 print("user did not authorize alerts")
             }
         }
-        
-        let content = UNMutableNotificationContent()
-        let timeInSeconds = Double(breakLength / 3)  //  * 60)
-        //currently using 3 as Divisor to check if corrent value is passed
-        
-        content.title = "Sorry, break time is over"
-        content.sound = UNNotificationSound(named: "Update.caf")
-        content.categoryIdentifier = "alarm.category"
-        
-        let identifier = "UYLocalNotification"
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInSeconds, repeats: false)
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-        
-        notificationCenter.add(request, withCompletionHandler: { (error) in
-            if error != nil {
+        notificationCenter.add(request, withCompletionHandler: { (err) in
+            if err != nil {
                 print("there was an error")
-                print(error)
+                print(err)
+            } else {
+                
+                let fiveMinInSec = Double(5 * 60)
+                let tenMinBefore = Double(breakLength - 5)  // * 60 - fiveMinInSec) | currently 3 as Divisor to check correct value passed
+                let earlyContent = UNMutableNotificationContent()
+                let earlyidentifier = "fiveMinReminder"
+                earlyContent.title = "Break is almost over"
+                
+                earlyContent.sound = UNNotificationSound.init(named: String(SystemSoundID(1036)))
+                earlyContent.categoryIdentifier = "alarm.category"
+                
+                let earlytrigger = UNTimeIntervalNotificationTrigger(timeInterval: tenMinBefore, repeats: false)
+                let earlyrequest = UNNotificationRequest(identifier: earlyidentifier, content: earlyContent, trigger: earlytrigger)
+                
+                self.notificationCenter.add(earlyrequest, withCompletionHandler: { (err) in
+                    if err != nil {
+                        print("looks like there was an error")
+                        print(err)
+                    } else {
+                        self.clockInClockOut()
+                    }
+                })
             }
         })
-        
-    }
-    
-    func playSound() {
-        while alarmStopped == false {
-            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-        }
-    }
-    func stopAudio() {
-        alarmStopped = true
     }
     
     func chooseBreakLength() {
@@ -298,8 +306,7 @@ extension EmployeeIDEntry {
         let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: UIAlertControllerStyle.actionSheet)
         
         let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in
-//            self.goOnLunch(breakLength: 30)
-            self.setAnAlarm()
+            self.goOnLunch(breakLength: 30)
         }
         let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in
             self.goOnLunch(breakLength: 60)
@@ -319,25 +326,24 @@ extension EmployeeIDEntry {
     func setAnAlarm() {
         var calendar: EKCalendar?
         let eventstore = EKEventStore()
+        
         eventstore.requestAccess(to: EKEntityType.event){ (granted, error ) -> Void in
             if granted == true {
-                
-                    let event = EKEvent(eventStore: eventstore)
-                    event.startDate = Date()
-                    event.endDate = event.startDate.addingTimeInterval(TimeInterval(60 * 60))
-                    event.calendar = eventstore.defaultCalendarForNewEvents
-                    event.title = "Break is over"
+                let event = EKEvent(eventStore: eventstore)
+                event.startDate = Date()
+                event.endDate = event.startDate.addingTimeInterval(TimeInterval(60 * 60))
+                event.calendar = eventstore.defaultCalendarForNewEvents
+                event.title = "Break is over"
                 event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
                 
-                    
-                    do {
-                        try eventstore.save(event, span: .thisEvent, commit: true)
-                    } catch { (error)
-                        if error != nil {
-                            print("looks like we couldn't setup that alarm")
-                            print(error)
-                        }
+                do {
+                    try eventstore.save(event, span: .thisEvent, commit: true)
+                } catch { (error)
+                    if error != nil {
+                        print("looks like we couldn't setup that alarm")
+                        print(error)
                     }
+                }
                 
             }
         }
@@ -351,8 +357,7 @@ class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
-        completionHandler([.alert, .sound])
-        EmployeeIDEntry().playSound()
+        completionHandler([.alert, .sound, .badge])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
@@ -363,7 +368,6 @@ class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         case UNNotificationDefaultActionIdentifier:
             print("Default")
         case "STOP_ACTION":
-            EmployeeIDEntry().stopAudio()
             print("stop alarm")
         case "SNOOZE":
             print("Snooze action")
@@ -373,4 +377,5 @@ class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         }
         completionHandler()
     }
+    
 }
