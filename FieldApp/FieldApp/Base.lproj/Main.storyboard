@@ -147,10 +147,9 @@
                                     <action selector="backToHome:" destination="bq0-eu-ofj" eventType="touchUpInside" id="BoZ-K5-mzg"/>
                                 </connections>
                             </button>
-                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
+                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Xgx-TL-7uV">
                                 <rect key="frame" x="141" y="265" width="37" height="37"/>
@@ -163,6 +162,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="SjV-jM-1u8" firstAttribute="top" secondItem="pLG-Ve-Unv" secondAttribute="top" id="7Bq-eW-HJ4"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="8BO-5R-fu3"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="top" secondItem="cgM-Ze-PLd" secondAttribute="bottom" constant="7" id="8Jc-uW-1eI"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="top" secondItem="cRn-CE-CNR" secondAttribute="bottom" constant="15" id="90B-C3-6lh"/>
@@ -172,6 +172,7 @@
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
+                            <constraint firstItem="SjV-jM-1u8" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leading" id="bnf-dw-BMy"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-40" id="cj2-Tl-Eli"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" constant="20" id="mzN-h5-frs"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="top" secondItem="AFE-De-iRq" secondAttribute="bottom" constant="19" id="sNR-8g-Myf"/>
@@ -179,6 +180,8 @@
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="50" id="u72-vk-TtN"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-100" id="vbu-Bo-RLo"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="trailing" secondItem="pLG-Ve-Unv" secondAttribute="trailingMargin" id="xOu-9c-mHb"/>
+                            <constraint firstAttribute="trailing" secondItem="SjV-jM-1u8" secondAttribute="trailing" id="xUe-29-WoX"/>
+                            <constraint firstItem="KXz-M4-q6L" firstAttribute="top" secondItem="SjV-jM-1u8" secondAttribute="bottom" id="yAS-Rq-Ssu"/>
                             <constraint firstItem="Xgx-TL-7uV" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" id="zFr-Yt-D9Z"/>
                         </constraints>
                     </view>
@@ -309,7 +312,7 @@
                             </button>
                             <view hidden="YES" opaque="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJW-NP-9cu">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.92754600253807107" green="0.92754600253807107" blue="0.92754600253807107" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="vaz-4K-nny">
                                 <rect key="frame" x="142" y="265.5" width="37" height="37"/>

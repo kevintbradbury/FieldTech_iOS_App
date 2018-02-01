@@ -52,7 +52,7 @@ class EmployeeIDEntry: UIViewController {
         super.viewDidAppear(true)
     }
     
-    func isEmployeePhone(callback: @escaping (UserData.UserInfo) -> ()) {
+    func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         
         var employeeNumberToInt: Int?;
         if foundUser?.employeeID != nil {
@@ -73,7 +73,7 @@ class EmployeeIDEntry: UIViewController {
         
         activityIndicator.startAnimating()
         if employeeID.text != "" {
-            isEmployeePhone() { foundUser in
+            isEmployeeIDNum() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
                     APICalls().sendCoordinates(employee: foundUser, location: locationArray) { user in
@@ -179,6 +179,9 @@ class EmployeeIDEntry: UIViewController {
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
+                    print(json)
+                    //
+                    
                     self.main.addOperation {
                         self.incorrectID()
                     }
@@ -218,6 +221,7 @@ extension EmployeeIDEntry {
             self.main.addOperation {
                 self.clockIn.isHidden = true
                 self.clockOut.isHidden = true
+                self.lunchBreakBtn.isHidden = true
             }
         }
     }

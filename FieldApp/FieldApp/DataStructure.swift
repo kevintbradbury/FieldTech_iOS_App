@@ -44,20 +44,18 @@ class UserData {
         
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
-            
-            guard let userId = dictionary["employeeID"] as? Int,
-                let jobs = dictionary["employeeJobs"] as? NSArray,
-                let userName = dictionary["username"] as? String,
-                let clockIn = dictionary["punchedIn"] as? Bool
+            var clocked = false
+            guard let userId = dictionary["employeeID"] as? Int else { return nil}
+            guard let jobs = dictionary["employeeJobs"] as? NSArray else { return nil}
+            guard let userName = dictionary["username"] as? String else { return nil }
+            if let clockIn = dictionary["punchedIn"] as? Bool {
+                clocked = clockIn
+            }
                 //                let userNumber = dictionary["phoneNumber"] as? Int,
                 //                let weekHours = dictionary["workWeekHours"] as? Int,
-                //                let points = dictionary["userPoints"] as? Int,  
-                else {
-                    print("failed fromJSON method, in UserInfo Struct")
-                    return nil
-            }
+                //                let points = dictionary["userPoints"] as? Int,
             
-            return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName, punchedIn: clockIn)
+            return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName, punchedIn: clocked)
         }
     }
     
