@@ -31,7 +31,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     let main = OperationQueue.main
     let picker = UIImagePickerController()
-
+    
     var employeeInfo: UserData.UserInfo?
     var jobs: [Job.UserJob] = []
     var jobAddress = ""
@@ -44,11 +44,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         
         picker.delegate = self
         UserLocation.instance.initialize()
-        
-        if employeeInfo?.userName != nil {
-            clockedInUI()
-            userLabel.text = "Clocked In \n" + (employeeInfo?.userName)!
-        }
+        checkForUserInfo()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -84,8 +80,8 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-//        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
-
+        //        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
+        
         photoToUpload.contentMode = .scaleAspectFit
         photoToUpload.image = selectedPhoto
         
@@ -100,6 +96,39 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
 }
 
 extension HomeView {
+    
+    func checkForUserInfo() {
+        if employeeInfo?.employeeID != nil {
+            print("punched in -- ")
+            print(self.employeeInfo?.punchedIn)
+            //
+            if employeeInfo?.punchedIn == true {
+                self.main.addOperation { self.clockedInUI() }
+            } else if employeeInfo?.punchedIn == false {
+                self.main.addOperation { self.clockedOutUI() }
+            } else { return }
+        } else {
+            if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
+                inProgress()
+                
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
+                    self.employeeInfo = user
+                    
+                    if self.employeeInfo?.userName != nil {
+                        self.main.addOperation {
+                            self.completedProgress()
+                            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
+                            self.userLabel.backgroundColor = UIColor.blue
+                            self.userLabel.textColor = UIColor.white
+                            //
+                            print("punched in -- ")
+                            print(self.employeeInfo?.punchedIn)
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     func showUploadMethods() {
         
@@ -207,12 +236,12 @@ extension HomeView {
             guard let jobLocation = self.jobs[0].jobLocation else { return }
             
             let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
-                print("Miles from job location is --> \(distance) \n")
-                if distance > 1.0 {
-                    print("NO <-- User is not in proximity to Job location \n")
-                } else {
-                    print("YES <-- User is in proximity to Job location \n")
-                }
+            print("Miles from job location is --> \(distance) \n")
+            if distance > 1.0 {
+                print("NO <-- User is not in proximity to Job location \n")
+            } else {
+                print("YES <-- User is in proximity to Job location \n")
+            }
             
         }
     }
@@ -220,10 +249,9 @@ extension HomeView {
     func inProgress() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         activityBckgd.isHidden = false
-        choosePhotoButton.setImage(nil, for: .normal)
         activityIndicator.startAnimating()
     }
-
+    
     func completedProgress() {
         activityBckgd.isHidden = true
         activityIndicator.hidesWhenStopped = true
@@ -234,6 +262,12 @@ extension HomeView {
     func clockedInUI() {
         userLabel.backgroundColor = UIColor.green
         userLabel.textColor = UIColor.white
+        self.userLabel.text = "Clocked In"
+    }
+    func clockedOutUI() {
+        userLabel.backgroundColor = UIColor.red
+        userLabel.textColor = UIColor.black
+        self.userLabel.text = "Clocked Out"
     }
 }
 
@@ -243,6 +277,20 @@ extension HomeView {
         if segue.identifier == "schedule" {
             let vc = segue.destination as! ScheduleView
             vc.employee = employeeInfo
+        } else if segue.identifier == "clock_in" {
+            let vc = segue.destination as! EmployeeIDEntry
+            vc.foundUser = employeeInfo
         }
     }
+    
+    func incorrectID() {
+        let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
+        
+        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
+            actionsheet.dismiss(animated: true, completion: nil)
+        }
+        actionsheet.addAction(ok)
+        self.present(actionsheet, animated: true, completion: nil)
+    }
 }
+
