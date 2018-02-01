@@ -243,14 +243,14 @@ extension EmployeeIDEntry {
 
 extension EmployeeIDEntry {
     
-    func goOnLunch(breakLength: Int) {
+    func goOnLunch(breakLength: Double) {
         
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: .destructive)
         let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [stopAction], intentIdentifiers: [], options: [])
         
         let identifier = "EndOFBreak"
-        let timeInSeconds = Double(breakLength)  // * 60) | currently 3 as Divisor to check correct value passed
+        let timeInSeconds = Double(breakLength * 60)
         let content = UNMutableNotificationContent()
         content.title = "Sorry, break time is over"
         content.sound = UNNotificationSound.default()
@@ -278,7 +278,7 @@ extension EmployeeIDEntry {
             } else {
                 
                 let fiveMinInSec = Double(5 * 60)
-                let tenMinBefore = Double(breakLength - 5)  // * 60 - fiveMinInSec) | currently 3 as Divisor to check correct value passed
+                let tenMinBefore = Double((breakLength * 60) - fiveMinInSec)
                 let earlyContent = UNMutableNotificationContent()
                 let earlyidentifier = "fiveMinReminder"
                 earlyContent.title = "Break is almost over"
