@@ -13,7 +13,6 @@ import Firebase
 import FirebaseStorage
 
 class APICalls {
-    
     let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
     
     func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob]) -> ()) {
@@ -37,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String]){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (UserData.UserInfo) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -59,9 +58,11 @@ class APICalls {
                     print("json serialization failed")
                     return
                 }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else { return }
-                
-                //            --->  Need to handle bad/unauthorized response here
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
+                    print("json serialization failed")
+                    return
+                }
+                callback(user)
             }
         }
         task.resume()
@@ -71,7 +72,7 @@ class APICalls {
         
         let route = "job/1234/upload"
         let session = URLSession.shared;
-
+        
         var request = setupRequest(route: route, method: "POST")
         request.addValue("image/jpeg", forHTTPHeaderField: "Content-Type")
         request.httpBody = imageData
@@ -96,7 +97,7 @@ class APICalls {
         task.resume()
     }
     
-    func fetchEmployee(employeeId: Int, view: EmployeeIDEntry, callback: @escaping (UserData.UserInfo) -> ()){
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
         
         let route = "employee/" + String(employeeId)
         let request = setupRequest(route: route, method: "GET")
@@ -115,9 +116,6 @@ class APICalls {
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
-                    view.main.addOperation {
-                        view.incorrectID()
-                    }
                     return
                 }
                 callback(user)
@@ -146,7 +144,7 @@ extension APICalls {
         var jobsArray: [Job.UserJob] = []
         
         guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
-                print("couldn't parse json objects as an Array")
+            print("couldn't parse json objects as an Array")
             return jobsArray
         }
         

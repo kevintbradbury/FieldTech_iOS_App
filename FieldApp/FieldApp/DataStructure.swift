@@ -37,6 +37,7 @@ class UserData {
         let employeeID: Int
         let employeeJobs: [String]
         let userName: String
+        let punchedIn: Bool?
         //                let employeePhone: Int?
         //                let workWeekHours: Int?
         //                let userPoints: Int?
@@ -46,16 +47,17 @@ class UserData {
             
             guard let userId = dictionary["employeeID"] as? Int,
                 let jobs = dictionary["employeeJobs"] as? NSArray,
-                let userName = dictionary["username"] as? String
+                let userName = dictionary["username"] as? String,
+                let clockIn = dictionary["punchedIn"] as? Bool
                 //                let userNumber = dictionary["phoneNumber"] as? Int,
                 //                let weekHours = dictionary["workWeekHours"] as? Int,
-                //                let points = dictionary["userPoints"] as? Int,
+                //                let points = dictionary["userPoints"] as? Int,  
                 else {
                     print("failed fromJSON method, in UserInfo Struct")
                     return nil
             }
             
-            return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName)
+            return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName, punchedIn: clockIn)
         }
     }
     

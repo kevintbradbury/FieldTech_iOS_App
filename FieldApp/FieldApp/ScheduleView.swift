@@ -32,30 +32,18 @@ class ScheduleView: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        activityIndicator.hidesWhenStopped = true
+        
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
         calendarView.visibleDates { visibleDates in
             self.setUpCalendarViews(visibleDates: visibleDates)
-            self.clearJobInfo()
             self.main.addOperation {
+                self.clearJobInfo()
                 self.activityIndicator.startAnimating()
             }
         }
-        if let unwrappedEmployee = self.employee {
-            let idToString = String(unwrappedEmployee.employeeID)
-            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
-                self.jobsArray = jobs
-                self.jobsArray.sort {
-                    ($0.installDate < $1.installDate)
-                }
-                print(self.jobsArray)
-                self.main.addOperation {
-                    self.activityIndicator.stopAnimating()
-                    self.calendarView.reloadData()
-                }
-            }
-        }
+        
+        getCalendarInfo()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -76,6 +64,23 @@ class ScheduleView: UIViewController {
 }
 
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
+    
+    func getCalendarInfo() {
+        if let unwrappedEmployee = self.employee {
+            let idToString = String(unwrappedEmployee.employeeID)
+            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
+                self.jobsArray = jobs
+                self.jobsArray.sort {
+                    ($0.installDate < $1.installDate)
+                }
+                print(self.jobsArray)
+                self.main.addOperation {
+                    self.activityIndicator.stopAnimating()
+                    self.calendarView.reloadData()
+                }
+            }
+        }
+    }
     
     func calendar(_ calendar: JTAppleCalendarView, willDisplay cell: JTAppleCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
         
@@ -100,7 +105,6 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
                 if adjustedDateTime == cellstateDate {
                     dateIsEqual = true
                     jobIndex = i
-                    print(job.jobName)
                 }
                 i += 1
             }
@@ -108,7 +112,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         }
         func setJobInfo() {
             if dateIsEqual == true {
-                guard let job = jobsArray[jobIndex] as? Job.UserJob else { return }
+                let job = jobsArray[jobIndex]
                 cell.backgroundColor = UIColor.yellow
                 cell.jobName.text = job.jobName
             }
@@ -198,6 +202,7 @@ extension ScheduleView {
     }
     
     func setUpCalendarViews(visibleDates: DateSegmentInfo) {
+        activityIndicator.hidesWhenStopped = true
         calendarView.isPrefetchingEnabled = true
         
         calendarView.minimumLineSpacing = 1
@@ -277,13 +282,17 @@ extension ScheduleView {
     }
     
     func getMonthDayYear(date: Date) -> String {
+        print( date.description(with: Locale(identifier: "en")) )
+        let adjustedDateTime = date + (28800)
+        print(adjustedDateTime)
+        //since mongoDB defaults to UTC or GMT 0, and time is set for midnight UTC, that defaults to 4pm PST one day before, this could be resolved by setting DB local to PST and setting specific start time
+        
         formatter.dateFormat = "MMM"
-        let month = formatter.string(from: date)
+        let month = formatter.string(from: adjustedDateTime)
         formatter.dateFormat = "dd"
-        let day = formatter.string(from: date)
+        let day = formatter.string(from: adjustedDateTime)
         formatter.dateFormat = "yyyy"
-        let year = formatter.string(from: date)
-        let dateObj = DateObj(month: month, day: day, year: year)
+        let year = formatter.string(from: adjustedDateTime)
         let dateString = month + " " + day + ", " + year
         
         return dateString
