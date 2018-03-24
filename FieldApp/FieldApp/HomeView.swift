@@ -126,7 +126,7 @@ extension HomeView {
                         }
                     }
                 }
-            }
+            } else { completedProgress() }
         }
     }
     

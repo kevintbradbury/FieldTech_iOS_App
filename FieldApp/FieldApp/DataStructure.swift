@@ -35,7 +35,7 @@ class UserData {
     struct UserInfo: Encodable {
         
         let employeeID: Int
-        let employeeJobs: [String]
+        let employeeJobs: [Any: Any]
         let userName: String
         let punchedIn: Bool?
         //                let employeePhone: Int?
@@ -44,6 +44,9 @@ class UserData {
         
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
+            print("employee jobs are: ")
+            print(dictionary["employeeJobs"])
+            
             var clocked = false
             guard let userId = dictionary["employeeID"] as? Int else { return nil}
             guard let jobs = dictionary["employeeJobs"] as? NSArray else { return nil}
@@ -55,7 +58,7 @@ class UserData {
                 //                let weekHours = dictionary["workWeekHours"] as? Int,
                 //                let points = dictionary["userPoints"] as? Int,
             
-            return UserInfo(employeeID: userId, employeeJobs: jobs as! [String], userName: userName, punchedIn: clocked)
+            return UserInfo(employeeID: userId, employeeJobs: jobs, userName: userName, punchedIn: clocked)
         }
     }
     
