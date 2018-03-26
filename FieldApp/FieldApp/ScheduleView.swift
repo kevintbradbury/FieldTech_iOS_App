@@ -57,7 +57,7 @@ class ScheduleView: UIViewController {
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
-                openMapsWithDirections(to: matchingJob.jobLocation!, destination: matchingJob.jobName)
+                self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
             }
         }
     }

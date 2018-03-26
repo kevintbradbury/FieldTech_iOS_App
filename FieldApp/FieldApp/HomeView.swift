@@ -175,46 +175,48 @@ extension HomeView {
         }
     }
     
-    func upload(image: UIImage,
-                progressCompletion: @escaping (_ percent: Float) -> Void) {
-        
-        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
-        let jobNumber = String(1234) // PO - Grand and Foothill
-        let url = address + jobNumber + "/upload"
-        guard let photoName = employeeInfo?.employeeJobs[0] else { return }
-        let fileName = photoName + ".jpg"
-        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else { return }
-        
-        Alamofire.upload(
-            multipartFormData: { multipartFormData in
-                
-                multipartFormData.append(imageData,
-                                         withName: fileName,
-                                         mimeType: "image/jpeg")
-                print(imageData)
-        },
-            to: url,
-            encodingCompletion: { encodingResult in
-                switch encodingResult {
-                    
-                case .success(let upload, _, _):
-                    upload.uploadProgress { progress in
-                        progressCompletion(Float(progress.fractionCompleted))
-                    }
-                    //                    upload.validate()
-                    upload.responseJSON { response in
-                        guard response.result.isSuccess else {
-                            print("error while uploading file: \(String(describing: response.result.error))")
-                            return
-                        }
-                    }
-                    
-                case .failure(let encodingError):
-                    print(encodingError)
-                }
-        }
-        )
-    }
+//    func upload(image: UIImage,
+//                progressCompletion: @escaping (_ percent: Float) -> Void) {
+//
+//        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
+//        let jobNumber = String(1234) // PO - Grand and Foothill
+//        let url = address + jobNumber + "/upload"
+//        let fileNmStrg = String(photoName + ".jpg")
+//        guard let photoName = employeeInfo?.employeeJobs[0] else { return }
+//        let fileName = fileNmStrg
+//        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else { return }
+//
+//        Alamofire.upload(
+//            multipartFormData: { multipartFormData in
+//
+//                multipartFormData.append(imageData,
+//                                         withName: fileName,
+//                                         mimeType: "image/jpeg")
+//                print(imageData)
+//        },
+//            to: url,
+//            encodingCompletion: { encodingResult in
+//                switch encodingResult {
+//
+//                case .success(let upload, _, _):
+//                    upload.uploadProgress { progress in
+//                        progressCompletion(Float(progress.fractionCompleted))
+//                    }
+//                    //                    upload.validate()
+//                    upload.responseJSON { response in
+//                        guard response.result.isSuccess else {
+//                            print("error while uploading file: \(String(describing: response.result.error))")
+//                            return
+//                        }
+//                    }
+//
+//                case .failure(let encodingError):
+//                    print(encodingError)
+//                }
+//        }
+//        )
+//    }
+    
 }
 
 extension HomeView {
@@ -233,7 +235,7 @@ extension HomeView {
         
         UserLocation.instance.requestLocation(){ coordinate in
             
-            guard let jobLocation = self.jobs[0].jobLocation else { return }
+            let jobLocation = self.jobs[0].jobLocation
             
             let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
             print("Miles from job location is --> \(distance) \n")
