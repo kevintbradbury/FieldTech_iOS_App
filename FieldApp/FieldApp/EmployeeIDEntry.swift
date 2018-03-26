@@ -76,17 +76,13 @@ class EmployeeIDEntry: UIViewController {
             isEmployeeIDNum() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { user in
-                        self.foundUser = user
-                        self.main.addOperation {
-                            self.activityIndicator.isHidden = true
-                            self.performSegue(withIdentifier: "return", sender: self)
-                        }
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, msg in
+                        self.handleSuccess(success: success, msg: msg)
                     }
                 }
             }
         } else {
-            self.incorrectID()
+            self.incorrectID(success: true)
         }
     }
     
@@ -113,19 +109,43 @@ class EmployeeIDEntry: UIViewController {
             guard let uwrappedUser = foundUser else { return }
             self.getLocation() { coordinate in
                 let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { user in
-                    self.foundUser = user
-                    self.completedProgress()
+                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, msg in
+                    self.handleSuccess(success: success, msg: msg)
                 }
             }
             
         } else {
-            self.incorrectID()
+            self.incorrectID(success: true)
         }
     }
-    func incorrectID() {
-        let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
-
+    
+    func handleSuccess(success: Bool, msg: String) {
+        if success == true {
+            if self.foundUser?.punchedIn == true {
+                self.foundUser?.punchedIn = false
+                self.completedProgress()
+                
+            } else if self.foundUser?.punchedIn == false {
+                self.foundUser?.punchedIn = true
+                self.completedProgress()
+            }
+        } else {
+            print(msg)
+            //handle unsuccessful location punch in
+            incorrectID(success: success)
+        }
+    }
+    
+    func incorrectID(success: Bool) {
+        var actionMsg: String {
+            if success == true {
+                return "Unable to find that user"
+            } else {
+                return "Your location did not match the job location"
+            }
+        }
+        let actionsheet = UIAlertController(title: "Error", message: actionMsg, preferredStyle: UIAlertControllerStyle.alert)
+        
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             self.employeeID.text = ""
             actionsheet.dismiss(animated: true, completion: nil)
@@ -146,7 +166,7 @@ class EmployeeIDEntry: UIViewController {
         
         if segue.identifier == "return" {
             vc.employeeInfo = foundUser
-            vc.firAuthId = firAuthId
+//            vc.firAuthId = firAuthId
         }
     }
     
@@ -183,7 +203,7 @@ class EmployeeIDEntry: UIViewController {
                     //
                     
                     self.main.addOperation {
-                        self.incorrectID()
+                        self.incorrectID(success: true)
                     }
                     return
                 }

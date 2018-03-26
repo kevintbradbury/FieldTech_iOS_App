@@ -39,7 +39,7 @@ class UserData {
         let employeeID: Int
         let employeeJobs: [Job.UserJob]
         let userName: String
-        let punchedIn: Bool?
+        var punchedIn: Bool?
         
         //                let employeePhone: Int?
         //                let workWeekHours: Int?

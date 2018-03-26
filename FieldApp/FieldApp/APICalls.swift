@@ -36,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (UserData.UserInfo) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -58,11 +58,23 @@ class APICalls {
                     print("json serialization failed")
                     return
                 }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                    print("json serialization failed")
+                guard let successfulPunch = json["success"] as? Bool else {
+                    print("couldnt parse successfulPunch")
                     return
                 }
-                callback(user)
+                guard let msg = json["msg"] as? String else {
+                    print("unable to parse msg string from response json")
+                    return
+                }
+                print("punch was success or no ?")
+                print(successfulPunch)
+//                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
+//                    print("json serialization failed")
+//                    //handle if login not allowed for current location
+//
+//                    return
+//                }
+                callback(successfulPunch, msg)
             }
         }
         task.resume()
