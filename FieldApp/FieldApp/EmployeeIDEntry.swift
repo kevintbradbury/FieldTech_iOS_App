@@ -150,7 +150,10 @@ class EmployeeIDEntry: UIViewController {
             self.employeeID.text = ""
             actionsheet.dismiss(animated: true, completion: nil)
             self.main.addOperation {
+                self.activityBckgd.isHidden = true
+                self.activityIndicator.hidesWhenStopped = true
                 self.activityIndicator.stopAnimating()
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
         }
         actionsheet.addAction(ok)
