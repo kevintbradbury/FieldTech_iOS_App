@@ -35,6 +35,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var employeeInfo: UserData.UserInfo?
     var jobs: [Job.UserJob] = []
     var jobAddress = ""
+    var todaysJob: Job?
     var location = UserData.init().userLocation
     
     override func viewDidLoad() {
@@ -167,7 +168,7 @@ extension HomeView {
             print("Couldn't get JPEG representation")
             return
         }
-        APICalls().sendPhoto(imageData: imageData) { responseObj in
+        APICalls().sendPhoto(imageData: imageData, poNumber: Int(todaysJob?.poNumber)) { responseObj in
             self.main.addOperation {
                 self.completedProgress()
                 self.confirmUpload()

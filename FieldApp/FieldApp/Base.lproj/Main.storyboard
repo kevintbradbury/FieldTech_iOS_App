@@ -619,6 +619,7 @@
         <image name="tools" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="pAu-Wh-4fN"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -33,8 +33,10 @@ class EmployeeIDEntry: UIViewController {
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
+    
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
+    var todaysJob: Job?
     var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
@@ -76,8 +78,10 @@ class EmployeeIDEntry: UIViewController {
             isEmployeeIDNum() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, msg in
-                        self.handleSuccess(success: success, msg: msg)
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber in
+                        self.todaysJob?.jobName = currentJob
+                        self.todaysJob?.poNumber = poNumber
+                        self.handleSuccess(success: success)
                     }
                 }
             }
@@ -109,8 +113,10 @@ class EmployeeIDEntry: UIViewController {
             guard let uwrappedUser = foundUser else { return }
             self.getLocation() { coordinate in
                 let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, msg in
-                    self.handleSuccess(success: success, msg: msg)
+                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
+                    self.todaysJob?.jobName = currentJob
+                    self.todaysJob?.poNumber = poNumber
+                    self.handleSuccess(success: success)
                 }
             }
             
@@ -119,7 +125,7 @@ class EmployeeIDEntry: UIViewController {
         }
     }
     
-    func handleSuccess(success: Bool, msg: String) {
+    func handleSuccess(success: Bool) {
         if success == true {
             if self.foundUser?.punchedIn == true {
                 self.foundUser?.punchedIn = false
@@ -130,7 +136,7 @@ class EmployeeIDEntry: UIViewController {
                 self.completedProgress()
             }
         } else {
-            print(msg)
+            print("unsuccessful location punch in")
             //handle unsuccessful location punch in
             incorrectID(success: success)
         }
@@ -169,6 +175,7 @@ class EmployeeIDEntry: UIViewController {
         
         if segue.identifier == "return" {
             vc.employeeInfo = foundUser
+            vc.todaysJob = todaysJob
 //            vc.firAuthId = firAuthId
         }
     }

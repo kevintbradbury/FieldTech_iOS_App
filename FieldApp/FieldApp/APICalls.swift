@@ -36,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, Int) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -59,30 +59,28 @@ class APICalls {
                     return
                 }
                 guard let successfulPunch = json["success"] as? Bool else {
-                    print("couldnt parse successfulPunch")
+                    print("couldnt parse successful punch bool")
                     return
                 }
-                guard let msg = json["msg"] as? String else {
-                    print("unable to parse msg string from response json")
-                    return
-                }
+                var currentJob = ""
+                var poNumber = 0
+                currentJob += (json["job"] as? String)!
+                poNumber = (json["poNumber"] as? Int)!
+                
                 print("punch was success or no ?")
                 print(successfulPunch)
-//                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-//                    print("json serialization failed")
-//                    //handle if login not allowed for current location
-//
-//                    return
-//                }
-                callback(successfulPunch, msg)
+                print(currentJob)
+                print(poNumber)
+
+                callback(successfulPunch, currentJob, poNumber)
             }
         }
         task.resume()
     }
     
-    func sendPhoto(imageData: Data, callback: @escaping (HTTPURLResponse) -> () ) {
+    func sendPhoto(imageData: Data, poNumber: Int, callback: @escaping (HTTPURLResponse) -> () ) {
         
-        let route = "job/1234/upload"
+        let route = "job/" + String(poNumber) + "/upload"
         let session = URLSession.shared;
         
         var request = setupRequest(route: route, method: "POST")
