@@ -62,17 +62,20 @@ class APICalls {
                     print("couldnt parse successful punch bool")
                     return
                 }
-                var currentJob = ""
-                var poNumber = 0
-                currentJob += (json["job"] as? String)!
-                poNumber = (json["poNumber"] as? Int)!
                 
-                print("punch was success or no ?")
-                print(successfulPunch)
-                print(currentJob)
-                print(poNumber)
-
-                callback(successfulPunch, currentJob, poNumber)
+                if let currentJob = json["job"] as? String,
+                    let poNumber = json["poNumber"] as? Int {
+                    print("punch was success or no ?")
+                    print(successfulPunch)
+                    print(currentJob)
+                    print(poNumber)
+                    
+                    callback(successfulPunch, currentJob, poNumber)
+                } else {
+                    callback(successfulPunch, "", 000)
+                }
+                
+                
             }
         }
         task.resume()

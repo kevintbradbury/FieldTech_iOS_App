@@ -11,7 +11,7 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import CoreLocation
-import Alamofire
+//import Alamofire
 import SwiftyJSON
 
 class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -168,7 +168,9 @@ extension HomeView {
             print("Couldn't get JPEG representation")
             return
         }
-        APICalls().sendPhoto(imageData: imageData, poNumber: Int(todaysJob?.poNumber)) { responseObj in
+        guard let poNum = todaysJob?.poNumber as? Int else { return }
+        
+        APICalls().sendPhoto(imageData: imageData, poNumber: poNum) { responseObj in
             self.main.addOperation {
                 self.completedProgress()
                 self.confirmUpload()
