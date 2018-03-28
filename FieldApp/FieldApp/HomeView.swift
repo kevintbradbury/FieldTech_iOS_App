@@ -35,7 +35,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var employeeInfo: UserData.UserInfo?
     var jobs: [Job.UserJob] = []
     var jobAddress = ""
-    var todaysJob: Job?
+    var todaysJob = Job()
     var location = UserData.init().userLocation
     
     override func viewDidLoad() {
@@ -81,13 +81,17 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-        //        guard let poNumber = employeeInfo?.employeeJobs[0] else { return }
         
         photoToUpload.contentMode = .scaleAspectFit
         photoToUpload.image = selectedPhoto
         
         dismiss(animated: true)
-        uploadPhoto(photo: selectedPhoto, poNumber: "1234")
+        guard let po = todaysJob.poNumber else {
+            print("todays job po number: ")
+            print(todaysJob.poNumber)
+            
+            return}
+        uploadPhoto(photo: selectedPhoto, poNumber: po)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -104,8 +108,16 @@ extension HomeView {
             print(self.employeeInfo?.punchedIn)
             //
             if employeeInfo?.punchedIn == true {
-                self.main.addOperation { self.clockedInUI() }
+                if todaysJob.jobName == "" || todaysJob.jobName == nil {
+                    self.main.addOperation { self.clockedInUI() }
+                } else {
+                    self.main.addOperation { self.clockedInUI() }
+                    UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
+                }
+
             } else if employeeInfo?.punchedIn == false {
+                UserDefaults.standard.set(nil, forKey: "todaysJobPO")
+
                 self.main.addOperation { self.clockedOutUI() }
             } else { return }
         } else {
@@ -117,6 +129,8 @@ extension HomeView {
                     
                     if self.employeeInfo?.userName != nil {
                         self.main.addOperation {
+                            self.todaysJob.poNumber = UserDefaults.standard.integer(forKey: "todaysJobPO")
+
                             self.completedProgress()
                             self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
                             self.userLabel.backgroundColor = UIColor.blue
@@ -159,7 +173,7 @@ extension HomeView {
         self.present(actionsheet, animated: true)
     }
     
-    func uploadPhoto(photo: UIImage, poNumber: String){
+    func uploadPhoto(photo: UIImage, poNumber: Int){
         self.main.addOperation {
             self.inProgress()
         }
@@ -168,7 +182,10 @@ extension HomeView {
             print("Couldn't get JPEG representation")
             return
         }
-        guard let poNum = todaysJob?.poNumber as? Int else { return }
+        //
+        guard let poNum = todaysJob.poNumber else {
+            print("couldnt find todays po number")
+            return }
         
         APICalls().sendPhoto(imageData: imageData, poNumber: poNum) { responseObj in
             self.main.addOperation {

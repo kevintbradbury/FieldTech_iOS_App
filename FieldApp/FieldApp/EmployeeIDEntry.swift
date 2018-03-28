@@ -36,7 +36,7 @@ class EmployeeIDEntry: UIViewController {
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
-    var todaysJob: Job?
+    var todaysJob = Job()
     var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
@@ -79,8 +79,8 @@ class EmployeeIDEntry: UIViewController {
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
                     APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber in
-                        self.todaysJob?.jobName = currentJob
-                        self.todaysJob?.poNumber = poNumber
+                        self.todaysJob.jobName = currentJob
+                        self.todaysJob.poNumber = poNumber
                         self.handleSuccess(success: success)
                     }
                 }
@@ -114,8 +114,10 @@ class EmployeeIDEntry: UIViewController {
             self.getLocation() { coordinate in
                 let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
                 APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
-                    self.todaysJob?.jobName = currentJob
-                    self.todaysJob?.poNumber = poNumber
+                    self.todaysJob.jobName = currentJob
+                    self.todaysJob.poNumber = poNumber
+                    print("todays job po name & number: ")
+                    print(self.todaysJob.jobName, self.todaysJob.jobName)
                     self.handleSuccess(success: success)
                 }
             }
@@ -172,10 +174,13 @@ class EmployeeIDEntry: UIViewController {
         let vc = segue.destination as! HomeView
         
         UserDefaults.standard.set(foundUser?.employeeID, forKey: "employeeID")
-        
+
         if segue.identifier == "return" {
             vc.employeeInfo = foundUser
-            vc.todaysJob = todaysJob
+            vc.todaysJob.jobName = todaysJob.jobName
+            vc.todaysJob.poNumber = todaysJob.poNumber
+            
+            print(todaysJob.poNumber)
 //            vc.firAuthId = firAuthId
         }
     }
