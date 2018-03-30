@@ -36,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, Int) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, String) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -64,7 +64,7 @@ class APICalls {
                 }
                 
                 if let currentJob = json["job"] as? String,
-                    let poNumber = json["poNumber"] as? Int {
+                    let poNumber = json["poNumber"] as? String {
                     print("punch was success or no ?")
                     print(successfulPunch)
                     print(currentJob)
@@ -72,7 +72,7 @@ class APICalls {
                     
                     callback(successfulPunch, currentJob, poNumber)
                 } else {
-                    callback(successfulPunch, "", 000)
+                    callback(successfulPunch, "", "000")
                 }
                 
                 
@@ -81,9 +81,9 @@ class APICalls {
         task.resume()
     }
     
-    func sendPhoto(imageData: Data, poNumber: Int, callback: @escaping (HTTPURLResponse) -> () ) {
+    func sendPhoto(imageData: Data, poNumber: String, callback: @escaping (HTTPURLResponse) -> () ) {
         
-        let route = "job/" + String(poNumber) + "/upload"
+        let route = "job/" + poNumber + "/upload"
         let session = URLSession.shared;
         
         var request = setupRequest(route: route, method: "POST")

@@ -110,11 +110,11 @@ class UserData {
 class Job: Codable {
     
     var jobName: String?
-    var poNumber: Int?
+    var poNumber: String?
     
     struct UserJob {
         
-        let poNumber: Int
+        let poNumber: String
         let jobName: String
         let installDate: Date
         let jobLocation: CLLocationCoordinate2D
@@ -130,7 +130,7 @@ class Job: Codable {
                 return nil }
             guard let location = dictionary["jobLocation"] as? [Double] else { print("couldnt parse jobLocation")
                 return nil }
-            guard let purchaseOrderNumber = dictionary["poNumber"] as? Int else { print("couldnt parse poNumber")
+            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else { print("couldnt parse poNumber")
                 return nil }
             guard let jobName = dictionary["name"] as? String else { print("couldnt parse storeName")
                 return nil }

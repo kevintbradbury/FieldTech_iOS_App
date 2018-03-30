@@ -12,7 +12,7 @@ import Firebase
 import FirebaseStorage
 import CoreLocation
 //import Alamofire
-import SwiftyJSON
+//import SwiftyJSON
 
 class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -129,7 +129,7 @@ extension HomeView {
                     
                     if self.employeeInfo?.userName != nil {
                         self.main.addOperation {
-                            self.todaysJob.poNumber = UserDefaults.standard.integer(forKey: "todaysJobPO")
+                            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
 
                             self.completedProgress()
                             self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
@@ -173,7 +173,7 @@ extension HomeView {
         self.present(actionsheet, animated: true)
     }
     
-    func uploadPhoto(photo: UIImage, poNumber: Int){
+    func uploadPhoto(photo: UIImage, poNumber: String){
         self.main.addOperation {
             self.inProgress()
         }
