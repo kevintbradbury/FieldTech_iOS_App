@@ -33,8 +33,10 @@ class EmployeeIDEntry: UIViewController {
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
+    
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
+    var todaysJob = Job()
     var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
@@ -76,17 +78,15 @@ class EmployeeIDEntry: UIViewController {
             isEmployeeIDNum() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { user in
-                        self.foundUser = user
-                        self.main.addOperation {
-                            self.activityIndicator.isHidden = true
-                            self.performSegue(withIdentifier: "return", sender: self)
-                        }
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber in
+                        self.todaysJob.jobName = currentJob
+                        self.todaysJob.poNumber = poNumber
+                        self.handleSuccess(success: success)
                     }
                 }
             }
         } else {
-            self.incorrectID()
+            self.incorrectID(success: true)
         }
     }
     
@@ -113,24 +113,55 @@ class EmployeeIDEntry: UIViewController {
             guard let uwrappedUser = foundUser else { return }
             self.getLocation() { coordinate in
                 let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { user in
-                    self.foundUser = user
-                    self.completedProgress()
+                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
+                    self.todaysJob.jobName = currentJob
+                    self.todaysJob.poNumber = poNumber
+                    print("todays job po name & number: ")
+                    print(self.todaysJob.jobName, self.todaysJob.jobName)
+                    self.handleSuccess(success: success)
                 }
             }
             
         } else {
-            self.incorrectID()
+            self.incorrectID(success: true)
         }
     }
-    func incorrectID() {
-        let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
-
+    
+    func handleSuccess(success: Bool) {
+        if success == true {
+            if self.foundUser?.punchedIn == true {
+                self.foundUser?.punchedIn = false
+                self.completedProgress()
+                
+            } else if self.foundUser?.punchedIn == false {
+                self.foundUser?.punchedIn = true
+                self.completedProgress()
+            }
+        } else {
+            print("unsuccessful location punch in")
+            //handle unsuccessful location punch in
+            incorrectID(success: success)
+        }
+    }
+    
+    func incorrectID(success: Bool) {
+        var actionMsg: String {
+            if success == true {
+                return "Unable to find that user"
+            } else {
+                return "Your location did not match the job location"
+            }
+        }
+        let actionsheet = UIAlertController(title: "Error", message: actionMsg, preferredStyle: UIAlertControllerStyle.alert)
+        
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             self.employeeID.text = ""
             actionsheet.dismiss(animated: true, completion: nil)
             self.main.addOperation {
+                self.activityBckgd.isHidden = true
+                self.activityIndicator.hidesWhenStopped = true
                 self.activityIndicator.stopAnimating()
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
         }
         actionsheet.addAction(ok)
@@ -143,10 +174,14 @@ class EmployeeIDEntry: UIViewController {
         let vc = segue.destination as! HomeView
         
         UserDefaults.standard.set(foundUser?.employeeID, forKey: "employeeID")
-        
+
         if segue.identifier == "return" {
             vc.employeeInfo = foundUser
-            vc.firAuthId = firAuthId
+            vc.todaysJob.jobName = todaysJob.jobName
+            vc.todaysJob.poNumber = todaysJob.poNumber
+            
+            print(todaysJob.poNumber)
+//            vc.firAuthId = firAuthId
         }
     }
     
@@ -183,7 +218,7 @@ class EmployeeIDEntry: UIViewController {
                     //
                     
                     self.main.addOperation {
-                        self.incorrectID()
+                        self.incorrectID(success: true)
                     }
                     return
                 }

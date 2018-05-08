@@ -36,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (UserData.UserInfo) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, String) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -58,19 +58,32 @@ class APICalls {
                     print("json serialization failed")
                     return
                 }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                    print("json serialization failed")
+                guard let successfulPunch = json["success"] as? Bool else {
+                    print("couldnt parse successful punch bool")
                     return
                 }
-                callback(user)
+                
+                if let currentJob = json["job"] as? String,
+                    let poNumber = json["poNumber"] as? String {
+                    print("punch was success or no ?")
+                    print(successfulPunch)
+                    print(currentJob)
+                    print(poNumber)
+                    
+                    callback(successfulPunch, currentJob, poNumber)
+                } else {
+                    callback(successfulPunch, "", "000")
+                }
+                
+                
             }
         }
         task.resume()
     }
     
-    func sendPhoto(imageData: Data, callback: @escaping (HTTPURLResponse) -> () ) {
+    func sendPhoto(imageData: Data, poNumber: String, callback: @escaping (HTTPURLResponse) -> () ) {
         
-        let route = "job/1234/upload"
+        let route = "job/" + poNumber + "/upload"
         let session = URLSession.shared;
         
         var request = setupRequest(route: route, method: "POST")
