@@ -16,6 +16,7 @@ import CoreAudioKit
 import CoreAudio
 import AVKit
 import EventKit
+import Starscream
 
 
 class EmployeeIDEntry: UIViewController {
@@ -41,6 +42,7 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var alarmStopped = false
+    var socket = WebSocket(url: URL(string: "ws://mb-server-app-kbradbury.c9users.io/")!, protocols:["chat"])
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +50,14 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.hidesWhenStopped = true
         UserLocation.instance.initialize()
         hideTextfield()
+        
+        socket.delegate = self
+        socket.connect()
+    }
+
+    deinit {
+        socket.disconnect(forceTimeout: 0)
+        socket.delegate = nil
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -69,6 +79,9 @@ class EmployeeIDEntry: UIViewController {
             self.foundUser = user
             callback(self.foundUser!)
         }
+    }
+    func sendMesage(_ message: String) {
+        socket.write(string: "testing connection 1...2...3")
     }
     
     @IBAction func sendIDNumber(_ sender: Any) {
@@ -231,6 +244,31 @@ class EmployeeIDEntry: UIViewController {
     
 }
 
+extension EmployeeIDEntry: WebSocketDelegate {
+    func websocketDidConnect(_ socket: WebSocket) {
+        print("web socket was able to connect")
+    }
+    func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) {
+        
+    }
+    func websocketDidReceiveMessage(_ socket: WebSocket, text: String) {
+        guard let data = text.data(using: .utf16),
+        let jsonData = try? JSONSerialization.jsonObject(with: data),
+        let jsonDict = jsonData as? [String: Any],
+            let messageType = jsonDict["type"] as? String else {
+                print("error parsing JSON from server")
+                return
+        }
+        
+        if messageType == "message" {
+            print(jsonDict)
+        }
+    }
+    func websocketDidReceiveData(_ socket: WebSocket, data: Data) {
+        
+    }
+}
+
 extension EmployeeIDEntry {
     
     func hideTextfield() {
@@ -388,7 +426,6 @@ extension EmployeeIDEntry {
     }
     
 }
-
 
 
 class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {

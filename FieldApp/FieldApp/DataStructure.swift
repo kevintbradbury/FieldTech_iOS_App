@@ -49,13 +49,13 @@ class UserData {
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
             var clocked = false
-            
-            guard let userId = dictionary["employeeID"] as? Int else { return nil}
-            guard let jobs = dictionary["employeeJobs"] as? NSArray else { return nil}
-            guard let userName = dictionary["username"] as? String else { return nil }
-            if let clockIn = dictionary["punchedIn"] as? Bool {
-                clocked = clockIn
-            }
+            print(dictionary["employeeJobs"])
+            //
+            guard let userId = dictionary["employeeID"] as? Int else { print("employeeID failed to parse"); return nil}
+            guard let jobs = dictionary["employeeJobs"] as? NSArray else { print("employeejobs  failed to parse"); return nil}
+            guard let userName = dictionary["username"] as? String else { print("username  failed to parse"); return nil }
+            guard let clockIn = dictionary["punchedIn"] as? Bool else { print("clockin failed to parse"); return nil }
+            clocked = clockIn
             
             for job in jobs {
                 guard let newJob = Job.UserJob.jsonToDictionary(dictionary: job as! NSDictionary) else { return nil }
@@ -126,14 +126,39 @@ class Job: Codable {
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let dateString = dictionary["installDate"] as? String else { print("couldnt parse dateObject")
-                return nil }
-            guard let location = dictionary["jobLocation"] as? [Double] else { print("couldnt parse jobLocation")
-                return nil }
-            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else { print("couldnt parse poNumber")
-                return nil }
-            guard let jobName = dictionary["name"] as? String else { print("couldnt parse storeName")
-                return nil }
+            guard let dateString = dictionary["installDate"] as? String else {
+                print("couldnt parse dateObject")
+                return nil
+            }
+            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else {
+                print("couldnt parse poNumber")
+                return nil
+            }
+            guard let jobName = dictionary["name"] as? String else {
+                print("couldnt parse storeName")
+                return nil
+            }
+            var lat = CLLocationDegrees()
+            var long = CLLocationDegrees()
+            var coordinates = CLLocationCoordinate2D()
+            var date = Date()
+            
+            if let location = dictionary["jobLocation"] as? [String] {
+                lat = CLLocationDegrees(location[0])!
+                long = CLLocationDegrees(location[1])!
+                coordinates = CLLocationCoordinate2D()
+                coordinates.latitude = lat
+                coordinates.longitude = long
+                date = stringToDate(string: dateString)
+                
+            } else {
+                lat = CLLocationDegrees(0.0)
+                long = CLLocationDegrees(0.0)
+                coordinates = CLLocationCoordinate2D()
+                coordinates.latitude = lat
+                coordinates.longitude = long
+                date = stringToDate(string: dateString)
+            }
                 
 //                let address = dictionary["Address"] as? String,
 //                let city = dictionary["City"] as? String,
@@ -144,15 +169,7 @@ class Job: Codable {
 //                print("failed fromJSON method, in UserJobs Struct")
 //                return nil
 //            }
-            let lat = CLLocationDegrees(location[0])
-            let long = CLLocationDegrees(location[1])
-            var coordinates = CLLocationCoordinate2D()
-            coordinates.latitude = lat
-            coordinates.longitude = long
-            
-            let date = stringToDate(string: dateString)
-            
-            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, installDate: date, jobLocation: coordinates)
+                return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, installDate: date, jobLocation: coordinates)
         }
         
         static func stringToDate(string: String) -> Date {
