@@ -49,8 +49,7 @@ class UserData {
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
             var clocked = false
-            print(dictionary["employeeJobs"])
-            //
+
             guard let userId = dictionary["employeeID"] as? Int else { print("employeeID failed to parse"); return nil}
             guard let jobs = dictionary["employeeJobs"] as? NSArray else { print("employeejobs  failed to parse"); return nil}
             guard let userName = dictionary["username"] as? String else { print("username  failed to parse"); return nil }
@@ -116,7 +115,7 @@ class Job: Codable {
         
         let poNumber: String
         let jobName: String
-        let installDate: Date
+        let dates: [Date]
         let jobLocation: CLLocationCoordinate2D
         
 //        let jobAddress: String
@@ -126,10 +125,6 @@ class Job: Codable {
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let dateString = dictionary["installDate"] as? String else {
-                print("couldnt parse dateObject")
-                return nil
-            }
             guard let purchaseOrderNumber = dictionary["poNumber"] as? String else {
                 print("couldnt parse poNumber")
                 return nil
@@ -138,10 +133,11 @@ class Job: Codable {
                 print("couldnt parse storeName")
                 return nil
             }
+
             var lat = CLLocationDegrees()
             var long = CLLocationDegrees()
             var coordinates = CLLocationCoordinate2D()
-            var date = Date()
+            var dates = [Date()]
             
             if let location = dictionary["jobLocation"] as? [String] {
                 lat = CLLocationDegrees(location[0])!
@@ -149,27 +145,23 @@ class Job: Codable {
                 coordinates = CLLocationCoordinate2D()
                 coordinates.latitude = lat
                 coordinates.longitude = long
-                date = stringToDate(string: dateString)
-                
+                dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
             } else {
                 lat = CLLocationDegrees(0.0)
                 long = CLLocationDegrees(0.0)
                 coordinates = CLLocationCoordinate2D()
                 coordinates.latitude = lat
                 coordinates.longitude = long
-                date = stringToDate(string: dateString)
+                dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
             }
-                
-//                let address = dictionary["Address"] as? String,
-//                let city = dictionary["City"] as? String,
-//                let state = dictionary["State"] as? String,
-//                let budgetHours = dictionary["jobBudgetHours"] as? String,
-//                let employeeHours = dictionary["employeeJobHours"] as? String
-//            else {
-//                print("failed fromJSON method, in UserJobs Struct")
-//                return nil
-//            }
-                return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, installDate: date, jobLocation: coordinates)
+            
+            //                let address = dictionary["Address"] as? String,
+            //                let city = dictionary["City"] as? String,
+            //                let state = dictionary["State"] as? String,
+            //                let budgetHours = dictionary["jobBudgetHours"] as? String,
+            //                let employeeHours = dictionary["employeeJobHours"] as? String
+            
+            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, jobLocation: coordinates)
         }
         
         static func stringToDate(string: String) -> Date {
@@ -182,6 +174,26 @@ class Job: Codable {
             }
             
             return dateString
+        }
+
+        static func checkForArray(datesObj: Any, dictionary: NSDictionary) -> [Date]{
+            var dates = [Date]()
+            
+            if datesObj is [Any] {
+                print("array")
+                guard let datesCollection = datesObj as? [Dictionary<String, Any>] else { print("couldnt cast datesinto an array"); return dates}
+                for i in datesCollection {
+                    guard let install = i["installDate"] as? String else { print("couldnt cast install date from array to string"); return dates}
+                    let date = stringToDate(string: install)
+                    dates.append(date)
+                }
+            } else {
+                print("not multiple dates obj")
+                guard let install = dictionary["installDate"] as? String else { print("couldnt cast date to string"); return dates}
+                let date = stringToDate(string: install)
+                dates.append(date)
+            }
+            return dates
         }
     }
     

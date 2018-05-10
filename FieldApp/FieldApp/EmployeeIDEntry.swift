@@ -50,9 +50,6 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.hidesWhenStopped = true
         UserLocation.instance.initialize()
         hideTextfield()
-        
-        socket.delegate = self
-        socket.connect()
     }
 
     deinit {
@@ -80,9 +77,7 @@ class EmployeeIDEntry: UIViewController {
             callback(self.foundUser!)
         }
     }
-    func sendMesage(_ message: String) {
-        socket.write(string: "testing connection 1...2...3")
-    }
+    func sendData(_ data: Data) { socket.write(data: data) }
     
     @IBAction func sendIDNumber(_ sender: Any) {
         
@@ -123,18 +118,8 @@ class EmployeeIDEntry: UIViewController {
     func clockInClockOut() {
         inProgress()
         if foundUser?.employeeID != nil {
-            guard let uwrappedUser = foundUser else { return }
-            self.getLocation() { coordinate in
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
-                    self.todaysJob.jobName = currentJob
-                    self.todaysJob.poNumber = poNumber
-                    print("todays job po name & number: ")
-                    print(self.todaysJob.jobName, self.todaysJob.jobName)
-                    self.handleSuccess(success: success)
-                }
-            }
-            
+            self.socket.delegate = self
+            self.socket.connect()
         } else {
             self.incorrectID(success: true)
         }
@@ -247,9 +232,24 @@ class EmployeeIDEntry: UIViewController {
 extension EmployeeIDEntry: WebSocketDelegate {
     func websocketDidConnect(_ socket: WebSocket) {
         print("web socket was able to connect")
+        
+        guard let uwrappedUser = foundUser else { return }
+        self.getLocation() { coordinate in
+            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+            let data = APICalls().convertToJSON(employee: uwrappedUser, location: locationArray)
+            self.sendData(data)
+            
+//            APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
+//                self.todaysJob.jobName = currentJob
+//                self.todaysJob.poNumber = poNumber
+//                print("todays job po name & number: ")
+//                print(self.todaysJob.jobName, self.todaysJob.jobName)
+//                self.handleSuccess(success: success)
+//            }
+        }
     }
     func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) {
-        
+        print("web socket DISconnected")
     }
     func websocketDidReceiveMessage(_ socket: WebSocket, text: String) {
         guard let data = text.data(using: .utf16),
