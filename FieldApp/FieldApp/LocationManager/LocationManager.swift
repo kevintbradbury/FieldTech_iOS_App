@@ -113,3 +113,38 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
     }
     
 }
+
+extension UserLocation {
+    func region(withGeotification geotification: Geotification) -> CLCircularRegion {
+        let region = CLCircularRegion(center: geotification.coordinate, radius: geotification.radius, identifier: geotification.identifier)
+        region.notifyOnEntry = (geotification.eventType == .onEntry)
+        region.notifyOnExit = !region.notifyOnEntry
+        return region
+    }
+    
+    func startMonitoring(geotification: Geotification) {
+        if CLLocationManager.authorizationStatus() != .authorizedAlways {
+            fatalError("GPS loc not set to ALWAYS in use")
+        }
+        let region = self.region(withGeotification: geotification)
+        locationManager.startMonitoring(for: region)
+    }
+    
+    func stopMonitoring(geotification: Geotification) {
+        for region in locationManager.monitoredRegions {
+            guard let circularRegion = region as? CLCircularRegion, circularRegion.identifier == geotification.identifier else { continue }
+            locationManager.stopMonitoring(for: circularRegion)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        print("monitoring failed for region w/ identifier: \(region?.identifier)")
+    }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location manger fialed with followign erro: \(error)")
+    }
+    
+    
+}
+
+

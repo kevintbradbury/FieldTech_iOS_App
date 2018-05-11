@@ -52,10 +52,7 @@ class EmployeeIDEntry: UIViewController {
         hideTextfield()
     }
 
-    deinit {
-        socket.disconnect(forceTimeout: 0)
-        socket.delegate = nil
-    }
+//    deinit { socket.disconnect(forceTimeout: 0); socket.delegate = nil }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
@@ -251,21 +248,21 @@ extension EmployeeIDEntry: WebSocketDelegate {
     func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) {
         print("web socket DISconnected")
     }
+    
     func websocketDidReceiveMessage(_ socket: WebSocket, text: String) {
-        guard let data = text.data(using: .utf16),
-        let jsonData = try? JSONSerialization.jsonObject(with: data),
-        let jsonDict = jsonData as? [String: Any],
-            let messageType = jsonDict["type"] as? String else {
-                print("error parsing JSON from server")
-                return
-        }
-        
-        if messageType == "message" {
-            print(jsonDict)
-        }
+        //        guard let data = text.data(using: .utf16),
     }
+    
     func websocketDidReceiveData(_ socket: WebSocket, data: Data) {
+        print("did recieve binary data from server socket")
+        guard let recievedData = (try? JSONSerialization.jsonObject(with: data) as? Dictionary<String, Any>) else { return }
+        print(recievedData)
+        // Bool string string
+        guard let success = recievedData!["success"] as? Int else { return }
+        guard let po = recievedData!["poNumber"] as? String else { return }
+        guard let jobName = recievedData!["job"] as? String else { return }
         
+        if success == 1 { handleSuccess(success: true) } else { handleSuccess(success: false) }
     }
 }
 

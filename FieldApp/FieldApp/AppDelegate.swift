@@ -9,18 +9,22 @@
 import UIKit
 import Firebase
 import UserNotifications
+import CoreLocation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     let notificationDelegate = UYLNotificationDelegate()
+    let locationManager = CLLocationManager()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         FirebaseApp.configure()
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.delegate = notificationDelegate
+        registerForPushNotif()
+        UNUserNotificationCenter.current().delegate = notificationDelegate
+        locationManager.delegate = self as? CLLocationManagerDelegate
+        locationManager.requestAlwaysAuthorization()
         
         return true
     }
@@ -39,7 +43,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
         // This notification is not auth related, developer should handle it.
-        
     }
         
     func applicationWillResignActive(_ application: UIApplication) {
@@ -63,7 +66,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
+    func registerForPushNotif() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+            print("Notification permission granted")
+            guard granted else { return }
+            UNUserNotificationCenter.current().getNotificationSettings { (settings) in
+                guard settings.authorizationStatus == .authorized else { return }
+                UIApplication.shared.registerForRemoteNotifications()
+            }
+        }
+    }
+    func handleGeoFenceEvent(forRegion region: CLRegion) {
+        //send info to server or crack open location manger to begin actively monitoring the user location
+        if UIApplication.shared.applicationState == .active {
+            //do smth while app is open
+            window?.rootViewController?.showAlert(withTitle: nil, message: "looks like you moved out of the job range")
+        } else {
+            //do smth if app is closed or in background
+            
+        }
+    }
 
 }
+
+extension AppDelegate: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        if region is CLCircularRegion { /* handle region entered */ }
+    }
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        if region is CLCircularRegion { handleGeoFenceEvent(forRegion: region) }
+    }
+
+}
+
 
