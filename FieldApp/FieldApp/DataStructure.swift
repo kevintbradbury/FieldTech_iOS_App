@@ -111,6 +111,7 @@ class Job: Codable {
     
     var jobName: String?
     var poNumber: String?
+    var jobLocation: [Double]?
     
     struct UserJob {
         
@@ -140,16 +141,9 @@ class Job: Codable {
             var coordinates = CLLocationCoordinate2D()
             var dates = [Date()]
             
-            if let location = dictionary["jobLocation"] as? [String] {
-                lat = CLLocationDegrees(location[0])!
-                long = CLLocationDegrees(location[1])!
-                coordinates = CLLocationCoordinate2D()
-                coordinates.latitude = lat
-                coordinates.longitude = long
-                dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
-            } else {
-                lat = CLLocationDegrees(0.0)
-                long = CLLocationDegrees(0.0)
+            if let location = dictionary["jobLocation"] as? [Double] {
+                lat = CLLocationDegrees(location[0])
+                long = CLLocationDegrees(location[1])
                 coordinates = CLLocationCoordinate2D()
                 coordinates.latitude = lat
                 coordinates.longitude = long

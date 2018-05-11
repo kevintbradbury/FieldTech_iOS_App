@@ -29,41 +29,29 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
     
     func initialize() {
         
-        if alreadyInitialized {
-            
-            print("Failed to Initialize locationManager")
-            return
-        }
+        if alreadyInitialized { print("locationManager is already initialized"); return }
         
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.distanceFilter = kCLDistanceFilterNone
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestAlwaysAuthorization()
-        
         alreadyInitialized = true
     }
     
     func requestLocation(callback: @escaping ((CLLocationCoordinate2D) -> Void)) {
-        
         self.onLocation = callback
         locationManager.startUpdatingLocation()
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         guard let location: CLLocation = locations.first else {
-            
             print("Failed to Update First Location")
             return
         }
         
-        defer {
-            
-            locationManager.stopUpdatingLocation()
-            
-        }
+        defer { locationManager.stopUpdatingLocation() }
         
         self.currentLocation = location
         let region = calculateRegion(for: location.coordinate)
@@ -71,16 +59,13 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
         
         onLocation?(location.coordinate)
         onLocation = nil
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        
         var allowAuthorization = false
         var locationStatus: String
         
         switch status {
-            
         case CLAuthorizationStatus.restricted:
             locationStatus = "Restricted Access to Location"
             
@@ -95,44 +80,36 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
             
             allowAuthorization = true
         }
-        
     }
     
-    private func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
-        
+    func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
-        let latDelta: CLLocationDegrees = 0.05
-        let longDelta: CLLocationDegrees = 0.05
+        let latDelta: CLLocationDistance = 0.05 // set @ 20 for testing, BUT change to 500 for production
+        let longDelta: CLLocationDistance = 0.05 // 500
         let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta)
         let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let region = MKCoordinateRegion(center: location, span: span)
         
         return region
-        
     }
-    
 }
 
 extension UserLocation {
-    func region(withGeotification geotification: Geotification) -> CLCircularRegion {
-        let region = CLCircularRegion(center: geotification.coordinate, radius: geotification.radius, identifier: geotification.identifier)
-        region.notifyOnEntry = (geotification.eventType == .onEntry)
-        region.notifyOnExit = !region.notifyOnEntry
-        return region
-    }
     
-    func startMonitoring(geotification: Geotification) {
+    func startMonitoring(location: CLLocationCoordinate2D) {
+        print("location to begin monitoring: \(location)")
+        
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
         }
-        let region = self.region(withGeotification: geotification)
-        locationManager.startMonitoring(for: region)
+        let geoObj = CLCircularRegion(center: location, radius: 0.05, identifier: "range")
+        locationManager.startMonitoring(for: geoObj)
     }
     
-    func stopMonitoring(geotification: Geotification) {
+    func stopMonitoring() {
         for region in locationManager.monitoredRegions {
-            guard let circularRegion = region as? CLCircularRegion, circularRegion.identifier == geotification.identifier else { continue }
+            guard let circularRegion = region as? CLCircularRegion else { continue }
             locationManager.stopMonitoring(for: circularRegion)
         }
     }
@@ -143,7 +120,6 @@ extension UserLocation {
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location manger fialed with followign erro: \(error)")
     }
-    
     
 }
 

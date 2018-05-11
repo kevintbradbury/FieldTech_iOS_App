@@ -115,22 +115,44 @@ class EmployeeIDEntry: UIViewController {
     func clockInClockOut() {
         inProgress()
         if foundUser?.employeeID != nil {
-            self.socket.delegate = self
-            self.socket.connect()
-        } else {
-            self.incorrectID(success: true)
-        }
+//            self.socket.delegate = self
+//            self.socket.connect()
+            
+            guard let uwrappedUser = foundUser else { return }
+            self.getLocation() { coordinate in
+                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                let data = APICalls().convertToJSON(employee: uwrappedUser, location: locationArray)
+                self.sendData(data)
+                
+                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
+                    self.todaysJob.jobName = currentJob
+                    self.todaysJob.poNumber = poNumber
+//                    self.todaysJob.jobLocation =
+                    print("todays job po name & number: ")
+                    print(self.todaysJob.jobName, self.todaysJob.jobName)
+                    self.handleSuccess(success: success)
+                }
+            }
+        } else { self.incorrectID(success: true) }
     }
     
     func handleSuccess(success: Bool) {
         if success == true {
             if self.foundUser?.punchedIn == true {
                 self.foundUser?.punchedIn = false
+                self.getLocation() { coordinates in
+                    UserLocation.instance.stopMonitoring()
+                }
                 self.completedProgress()
                 
             } else if self.foundUser?.punchedIn == false {
                 self.foundUser?.punchedIn = true
+                self.getLocation() { coordinates in
+                    guard let unwrappedCoordinates = coordinates as? CLLocationCoordinate2D else { return }
+                    UserLocation.instance.startMonitoring(location: unwrappedCoordinates)
+                }
                 self.completedProgress()
+                
             }
         } else {
             print("unsuccessful location punch in")
@@ -208,13 +230,9 @@ class EmployeeIDEntry: UIViewController {
                 
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                    print("json serialization failed")
-                    print(json)
-                    //
+                    print("json serialization failed"); print(json)
                     
-                    self.main.addOperation {
-                        self.incorrectID(success: true)
-                    }
+                    self.main.addOperation {self.incorrectID(success: true)}
                     return
                 }
                 callback(user)
@@ -230,12 +248,12 @@ extension EmployeeIDEntry: WebSocketDelegate {
     func websocketDidConnect(_ socket: WebSocket) {
         print("web socket was able to connect")
         
-        guard let uwrappedUser = foundUser else { return }
-        self.getLocation() { coordinate in
-            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-            let data = APICalls().convertToJSON(employee: uwrappedUser, location: locationArray)
-            self.sendData(data)
-            
+//        guard let uwrappedUser = foundUser else { return }
+//        self.getLocation() { coordinate in
+//            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+//            let data = APICalls().convertToJSON(employee: uwrappedUser, location: locationArray)
+//            self.sendData(data)
+//
 //            APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
 //                self.todaysJob.jobName = currentJob
 //                self.todaysJob.poNumber = poNumber
@@ -243,7 +261,7 @@ extension EmployeeIDEntry: WebSocketDelegate {
 //                print(self.todaysJob.jobName, self.todaysJob.jobName)
 //                self.handleSuccess(success: success)
 //            }
-        }
+//        }
     }
     func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) {
         print("web socket DISconnected")
