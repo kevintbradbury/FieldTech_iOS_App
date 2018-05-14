@@ -48,15 +48,11 @@ class EmployeeIDEntry: UIViewController {
         super.viewDidLoad()
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
-        UserLocation.instance.initialize()
+//        UserLocation.instance.initialize()
         hideTextfield()
     }
 
 //    deinit { socket.disconnect(forceTimeout: 0); socket.delegate = nil }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-    }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         
@@ -119,20 +115,23 @@ class EmployeeIDEntry: UIViewController {
 //            self.socket.connect()
             
             guard let uwrappedUser = foundUser else { return }
+            var locationArray = [String]()
+            
             self.getLocation() { coordinate in
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                let data = APICalls().convertToJSON(employee: uwrappedUser, location: locationArray)
-                self.sendData(data)
-                
+                locationArray.append(String(coordinate.latitude))
+                locationArray.append(String(coordinate.longitude))
+            
                 APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
                     self.todaysJob.jobName = currentJob
                     self.todaysJob.poNumber = poNumber
-//                    self.todaysJob.jobLocation =
+                    //                    self.todaysJob.jobLocation =
                     print("todays job po name & number: ")
                     print(self.todaysJob.jobName, self.todaysJob.jobName)
                     self.handleSuccess(success: success)
                 }
+//                self.sendData(data)
             }
+            
         } else { self.incorrectID(success: true) }
     }
     
@@ -140,17 +139,14 @@ class EmployeeIDEntry: UIViewController {
         if success == true {
             if self.foundUser?.punchedIn == true {
                 self.foundUser?.punchedIn = false
-                self.getLocation() { coordinates in
-                    UserLocation.instance.stopMonitoring()
-                }
+                
+//                    UserLocation.instance.stopMonitoring()
+                
                 self.completedProgress()
                 
             } else if self.foundUser?.punchedIn == false {
                 self.foundUser?.punchedIn = true
-                self.getLocation() { coordinates in
-                    guard let unwrappedCoordinates = coordinates as? CLLocationCoordinate2D else { return }
-                    UserLocation.instance.startMonitoring(location: unwrappedCoordinates)
-                }
+
                 self.completedProgress()
                 
             }
@@ -196,6 +192,7 @@ class EmployeeIDEntry: UIViewController {
             vc.employeeInfo = foundUser
             vc.todaysJob.jobName = todaysJob.jobName
             vc.todaysJob.poNumber = todaysJob.poNumber
+            vc.location = location
             
             print(todaysJob.poNumber)
 //            vc.firAuthId = firAuthId
@@ -209,6 +206,7 @@ class EmployeeIDEntry: UIViewController {
             if self.location != nil {
                 callback(self.location!)
             }
+            UserLocation.instance.locationManager?.startUpdatingLocation()
         }
     }
     
@@ -354,20 +352,15 @@ extension EmployeeIDEntry {
         notificationCenter.setNotificationCategories([alarmCategory])
         notificationCenter.requestAuthorization(options: options) { (granted, error) in
             if !granted {
-                print("there was an error or the user did not authorize alerts")
-                print(error)
+                print("there was an error or the user did not authorize alerts \(error)")
             }
         }
         notificationCenter.getNotificationSettings { (settings) in
-            if settings.authorizationStatus != .authorized {
-                print("user did not authorize alerts")
-            }
+            if settings.authorizationStatus != .authorized { print("user did not authorize alerts") }
         }
         notificationCenter.add(request, withCompletionHandler: { (err) in
             if err != nil {
-                print("there was an error")
-                print(err)
-            } else {
+                print("there was an error: \(err)") } else {
                 
                 let fiveMinInSec = Double(5 * 60)
                 let tenMinBefore = Double((breakLength * 60) - fiveMinInSec)
@@ -382,11 +375,8 @@ extension EmployeeIDEntry {
                 
                 self.notificationCenter.add(earlyrequest, withCompletionHandler: { (err) in
                     if err != nil {
-                        print("looks like there was an error")
-                        print(err)
-                    } else {
-                        self.clockInClockOut()
-                    }
+                        print("looks like there was an error: \(err)")
+                    } else { self.clockInClockOut() }
                 })
             }
         })

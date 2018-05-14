@@ -12,14 +12,14 @@ import MapKit
 import UIKit
 
 
-class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
+class UserLocation: NSObject, CLLocationManagerDelegate  {
     
     static let instance = UserLocation()
     private override init() {}
     
     private var alreadyInitialized = false
     private var onLocation: ((CLLocationCoordinate2D) -> Void)?
-    var locationManager: CLLocationManager!
+    var locationManager: CLLocationManager?
     var currentLocation: CLLocation?
     var currentRegion: MKCoordinateRegion?
     
@@ -28,37 +28,37 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
     }
     
     func initialize() {
-        
         if alreadyInitialized { print("locationManager is already initialized"); return }
         
         locationManager = CLLocationManager()
-        locationManager.delegate = self
-        locationManager.distanceFilter = kCLDistanceFilterNone
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestAlwaysAuthorization()
+        locationManager!.delegate = self
+        locationManager!.distanceFilter = kCLDistanceFilterNone
+        locationManager!.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager!.requestAlwaysAuthorization()
+        locationManager?.startUpdatingLocation()
         alreadyInitialized = true
     }
     
     func requestLocation(callback: @escaping ((CLLocationCoordinate2D) -> Void)) {
         self.onLocation = callback
-        locationManager.startUpdatingLocation()
+        locationManager?.startUpdatingLocation()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
+
         guard let location: CLLocation = locations.first else {
             print("Failed to Update First Location")
             return
         }
-        
-        defer { locationManager.stopUpdatingLocation() }
-        
+
+        defer { locationManager?.stopUpdatingLocation() }
+
         self.currentLocation = location
         let region = calculateRegion(for: location.coordinate)
         self.currentRegion = region
-        
+
         onLocation?(location.coordinate)
-        onLocation = nil
+//        onLocation = nil
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -77,7 +77,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
             
         default:
             locationStatus = "Location Access Granted"
-            
             allowAuthorization = true
         }
     }
@@ -98,19 +97,20 @@ class UserLocation: NSObject, CLLocationManagerDelegate, MKMapViewDelegate  {
 extension UserLocation {
     
     func startMonitoring(location: CLLocationCoordinate2D) {
-        print("location to begin monitoring: \(location)")
-        
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
+            
+        } else {
+            let region = CLCircularRegion(center: location, radius: 100, identifier: "range")
+            locationManager?.startMonitoring(for: region)
+            print("location to begin monitoring: \(location)")
         }
-        let geoObj = CLCircularRegion(center: location, radius: 0.05, identifier: "range")
-        locationManager.startMonitoring(for: geoObj)
     }
     
     func stopMonitoring() {
-        for region in locationManager.monitoredRegions {
+        for region in (locationManager?.monitoredRegions)! {
             guard let circularRegion = region as? CLCircularRegion else { continue }
-            locationManager.stopMonitoring(for: circularRegion)
+            locationManager?.stopMonitoring(for: circularRegion)
         }
     }
     
@@ -118,7 +118,7 @@ extension UserLocation {
         print("monitoring failed for region w/ identifier: \(region?.identifier)")
     }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location manger fialed with followign erro: \(error)")
+        print("Location manger failed with followign erro: \(error)")
     }
     
 }

@@ -45,17 +45,21 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         
         picker.delegate = self
         UserLocation.instance.initialize()
-        checkForUserInfo()
+//        checkForUserInfo()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
+        checkForUserInfo()
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil {
                 self.dismiss(animated: true)
             }
         }
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        employeeInfo = nil
     }
     
     @IBAction func logoutPressed(_ sender: Any) {
@@ -104,10 +108,12 @@ extension HomeView {
     
     func checkForUserInfo() {
         if employeeInfo?.employeeID != nil {
-            print("punched in -- ")
-            print(self.employeeInfo?.punchedIn)
-            //
-            if employeeInfo?.punchedIn == true {
+            print("punched in -- \(employeeInfo!.punchedIn)")
+
+            if Bool(employeeInfo!.punchedIn!) == true {
+                
+                UserLocation.instance.startMonitoring(location: location!)
+
                 if todaysJob.jobName == "" || todaysJob.jobName == nil {
                     self.main.addOperation { self.clockedInUI() }
                 } else {
@@ -130,14 +136,12 @@ extension HomeView {
                     if self.employeeInfo?.userName != nil {
                         self.main.addOperation {
                             self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
-
                             self.completedProgress()
                             self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
                             self.userLabel.backgroundColor = UIColor.blue
                             self.userLabel.textColor = UIColor.white
-                            //
-                            print("punched in -- ")
-                            print(self.employeeInfo?.punchedIn)
+
+                            print("punched in -- \(self.employeeInfo?.punchedIn)")
                         }
                     }
                 }
