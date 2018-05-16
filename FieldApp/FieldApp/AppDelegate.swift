@@ -18,7 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var notificationDelegate = UYLNotificationDelegate()
     var locationManager: CLLocationManager?
     var notificationCenter: UNUserNotificationCenter?
-    var userLoc: CLLocation?
     let main = OperationQueue.main
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
@@ -29,8 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         notificationCenter = UNUserNotificationCenter.current()
         notificationCenter?.delegate = notificationDelegate
-        
-//        let region = UserDefaults.standard.data(forKey: "savedRegion")
         
         FirebaseApp.configure()
         registerForPushNotif()
@@ -56,23 +53,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+        HomeView().employeeInfo = nil
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        HomeView().employeeInfo = nil
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        HomeView().employeeInfo = nil
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        HomeView().employeeInfo = nil
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+        UserDefaults.standard.set(nil, forKey: "todaysJobPO")
+        UserDefaults.standard.set(nil, forKey: "employeeName")
     }
     
     func registerForPushNotif() {
@@ -86,18 +89,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    func handleGeoFenceEvent(forRegion region: CLRegion) {  print("--> left geofence region <--")
-        let employeeID = UserDefaults.standard.string(forKey: "employeeID")
-        let userINfo = UserData.UserInfo(employeeID: Int(employeeID!)!, employeeJobs: [], userName: "", punchedIn: true)
-        let locationArray = ["33.877105400870263", "-118.03514083418783"]
-        print("user loc is : \(userLoc)")
+    func handleGeoFenceEvent(forRegion region: CLRegion) {
+        guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
+        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") else { print("failed on employeeName"); return }
+        guard let jobLoc = UserDefaults.standard.array(forKey: "todaysJobLatLong") as? [Double] else { print("failed on job location"); return }
+        let userInfo = UserData.UserInfo(employeeID: employeeID, employeeJobs: [], userName: employeeName, punchedIn: true)
+        let locationArray = [String(jobLoc[0]), String(jobLoc[1])]
         
-        APICalls().sendCoordinates(employee: userINfo, location: locationArray) { success, currentJob, poNumber  in
-
-            //do smth if app is closed or in background
+        // This is an auto clock-out, we want to use the job site coordinates otherwise we may not be able to clock out
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray) { success, currentJob, poNumber, jobLatLong in
+            
             let content = UNMutableNotificationContent()
-            content.title = "Clock Out Reminder"
-            content.body = "Did you leave the job site?"
+            content.title = "Left Job Site"
+            content.body = "You were clocked out because you left the job site."
             content.sound = UNNotificationSound.default()
             let interval = TimeInterval(5.01)
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
@@ -106,33 +110,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.notificationCenter?.add(request, withCompletionHandler: { (err) in
                 if err != nil { print("error setting up notification request") }
             })
+            
+            if success == true { UserLocation.instance.stopMonitoring() }
         }
-        
-        
+        self.locationManager?.startUpdatingLocation()
     }
     
 }
 
 extension AppDelegate: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-//        if region is CLCircularRegion { /* handle region entered */ }
-    }
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) { print("ENTER region event triggered") }
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        print("region exit event triggered \(region)")
+        print("region EXIT event triggered \(region)")
         handleGeoFenceEvent(forRegion: region)
     }
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location: CLLocation = locations.first else {
-            print("Failed to Update First Location")
-            return
-        }
-        userLoc = location
-    }
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) { }
+    //        guard let location: CLLocation = locations.first else { print("Failed to Update Location"); return }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler(.alert)
+        completionHandler(.badge)
     }
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         print("received user input")

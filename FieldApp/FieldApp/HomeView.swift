@@ -36,7 +36,6 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var jobs: [Job.UserJob] = []
     var jobAddress = ""
     var todaysJob = Job()
-    var location = UserData.init().userLocation
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,7 +44,11 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         
         picker.delegate = self
         UserLocation.instance.initialize()
-//        checkForUserInfo()
+        checkForUserInfo()
+        print("this is view did load")
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        print("this is view will appear")
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -53,13 +56,15 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         checkForUserInfo()
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
-            if user == nil {
-                self.dismiss(animated: true)
-            }
+            if user == nil { self.dismiss(animated: true) }
         }
     }
+    
     override func viewWillDisappear(_ animated: Bool) {
-        employeeInfo = nil
+        print("this is view will disappear")
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        print("this is view did disappear")
     }
     
     @IBAction func logoutPressed(_ sender: Any) {
@@ -110,22 +115,28 @@ extension HomeView {
         if employeeInfo?.employeeID != nil {
             print("punched in -- \(employeeInfo!.punchedIn)")
 
-            if Bool(employeeInfo!.punchedIn!) == true {
+            if employeeInfo!.punchedIn == true {
+                self.main.addOperation { self.clockedInUI() }
                 
-                UserLocation.instance.startMonitoring(location: location!)
-
-                if todaysJob.jobName == "" || todaysJob.jobName == nil {
-                    self.main.addOperation { self.clockedInUI() }
-                } else {
-                    self.main.addOperation { self.clockedInUI() }
+                if todaysJob.jobName != nil && todaysJob.jobName != "" {
+                    guard let jobLoc = todaysJob.jobLocation else { print("failed to get job location for todays job"); return }
+                    let coordinate = CLLocationCoordinate2D(latitude: jobLoc[0], longitude: jobLoc[1])
+                    UserLocation.instance.startMonitoring(location: coordinate)
+                    
                     UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
+                    UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
+                } else {
+                    UserLocation.instance.requestLocation() { coordinate in
+                        UserLocation.instance.startMonitoring(location: coordinate)
+                    }
                 }
-
-            } else if employeeInfo?.punchedIn == false {
-                UserDefaults.standard.set(nil, forKey: "todaysJobPO")
-
+            } else if employeeInfo!.punchedIn == false {
                 self.main.addOperation { self.clockedOutUI() }
+                
+                UserDefaults.standard.set(nil, forKey: "todaysJobPO")
+                UserLocation.instance.stopMonitoring()
             } else { return }
+            
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgress()
@@ -135,13 +146,20 @@ extension HomeView {
                     
                     if self.employeeInfo?.userName != nil {
                         self.main.addOperation {
-                            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
                             self.completedProgress()
-                            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
-                            self.userLabel.backgroundColor = UIColor.blue
                             self.userLabel.textColor = UIColor.white
-
-                            print("punched in -- \(self.employeeInfo?.punchedIn)")
+                            self.userLabel.backgroundColor = UIColor.blue
+                            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
+                            
+                            UserDefaults.standard.set(self.employeeInfo?.userName, forKey: "employeeName")
+                            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
+                            guard let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") as? [Double] else { return }
+                            self.todaysJob.jobLocation = latLong
+                            
+                            if self.employeeInfo?.punchedIn == true {
+                                let jobLoc = CLLocationCoordinate2D(latitude: self.todaysJob.jobLocation![0], longitude: self.todaysJob.jobLocation![1])
+                                UserLocation.instance.startMonitoring(location: jobLoc)
+                            }
                         }
                     }
                 }

@@ -42,21 +42,23 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var alarmStopped = false
-    var socket = WebSocket(url: URL(string: "ws://mb-server-app-kbradbury.c9users.io/")!, protocols:["chat"])
     
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
-//        UserLocation.instance.initialize()
         hideTextfield()
     }
-
-//    deinit { socket.disconnect(forceTimeout: 0); socket.delegate = nil }
+    
+    @IBAction func sendIDNumber(_ sender: Any) { sendID() }
+    @IBAction func backToHome(_ sender: Any) { dismiss(animated: true, completion: nil) }
+    @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
+    @IBAction func goClockOut(_ sender: Any) { clockInClockOut() }
+    @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
+        var employeeNumberToInt: Int?
         
-        var employeeNumberToInt: Int?;
         if foundUser?.employeeID != nil {
             guard let employeeNumber = foundUser?.employeeID else { return }
             employeeNumberToInt = Int(employeeNumber)
@@ -70,66 +72,39 @@ class EmployeeIDEntry: UIViewController {
             callback(self.foundUser!)
         }
     }
-    func sendData(_ data: Data) { socket.write(data: data) }
     
-    @IBAction func sendIDNumber(_ sender: Any) {
-        
+    func sendID() {
         activityIndicator.startAnimating()
         if employeeID.text != "" {
             isEmployeeIDNum() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber in
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber, jobLatLong in
                         self.todaysJob.jobName = currentJob
                         self.todaysJob.poNumber = poNumber
+                        self.todaysJob.jobLocation = jobLatLong
                         self.handleSuccess(success: success)
                     }
                 }
             }
-        } else {
-            self.incorrectID(success: true)
-        }
+        } else { self.incorrectID(success: true) }
     }
-    
-    @IBAction func backToHome(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
-    }
-    
-    @IBAction func goClockIn(_ sender: Any) {
-        clockInClockOut()
-    }
-    
-    @IBAction func goClockOut(_ sender: Any) {
-        clockInClockOut()
-    }
-    
-    @IBAction func lunchBrkPunchOut(_ sender: Any) {
-        chooseBreakLength()
-    }
-    
     
     func clockInClockOut() {
         inProgress()
+        
         if foundUser?.employeeID != nil {
-//            self.socket.delegate = self
-//            self.socket.connect()
-            
             guard let uwrappedUser = foundUser else { return }
-            var locationArray = [String]()
             
             self.getLocation() { coordinate in
-                locationArray.append(String(coordinate.latitude))
-                locationArray.append(String(coordinate.longitude))
-            
-                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
+                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                
+                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber, jobLatLong  in
                     self.todaysJob.jobName = currentJob
                     self.todaysJob.poNumber = poNumber
-                    //                    self.todaysJob.jobLocation =
-                    print("todays job po name & number: ")
-                    print(self.todaysJob.jobName, self.todaysJob.jobName)
+                    self.todaysJob.jobLocation = jobLatLong
                     self.handleSuccess(success: success)
                 }
-//                self.sendData(data)
             }
             
         } else { self.incorrectID(success: true) }
@@ -139,35 +114,26 @@ class EmployeeIDEntry: UIViewController {
         if success == true {
             if self.foundUser?.punchedIn == true {
                 self.foundUser?.punchedIn = false
-                
-//                    UserLocation.instance.stopMonitoring()
-                
                 self.completedProgress()
                 
             } else if self.foundUser?.punchedIn == false {
                 self.foundUser?.punchedIn = true
-
                 self.completedProgress()
-                
             }
         } else {
             print("unsuccessful location punch in")
-            //handle unsuccessful location punch in
             incorrectID(success: success)
         }
     }
     
     func incorrectID(success: Bool) {
         var actionMsg: String {
-            if success == true {
-                return "Unable to find that user"
-            } else {
-                return "Your location did not match the job location"
-            }
+            if success == true { return "Unable to find that user" }
+            else { return "Your location did not match the job location" }
         }
         let actionsheet = UIAlertController(title: "Error", message: actionMsg, preferredStyle: UIAlertControllerStyle.alert)
         
-        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
+        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) { (action) in
             self.employeeID.text = ""
             actionsheet.dismiss(animated: true, completion: nil)
             self.main.addOperation {
@@ -178,35 +144,24 @@ class EmployeeIDEntry: UIViewController {
             }
         }
         actionsheet.addAction(ok)
-        self.main.addOperation {
-            self.present(actionsheet, animated: true, completion: nil)
-        }
+        self.main.addOperation { self.present(actionsheet, animated: true, completion: nil) }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let vc = segue.destination as! HomeView
         
         UserDefaults.standard.set(foundUser?.employeeID, forKey: "employeeID")
-
+        UserDefaults.standard.set(foundUser?.userName, forKey: "employeeName")
+        
         if segue.identifier == "return" {
             vc.employeeInfo = foundUser
-            vc.todaysJob.jobName = todaysJob.jobName
-            vc.todaysJob.poNumber = todaysJob.poNumber
-            vc.location = location
-            
-            print(todaysJob.poNumber)
-//            vc.firAuthId = firAuthId
+            vc.todaysJob = todaysJob
         }
     }
     
     func getLocation(callback: @escaping (CLLocationCoordinate2D) -> ()) {
-        
         UserLocation.instance.requestLocation(){ coordinate in
-            self.location = coordinate
-            if self.location != nil {
-                callback(self.location!)
-            }
-            UserLocation.instance.locationManager?.startUpdatingLocation()
+            callback(coordinate); UserLocation.instance.locationManager?.startUpdatingLocation()
         }
     }
     
@@ -217,19 +172,12 @@ class EmployeeIDEntry: UIViewController {
         let session = URLSession.shared;
         
         let task = session.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
-            } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
-                }
-                
+            if error != nil { print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return }
+            else {
+                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                    print("json serialization failed"); print(json)
-                    
+                    print("json serialization failed: \(json)")
                     self.main.addOperation {self.incorrectID(success: true)}
                     return
                 }
@@ -238,48 +186,13 @@ class EmployeeIDEntry: UIViewController {
         }
         task.resume()
     }
-    
-    
 }
 
 extension EmployeeIDEntry: WebSocketDelegate {
-    func websocketDidConnect(_ socket: WebSocket) {
-        print("web socket was able to connect")
-        
-//        guard let uwrappedUser = foundUser else { return }
-//        self.getLocation() { coordinate in
-//            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-//            let data = APICalls().convertToJSON(employee: uwrappedUser, location: locationArray)
-//            self.sendData(data)
-//
-//            APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber  in
-//                self.todaysJob.jobName = currentJob
-//                self.todaysJob.poNumber = poNumber
-//                print("todays job po name & number: ")
-//                print(self.todaysJob.jobName, self.todaysJob.jobName)
-//                self.handleSuccess(success: success)
-//            }
-//        }
-    }
-    func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) {
-        print("web socket DISconnected")
-    }
-    
-    func websocketDidReceiveMessage(_ socket: WebSocket, text: String) {
-        //        guard let data = text.data(using: .utf16),
-    }
-    
-    func websocketDidReceiveData(_ socket: WebSocket, data: Data) {
-        print("did recieve binary data from server socket")
-        guard let recievedData = (try? JSONSerialization.jsonObject(with: data) as? Dictionary<String, Any>) else { return }
-        print(recievedData)
-        // Bool string string
-        guard let success = recievedData!["success"] as? Int else { return }
-        guard let po = recievedData!["poNumber"] as? String else { return }
-        guard let jobName = recievedData!["job"] as? String else { return }
-        
-        if success == 1 { handleSuccess(success: true) } else { handleSuccess(success: false) }
-    }
+    func websocketDidConnect(_ socket: WebSocket) {print("web socket was able to connect")}
+    func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) {print("web socket DISconnected")}
+    func websocketDidReceiveMessage(_ socket: WebSocket, text: String) {print("web socket received message")}
+    func websocketDidReceiveData(_ socket: WebSocket, data: Data) {print("did recieve binary data from server socket")}
 }
 
 extension EmployeeIDEntry {

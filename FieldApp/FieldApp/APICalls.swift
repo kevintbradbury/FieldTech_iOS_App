@@ -36,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, String) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, String, [Double]) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -47,35 +47,22 @@ class APICalls {
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response))")
-                return
+                print("failed to fetch JSON from database \n \(String(describing: response))"); return
+                
             } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
-                }
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                    print("json serialization failed")
-                    return
-                }
-                guard let successfulPunch = json["success"] as? Bool else {
-                    print("couldnt parse successful punch bool")
-                    return
-                }
+                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { print("json serialization failed"); return }
+                guard let successfulPunch = json["success"] as? Bool else { print("failed on success bool"); return }
                 
                 if let currentJob = json["job"] as? String,
-                    let poNumber = json["poNumber"] as? String {
-                    print("punch was success or no ?")
-                    print(successfulPunch)
-                    print(currentJob)
-                    print(poNumber)
+                    let poNumber = json["poNumber"] as? String,
+                    let jobLatLong = json["jobLatLong"] as? [Double] {
+                    print("punch was success or no ? \n \(successfulPunch), \n \(currentJob), \n \(poNumber), \n \(jobLatLong)")
                     
-                    callback(successfulPunch, currentJob, poNumber)
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong)
                 } else {
-                    callback(successfulPunch, "", "000")
+                    callback(successfulPunch, "", "000", [0.0])
                 }
-                
-                
             }
         }
         task.resume()

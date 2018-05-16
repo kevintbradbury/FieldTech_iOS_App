@@ -50,7 +50,7 @@ class UserData {
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
             var clocked = false
-
+            
             guard let userId = dictionary["employeeID"] as? Int else { print("employeeID failed to parse"); return nil}
             guard let jobs = dictionary["employeeJobs"] as? NSArray else { print("employeejobs  failed to parse"); return nil}
             guard let userName = dictionary["username"] as? String else { print("username  failed to parse"); return nil }
@@ -62,12 +62,10 @@ class UserData {
                 jobsToAdd.append(newJob)
             }
             
-            print("now in array")
-            print(jobsToAdd)
-            
-                //                let userNumber = dictionary["phoneNumber"] as? Int,
-                //                let weekHours = dictionary["workWeekHours"] as? Int,
-                //                let points = dictionary["userPoints"] as? Int,
+            for job in jobsToAdd { print(job) }
+            //                let userNumber = dictionary["phoneNumber"] as? Int,
+            //                let weekHours = dictionary["workWeekHours"] as? Int,
+            //                let points = dictionary["userPoints"] as? Int,
             
             return UserInfo(employeeID: userId, employeeJobs: jobsToAdd, userName: userName, punchedIn: clocked)
         }
@@ -120,10 +118,10 @@ class Job: Codable {
         let dates: [Date]
         let jobLocation: CLLocationCoordinate2D
         
-//        let jobAddress: String
-//        let jobCity: String
-//        let jobState: String
-//        let employeeJobHours: String?
+        //        let jobAddress: String
+        //        let jobCity: String
+        //        let jobState: String
+        //        let employeeJobHours: String?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
@@ -135,7 +133,7 @@ class Job: Codable {
                 print("couldnt parse storeName")
                 return nil
             }
-
+            
             var lat = CLLocationDegrees()
             var long = CLLocationDegrees()
             var coordinates = CLLocationCoordinate2D()
@@ -170,12 +168,11 @@ class Job: Codable {
             
             return dateString
         }
-
+        
         static func checkForArray(datesObj: Any, dictionary: NSDictionary) -> [Date]{
             var dates = [Date]()
             
             if datesObj is [Any] {
-                print("array")
                 guard let datesCollection = datesObj as? [Dictionary<String, Any>] else { print("couldnt cast datesinto an array"); return dates}
                 for i in datesCollection {
                     guard let install = i["installDate"] as? String else { print("couldnt cast install date from array to string"); return dates}
@@ -183,7 +180,6 @@ class Job: Codable {
                     dates.append(date)
                 }
             } else {
-                print("not multiple dates obj")
                 guard let install = dictionary["installDate"] as? String else { print("couldnt cast date to string"); return dates}
                 let date = stringToDate(string: install)
                 dates.append(date)
@@ -269,11 +265,11 @@ class FieldActions {
 
 struct GeoKey {
     static let latitude = "latitude"
-        static let longitude = "longitude"
-        static let radius = "radius"
-        static let identifier = "identifier"
-        static let note = "note"
-        static let eventType = "eventType"
+    static let longitude = "longitude"
+    static let radius = "radius"
+    static let identifier = "identifier"
+    static let note = "note"
+    static let eventType = "eventType"
 }
 
 enum EventType: String {
