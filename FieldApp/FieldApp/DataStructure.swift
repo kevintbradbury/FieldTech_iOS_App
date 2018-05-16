@@ -60,9 +60,9 @@ class UserData {
             for job in jobs {
                 guard let newJob = Job.UserJob.jsonToDictionary(dictionary: job as! NSDictionary) else { return nil }
                 jobsToAdd.append(newJob)
+                print("Employee job: \(newJob.jobName)")
             }
             
-            for job in jobsToAdd { print(job) }
             //                let userNumber = dictionary["phoneNumber"] as? Int,
             //                let weekHours = dictionary["workWeekHours"] as? Int,
             //                let points = dictionary["userPoints"] as? Int,

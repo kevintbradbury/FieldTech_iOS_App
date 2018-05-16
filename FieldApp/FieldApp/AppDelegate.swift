@@ -31,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         registerForPushNotif()
+        print("app didFinishLaunching w/ optons")
         
         return true
     }
@@ -54,28 +55,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
         HomeView().employeeInfo = nil
+        print("application will resign active")
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         HomeView().employeeInfo = nil
+        print("app did enter bkgrd")
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
         HomeView().employeeInfo = nil
+        print("app will enter foregrnd, AND user is punched in: \(HomeView().employeeInfo?.punchedIn)")
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        HomeView().employeeInfo = nil
+        print("app did become active")
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         UserDefaults.standard.set(nil, forKey: "todaysJobPO")
         UserDefaults.standard.set(nil, forKey: "employeeName")
+        print("app will terminate")
     }
     
     func registerForPushNotif() {
@@ -111,7 +116,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if err != nil { print("error setting up notification request") }
             })
             
-            if success == true { UserLocation.instance.stopMonitoring() }
+            if success == true {
+                UserLocation.instance.stopMonitoring()
+                HomeView().employeeInfo?.punchedIn = false
+            }
         }
         self.locationManager?.startUpdatingLocation()
     }

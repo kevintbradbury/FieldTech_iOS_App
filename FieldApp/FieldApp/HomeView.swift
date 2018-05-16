@@ -31,7 +31,8 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     let main = OperationQueue.main
     let picker = UIImagePickerController()
-    
+    let keyPathToObserve = "employeeInfo"
+
     var employeeInfo: UserData.UserInfo?
     var jobs: [Job.UserJob] = []
     var jobAddress = ""
@@ -44,47 +45,33 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         
         picker.delegate = self
         UserLocation.instance.initialize()
-        checkForUserInfo()
-        print("this is view did load")
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        print("this is view will appear")
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        checkForUserInfo()
+        self.addObserver(self, forKeyPath: keyPathToObserve, options: .new, context: nil)
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
         }
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        print("this is view will disappear")
-    }
-    override func viewDidDisappear(_ animated: Bool) {
-        print("this is view did disappear")
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForUserInfo()
     }
     
-    @IBAction func logoutPressed(_ sender: Any) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
-        do {
-            try firebaseAuth.signOut()
-        } catch let signOutError as NSError {
-            print("Error signing out: %@", signOutError)
-            return
+        if keyPath == keyPathToObserve {
+            checkForUserInfo()
+            print("employee info was changed \(String(describing: change))")
         }
     }
     
-    @IBAction func chooseUploadMethod(_ sender: Any) {
-        showUploadMethods()
-    }
-    @IBAction func goClockInOut(_ sender: Any) {
-        performSegue(withIdentifier: "clock_in", sender: self)
-    }
-    @IBAction func goToSchedule(_ sender: Any) {
-        performSegue(withIdentifier: "schedule", sender: self)
+    @IBAction func logoutPressed(_ sender: Any) { logOut() }
+    @IBAction func chooseUploadMethod(_ sender: Any) { showUploadMethods() }
+    @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
+    @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
+    
+    func logOut() {
+        do { try firebaseAuth.signOut() }
+        catch let signOutError as NSError { print("Error signing out: %@", signOutError); return }
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -98,18 +85,38 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         guard let po = todaysJob.poNumber else {
             print("todays job po number: ")
             print(todaysJob.poNumber)
-            
-            return}
+            return
+        }
         uploadPhoto(photo: selectedPhoto, poNumber: po)
     }
     
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
-    }
-    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismiss(animated: true, completion: nil) }
 }
 
 extension HomeView {
+    
+    func setMonitoringForJobLoc() {
+        var coordindates: CLLocationCoordinate2D?
+        let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong")
+
+        if todaysJob.jobName != nil && todaysJob.jobLocation?[0] != nil && todaysJob.jobLocation?[1] != nil {
+            coordindates = CLLocationCoordinate2D(latitude: todaysJob.jobLocation![0], longitude: todaysJob.jobLocation![1])
+            UserLocation.instance.startMonitoring(location: coordindates!)
+            
+            UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
+            UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
+        
+        } else if latLong?[0] != nil && latLong?[1] != nil{
+            guard let locAsDoubles = latLong as? [Double] else  { return }
+            coordindates = CLLocationCoordinate2D(latitude: locAsDoubles[0], longitude: locAsDoubles[1])
+            UserLocation.instance.startMonitoring(location: coordindates!)
+        
+        } else { //No job loc available
+            UserLocation.instance.requestLocation() { userLoc in
+                UserLocation.instance.startMonitoring(location: userLoc)
+            }
+        }
+    }
     
     func checkForUserInfo() {
         if employeeInfo?.employeeID != nil {
@@ -117,24 +124,12 @@ extension HomeView {
 
             if employeeInfo!.punchedIn == true {
                 self.main.addOperation { self.clockedInUI() }
-                
-                if todaysJob.jobName != nil && todaysJob.jobName != "" {
-                    guard let jobLoc = todaysJob.jobLocation else { print("failed to get job location for todays job"); return }
-                    let coordinate = CLLocationCoordinate2D(latitude: jobLoc[0], longitude: jobLoc[1])
-                    UserLocation.instance.startMonitoring(location: coordinate)
-                    
-                    UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
-                    UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
-                } else {
-                    UserLocation.instance.requestLocation() { coordinate in
-                        UserLocation.instance.startMonitoring(location: coordinate)
-                    }
-                }
+                setMonitoringForJobLoc()
+
             } else if employeeInfo!.punchedIn == false {
                 self.main.addOperation { self.clockedOutUI() }
-                
-                UserDefaults.standard.set(nil, forKey: "todaysJobPO")
                 UserLocation.instance.stopMonitoring()
+                UserDefaults.standard.set(nil, forKey: "todaysJobPO")
             } else { return }
             
         } else {
@@ -145,25 +140,22 @@ extension HomeView {
                     self.employeeInfo = user
                     
                     if self.employeeInfo?.userName != nil {
-                        self.main.addOperation {
-                            self.completedProgress()
-                            self.userLabel.textColor = UIColor.white
-                            self.userLabel.backgroundColor = UIColor.blue
-                            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
-                            
-                            UserDefaults.standard.set(self.employeeInfo?.userName, forKey: "employeeName")
-                            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
-                            guard let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") as? [Double] else { return }
-                            self.todaysJob.jobLocation = latLong
-                            
-                            if self.employeeInfo?.punchedIn == true {
-                                let jobLoc = CLLocationCoordinate2D(latitude: self.todaysJob.jobLocation![0], longitude: self.todaysJob.jobLocation![1])
-                                UserLocation.instance.startMonitoring(location: jobLoc)
-                            }
-                        }
+                        self.setFetchedEmployeeUI()
+                        UserDefaults.standard.set(self.employeeInfo?.userName, forKey: "employeeName")
+                        if self.employeeInfo?.punchedIn == true { self.setMonitoringForJobLoc() }
                     }
                 }
             } else { completedProgress() }
+        }
+    }
+    
+    func setFetchedEmployeeUI() {
+        self.main.addOperation {
+            self.completedProgress()
+            self.userLabel.textColor = UIColor.white
+            self.userLabel.backgroundColor = UIColor.blue
+            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
+            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
         }
     }
     
@@ -196,18 +188,9 @@ extension HomeView {
     }
     
     func uploadPhoto(photo: UIImage, poNumber: String){
-        self.main.addOperation {
-            self.inProgress()
-        }
-        
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
-            print("Couldn't get JPEG representation")
-            return
-        }
-        //
-        guard let poNum = todaysJob.poNumber else {
-            print("couldnt find todays po number")
-            return }
+        self.main.addOperation { self.inProgress() }
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else { print("Couldn't get JPEG representation"); return }
+        guard let poNum = todaysJob.poNumber else { print("couldnt find todays po number"); return }
         
         APICalls().sendPhoto(imageData: imageData, poNumber: poNum) { responseObj in
             self.main.addOperation {
@@ -268,25 +251,17 @@ extension HomeView {
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             actionsheet.dismiss(animated: true, completion: nil)
         }
-        
         actionsheet.addAction(ok)
         self.present(actionsheet, animated: true)
     }
     
     func checkJobProximity() {
-        
         UserLocation.instance.requestLocation(){ coordinate in
-            
             let jobLocation = self.jobs[0].jobLocation
-            
             let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
             print("Miles from job location is --> \(distance) \n")
-            if distance > 1.0 {
-                print("NO <-- User is not in proximity to Job location \n")
-            } else {
-                print("YES <-- User is in proximity to Job location \n")
-            }
-            
+            if distance > 1.0 { print("NO <-- User is not in proximity to Job location \n") }
+            else { print("YES <-- User is in proximity to Job location \n") }
         }
     }
     

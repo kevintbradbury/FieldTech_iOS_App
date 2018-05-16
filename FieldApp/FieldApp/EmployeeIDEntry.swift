@@ -42,12 +42,14 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var alarmStopped = false
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { sendID() }
@@ -55,6 +57,8 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { clockInClockOut() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
+    
+
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
