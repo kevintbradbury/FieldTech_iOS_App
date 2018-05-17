@@ -101,7 +101,7 @@ extension UserLocation {
             fatalError("GPS loc not set to ALWAYS in use")
             
         } else {
-            let region = CLCircularRegion(center: location, radius: 100, identifier: "range") //change radius to 1/4 mile for production
+            let region = CLCircularRegion(center: location, radius: 402, identifier: "range") // radius 1/4 mile ~= 402 meters
             locationManager?.startMonitoring(for: region)
             print("location to begin monitoring: \(location)")
         }

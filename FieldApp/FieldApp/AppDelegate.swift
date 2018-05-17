@@ -18,7 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var notificationDelegate = UYLNotificationDelegate()
     var locationManager: CLLocationManager?
     var notificationCenter: UNUserNotificationCenter?
-    var myViewController: UIViewController?
+    var myViewController: HomeView?
+    var didEnterBackground: Bool?
     let main = OperationQueue.main
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
@@ -62,20 +63,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         print("app did enter bkgrd, with window")
+        didEnterBackground = true
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
         print("app will enter foregrnd")
-        if myViewController != nil {
-            
-        }
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("app did become active")
-        
+        if myViewController != nil  && didEnterBackground == true {
+            self.myViewController?.employeeInfo = nil
+            self.myViewController?.checkForUserInfo()
+        }
     }
     
     func applicationWillTerminate(_ application: UIApplication) {
@@ -104,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let locationArray = [String(jobLoc[0]), String(jobLoc[1])]
         
         // This is an auto clock-out, we want to use the job site coordinates otherwise we may not be able to clock out
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray) { success, currentJob, poNumber, jobLatLong in
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockInOut in
             
             let content = UNMutableNotificationContent()
             content.title = "Left Job Site"
@@ -118,12 +120,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if err != nil { print("error setting up notification request") }
             })
             
-            if success == true {
-                UserLocation.instance.stopMonitoring()
-                HomeView().employeeInfo?.punchedIn = false
-            }
+            if clockInOut == false && success == true { UserLocation.instance.stopMonitoring() }
         }
-        self.locationManager?.startUpdatingLocation()
     }
     
 }

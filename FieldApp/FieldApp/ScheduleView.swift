@@ -46,13 +46,7 @@ class ScheduleView: UIViewController {
         getCalendarInfo()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-    }
-    
-    @IBAction func dismissVC(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
-    }
+    @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
     
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {

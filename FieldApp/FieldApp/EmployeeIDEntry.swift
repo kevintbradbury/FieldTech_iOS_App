@@ -43,13 +43,11 @@ class EmployeeIDEntry: UIViewController {
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var alarmStopped = false
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
-
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { sendID() }
@@ -57,8 +55,6 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { clockInClockOut() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
-    
-
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
@@ -83,11 +79,8 @@ class EmployeeIDEntry: UIViewController {
             isEmployeeIDNum() { foundUser in
                 self.getLocation() { coordinate in
                     let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber, jobLatLong in
-                        self.todaysJob.jobName = currentJob
-                        self.todaysJob.poNumber = poNumber
-                        self.todaysJob.jobLocation = jobLatLong
-                        self.handleSuccess(success: success)
+                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockInOut in
+                        self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockInOut: clockInOut)
                     }
                 }
             }
@@ -103,27 +96,22 @@ class EmployeeIDEntry: UIViewController {
             self.getLocation() { coordinate in
                 let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
                 
-                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber, jobLatLong  in
-                    self.todaysJob.jobName = currentJob
-                    self.todaysJob.poNumber = poNumber
-                    self.todaysJob.jobLocation = jobLatLong
-                    self.handleSuccess(success: success)
+                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockInOut in
+                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockInOut: clockInOut)
                 }
             }
-            
         } else { self.incorrectID(success: true) }
     }
     
-    func handleSuccess(success: Bool) {
+    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockInOut: Bool) {
         if success == true {
-            if self.foundUser?.punchedIn == true {
-                self.foundUser?.punchedIn = false
-                self.completedProgress()
-                
-            } else if self.foundUser?.punchedIn == false {
-                self.foundUser?.punchedIn = true
-                self.completedProgress()
-            }
+            print("punched in / out: \(String(describing: foundUser?.punchedIn))")
+            self.todaysJob.jobName = currentJob
+            self.todaysJob.poNumber = poNumber
+            self.todaysJob.jobLocation = jobLatLong
+            self.foundUser?.punchedIn = clockInOut
+            self.completedProgress()
+            
         } else {
             print("unsuccessful location punch in")
             incorrectID(success: success)
@@ -238,6 +226,8 @@ extension EmployeeIDEntry {
     }
     
     func completedProgress() {
+        print("updated punch in-out is now: \(String(describing: foundUser?.punchedIn))")
+        
         self.main.addOperation {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true

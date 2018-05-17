@@ -49,12 +49,13 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
         }
-        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
-        appDelegate.myViewController = self
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         checkForUserInfo()
+        
+        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
+        appDelegate.myViewController = self
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
@@ -114,16 +115,7 @@ extension HomeView {
     func checkForUserInfo() {
         if employeeInfo?.employeeID != nil {
             print("punched in -- \(employeeInfo!.punchedIn)")
-
-            if employeeInfo!.punchedIn == true {
-                self.main.addOperation(self.clockedInUI) //{ self.clockedOutUI() }
-                setMonitoringForJobLoc()
-
-            } else if employeeInfo!.punchedIn == false {
-                self.main.addOperation(self.clockedOutUI) //{ self.clockedOutUI() }
-                UserLocation.instance.stopMonitoring()
-                UserDefaults.standard.set(nil, forKey: "todaysJobPO")
-            } else { return }
+            checkPunchStatus()
             
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
@@ -131,24 +123,21 @@ extension HomeView {
                 
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
                     self.employeeInfo = user
-                    
-                    if self.employeeInfo?.userName != nil {
-                        self.setFetchedEmployeeUI()
-                        UserDefaults.standard.set(self.employeeInfo?.userName, forKey: "employeeName")
-                        if self.employeeInfo?.punchedIn == true { self.setMonitoringForJobLoc() }
-                    }
+                    self.checkPunchStatus()
                 }
             } else { completedProgress() }
         }
     }
     
+    
+    
     func setFetchedEmployeeUI() {
         self.main.addOperation {
-            self.completedProgress()
             self.userLabel.textColor = UIColor.white
             self.userLabel.backgroundColor = UIColor.blue
             self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
             self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
+            self.completedProgress()
         }
     }
     
@@ -192,52 +181,11 @@ extension HomeView {
             }
         }
     }
-    
-//    func upload(image: UIImage,
-//                progressCompletion: @escaping (_ percent: Float) -> Void) {
-//
-//        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
-//        let jobNumber = String(1234) // PO - Grand and Foothill
-//        let url = address + jobNumber + "/upload"
-//        let fileNmStrg = String(photoName + ".jpg")
-//        guard let photoName = employeeInfo?.employeeJobs[0] else { return }
-//        let fileName = fileNmStrg
-//        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else { return }
-//
-//        Alamofire.upload(
-//            multipartFormData: { multipartFormData in
-//
-//                multipartFormData.append(imageData,
-//                                         withName: fileName,
-//                                         mimeType: "image/jpeg")
-//                print(imageData)
-//        },
-//            to: url,
-//            encodingCompletion: { encodingResult in
-//                switch encodingResult {
-//
-//                case .success(let upload, _, _):
-//                    upload.uploadProgress { progress in
-//                        progressCompletion(Float(progress.fractionCompleted))
-//                    }
-//                    //                    upload.validate()
-//                    upload.responseJSON { response in
-//                        guard response.result.isSuccess else {
-//                            print("error while uploading file: \(String(describing: response.result.error))")
-//                            return
-//                        }
-//                    }
-//
-//                case .failure(let encodingError):
-//                    print(encodingError)
-//                }
-//        }
-//        )
-//    }
-    
 }
 
 extension HomeView {
+    
+    
     
     func confirmUpload() {
         let actionsheet = UIAlertController(title: "Successful", message: "Photo was uploaded successfully", preferredStyle: UIAlertControllerStyle.alert)
@@ -273,13 +221,15 @@ extension HomeView {
     
     func clockedInUI() {
         userLabel.backgroundColor = UIColor.green
-        userLabel.textColor = UIColor.white
+        userLabel.textColor = UIColor.black
         self.userLabel.text = "Clocked In"
+        completedProgress()
     }
     func clockedOutUI() {
         userLabel.backgroundColor = UIColor.red
         userLabel.textColor = UIColor.black
         self.userLabel.text = "Clocked Out"
+        completedProgress()
     }
 }
 
@@ -305,6 +255,21 @@ extension HomeView {
         self.present(actionsheet, animated: true, completion: nil)
     }
     
+    func checkPunchStatus() {
+        if employeeInfo?.userName != nil {
+            UserDefaults.standard.set(employeeInfo?.userName, forKey: "employeeName")
+            
+            if employeeInfo?.punchedIn == true {
+                setMonitoringForJobLoc()
+                main.addOperation(clockedInUI) //{ self.clockedOutUI() }
+                
+            } else if employeeInfo?.punchedIn == false {
+                UserLocation.instance.stopMonitoring()
+                main.addOperation(clockedOutUI) //{ self.clockedOutUI() }
+                
+            } else { main.addOperation(setFetchedEmployeeUI) }
+        } else { completedProgress(); return }
+    }
 }
 
 extension UIViewController {

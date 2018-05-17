@@ -36,7 +36,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, String, [Double]) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
         
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
@@ -56,12 +56,13 @@ class APICalls {
                 
                 if let currentJob = json["job"] as? String,
                     let poNumber = json["poNumber"] as? String,
-                    let jobLatLong = json["jobLatLong"] as? [Double] {
-                    print("punch was success or no ? \n \(successfulPunch), \n \(currentJob), \n \(poNumber), \n \(jobLatLong)")
+                    let jobLatLong = json["jobLatLong"] as? [Double],
+                    let clockInOut = json["punchedIn"] as? Bool {
+                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockInOut)")
                     
-                    callback(successfulPunch, currentJob, poNumber, jobLatLong)
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockInOut)
                 } else {
-                    callback(successfulPunch, "", "000", [0.0])
+                    callback(successfulPunch, "", "", [0.0], false)
                 }
             }
         }
