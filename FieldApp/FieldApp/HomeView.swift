@@ -11,6 +11,7 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import CoreLocation
+import NotificationCenter
 //import Alamofire
 //import SwiftyJSON
 
@@ -31,7 +32,6 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     let main = OperationQueue.main
     let picker = UIImagePickerController()
-    let keyPathToObserve = "employeeInfo"
 
     var employeeInfo: UserData.UserInfo?
     var jobs: [Job.UserJob] = []
@@ -45,23 +45,16 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         
         picker.delegate = self
         UserLocation.instance.initialize()
-        self.addObserver(self, forKeyPath: keyPathToObserve, options: .new, context: nil)
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
         }
+        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
+        appDelegate.myViewController = self
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         checkForUserInfo()
-    }
-    
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        
-        if keyPath == keyPathToObserve {
-            checkForUserInfo()
-            print("employee info was changed \(String(describing: change))")
-        }
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
@@ -123,11 +116,11 @@ extension HomeView {
             print("punched in -- \(employeeInfo!.punchedIn)")
 
             if employeeInfo!.punchedIn == true {
-                self.main.addOperation { self.clockedInUI() }
+                self.main.addOperation(self.clockedInUI) //{ self.clockedOutUI() }
                 setMonitoringForJobLoc()
 
             } else if employeeInfo!.punchedIn == false {
-                self.main.addOperation { self.clockedOutUI() }
+                self.main.addOperation(self.clockedOutUI) //{ self.clockedOutUI() }
                 UserLocation.instance.stopMonitoring()
                 UserDefaults.standard.set(nil, forKey: "todaysJobPO")
             } else { return }
