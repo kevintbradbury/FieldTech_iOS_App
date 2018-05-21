@@ -11,7 +11,8 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import CoreLocation
-import NotificationCenter
+import UserNotifications
+import UserNotificationsUI
 //import Alamofire
 //import SwiftyJSON
 
@@ -32,6 +33,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     let main = OperationQueue.main
     let picker = UIImagePickerController()
+    let notificationCenter = UNUserNotificationCenter.current()
 
     var employeeInfo: UserData.UserInfo?
     var jobs: [Job.UserJob] = []
@@ -49,6 +51,8 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
         }
+        
+        setUpNotifications()
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -261,14 +265,27 @@ extension HomeView {
             
             if employeeInfo?.punchedIn == true {
                 setMonitoringForJobLoc()
-                main.addOperation(clockedInUI) //{ self.clockedOutUI() }
+                main.addOperation(clockedInUI)
                 
             } else if employeeInfo?.punchedIn == false {
                 UserLocation.instance.stopMonitoring()
-                main.addOperation(clockedOutUI) //{ self.clockedOutUI() }
+                main.addOperation(clockedOutUI)
                 
             } else { main.addOperation(setFetchedEmployeeUI) }
         } else { completedProgress(); return }
+    }
+    
+    func setUpNotifications() {
+        let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: .destructive)
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [stopAction], intentIdentifiers: [], options: [])
+        notificationCenter.setNotificationCategories([alarmCategory])
+        notificationCenter.requestAuthorization(options: options) { (granted, error) in
+            if !granted {
+                print("there was an error or the user did not authorize alerts \(String(describing: error))")
+            }
+        }
+        notificationCenter.getNotificationSettings { (settings) in if settings.authorizationStatus != .authorized { print("user did not authorize alerts") } }
     }
 }
 

@@ -38,8 +38,8 @@ class UserData {
     struct UserInfo {
         
         let employeeID: Int
-        let employeeJobs: [Job.UserJob]
         let userName: String
+        var employeeJobs: [Job.UserJob]
         var punchedIn: Bool?
         
         //                let employeePhone: Int?
@@ -67,7 +67,7 @@ class UserData {
             //                let weekHours = dictionary["workWeekHours"] as? Int,
             //                let points = dictionary["userPoints"] as? Int,
             
-            return UserInfo(employeeID: userId, employeeJobs: jobsToAdd, userName: userName, punchedIn: clocked)
+            return UserInfo(employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clocked)
         }
     }
     

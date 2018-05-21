@@ -11,6 +11,8 @@ import UIKit
 import CoreLocation
 import Firebase
 import FirebaseStorage
+import EventKit
+
 
 class APICalls {
     let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
@@ -57,10 +59,10 @@ class APICalls {
                 if let currentJob = json["job"] as? String,
                     let poNumber = json["poNumber"] as? String,
                     let jobLatLong = json["jobLatLong"] as? [Double],
-                    let clockInOut = json["punchedIn"] as? Bool {
-                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockInOut)")
+                    let clockedIn = json["punchedIn"] as? Bool {
+                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
                     
-                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockInOut)
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn)
                 } else {
                     callback(successfulPunch, "", "", [0.0], false)
                 }
@@ -225,5 +227,37 @@ extension APICalls {
             }
         }
         uploadTask.enqueue()
+    }
+}
+
+extension APICalls {
+    //Doesn't set an alarm but does add an event to calendar, which may be useeful for adding jobs to internal calendar
+    
+    func setAnAlarm(jobName: String, jobStart: Date, jobEnd: Date) {
+        var calendar: EKCalendar?
+        let eventstore = EKEventStore()
+        
+        eventstore.requestAccess(to: EKEntityType.event){ (granted, error ) -> Void in
+            if granted == true {
+                let event = EKEvent(eventStore: eventstore)
+                //Substitute job info in here: startDate, endDate, title
+                event.startDate = Date()
+                event.endDate = event.startDate.addingTimeInterval(TimeInterval(60 * 60))
+                event.calendar = eventstore.defaultCalendarForNewEvents
+                event.title = "Job Name"
+//                event.structuredLocation = EKStructuredLocation() // Geofence location for event
+                event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
+                
+                do {
+                    try eventstore.save(event, span: .thisEvent, commit: true)
+                } catch { (error)
+                    if error != nil {
+                        print("looks like we couldn't setup that alarm")
+                        print(error)
+                    }
+                }
+                
+            }
+        }
     }
 }

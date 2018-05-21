@@ -99,41 +99,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func handleGeoFenceEvent(forRegion region: CLRegion) {
+        print("region EXIT event triggered \(region)")
         guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
         guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") else { print("failed on employeeName"); return }
         guard let jobLoc = UserDefaults.standard.array(forKey: "todaysJobLatLong") as? [Double] else { print("failed on job location"); return }
-        let userInfo = UserData.UserInfo(employeeID: employeeID, employeeJobs: [], userName: employeeName, punchedIn: true)
+        let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
         let locationArray = [String(jobLoc[0]), String(jobLoc[1])]
         
         // This is an auto clock-out, we want to use the job site coordinates otherwise we may not be able to clock out
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockInOut in
-            
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockedIn in
             let content = UNMutableNotificationContent()
             content.title = "Left Job Site"
             content.body = "You were clocked out because you left the job site."
             content.sound = UNNotificationSound.default()
-            let interval = TimeInterval(5.01)
+            let interval = TimeInterval(2.0)
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
             let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
             
             self.notificationCenter?.add(request, withCompletionHandler: { (err) in
                 if err != nil { print("error setting up notification request") }
             })
-            
-            if clockInOut == false && success == true { UserLocation.instance.stopMonitoring() }
+            if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
         }
     }
-    
 }
 
 extension AppDelegate: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) { print("ENTER region event triggered") }
-    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        print("region EXIT event triggered \(region)")
-        handleGeoFenceEvent(forRegion: region)
-    }
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) { }
-    //        guard let location: CLLocation = locations.first else { print("Failed to Update Location"); return }
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) { print("did update locations") }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
