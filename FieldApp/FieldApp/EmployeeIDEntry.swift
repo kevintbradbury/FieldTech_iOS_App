@@ -88,13 +88,10 @@ class EmployeeIDEntry: UIViewController {
     
     func clockInClockOut() {
         inProgress()
-        
         if foundUser?.employeeID != nil {
             guard let uwrappedUser = foundUser else { return }
-            
             self.getLocation() { coordinate in
                 let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                
                 APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockedIn in
                     self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
                 }
@@ -118,16 +115,16 @@ class EmployeeIDEntry: UIViewController {
                 func checkLunch() {
                     hadLunch = UserDefaults.standard.bool(forKey: "hadLunch")
                     if hadLunch == true {
-                        title = "Clock Out Reminder"; message = "Time to wrap up for the day"; identifier = "clockOut";
+                        title = "Clock Out Reminder"; message = "Time to wrap up for the day."; identifier = "clockOut";
                         hadLunch = false; UserDefaults.standard.set(nil, forKey: "hadLunch")
                     } else {
-                        title = "Lunch Reminder"; message = "Time for Lunch"; identifier = "lunchReminder"
+                        title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
                     }
                 }
                 checkLunch()
                 let request = createNotification(intervalInSeconds: fourHours, title: title, message: message, identifier: identifier)
                 notificationCenter.add(request) { (error) in
-                    if error != nil { print("error setting clock notif: "); print(error) } else { print("added lunch reminder at 4 hour mark") }
+                    if error != nil { print("error setting clock notif: "); print(error) } else { print("added reminder at 4 hour mark") }
                 }
             }
         } else { incorrectID(success: success) }
@@ -135,8 +132,8 @@ class EmployeeIDEntry: UIViewController {
     
     func incorrectID(success: Bool) {
         var actionMsg: String {
-            if success == true { return "Unable to find that user" }
-            else { return "Your location did not match the job location" }
+            if success == true { return "Unable to find that user." }
+            else { return "Your location did not match the job location." }
         }
         
         self.main.addOperation {
@@ -145,22 +142,8 @@ class EmployeeIDEntry: UIViewController {
             self.activityIndicator.stopAnimating()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
-        showAlert(withTitle: "OK", message: actionMsg)
-
-//        let actionsheet = UIAlertController(title: "Error", message: actionMsg, preferredStyle: UIAlertControllerStyle.alert)
-//
-//        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) { (action) in
-//            self.employeeID.text = ""
-//            actionsheet.dismiss(animated: true, completion: nil)
-//            self.main.addOperation {
-//                self.activityBckgd.isHidden = true
-//                self.activityIndicator.hidesWhenStopped = true
-//                self.activityIndicator.stopAnimating()
-//                UIApplication.shared.isNetworkActivityIndicatorVisible = false
-//            }
-//        }
-//        actionsheet.addAction(ok)
-//        self.main.addOperation { self.present(actionsheet, animated: true, completion: nil) }
+        
+        showAlert(withTitle: "Alert", message: actionMsg)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -184,14 +167,14 @@ class EmployeeIDEntry: UIViewController {
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
-        
         let route = "employee/" + String(employeeId)
         let request = APICalls().setupRequest(route: route, method: "GET")
         let session = URLSession.shared;
         
         let task = session.dataTask(with: request) {data, response, error in
-            if error != nil { print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return }
-            else {
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
+            } else {
                 guard let verifiedData = data else { print("could not verify data from dataTask"); return }
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
@@ -268,13 +251,13 @@ extension EmployeeIDEntry {
     
     func goOnLunch(breakLength: Double) {
         let timeInSeconds = Double(breakLength * 60)
-        let request = createNotification(intervalInSeconds: timeInSeconds, title: "Break Over", message: "Sorry, break time is over", identifier: "breakOver")
+        let request = createNotification(intervalInSeconds: timeInSeconds, title: "Break Over", message: "Sorry, break time is over.", identifier: "breakOver")
         
         notificationCenter.add(request, withCompletionHandler: { (error) in
             if error != nil { print("there was an error: "); print(error) } else {
                 let fiveMinInSec = Double(5 * 60)
                 let tenMinBefore = Double((breakLength * 60) - fiveMinInSec)
-                let earlyrequest = self.createNotification(intervalInSeconds: tenMinBefore, title: "Break Almost Over", message: "Break is almost over", identifier: "breakAlmostOver")
+                let earlyrequest = self.createNotification(intervalInSeconds: tenMinBefore, title: "Break Almost Done", message: "Break is almost over, start wrapping up.", identifier: "breakAlmostOver")
                 
                 self.notificationCenter.add(earlyrequest, withCompletionHandler: { (error) in
                     if error != nil {

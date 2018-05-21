@@ -143,7 +143,6 @@ class APICalls {
 extension APICalls {
     
     func parseJobs(from data: Data) -> [Job.UserJob] {
-        
         var jobsArray: [Job.UserJob] = []
         
         guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
@@ -152,7 +151,6 @@ extension APICalls {
         }
         
         for jobJson in json {
-            
             if let jobDictionary = jobJson as? [String : Any]  {
                 if let job = Job.UserJob.jsonToDictionary(dictionary: jobDictionary as NSDictionary) {
                     jobsArray.append(job)
@@ -242,10 +240,10 @@ extension APICalls {
                 let event = EKEvent(eventStore: eventstore)
                 //Substitute job info in here: startDate, endDate, title
                 event.startDate = Date()
-                event.endDate = event.startDate.addingTimeInterval(TimeInterval(60 * 60))
+                event.endDate = Date()
                 event.calendar = eventstore.defaultCalendarForNewEvents
                 event.title = "Job Name"
-//                event.structuredLocation = EKStructuredLocation() // Geofence location for event
+                event.structuredLocation = EKStructuredLocation() // Geofence location for event
                 event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
                 
                 do {

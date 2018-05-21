@@ -67,6 +67,10 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
     @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
     
+}
+
+extension HomeView {
+    
     func logOut() {
         do { try firebaseAuth.signOut() }
         catch let signOutError as NSError { print("Error signing out: %@", signOutError); return }
@@ -89,9 +93,6 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismiss(animated: true, completion: nil) }
-}
-
-extension HomeView {
     
     func setMonitoringForJobLoc() {
         var coordindates: CLLocationCoordinate2D?
@@ -132,8 +133,6 @@ extension HomeView {
             } else { completedProgress() }
         }
     }
-    
-    
     
     func setFetchedEmployeeUI() {
         self.main.addOperation {
