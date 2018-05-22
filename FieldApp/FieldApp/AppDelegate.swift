@@ -42,6 +42,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data){
         // Forward token to provider, using custom method.
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
+        
+        let tokenChars = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
+        var data = Data()
+        do { let jsonEncoder = JSONEncoder(); data = try jsonEncoder.encode(tokenChars) }
+        catch { print(error) }
+        
+        let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
+        let route = jsonString + "employee/token"
+        
+        var request = APICalls().setupRequest(route: route, method: "POST")
+        request.httpBody = data
+        
+        let task = URLSession.shared.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
+                return
+            } else { print("sent device token successfully") }
+        }
+        task.resume()
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
@@ -121,6 +140,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             })
             if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
         }
+    }
+    
+    func sendToken(token: String) {
+        
     }
 }
 
