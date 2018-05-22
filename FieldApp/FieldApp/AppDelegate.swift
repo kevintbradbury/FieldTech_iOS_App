@@ -133,20 +133,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             request.addValue(token, forHTTPHeaderField: "token")
             let task = URLSession.shared.dataTask(with: request) {data, response, error in
                 if error != nil {
-                    print("failed to fetch JSON from database)"); print(error);
-                    return
+                    print("failed to fetch JSON from database)"); print(error); return
                 } else { print("sent device token successfully") }
             }
             task.resume()
         }
-        updateToken()
-//        if let existingToken = UserDefaults.standard.string(forKey: "token") {
-//            if existingToken == token { return }
-//            else { updateToken() }
-//        } else {
-//            UserDefaults.standard.set(token, forKey: "token")
-//            updateToken()
-//        }
+        
+        if let existingToken = UserDefaults.standard.string(forKey: "token") {
+            if existingToken == token { return }
+            else { updateToken() }
+        } else {
+            UserDefaults.standard.set(token, forKey: "token")
+            updateToken()
+        }
     }
 }
 
