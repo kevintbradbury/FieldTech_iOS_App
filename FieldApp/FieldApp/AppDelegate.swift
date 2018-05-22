@@ -40,27 +40,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data){
-        // Forward token to provider, using custom method.
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
         let tokenChars = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
-        var data = Data()
-        do { let jsonEncoder = JSONEncoder(); data = try jsonEncoder.encode(tokenChars) }
-        catch { print(error) }
-        
-        let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
-        let route = jsonString + "employee/token"
-        
-        var request = APICalls().setupRequest(route: route, method: "POST")
-        request.httpBody = data
-        
-        let task = URLSession.shared.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
-            } else { print("sent device token successfully") }
-        }
-        task.resume()
+        print("token is : \(tokenChars)")
+        checkToken(token: tokenChars)
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
@@ -75,7 +59,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
-        print("application will resign active")
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -87,7 +70,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-        print("app will enter foregrnd")
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -142,8 +124,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    func sendToken(token: String) {
+    func checkToken(token: String) {
+        guard let id = UserDefaults.standard.string(forKey: "employeeID") else { return }
+        let route = "employee/token/" + id
+        var request = APICalls().setupRequest(route: route, method: "POST")
         
+        func updateToken() {
+            request.addValue(token, forHTTPHeaderField: "token")
+            let task = URLSession.shared.dataTask(with: request) {data, response, error in
+                if error != nil {
+                    print("failed to fetch JSON from database)"); print(error);
+                    return
+                } else { print("sent device token successfully") }
+            }
+            task.resume()
+        }
+        updateToken()
+//        if let existingToken = UserDefaults.standard.string(forKey: "token") {
+//            if existingToken == token { return }
+//            else { updateToken() }
+//        } else {
+//            UserDefaults.standard.set(token, forKey: "token")
+//            updateToken()
+//        }
     }
 }
 
