@@ -22,19 +22,17 @@ class UserLocation: NSObject, CLLocationManagerDelegate  {
     var locationManager: CLLocationManager?
     var currentLocation: CLLocation?
     var currentRegion: MKCoordinateRegion?
-    
-    var currentCoordinate: CLLocationCoordinate2D? {
-        return currentLocation?.coordinate
-    }
+    var currentCoordinate: CLLocationCoordinate2D? { return currentLocation?.coordinate }
     
     func initialize() {
         if alreadyInitialized { print("locationManager is already initialized"); return }
         
         locationManager = CLLocationManager()
-        locationManager!.delegate = self
-        locationManager!.distanceFilter = kCLDistanceFilterNone
-        locationManager!.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager!.requestAlwaysAuthorization()
+        locationManager?.delegate = self
+        locationManager?.distanceFilter = kCLDistanceFilterNone
+        locationManager?.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager?.allowsBackgroundLocationUpdates = true
+        locationManager?.requestAlwaysAuthorization()
         locationManager?.startUpdatingLocation()
         alreadyInitialized = true
     }
@@ -51,7 +49,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate  {
             return
         }
 
-        defer { locationManager?.stopUpdatingLocation() }
+//        defer { locationManager?.stopUpdatingLocation() }
 
         self.currentLocation = location
         let region = calculateRegion(for: location.coordinate)
@@ -99,28 +97,26 @@ extension UserLocation {
     func startMonitoring(location: CLLocationCoordinate2D) {
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
-            
         } else {
-            let region = CLCircularRegion(center: location, radius: 402, identifier: "range") // radius 1/4 mile ~= 402 meters
+            //radius: 402
+            let region = CLCircularRegion(center: location, radius: 2, identifier: "range") // radius 1/4 mile ~= 402 meters
             locationManager?.startMonitoring(for: region)
             print("location to begin monitoring: \(location)")
         }
     }
     
     func stopMonitoring() {
+        print("stop monitoring location")
         for region in (locationManager?.monitoredRegions)! {
             guard let circularRegion = region as? CLCircularRegion else { continue }
             locationManager?.stopMonitoring(for: circularRegion)
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
-        print("monitoring failed for region w/ identifier: \(region?.identifier)")
-    }
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location manger failed with followign erro: \(error)")
-    }
-    
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) { print("monitoring failed for region w/ identifier: "); print(region?.identifier) }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with followign error: "); print(error) }
+
+//    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { AppDelegate().handleGeoFenceEvent(forRegion: region) }
 }
 
 

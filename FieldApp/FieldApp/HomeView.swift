@@ -23,7 +23,6 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
-    
     @IBOutlet weak var clockInOut: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
@@ -40,6 +39,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var jobAddress = ""
     var todaysJob = Job()
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicator.isHidden = true
@@ -51,9 +51,9 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
         }
-        
         setUpNotifications()
     }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         checkForUserInfo()
@@ -95,20 +95,21 @@ extension HomeView {
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismiss(animated: true, completion: nil) }
     
     func setMonitoringForJobLoc() {
-        var coordindates: CLLocationCoordinate2D?
         let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong")
 
-        if todaysJob.jobName != nil && todaysJob.jobLocation?[0] != nil && todaysJob.jobLocation?[1] != nil {
-            coordindates = CLLocationCoordinate2D(latitude: todaysJob.jobLocation![0], longitude: todaysJob.jobLocation![1])
-            UserLocation.instance.startMonitoring(location: coordindates!)
+        if todaysJob.jobName != nil && todaysJob.jobLocation != nil && todaysJob.jobLocation?.count == 2 {
+            guard let lat = todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
+            guard let lng = todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
+            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else { return }
+            UserLocation.instance.startMonitoring(location: coordindates)
             
             UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
             UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
         
         } else if latLong?[0] != nil && latLong?[1] != nil{
             guard let locAsDoubles = latLong as? [Double] else  { return }
-            coordindates = CLLocationCoordinate2D(latitude: locAsDoubles[0], longitude: locAsDoubles[1])
-            UserLocation.instance.startMonitoring(location: coordindates!)
+            guard let coordindates = CLLocationCoordinate2D(latitude: locAsDoubles[0], longitude: locAsDoubles[1]) as? CLLocationCoordinate2D else { return }
+            UserLocation.instance.startMonitoring(location: coordindates)
         
         } else { //No job loc available
             UserLocation.instance.requestLocation() { userLoc in

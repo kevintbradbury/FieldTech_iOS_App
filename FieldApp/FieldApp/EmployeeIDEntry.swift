@@ -47,6 +47,7 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+//        UserLocation.instance.initialize()
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { sendID() }
@@ -76,11 +77,11 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.startAnimating()
         if employeeID.text != "" {
             isEmployeeIDNum() { foundUser in
-                self.getLocation() { coordinate in
-                    let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                    APICalls().sendCoordinates(employee: foundUser, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockedIn in
-                        self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
-                    }
+                guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                
+                APICalls().sendCoordinates(employee: foundUser, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
+                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
                 }
             }
         } else { self.incorrectID(success: true) }
@@ -90,11 +91,11 @@ class EmployeeIDEntry: UIViewController {
         inProgress()
         if foundUser?.employeeID != nil {
             guard let uwrappedUser = foundUser else { return }
-            self.getLocation() { coordinate in
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockedIn in
-                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
-                }
+            guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+            
+            APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
+                self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
             }
         } else { self.incorrectID(success: true) }
     }
@@ -157,12 +158,6 @@ class EmployeeIDEntry: UIViewController {
             vc.todaysJob.jobName = todaysJob.jobName
             vc.todaysJob.poNumber = todaysJob.poNumber
             vc.todaysJob.jobLocation = todaysJob.jobLocation
-        }
-    }
-    
-    func getLocation(callback: @escaping (CLLocationCoordinate2D) -> ()) {
-        UserLocation.instance.requestLocation(){ coordinate in
-            callback(coordinate); UserLocation.instance.locationManager?.startUpdatingLocation()
         }
     }
     

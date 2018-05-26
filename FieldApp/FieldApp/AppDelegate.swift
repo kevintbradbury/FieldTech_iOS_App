@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         locationManager = CLLocationManager()
         locationManager?.delegate = self
+        locationManager?.allowsBackgroundLocationUpdates = true
         locationManager?.requestAlwaysAuthorization()
         
         notificationCenter = UNUserNotificationCenter.current()
@@ -33,7 +34,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FirebaseApp.configure()
         registerForPushNotif()
-        print("app didFinishLaunching w/ optons")
+//        UserLocation.instance.initialize()
+        print("app didFinishLaunching w/ options")
         
         return true
     }
@@ -43,7 +45,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
         let tokenChars = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
-        print("token is : \(tokenChars)")
         checkToken(token: tokenChars)
     }
     
@@ -102,24 +103,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func handleGeoFenceEvent(forRegion region: CLRegion) {
         print("region EXIT event triggered \(region)")
         guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
-        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") else { print("failed on employeeName"); return }
-        guard let jobLoc = UserDefaults.standard.array(forKey: "todaysJobLatLong") as? [Double] else { print("failed on job location"); return }
+        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") as? String else { print("failed on employeeName"); return }
         let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
-        let locationArray = [String(jobLoc[0]), String(jobLoc[1])]
+        let autoClockOut = true
+        guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
-        // This is an auto clock-out, we want to use the job site coordinates otherwise we may not be able to clock out
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray) { success, currentJob, poNumber, jobLatLong, clockedIn in
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut) { success, currentJob, poNumber, jobLatLong, clockedIn in
             let content = UNMutableNotificationContent()
             content.title = "Left Job Site"
             content.body = "You were clocked out because you left the job site."
             content.sound = UNNotificationSound.default()
-            let interval = TimeInterval(2.0)
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
+            let intrvl = TimeInterval(1.01)
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
             let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
             
-            self.notificationCenter?.add(request, withCompletionHandler: { (err) in
-                if err != nil { print("error setting up notification request") }
-            })
+            self.notificationCenter?.add(request) { (err) in
+                if err != nil { print("error setting up notification request") } else {
+                    print("added notification")
+                }
+            }
             if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
         }
     }
@@ -155,14 +158,14 @@ extension AppDelegate: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) { print("did update locations") }
 }
 
-extension AppDelegate: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler(.badge)
-    }
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        print("received user input")
-    }
-}
+//extension AppDelegate: UNUserNotificationCenterDelegate {
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+//        completionHandler(.badge)
+//    }
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+//        print("received user input")
+//    }
+//}
 
 
 
