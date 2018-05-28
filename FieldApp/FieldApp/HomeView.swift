@@ -46,7 +46,6 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         activityIndicator.hidesWhenStopped = true
         
         picker.delegate = self
-        UserLocation.instance.initialize()
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
@@ -56,10 +55,19 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+//        UserLocation.instance.initialize()
         checkForUserInfo()
         
         let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
         appDelegate.myViewController = self
+        
+        if appDelegate.didEnterBackground == true {
+            notificationCenter.getDeliveredNotifications() { notifications in
+                if notifications != nil {
+                    for singleNote in notifications { print("request in notif center: "); print(singleNote.request.identifier) }
+                }
+            }
+        }
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
@@ -95,26 +103,31 @@ extension HomeView {
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismiss(animated: true, completion: nil) }
     
     func setMonitoringForJobLoc() {
-        let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong")
+        guard let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") else { return }
 
         if todaysJob.jobName != nil && todaysJob.jobLocation != nil && todaysJob.jobLocation?.count == 2 {
             guard let lat = todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
             guard let lng = todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
-            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else { return }
+            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
+                print("failed to set job coordinates for monitoring"); return
+            }
             UserLocation.instance.startMonitoring(location: coordindates)
             
             UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
             UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
         
-        } else if latLong?[0] != nil && latLong?[1] != nil{
-            guard let locAsDoubles = latLong as? [Double] else  { return }
-            guard let coordindates = CLLocationCoordinate2D(latitude: locAsDoubles[0], longitude: locAsDoubles[1]) as? CLLocationCoordinate2D else { return }
+        } else if latLong != nil && latLong.count == 2 {
+            guard let locAsDoubles = latLong as? [CLLocationDegrees] else  { return }
+            guard let coordindates = CLLocationCoordinate2D(latitude: locAsDoubles[0], longitude: locAsDoubles[1]) as? CLLocationCoordinate2D else {
+                print("failed to set job coordinates for monitoring"); return
+            }
             UserLocation.instance.startMonitoring(location: coordindates)
         
         } else { //No job loc available
-            UserLocation.instance.requestLocation() { userLoc in
-                UserLocation.instance.startMonitoring(location: userLoc)
+            guard let coordinates = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else {
+                print("job coordinates failed AND user coordinates failed for monitoring"); return
             }
+            UserLocation.instance.startMonitoring(location: coordinates)
         }
     }
     
@@ -261,7 +274,8 @@ extension HomeView {
     
     func checkPunchStatus() {
         if employeeInfo?.userName != nil {
-            UserDefaults.standard.set(employeeInfo?.userName, forKey: "employeeName")
+            guard let usrNm = employeeInfo?.userName else { return }
+            UserDefaults.standard.set(usrNm, forKey: "employeeName")
             
             if employeeInfo?.punchedIn == true {
                 setMonitoringForJobLoc()

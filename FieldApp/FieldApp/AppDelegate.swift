@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     var notificationDelegate = UYLNotificationDelegate()
-    var locationManager: CLLocationManager?
+//    var locationManager = CLLocationManager()
     var notificationCenter: UNUserNotificationCenter?
     var myViewController: HomeView?
     var didEnterBackground: Bool?
@@ -24,17 +24,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        locationManager = CLLocationManager()
-        locationManager?.delegate = self
-        locationManager?.allowsBackgroundLocationUpdates = true
-        locationManager?.requestAlwaysAuthorization()
+//        locationManager.allowsBackgroundLocationUpdates = true
+//        locationManager = CLLocationManager()
+//        locationManager?.delegate = self
+//        locationManager?.requestAlwaysAuthorization()
+        UserLocation.instance.initialize()
         
-        notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter?.delegate = notificationDelegate
+//        notificationCenter = UNUserNotificationCenter.current()
+//        notificationCenter?.delegate = notificationDelegate
         
         FirebaseApp.configure()
         registerForPushNotif()
-//        UserLocation.instance.initialize()
         print("app didFinishLaunching w/ options")
         
         return true
@@ -100,32 +100,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    func handleGeoFenceEvent(forRegion region: CLRegion) {
-        print("region EXIT event triggered \(region)")
-        guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
-        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") as? String else { print("failed on employeeName"); return }
-        let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
-        let autoClockOut = true
-        guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
-        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut) { success, currentJob, poNumber, jobLatLong, clockedIn in
-            let content = UNMutableNotificationContent()
-            content.title = "Left Job Site"
-            content.body = "You were clocked out because you left the job site."
-            content.sound = UNNotificationSound.default()
-            let intrvl = TimeInterval(1.01)
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
-            let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
-            
-            self.notificationCenter?.add(request) { (err) in
-                if err != nil { print("error setting up notification request") } else {
-                    print("added notification")
-                }
-            }
-            if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
-        }
-    }
+//    func handleGeoFenceEvent(forRegion region: CLRegion) {
+//        print("region EXIT event triggered \(region)")
+//        guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
+//        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") as? String else { print("failed on employeeName"); return }
+//        let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
+//        let autoClockOut = true
+//        guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
+//        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+//
+//        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut) { success, currentJob, poNumber, jobLatLong, clockedIn in
+//            let content = UNMutableNotificationContent()
+//            content.title = "Left Job Site"
+//            content.body = "You were clocked out because you left the job site."
+//            content.sound = UNNotificationSound.default()
+//            let intrvl = TimeInterval(1.01)
+//            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
+//            let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
+//
+//            self.notificationCenter?.add(request) { (err) in
+//                if err != nil { print("error setting up notification request") } else {
+//                    print("added notification")
+//                }
+//            }
+//            if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
+//        }
+//    }
     
     func checkToken(token: String) {
         guard let id = UserDefaults.standard.string(forKey: "employeeID") else { return }
@@ -152,11 +152,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
-extension AppDelegate: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) { print("ENTER region event triggered") }
-    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) { print("did update locations") }
-}
+//extension AppDelegate: CLLocationManagerDelegate {
+//    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) { print("ENTER region event triggered") }
+//    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { UserLocation.instance.handleGeoFenceEvent(forRegion: region) }
+//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) { print("did update locations") }
+//}
 
 //extension AppDelegate: UNUserNotificationCenterDelegate {
 //    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {

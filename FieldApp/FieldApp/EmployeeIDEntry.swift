@@ -47,7 +47,6 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
-//        UserLocation.instance.initialize()
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { sendID() }

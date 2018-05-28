@@ -10,54 +10,57 @@ import Foundation
 import CoreLocation
 import MapKit
 import UIKit
+import UserNotifications
 
 
-class UserLocation: NSObject, CLLocationManagerDelegate  {
+class UserLocation: NSObject, CLLocationManagerDelegate, UNUserNotificationCenterDelegate  {
     
     static let instance = UserLocation()
-    private override init() {}
+    override init() {}
     
-    private var alreadyInitialized = false
-    private var onLocation: ((CLLocationCoordinate2D) -> Void)?
-    var locationManager: CLLocationManager?
+    var alreadyInitialized = false
+    var onLocation: ((CLLocationCoordinate2D) -> Void)?
+    var locationManager = CLLocationManager()
     var currentLocation: CLLocation?
     var currentRegion: MKCoordinateRegion?
     var currentCoordinate: CLLocationCoordinate2D? { return currentLocation?.coordinate }
+    var notificationCenter: UNUserNotificationCenter?
+    var regionToCheck: CLCircularRegion?
     
     func initialize() {
-        if alreadyInitialized { print("locationManager is already initialized"); return }
+//        if alreadyInitialized { print("locationManager is already initialized"); return }
+//        locationManager = CLLocationManager()
         
-        locationManager = CLLocationManager()
-        locationManager?.delegate = self
-        locationManager?.distanceFilter = kCLDistanceFilterNone
-        locationManager?.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager?.allowsBackgroundLocationUpdates = true
-        locationManager?.requestAlwaysAuthorization()
-        locationManager?.startUpdatingLocation()
+        locationManager.delegate = self
+        locationManager.distanceFilter = kCLDistanceFilterNone
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.allowsBackgroundLocationUpdates = true
+        locationManager.requestAlwaysAuthorization()
+        locationManager.startUpdatingLocation()
+        
+        notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter?.delegate = self
+        
         alreadyInitialized = true
     }
     
     func requestLocation(callback: @escaping ((CLLocationCoordinate2D) -> Void)) {
         self.onLocation = callback
-        locationManager?.startUpdatingLocation()
+        locationManager.startUpdatingLocation()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-
-        guard let location: CLLocation = locations.first else {
-            print("Failed to Update First Location")
-            return
-        }
-
-//        defer { locationManager?.stopUpdatingLocation() }
+        guard let location: CLLocation = locations.first else { print("Failed to Update First Location"); return }
 
         self.currentLocation = location
         let region = calculateRegion(for: location.coordinate)
         self.currentRegion = region
 
         onLocation?(location.coordinate)
-//        onLocation = nil
+        print(manager.monitoredRegions)
     }
+    //        onLocation = nil
+    //        defer { locationManager?.stopUpdatingLocation() }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         var allowAuthorization = false
@@ -79,6 +82,13 @@ class UserLocation: NSObject, CLLocationManagerDelegate  {
         }
     }
     
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) { print("monitoring failed for region w/ identifier: "); print(region?.identifier) }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with followign error: "); print(error) }
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
+    
+}
+
+extension UserLocation {
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
@@ -90,33 +100,53 @@ class UserLocation: NSObject, CLLocationManagerDelegate  {
         
         return region
     }
-}
 
-extension UserLocation {
-    
     func startMonitoring(location: CLLocationCoordinate2D) {
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
             //radius: 402
             let region = CLCircularRegion(center: location, radius: 2, identifier: "range") // radius 1/4 mile ~= 402 meters
-            locationManager?.startMonitoring(for: region)
-            print("location to begin monitoring: \(location)")
+            regionToCheck = region
+            locationManager.startMonitoring(for: region)
+            print("location to begin monitoring: \(locationManager.monitoredRegions)")
         }
     }
     
     func stopMonitoring() {
         print("stop monitoring location")
-        for region in (locationManager?.monitoredRegions)! {
+        for region in (locationManager.monitoredRegions) {
             guard let circularRegion = region as? CLCircularRegion else { continue }
-            locationManager?.stopMonitoring(for: circularRegion)
+            locationManager.stopMonitoring(for: circularRegion)
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) { print("monitoring failed for region w/ identifier: "); print(region?.identifier) }
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with followign error: "); print(error) }
-
-//    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { AppDelegate().handleGeoFenceEvent(forRegion: region) }
+    func handleGeoFenceEvent(forRegion region: CLRegion) {
+        print("region EXIT event triggered \(region)")
+        guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
+        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") as? String else { print("failed on employeeName"); return }
+        let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
+        let autoClockOut = true
+        guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut) { success, currentJob, poNumber, jobLatLong, clockedIn in
+            let content = UNMutableNotificationContent()
+            content.title = "Left Job Site"
+            content.body = "You were clocked out because you left the job site."
+            content.sound = UNNotificationSound.default()
+            let intrvl = TimeInterval(1.01)
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
+            let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
+            
+            self.notificationCenter?.add(request) { (err) in
+                if err != nil { print("error setting up notification request") } else {
+                    print("added notification")
+                }
+            }
+            if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
+        }
+    }
 }
 
 
