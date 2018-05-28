@@ -44,11 +44,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate, UNUserNotificationCente
         alreadyInitialized = true
     }
     
-    func requestLocation(callback: @escaping ((CLLocationCoordinate2D) -> Void)) {
-        self.onLocation = callback
-        locationManager.startUpdatingLocation()
-    }
-    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location: CLLocation = locations.first else { print("Failed to Update First Location"); return }
 
@@ -57,7 +52,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate, UNUserNotificationCente
         self.currentRegion = region
 
         onLocation?(location.coordinate)
-        print(manager.monitoredRegions)
+        print(manager.monitoredRegions); print(location.coordinate)
     }
     //        onLocation = nil
     //        defer { locationManager?.stopUpdatingLocation() }
@@ -89,6 +84,11 @@ class UserLocation: NSObject, CLLocationManagerDelegate, UNUserNotificationCente
 }
 
 extension UserLocation {
+    func requestLocation(callback: @escaping ((CLLocationCoordinate2D) -> Void)) {
+        self.onLocation = callback
+        locationManager.startUpdatingLocation()
+    }
+    
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
