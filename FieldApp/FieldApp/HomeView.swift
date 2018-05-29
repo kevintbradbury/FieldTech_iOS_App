@@ -28,16 +28,16 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet weak var calendarButton: UIButton!
     
-    let firebaseAuth = Auth.auth()
-    var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
-    let main = OperationQueue.main
-    let picker = UIImagePickerController()
     let notificationCenter = UNUserNotificationCenter.current()
-
+    let picker = UIImagePickerController()
+    let firebaseAuth = Auth.auth()
+    
+    var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var employeeInfo: UserData.UserInfo?
+    var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
-    var jobAddress = ""
     var todaysJob = Job()
+    var jobAddress = ""
     
     
     override func viewDidLoad() {
@@ -51,23 +51,12 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
             if user == nil { self.dismiss(animated: true) }
         }
         setUpNotifications()
+        checkAppDelANDnotif()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-//        UserLocation.instance.initialize()
         checkForUserInfo()
-        
-        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
-        appDelegate.myViewController = self
-        
-        if appDelegate.didEnterBackground == true {
-            notificationCenter.getDeliveredNotifications() { notifications in
-                if notifications != nil {
-                    for singleNote in notifications { print("request in notif center: "); print(singleNote.request.identifier) }
-                }
-            }
-        }
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
@@ -78,6 +67,20 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
 }
 
 extension HomeView {
+    
+    func checkAppDelANDnotif() {
+        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
+        appDelegate.myViewController = self
+        
+        // Do something to handle notifications
+        if appDelegate.didEnterBackground == true {
+            notificationCenter.getDeliveredNotifications() { notifications in
+                if notifications != nil {
+                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
+                }
+            }
+        }
+    }
     
     func logOut() {
         do { try firebaseAuth.signOut() }
@@ -92,20 +95,14 @@ extension HomeView {
         photoToUpload.image = selectedPhoto
         
         dismiss(animated: true)
-        guard let po = todaysJob.poNumber else {
-            print("todays job po number: ")
-            print(todaysJob.poNumber)
-            return
-        }
+        guard let po = todaysJob.poNumber else { print("todays job po number: ", todaysJob.poNumber); return }
         uploadPhoto(photo: selectedPhoto, poNumber: po)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismiss(animated: true, completion: nil) }
     
     func setMonitoringForJobLoc() {
-        guard let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") else { return }
-
-        if todaysJob.jobName != nil && todaysJob.jobLocation != nil && todaysJob.jobLocation?.count == 2 {
+        if todaysJob.jobName != nil && todaysJob.jobLocation?[0] != nil && todaysJob.jobLocation?[1] != nil && todaysJob.jobLocation?.count == 2 {
             guard let lat = todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
             guard let lng = todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
             guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
@@ -115,14 +112,15 @@ extension HomeView {
             
             UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
             UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
-        
-        } else if latLong != nil && latLong.count == 2 {
-            guard let locAsDoubles = latLong as? [CLLocationDegrees] else  { return }
-            guard let coordindates = CLLocationCoordinate2D(latitude: locAsDoubles[0], longitude: locAsDoubles[1]) as? CLLocationCoordinate2D else {
+            
+        } else if let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") {
+            guard let lat = latLong[0] as? CLLocationDegrees else { return }
+            guard let lng = latLong[1] as? CLLocationDegrees else { return }
+            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
                 print("failed to set job coordinates for monitoring"); return
             }
             UserLocation.instance.startMonitoring(location: coordindates)
-        
+            
         } else { //No job loc available
             guard let coordinates = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else {
                 print("job coordinates failed AND user coordinates failed for monitoring"); return
@@ -132,6 +130,7 @@ extension HomeView {
     }
     
     func checkForUserInfo() {
+        
         if employeeInfo?.employeeID != nil {
             print("punched in -- \(employeeInfo!.punchedIn)")
             checkPunchStatus()
@@ -201,9 +200,6 @@ extension HomeView {
 }
 
 extension HomeView {
-    
-    
-    
     func confirmUpload() {
         let actionsheet = UIAlertController(title: "Successful", message: "Photo was uploaded successfully", preferredStyle: UIAlertControllerStyle.alert)
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
@@ -274,10 +270,11 @@ extension HomeView {
     
     func checkPunchStatus() {
         if employeeInfo?.userName != nil {
-            guard let usrNm = employeeInfo?.userName else { return }
-            UserDefaults.standard.set(usrNm, forKey: "employeeName")
+            UserDefaults.standard.set(employeeInfo?.userName, forKey: "employeeName")
             
             if employeeInfo?.punchedIn == true {
+                UserLocation.instance.locationManager.startUpdatingLocation()
+
                 setMonitoringForJobLoc()
                 main.addOperation(clockedInUI)
                 
@@ -290,14 +287,12 @@ extension HomeView {
     }
     
     func setUpNotifications() {
-        let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: .destructive)
+        let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: [.destructive, .foreground])
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [stopAction], intentIdentifiers: [], options: [])
         notificationCenter.setNotificationCategories([alarmCategory])
         notificationCenter.requestAuthorization(options: options) { (granted, error) in
-            if !granted {
-                print("there was an error or the user did not authorize alerts \(String(describing: error))")
-            }
+            if !granted { print("there was an error or the user did not authorize alerts: ", error) }
         }
         notificationCenter.getNotificationSettings { (settings) in if settings.authorizationStatus != .authorized { print("user did not authorize alerts") } }
     }

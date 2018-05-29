@@ -44,12 +44,13 @@ class EmployeeIDEntry: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        UserLocation.instance.locationManager.startUpdatingLocation()
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
     }
     
-    @IBAction func sendIDNumber(_ sender: Any) { sendID() }
+    @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
     @IBAction func backToHome(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { clockInClockOut() }
@@ -72,31 +73,28 @@ class EmployeeIDEntry: UIViewController {
         }
     }
     
-    func sendID() {
-        activityIndicator.startAnimating()
-        if employeeID.text != "" {
+    func clockInClockOut() {
+        inProgress()
+        
+        if foundUser?.employeeID != nil {
+            guard let unwrappedUser = foundUser else { return }
+            makeAcall(user: unwrappedUser)
+            
+        } else if employeeID.text != "" {
             isEmployeeIDNum() { foundUser in
-                guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                
-                APICalls().sendCoordinates(employee: foundUser, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
-                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
-                }
+                self.makeAcall(user: foundUser)
             }
+            
         } else { self.incorrectID(success: true) }
     }
     
-    func clockInClockOut() {
-        inProgress()
-        if foundUser?.employeeID != nil {
-            guard let uwrappedUser = foundUser else { return }
-            guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-            
-            APICalls().sendCoordinates(employee: uwrappedUser, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
-                self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
-            }
-        } else { self.incorrectID(success: true) }
+    func makeAcall(user: UserData.UserInfo) {
+        guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        
+        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
+            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
+        }
     }
     
     func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool) {

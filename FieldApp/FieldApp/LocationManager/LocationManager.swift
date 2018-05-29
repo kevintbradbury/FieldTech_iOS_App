@@ -13,7 +13,7 @@ import UIKit
 import UserNotifications
 
 
-class UserLocation: NSObject, CLLocationManagerDelegate, UNUserNotificationCenterDelegate  {
+class UserLocation: NSObject, CLLocationManagerDelegate  {
     
     static let instance = UserLocation()
     override init() {}
@@ -28,8 +28,8 @@ class UserLocation: NSObject, CLLocationManagerDelegate, UNUserNotificationCente
     var regionToCheck: CLCircularRegion?
     
     func initialize() {
-//        if alreadyInitialized { print("locationManager is already initialized"); return }
-//        locationManager = CLLocationManager()
+        //        if alreadyInitialized { print("locationManager is already initialized"); return }
+        //        locationManager = CLLocationManager()
         
         locationManager.delegate = self
         locationManager.distanceFilter = kCLDistanceFilterNone
@@ -46,15 +46,14 @@ class UserLocation: NSObject, CLLocationManagerDelegate, UNUserNotificationCente
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location: CLLocation = locations.first else { print("Failed to Update First Location"); return }
-
+        
         self.currentLocation = location
         let region = calculateRegion(for: location.coordinate)
         self.currentRegion = region
-
+        
         onLocation?(location.coordinate)
-        print(manager.monitoredRegions); print(location.coordinate)
+        print(location.coordinate)
     }
-    //        onLocation = nil
     //        defer { locationManager?.stopUpdatingLocation() }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -100,16 +99,19 @@ extension UserLocation {
         
         return region
     }
-
+    
     func startMonitoring(location: CLLocationCoordinate2D) {
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
-            //radius: 402
-            let region = CLCircularRegion(center: location, radius: 2, identifier: "range") // radius 1/4 mile ~= 402 meters
-            regionToCheck = region
+            let radius = CLLocationDistance(100) // radius: 402
+            guard let region = CLCircularRegion(center: location, radius: radius, identifier: "range") as? CLCircularRegion else { return } // radius 1/4 mile ~= 402 meters
+            print("region to start monitoring: \(region)")
             locationManager.startMonitoring(for: region)
-            print("location to begin monitoring: \(locationManager.monitoredRegions)")
+            
+            while locationManager.monitoredRegions.count == 0 {
+                locationManager.startMonitoring(for: region); print("Locale BEING monitored: \(locationManager.monitoredRegions)")
+            }
         }
     }
     
@@ -118,6 +120,7 @@ extension UserLocation {
         for region in (locationManager.monitoredRegions) {
             guard let circularRegion = region as? CLCircularRegion else { continue }
             locationManager.stopMonitoring(for: circularRegion)
+            locationManager.stopUpdatingLocation()
         }
     }
     
@@ -132,7 +135,7 @@ extension UserLocation {
         
         APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut) { success, currentJob, poNumber, jobLatLong, clockedIn in
             let content = UNMutableNotificationContent()
-            content.title = "Left Job Site"
+            content.title = "Clocked Out"
             content.body = "You were clocked out because you left the job site."
             content.sound = UNNotificationSound.default()
             let intrvl = TimeInterval(1.01)
@@ -144,9 +147,15 @@ extension UserLocation {
                     print("added notification")
                 }
             }
+            
             if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
         }
     }
+}
+
+extension UserLocation: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) { completionHandler([.alert, .badge, .sound]) }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) { completionHandler() }
 }
 
 

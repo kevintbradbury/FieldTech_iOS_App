@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/HomeView.swift"
-            timestampString = "549241861.55901"
+            timestampString = "549329189.999115"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "108"
-            endingLineNumber = "108"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
             landmarkName = "setMonitoringForJobLoc()"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,75 +26,43 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/HomeView.swift"
-            timestampString = "549241861.55944"
+            timestampString = "549329189.9994839"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
             landmarkName = "setMonitoringForJobLoc()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/HomeView.swift"
-            timestampString = "549241861.559689"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "126"
-            endingLineNumber = "126"
-            landmarkName = "setMonitoringForJobLoc()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/LocationManager/LocationManager.swift"
-            timestampString = "549241861.559962"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "142"
-            endingLineNumber = "142"
-            landmarkName = "handleGeoFenceEvent(forRegion:)"
             landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Bool, Swift.String, Swift.String, Swift.Array&lt;Swift.Double&gt;, Swift.Bool) -&gt; () in FieldApp.UserLocation.handleGeoFenceEvent(forRegion: __ObjC.CLRegion) -&gt; ()"
+                  symbolName = "FieldApp.HomeView.setMonitoringForJobLoc() -&gt; ()"
                   moduleName = "FieldApp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/LocationManager/LocationManager.swift"
-                  timestampString = "549241861.637347"
+                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/HomeView.swift"
+                  timestampString = "549323444.720385"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "142"
-                  endingLineNumber = "142"
-                  offsetFromSymbolStart = "560">
+                  startingLineNumber = "121"
+                  endingLineNumber = "121"
+                  offsetFromSymbolStart = "2604">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Error&gt;) -&gt; () in closure #1 (Swift.Bool, Swift.String, Swift.String, Swift.Array&lt;Swift.Double&gt;, Swift.Bool) -&gt; () in FieldApp.UserLocation.handleGeoFenceEvent(forRegion: __ObjC.CLRegion) -&gt; ()"
+                  symbolName = "FieldApp.HomeView.setMonitoringForJobLoc() -&gt; ()"
                   moduleName = "FieldApp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/LocationManager/LocationManager.swift"
-                  timestampString = "549241861.639143"
+                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/HomeView.swift"
+                  timestampString = "549323444.724332"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "143"
-                  endingLineNumber = "143"
-                  offsetFromSymbolStart = "16">
+                  startingLineNumber = "121"
+                  endingLineNumber = "121"
+                  offsetFromSymbolStart = "2728">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -105,13 +73,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FieldApp/LocationManager/LocationManager.swift"
-            timestampString = "549241861.560063"
+            filePath = "FieldApp/HomeView.swift"
+            timestampString = "549329189.9997261"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "144"
-            endingLineNumber = "144"
-            landmarkName = "handleGeoFenceEvent(forRegion:)"
+            startingLineNumber = "124"
+            endingLineNumber = "124"
+            landmarkName = "setMonitoringForJobLoc()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -122,12 +90,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/LocationManager/LocationManager.swift"
-            timestampString = "549241861.5601521"
+            timestampString = "549329189.999982"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "47"
             endingLineNumber = "47"
             landmarkName = "locationManager(_:didUpdateLocations:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "FieldApp/EmployeeIDEntry.swift"
+            timestampString = "549329190.000044"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
+            landmarkName = "prepare(for:sender:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
