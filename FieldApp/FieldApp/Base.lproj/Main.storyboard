@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -24,32 +24,60 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hYX-Jp-BxB">
-                                <rect key="frame" x="79" y="287" width="163" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hYX-Jp-BxB">
+                                <rect key="frame" x="78" y="309" width="165" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="8Yk-jL-ccd"/>
+                                    <constraint firstAttribute="width" constant="165" id="ZGE-KJ-2tN"/>
+                                </constraints>
                                 <state key="normal" title="Verify"/>
                                 <connections>
                                     <action selector="loginPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="LVy-xI-2ja"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Phone number" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="du7-NU-Br5">
-                                <rect key="frame" x="79" y="249" width="163" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Phone number" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="du7-NU-Br5">
+                                <rect key="frame" x="78" y="269" width="165" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="pit-Kt-MtY"/>
+                                    <constraint firstAttribute="width" constant="165" id="zR2-0k-dzN"/>
+                                </constraints>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" keyboardType="phonePad" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
                             </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Enter Phone Number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6PB-Fd-8DA">
-                                <rect key="frame" x="80" y="167" width="160" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter Phone Number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6PB-Fd-8DA">
+                                <rect key="frame" x="80" y="164" width="160" height="25"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="160" id="ccT-4n-aLc"/>
+                                    <constraint firstAttribute="height" constant="25" id="dm3-gC-s8n"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="thp-EB-7Zt">
+                                <rect key="frame" x="142" y="209" width="37" height="37"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="37" id="r7T-ah-Uaj"/>
+                                    <constraint firstAttribute="width" constant="37" id="rJ0-Kh-ZGs"/>
+                                </constraints>
+                                <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="hYX-Jp-BxB" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="JTQ-lU-pMq"/>
+                            <constraint firstItem="hYX-Jp-BxB" firstAttribute="top" secondItem="du7-NU-Br5" secondAttribute="bottom" constant="10" id="Zml-RI-GqH"/>
+                            <constraint firstItem="6PB-Fd-8DA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="eJb-Fc-xWq"/>
+                            <constraint firstItem="du7-NU-Br5" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="lUd-zg-QCY"/>
+                            <constraint firstItem="du7-NU-Br5" firstAttribute="top" secondItem="6PB-Fd-8DA" secondAttribute="bottom" constant="80" id="mCJ-GQ-xyb"/>
+                            <constraint firstItem="thp-EB-7Zt" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="smO-yG-Bi0"/>
+                            <constraint firstItem="thp-EB-7Zt" firstAttribute="top" secondItem="6PB-Fd-8DA" secondAttribute="bottom" constant="20" id="wff-rU-CoZ"/>
+                            <constraint firstItem="du7-NU-Br5" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="xD3-gE-esP"/>
+                        </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="thp-EB-7Zt" id="VEP-2d-jRC"/>
                         <outlet property="loginButton" destination="hYX-Jp-BxB" id="tZD-V0-vsL"/>
                         <outlet property="phoneNumberField" destination="du7-NU-Br5" id="1zG-Bz-sov"/>
                         <segue destination="dvo-Ab-kYb" kind="show" identifier="home" id="zXA-Vu-bEX"/>
@@ -619,6 +647,6 @@
         <image name="tools" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="PNM-CA-SzQ"/>
+        <segue reference="zXA-Vu-bEX"/>
     </inferredMetricsTieBreakers>
 </document>
