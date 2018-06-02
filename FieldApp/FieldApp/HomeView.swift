@@ -33,11 +33,10 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     let firebaseAuth = Auth.auth()
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
-    var employeeInfo: UserData.UserInfo?
+    static var employeeInfo: UserData.UserInfo?
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
     var todaysJob = Job()
-    var jobAddress = ""
     
     
     override func viewDidLoad() {
@@ -52,6 +51,7 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         }
         setUpNotifications()
         checkAppDelANDnotif()
+        NotificationCenter.default.addObserver(self, selector: #selector(checkForUserInfo), name: .info, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -131,8 +131,8 @@ extension HomeView {
     
     func checkForUserInfo() {
         
-        if employeeInfo?.employeeID != nil {
-            print("punched in -- \(employeeInfo!.punchedIn)")
+        if HomeView.employeeInfo?.employeeID != nil {
+            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
             checkPunchStatus()
             
         } else {
@@ -140,7 +140,7 @@ extension HomeView {
                 inProgress()
                 
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
-                    self.employeeInfo = user
+                    HomeView.employeeInfo = user
                     self.checkPunchStatus()
                 }
             } else { completedProgress() }
@@ -151,7 +151,7 @@ extension HomeView {
         self.main.addOperation {
             self.userLabel.textColor = UIColor.white
             self.userLabel.backgroundColor = UIColor.blue
-            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
+            self.userLabel.text = "Hello \n" + (HomeView.employeeInfo?.userName)!
             self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
             self.completedProgress()
         }
@@ -210,39 +210,46 @@ extension HomeView {
     }
     
     func checkJobProximity() {
-        UserLocation.instance.requestLocation(){ coordinate in
-            let jobLocation = self.jobs[0].jobLocation
-            let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
-            print("Miles from job location is --> \(distance) \n")
-            if distance > 1.0 { print("NO <-- User is not in proximity to Job location \n") }
-            else { print("YES <-- User is in proximity to Job location \n") }
-        }
+        guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+        let jobLocation = jobs[0].jobLocation
+        let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
+        
+        if distance > 1.0 { print("NO <-- User is not in proximity to Job location \n") }
+        else { print("YES <-- User is in proximity to Job location \n") }
     }
     
     func inProgress() {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        activityBckgd.isHidden = false
-        activityIndicator.startAnimating()
+        main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            self.activityBckgd.isHidden = false
+            self.activityIndicator.startAnimating()
+        }
     }
     
     func completedProgress() {
-        activityBckgd.isHidden = true
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.stopAnimating()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        main.addOperation {
+            self.activityBckgd.isHidden = true
+            self.activityIndicator.hidesWhenStopped = true
+            self.activityIndicator.stopAnimating()
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        }
     }
     
     func clockedInUI() {
-        userLabel.backgroundColor = UIColor.green
-        userLabel.textColor = UIColor.black
-        self.userLabel.text = "Clocked In"
-        completedProgress()
+        main.addOperation {
+            self.userLabel.backgroundColor = UIColor.green
+            self.userLabel.textColor = UIColor.black
+            self.userLabel.text = "Clocked In"
+            self.completedProgress()
+        }
     }
     func clockedOutUI() {
-        userLabel.backgroundColor = UIColor.red
-        userLabel.textColor = UIColor.black
-        self.userLabel.text = "Clocked Out"
-        completedProgress()
+        main.addOperation {
+            self.userLabel.backgroundColor = UIColor.red
+            self.userLabel.textColor = UIColor.black
+            self.userLabel.text = "Clocked Out"
+            self.completedProgress()
+        }
     }
 }
 
@@ -251,10 +258,10 @@ extension HomeView {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "schedule" {
             let vc = segue.destination as! ScheduleView
-            vc.employee = employeeInfo
+            vc.employee = HomeView.employeeInfo
         } else if segue.identifier == "clock_in" {
             let vc = segue.destination as! EmployeeIDEntry
-            vc.foundUser = employeeInfo
+            vc.foundUser = HomeView.employeeInfo
         }
     }
     
@@ -269,18 +276,18 @@ extension HomeView {
     }
     
     func checkPunchStatus() {
-        if employeeInfo?.userName != nil {
-            UserDefaults.standard.set(employeeInfo?.userName, forKey: "employeeName")
+        if HomeView.employeeInfo?.userName != nil {
+            UserDefaults.standard.set(HomeView.employeeInfo?.userName, forKey: "employeeName")
             
-            if employeeInfo?.punchedIn == true {
+            if HomeView.employeeInfo?.punchedIn == true {
                 UserLocation.instance.locationManager.startUpdatingLocation()
-
-                setMonitoringForJobLoc()
-                main.addOperation(clockedInUI)
                 
-            } else if employeeInfo?.punchedIn == false {
+                setMonitoringForJobLoc()
+                clockedInUI()
+                
+            } else if HomeView.employeeInfo?.punchedIn == false {
                 UserLocation.instance.stopMonitoring()
-                main.addOperation(clockedOutUI)
+                clockedOutUI()
                 
             } else { main.addOperation(setFetchedEmployeeUI) }
         } else { completedProgress(); return }
@@ -307,5 +314,7 @@ extension UIViewController {
     }
 }
 
-
+extension Notification.Name {
+    static let info = Notification.Name("employeeInfo")
+}
 

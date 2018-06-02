@@ -13,13 +13,13 @@ import UIKit
 import UserNotifications
 
 
-class UserLocation: NSObject, CLLocationManagerDelegate  {
+class UserLocation: NSObject, CLLocationManagerDelegate {
     
     static let instance = UserLocation()
     override init() {}
     
-    var alreadyInitialized = false
-    var onLocation: ((CLLocationCoordinate2D) -> Void)?
+    private var alreadyInitialized = false
+    private var onLocation: ((CLLocationCoordinate2D) -> Void)?
     var locationManager = CLLocationManager()
     var currentLocation: CLLocation?
     var currentRegion: MKCoordinateRegion?
@@ -83,10 +83,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate  {
 }
 
 extension UserLocation {
-    func requestLocation(callback: @escaping ((CLLocationCoordinate2D) -> Void)) {
-        self.onLocation = callback
-        locationManager.startUpdatingLocation()
-    }
     
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
@@ -148,7 +144,11 @@ extension UserLocation {
                 }
             }
             
-            if clockedIn == false && success == true { UserLocation.instance.stopMonitoring() }
+            if clockedIn == false && success == true {
+                UserLocation.instance.stopMonitoring()
+                HomeView.employeeInfo = nil
+                NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : UserData.UserInfo])
+            }
         }
     }
 }

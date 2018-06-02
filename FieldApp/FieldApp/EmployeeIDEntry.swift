@@ -151,7 +151,7 @@ class EmployeeIDEntry: UIViewController {
         UserDefaults.standard.set(foundUser?.userName, forKey: "employeeName")
         
         if segue.identifier == "return" {
-            vc.employeeInfo?.punchedIn = foundUser?.punchedIn
+            HomeView.employeeInfo?.punchedIn = foundUser?.punchedIn
             vc.todaysJob.jobName = todaysJob.jobName
             vc.todaysJob.poNumber = todaysJob.poNumber
             vc.todaysJob.jobLocation = todaysJob.jobLocation
