@@ -11,6 +11,8 @@ import UIKit
 import CoreLocation
 import Firebase
 import FirebaseStorage
+import EventKit
+
 
 class APICalls {
     let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
@@ -36,46 +38,37 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], callback: @escaping (Bool, String, String) -> ()){
-        
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location)
         let session = URLSession.shared;
-        
+        let bool = true
+        var auto: String { if autoClockOut == true { return "true" } else { return "" } }
+//        var testBool: String { var bool = true; if bool == true { return "true" } else { return "" } }
         var request = setupRequest(route: route, method: "POST")
         request.httpBody = data
+        request.addValue(auto, forHTTPHeaderField: "autoClockOut")
+        print(request.allHTTPHeaderFields)
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response))")
+                print("failed to fetch JSON from database \n \(String(describing: response))");
                 return
+                
             } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
-                }
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                    print("json serialization failed")
-                    return
-                }
-                guard let successfulPunch = json["success"] as? Bool else {
-                    print("couldnt parse successful punch bool")
-                    return
-                }
+                print("no errors sending GPS coordinatess")
+                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { print("json serialization failed"); return }
+                guard let successfulPunch = json["success"] as? Bool else { print("failed on success bool"); return }
                 
                 if let currentJob = json["job"] as? String,
-                    let poNumber = json["poNumber"] as? String {
-                    print("punch was success or no ?")
-                    print(successfulPunch)
-                    print(currentJob)
-                    print(poNumber)
+                    let poNumber = json["poNumber"] as? String,
+                    let jobLatLong = json["jobLatLong"] as? [Double],
+                    let clockedIn = json["punchedIn"] as? Bool {
+                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn)
                     
-                    callback(successfulPunch, currentJob, poNumber)
-                } else {
-                    callback(successfulPunch, "", "000")
-                }
-                
-                
+                } else { callback(successfulPunch, "", "", [0.0], false) }
             }
         }
         task.resume()
@@ -153,7 +146,6 @@ class APICalls {
 extension APICalls {
     
     func parseJobs(from data: Data) -> [Job.UserJob] {
-        
         var jobsArray: [Job.UserJob] = []
         
         guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
@@ -162,7 +154,6 @@ extension APICalls {
         }
         
         for jobJson in json {
-            
             if let jobDictionary = jobJson as? [String : Any]  {
                 if let job = Job.UserJob.jsonToDictionary(dictionary: jobDictionary as NSDictionary) {
                     jobsArray.append(job)
@@ -238,4 +229,31 @@ extension APICalls {
         }
         uploadTask.enqueue()
     }
+}
+
+extension APICalls {
+    
+    //Doesn't set an alarm but does add an event to calendar, which may be useeful for adding jobs to internal calendar
+    func setAnAlarm(jobName: String, jobStart: Date, jobEnd: Date) {
+        var calendar: EKCalendar?
+        let eventstore = EKEventStore()
+        
+        eventstore.requestAccess(to: EKEntityType.event){ (granted, error ) -> Void in
+            if granted == true { //Substitute job info in here: startDate, endDate, title
+                let event = EKEvent(eventStore: eventstore)
+                event.startDate = Date()
+                event.endDate = Date()
+                event.calendar = eventstore.defaultCalendarForNewEvents
+                event.title = "Job Name"
+                event.structuredLocation = EKStructuredLocation() // Geofence location for event
+                event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
+                
+                do { try eventstore.save(event, span: .thisEvent, commit: true) }
+                catch { (error)
+                    if error != nil { print("looks like we couldn't setup that alarm"); print(error) }
+                }
+            }
+        }
+    }
+    
 }

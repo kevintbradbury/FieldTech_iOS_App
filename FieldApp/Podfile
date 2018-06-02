@@ -10,9 +10,12 @@ pod 'Firebase/Core'
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
 pod 'Firebase/Storage'
+pod 'Firebase/Messaging'
 pod 'Alamofire'
 pod 'SwiftyJSON'
 pod 'JTAppleCalendar', '~> 7.0'
+pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
+
 
   target 'FieldAppTests' do
     inherit! :search_paths

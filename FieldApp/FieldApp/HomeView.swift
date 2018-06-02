@@ -11,6 +11,8 @@ import UIKit
 import Firebase
 import FirebaseStorage
 import CoreLocation
+import UserNotifications
+import UserNotificationsUI
 //import Alamofire
 //import SwiftyJSON
 
@@ -21,22 +23,21 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
-    
     @IBOutlet weak var clockInOut: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet weak var calendarButton: UIButton!
     
-    let firebaseAuth = Auth.auth()
-    var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
-    let main = OperationQueue.main
+    let notificationCenter = UNUserNotificationCenter.current()
     let picker = UIImagePickerController()
+    let firebaseAuth = Auth.auth()
     
-    var employeeInfo: UserData.UserInfo?
+    var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
+    static var employeeInfo: UserData.UserInfo?
+    var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
-    var jobAddress = ""
     var todaysJob = Job()
-    var location = UserData.init().userLocation
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,38 +45,46 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         activityIndicator.hidesWhenStopped = true
         
         picker.delegate = self
-        UserLocation.instance.initialize()
+        
+        Auth.auth().addStateDidChangeListener() { (auth, user) in
+            if user == nil { self.dismiss(animated: true) }
+        }
+        setUpNotifications()
+        checkAppDelANDnotif()
+        NotificationCenter.default.addObserver(self, selector: #selector(checkForUserInfo), name: .info, object: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
         checkForUserInfo()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
+    @IBAction func logoutPressed(_ sender: Any) { logOut() }
+    @IBAction func chooseUploadMethod(_ sender: Any) { showUploadMethods() }
+    @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
+    @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
+    
+}
+
+extension HomeView {
+    
+    func checkAppDelANDnotif() {
+        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
+        appDelegate.myViewController = self
         
-        Auth.auth().addStateDidChangeListener() { (auth, user) in
-            if user == nil {
-                self.dismiss(animated: true)
+        // Do something to handle notifications
+        if appDelegate.didEnterBackground == true {
+            notificationCenter.getDeliveredNotifications() { notifications in
+                if notifications != nil {
+                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
+                }
             }
         }
     }
     
-    @IBAction func logoutPressed(_ sender: Any) {
-        
-        do {
-            try firebaseAuth.signOut()
-        } catch let signOutError as NSError {
-            print("Error signing out: %@", signOutError)
-            return
-        }
-    }
-    
-    @IBAction func chooseUploadMethod(_ sender: Any) {
-        showUploadMethods()
-    }
-    @IBAction func goClockInOut(_ sender: Any) {
-        performSegue(withIdentifier: "clock_in", sender: self)
-    }
-    @IBAction func goToSchedule(_ sender: Any) {
-        performSegue(withIdentifier: "schedule", sender: self)
+    func logOut() {
+        do { try firebaseAuth.signOut() }
+        catch let signOutError as NSError { print("Error signing out: %@", signOutError); return }
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
@@ -86,62 +95,65 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         photoToUpload.image = selectedPhoto
         
         dismiss(animated: true)
-        guard let po = todaysJob.poNumber else {
-            print("todays job po number: ")
-            print(todaysJob.poNumber)
-            
-            return}
+        guard let po = todaysJob.poNumber else { print("todays job po number: ", todaysJob.poNumber); return }
         uploadPhoto(photo: selectedPhoto, poNumber: po)
     }
     
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismiss(animated: true, completion: nil) }
+    
+    func setMonitoringForJobLoc() {
+        if todaysJob.jobName != nil && todaysJob.jobLocation?[0] != nil && todaysJob.jobLocation?[1] != nil && todaysJob.jobLocation?.count == 2 {
+            guard let lat = todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
+            guard let lng = todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
+            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
+                print("failed to set job coordinates for monitoring"); return
+            }
+            UserLocation.instance.startMonitoring(location: coordindates)
+            
+            UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
+            UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
+            
+        } else if let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") {
+            guard let lat = latLong[0] as? CLLocationDegrees else { return }
+            guard let lng = latLong[1] as? CLLocationDegrees else { return }
+            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
+                print("failed to set job coordinates for monitoring"); return
+            }
+            UserLocation.instance.startMonitoring(location: coordindates)
+            
+        } else { //No job loc available
+            guard let coordinates = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else {
+                print("job coordinates failed AND user coordinates failed for monitoring"); return
+            }
+            UserLocation.instance.startMonitoring(location: coordinates)
+        }
     }
     
-}
-
-extension HomeView {
-    
     func checkForUserInfo() {
-        if employeeInfo?.employeeID != nil {
-            print("punched in -- ")
-            print(self.employeeInfo?.punchedIn)
-            //
-            if employeeInfo?.punchedIn == true {
-                if todaysJob.jobName == "" || todaysJob.jobName == nil {
-                    self.main.addOperation { self.clockedInUI() }
-                } else {
-                    self.main.addOperation { self.clockedInUI() }
-                    UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
-                }
-
-            } else if employeeInfo?.punchedIn == false {
-                UserDefaults.standard.set(nil, forKey: "todaysJobPO")
-
-                self.main.addOperation { self.clockedOutUI() }
-            } else { return }
+        
+        if HomeView.employeeInfo?.employeeID != nil {
+            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
+            checkPunchStatus()
+            
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgress()
                 
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
-                    self.employeeInfo = user
-                    
-                    if self.employeeInfo?.userName != nil {
-                        self.main.addOperation {
-                            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
-
-                            self.completedProgress()
-                            self.userLabel.text = "Hello \n" + (self.employeeInfo?.userName)!
-                            self.userLabel.backgroundColor = UIColor.blue
-                            self.userLabel.textColor = UIColor.white
-                            //
-                            print("punched in -- ")
-                            print(self.employeeInfo?.punchedIn)
-                        }
-                    }
+                    HomeView.employeeInfo = user
+                    self.checkPunchStatus()
                 }
             } else { completedProgress() }
+        }
+    }
+    
+    func setFetchedEmployeeUI() {
+        self.main.addOperation {
+            self.userLabel.textColor = UIColor.white
+            self.userLabel.backgroundColor = UIColor.blue
+            self.userLabel.text = "Hello \n" + (HomeView.employeeInfo?.userName)!
+            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
+            self.completedProgress()
         }
     }
     
@@ -174,18 +186,9 @@ extension HomeView {
     }
     
     func uploadPhoto(photo: UIImage, poNumber: String){
-        self.main.addOperation {
-            self.inProgress()
-        }
-        
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
-            print("Couldn't get JPEG representation")
-            return
-        }
-        //
-        guard let poNum = todaysJob.poNumber else {
-            print("couldnt find todays po number")
-            return }
+        self.main.addOperation { self.inProgress() }
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else { print("Couldn't get JPEG representation"); return }
+        guard let poNum = todaysJob.poNumber else { print("couldnt find todays po number"); return }
         
         APICalls().sendPhoto(imageData: imageData, poNumber: poNum) { responseObj in
             self.main.addOperation {
@@ -194,102 +197,59 @@ extension HomeView {
             }
         }
     }
-    
-//    func upload(image: UIImage,
-//                progressCompletion: @escaping (_ percent: Float) -> Void) {
-//
-//        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
-//        let jobNumber = String(1234) // PO - Grand and Foothill
-//        let url = address + jobNumber + "/upload"
-//        let fileNmStrg = String(photoName + ".jpg")
-//        guard let photoName = employeeInfo?.employeeJobs[0] else { return }
-//        let fileName = fileNmStrg
-//        guard let imageData = UIImageJPEGRepresentation(image, 0.5) else { return }
-//
-//        Alamofire.upload(
-//            multipartFormData: { multipartFormData in
-//
-//                multipartFormData.append(imageData,
-//                                         withName: fileName,
-//                                         mimeType: "image/jpeg")
-//                print(imageData)
-//        },
-//            to: url,
-//            encodingCompletion: { encodingResult in
-//                switch encodingResult {
-//
-//                case .success(let upload, _, _):
-//                    upload.uploadProgress { progress in
-//                        progressCompletion(Float(progress.fractionCompleted))
-//                    }
-//                    //                    upload.validate()
-//                    upload.responseJSON { response in
-//                        guard response.result.isSuccess else {
-//                            print("error while uploading file: \(String(describing: response.result.error))")
-//                            return
-//                        }
-//                    }
-//
-//                case .failure(let encodingError):
-//                    print(encodingError)
-//                }
-//        }
-//        )
-//    }
-    
 }
 
 extension HomeView {
-    
     func confirmUpload() {
         let actionsheet = UIAlertController(title: "Successful", message: "Photo was uploaded successfully", preferredStyle: UIAlertControllerStyle.alert)
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             actionsheet.dismiss(animated: true, completion: nil)
         }
-        
         actionsheet.addAction(ok)
         self.present(actionsheet, animated: true)
     }
     
     func checkJobProximity() {
+        guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+        let jobLocation = jobs[0].jobLocation
+        let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
         
-        UserLocation.instance.requestLocation(){ coordinate in
-            
-            let jobLocation = self.jobs[0].jobLocation
-            
-            let distance = GeoCoding.getDistance(userLocation: coordinate, jobLocation: jobLocation)
-            print("Miles from job location is --> \(distance) \n")
-            if distance > 1.0 {
-                print("NO <-- User is not in proximity to Job location \n")
-            } else {
-                print("YES <-- User is in proximity to Job location \n")
-            }
-            
-        }
+        if distance > 1.0 { print("NO <-- User is not in proximity to Job location \n") }
+        else { print("YES <-- User is in proximity to Job location \n") }
     }
     
     func inProgress() {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        activityBckgd.isHidden = false
-        activityIndicator.startAnimating()
+        main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            self.activityBckgd.isHidden = false
+            self.activityIndicator.startAnimating()
+        }
     }
     
     func completedProgress() {
-        activityBckgd.isHidden = true
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.stopAnimating()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        main.addOperation {
+            self.activityBckgd.isHidden = true
+            self.activityIndicator.hidesWhenStopped = true
+            self.activityIndicator.stopAnimating()
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        }
     }
     
     func clockedInUI() {
-        userLabel.backgroundColor = UIColor.green
-        userLabel.textColor = UIColor.white
-        self.userLabel.text = "Clocked In"
+        main.addOperation {
+            self.userLabel.backgroundColor = UIColor.green
+            self.userLabel.textColor = UIColor.black
+            self.userLabel.text = "Clocked In"
+            self.completedProgress()
+        }
     }
     func clockedOutUI() {
-        userLabel.backgroundColor = UIColor.red
-        userLabel.textColor = UIColor.black
-        self.userLabel.text = "Clocked Out"
+        main.addOperation {
+            self.userLabel.backgroundColor = UIColor.red
+            self.userLabel.textColor = UIColor.black
+            self.userLabel.text = "Clocked Out"
+            self.completedProgress()
+        }
     }
 }
 
@@ -298,10 +258,10 @@ extension HomeView {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "schedule" {
             let vc = segue.destination as! ScheduleView
-            vc.employee = employeeInfo
+            vc.employee = HomeView.employeeInfo
         } else if segue.identifier == "clock_in" {
             let vc = segue.destination as! EmployeeIDEntry
-            vc.foundUser = employeeInfo
+            vc.foundUser = HomeView.employeeInfo
         }
     }
     
@@ -314,5 +274,47 @@ extension HomeView {
         actionsheet.addAction(ok)
         self.present(actionsheet, animated: true, completion: nil)
     }
+    
+    func checkPunchStatus() {
+        if HomeView.employeeInfo?.userName != nil {
+            UserDefaults.standard.set(HomeView.employeeInfo?.userName, forKey: "employeeName")
+            
+            if HomeView.employeeInfo?.punchedIn == true {
+                UserLocation.instance.locationManager.startUpdatingLocation()
+                
+                setMonitoringForJobLoc()
+                clockedInUI()
+                
+            } else if HomeView.employeeInfo?.punchedIn == false {
+                UserLocation.instance.stopMonitoring()
+                clockedOutUI()
+                
+            } else { main.addOperation(setFetchedEmployeeUI) }
+        } else { completedProgress(); return }
+    }
+    
+    func setUpNotifications() {
+        let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: [.destructive, .foreground])
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [stopAction], intentIdentifiers: [], options: [])
+        notificationCenter.setNotificationCategories([alarmCategory])
+        notificationCenter.requestAuthorization(options: options) { (granted, error) in
+            if !granted { print("there was an error or the user did not authorize alerts: ", error) }
+        }
+        notificationCenter.getNotificationSettings { (settings) in if settings.authorizationStatus != .authorized { print("user did not authorize alerts") } }
+    }
+}
+
+extension UIViewController {
+    func showAlert(withTitle title: String?, message: String?) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(action)
+        present(alert, animated: true, completion: nil)
+    }
+}
+
+extension Notification.Name {
+    static let info = Notification.Name("employeeInfo")
 }
 

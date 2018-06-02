@@ -15,24 +15,27 @@ class LoginViewController: UIViewController {
     
     @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var authId: String?
+//    let firebaseAuth = Auth.auth()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
-        UserLocation.instance.initialize()
+        activityIndicator.hidesWhenStopped = true
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
+        activityIndicator.startAnimating()
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user != nil {
+                self.activityIndicator.stopAnimating()
                 self.performSegue(withIdentifier: "home", sender: self)
             }
         }
+//        if firebaseAuth.currentUser == nil { activityIndicator.stopAnimating() }
         Auth.auth().languageCode = "en"
     }
     
@@ -42,7 +45,6 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func loginPressed(_ sender: Any) {
-        
         if phoneNumberField.text == nil { return }
         authPhoneNumber(phoneNumber: phoneNumberField.text!)
     }
@@ -67,6 +69,7 @@ class LoginViewController: UIViewController {
         let alert = UIAlertController(title: "Verification", message: "Enter verification code received via SMS", preferredStyle: .alert)
 
         let confirmCodeAlert = UIAlertAction(title: "Send", style: .default) { action in
+            self.activityIndicator.startAnimating()
 
             let verificationCode = alert.textFields![0]
             var verificationCodeToString = "";

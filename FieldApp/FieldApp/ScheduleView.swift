@@ -46,13 +46,7 @@ class ScheduleView: UIViewController {
         getCalendarInfo()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-    }
-    
-    @IBAction func dismissVC(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
-    }
+    @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
     
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
@@ -70,9 +64,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             let idToString = String(unwrappedEmployee.employeeID)
             APICalls().fetchJobInfo(employeeID: idToString) { jobs in
                 self.jobsArray = jobs
-                self.jobsArray.sort {
-                    ($0.installDate < $1.installDate)
-                }
+                self.jobsArray.sort {($0.jobName < $1.jobName)}
                 print(self.jobsArray)
                 self.main.addOperation {
                     self.activityIndicator.stopAnimating()
@@ -101,7 +93,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         func checkJobsDates(cellstateDate: Date, withHandler completion: () -> Void) {
             
             for job in jobsArray {
-                let adjustedDateTime = job.installDate+(28800)
+                let adjustedDateTime = job.dates[0]+(28800)
                 if adjustedDateTime == cellstateDate {
                     dateIsEqual = true
                     jobIndex = i
@@ -146,7 +138,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         guard let validCell = cell as? CalendarCell else {return}
         
         checkJobsDates(date: cellState.date) {matchingJob in
-            let installDate = getMonthDayYear(date: matchingJob.installDate)
+            let installDate = getMonthDayYear(date: matchingJob.dates[0])
             
             self.jobNameLbl.text = matchingJob.jobName
             self.poNumberLbl.text = "PO# " + String(matchingJob.poNumber)
@@ -184,7 +176,7 @@ extension ScheduleView {
     
     func checkJobsDates(date: Date, callback: (Job.UserJob) -> ()) {
         for job in jobsArray {
-            let adjustedDateTime = job.installDate+(28800)
+            let adjustedDateTime = job.dates[0]+(28800)
             if adjustedDateTime == date {
                 guard let matchingJob = job as? Job.UserJob else { return }
                 callback(matchingJob)
