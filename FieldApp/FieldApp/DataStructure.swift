@@ -7,8 +7,9 @@
 //
 
 import Foundation
-import CoreLocation
 import UIKit
+import CoreLocation
+import MapKit
 
 class UserData {
     
@@ -32,25 +33,41 @@ class UserData {
     var completedWorkPhotos: [UIImage]?
     var locationConfirm: Bool?
     
-    struct UserJobInfo {
+    
+    
+    struct UserInfo {
         
+        let employeeID: Int
         let userName: String
-        let workWeekHours: Int?
-        let userPoints: Int?
-        let employeeJobs: NSArray
+        var employeeJobs: [Job.UserJob]
+        var punchedIn: Bool?
         
-        static func fromJSON(dictionary: NSDictionary) -> UserJobInfo? {
+        //                let employeePhone: Int?
+        //                let workWeekHours: Int?
+        //                let userPoints: Int?
+        
+        
+        static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
+            var jobsToAdd = [Job.UserJob]()
+            var clocked = false
             
-            guard let userName = dictionary["userName"] as? String,
-                let weekHours = dictionary["workWeekHours"] as? Int,
-                let points = dictionary["userPoints"] as? Int,
-                let jobs = dictionary["employeeJobs"] as? NSArray
-                else {
-                    print("failed fromJSON method, in TimeInOut Struct")
-                    return nil
+            guard let userId = dictionary["employeeID"] as? Int else { print("employeeID failed to parse"); return nil}
+            guard let jobs = dictionary["employeeJobs"] as? NSArray else { print("employeejobs  failed to parse"); return nil}
+            guard let userName = dictionary["username"] as? String else { print("username  failed to parse"); return nil }
+            guard let clockIn = dictionary["punchedIn"] as? Bool else { print("clockin failed to parse"); return nil }
+            clocked = clockIn
+            
+            for job in jobs {
+                guard let newJob = Job.UserJob.jsonToDictionary(dictionary: job as! NSDictionary) else { return nil }
+                jobsToAdd.append(newJob)
+                print("Employee job: \(newJob.jobName)")
             }
             
-            return UserJobInfo(userName: userName, workWeekHours: weekHours, userPoints: points, employeeJobs: jobs)
+            //                let userNumber = dictionary["phoneNumber"] as? Int,
+            //                let weekHours = dictionary["workWeekHours"] as? Int,
+            //                let points = dictionary["userPoints"] as? Int,
+            
+            return UserInfo(employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clocked)
         }
     }
     
@@ -85,54 +102,92 @@ class UserData {
             return TimeCard(weekBeginDate: beginDate, sunday: sunday, monday: monday, tuesday: tuesday, wednesday: wednesday, thursday: thursday, friday: friday, saturday: saturday, totalHours: total)
         }
     }
-    
-//    func checkJobProximity(userLocation: CLLocationCoordinate2D, jobLocation: CLLocationCoordinate2D) -> Bool {
-//        let maxDistance = 1609.34 // Meters = One Mile
-//        return Bool
-//    }
-
 }
 
 
-class Job {
+class Job: Codable {
     
     var jobName: String?
-    var poNumber: Int?
+    var poNumber: String?
+    var jobLocation: [Double]?
     
     struct UserJob {
         
-        let poNumber: Int
+        let poNumber: String
         let jobName: String
-        let storeName: String
-        let jobAddress: String
-        let jobCity: String
-        let jobState: String
-//        let jobBudgetHours: String?
-//        let employeeJobHours: String?
-//        let jobLocation: CLLocationCoordinate2D
+        let dates: [Date]
+        let jobLocation: CLLocationCoordinate2D
+        
+        //        let jobAddress: String
+        //        let jobCity: String
+        //        let jobState: String
+        //        let employeeJobHours: String?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let purchaseOrderNumber = dictionary["PO"] as? Int,
-                let jobName = dictionary["JobName"] as? String,
-                let store = dictionary["Store"] as? String,
-                let address = dictionary["Address"] as? String,
-                let city = dictionary["City"] as? String,
-                let state = dictionary["State"] as? String
-//                let budgetHours = dictionary["jobBudgetHours"] as? String,
-//                let employeeHours = dictionary["employeeJobHours"] as? String,
-//                let location = dictionary["jobLocation"] as? NSDictionary
-                else {
-                    print("failed fromJSON method, in UserJobs Struct")
-                    return nil
+            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else {
+                print("couldnt parse poNumber")
+                return nil
             }
-/*          guard let latitude = location["latitude"] as? CLLocationDegrees else {return nil}
-            guard let longitude = location["longitude"] as? CLLocationDegrees else {return nil}
-            let coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)      */
-
-            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, storeName: store, jobAddress: address, jobCity: city, jobState: state)
+            guard let jobName = dictionary["name"] as? String else {
+                print("couldnt parse storeName")
+                return nil
+            }
+            
+            var lat = CLLocationDegrees()
+            var long = CLLocationDegrees()
+            var coordinates = CLLocationCoordinate2D()
+            var dates = [Date()]
+            
+            if let location = dictionary["jobLocation"] as? [Double] {
+                lat = CLLocationDegrees(location[0])
+                long = CLLocationDegrees(location[1])
+                coordinates = CLLocationCoordinate2D()
+                coordinates.latitude = lat
+                coordinates.longitude = long
+                dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
+            }
+            
+            //                let address = dictionary["Address"] as? String,
+            //                let city = dictionary["City"] as? String,
+            //                let state = dictionary["State"] as? String,
+            //                let budgetHours = dictionary["jobBudgetHours"] as? String,
+            //                let employeeHours = dictionary["employeeJobHours"] as? String
+            
+            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, jobLocation: coordinates)
+        }
+        
+        static func stringToDate(string: String) -> Date {
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            
+            guard let dateString = dateFormatter.date(from: string) else {
+                fatalError("failed to cast string to type: date")
+            }
+            
+            return dateString
+        }
+        
+        static func checkForArray(datesObj: Any, dictionary: NSDictionary) -> [Date]{
+            var dates = [Date]()
+            
+            if datesObj is [Any] {
+                guard let datesCollection = datesObj as? [Dictionary<String, Any>] else { print("couldnt cast datesinto an array"); return dates}
+                for i in datesCollection {
+                    guard let install = i["installDate"] as? String else { print("couldnt cast install date from array to string"); return dates}
+                    let date = stringToDate(string: install)
+                    dates.append(date)
+                }
+            } else {
+                guard let install = dictionary["installDate"] as? String else { print("couldnt cast date to string"); return dates}
+                let date = stringToDate(string: install)
+                dates.append(date)
+            }
+            return dates
         }
     }
+    
     
 }
 
@@ -208,6 +263,57 @@ class FieldActions {
     
 }
 
+struct GeoKey {
+    static let latitude = "latitude"
+    static let longitude = "longitude"
+    static let radius = "radius"
+    static let identifier = "identifier"
+    static let note = "note"
+    static let eventType = "eventType"
+}
 
+enum EventType: String {
+    case onEntry = "On Entry"
+    case onExit = "On Exit"
+}
+
+class Geotification: NSObject, NSCoding, MKAnnotation {
+    var coordinate: CLLocationCoordinate2D
+    var radius: CLLocationDistance
+    var identifier: String
+    var note: String
+    var eventType: EventType
+    
+    var title: String? {
+        if note.isEmpty {
+            return "no note"
+        }
+        return note
+    }
+    init(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, identifier: String, note: String, eventType: EventType) {
+        self.coordinate = coordinate
+        self.radius = radius
+        self.identifier = identifier
+        self.note = note
+        self.eventType = eventType
+    }
+    required init?(coder decoder: NSCoder) {
+        let latitude = decoder.decodeDouble(forKey: GeoKey.latitude)
+        let longitude = decoder.decodeDouble(forKey: GeoKey.longitude)
+        coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        radius = decoder.decodeDouble(forKey: GeoKey.radius)
+        identifier = decoder.decodeObject(forKey: GeoKey.identifier) as! String
+        note = decoder.decodeObject(forKey: GeoKey.note) as! String
+        eventType = EventType(rawValue: decoder.decodeObject(forKey: GeoKey.eventType)as! String)!
+    }
+    func encode(with coder: NSCoder) {
+        coder.encode(coordinate.latitude, forKey: GeoKey.latitude)
+        coder.encode(coordinate.longitude, forKey: GeoKey.longitude)
+        coder.encode(radius, forKey: GeoKey.radius)
+        coder.encode(identifier, forKey: GeoKey.identifier)
+        coder.encode(note, forKey: GeoKey.note)
+        coder.encode(eventType.rawValue, forKey: GeoKey.eventType)
+    }
+}
 
 
