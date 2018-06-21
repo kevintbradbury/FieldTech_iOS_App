@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A11FFC572100F1E193 /* CalendarCell.swift */; };
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
+		062FD96020DB081D0049F747 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 062FD95F20DB081D0049F747 /* GoogleService-Info.plist */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
 		0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */; };
-		0AB8AE851F7AC80900E1ACFC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0AB8AE841F7AC74E00E1ACFC /* GoogleService-Info.plist */; };
 		0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */; };
 		0AC8EF511F71826200E86DD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF501F71826200E86DD6 /* LoginViewController.swift */; };
 		0AC8EF541F71826200E86DD6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8EF521F71826200E86DD6 /* Main.storyboard */; };
@@ -48,10 +48,10 @@
 /* Begin PBXFileReference section */
 		062005A11FFC572100F1E193 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
+		062FD95F20DB081D0049F747 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
 		0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		0AB8AE841F7AC74E00E1ACFC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0AC8EF4B1F71826200E86DD6 /* FieldApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FieldApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0AC8EF501F71826200E86DD6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -108,10 +108,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		062FD96120DB086D0049F747 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				062FD95F20DB081D0049F747 /* GoogleService-Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		0AC8EF421F71826200E86DD6 = {
 			isa = PBXGroup;
 			children = (
-				0AB8AE841F7AC74E00E1ACFC /* GoogleService-Info.plist */,
+				062FD96120DB086D0049F747 /* Resources */,
 				0AC8EF4D1F71826200E86DD6 /* FieldApp */,
 				0AC8EF621F71826200E86DD6 /* FieldAppTests */,
 				0AC8EF6D1F71826200E86DD6 /* FieldAppUITests */,
@@ -316,8 +324,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				062FD96020DB081D0049F747 /* GoogleService-Info.plist in Resources */,
 				0AC8EF591F71826200E86DD6 /* LaunchScreen.storyboard in Resources */,
-				0AB8AE851F7AC80900E1ACFC /* GoogleService-Info.plist in Resources */,
 				0AC8EF561F71826200E86DD6 /* Assets.xcassets in Resources */,
 				0AC8EF541F71826200E86DD6 /* Main.storyboard in Resources */,
 			);
@@ -350,6 +358,7 @@
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/ImagePicker/ImagePicker.framework",
 				"${BUILT_PRODUCTS_DIR}/JTAppleCalendar/JTAppleCalendar.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
@@ -362,6 +371,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ImagePicker.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JTAppleCalendar.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",

@@ -198,37 +198,37 @@ extension APICalls {
 
 extension APICalls {
     
-    func uploadToFirebase(photo: UIImage, jobs: [Job.UserJob]) {
-        
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
-            print("Could not get JPEG representation of UIImage")
-            return
-        }
-        
-        let storage = Storage.storage()
-        let data = imageData
-        let storageRef = storage.reference()
-        
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd.yyyy"
-        let result = formatter.string(from: date)
-        print("\n imageName will be: image\(result)\(jobs[1].jobName)_PO_\(jobs[1].poNumber).jpg")
-        
-        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].jobName)_PO_\(jobs[0].poNumber).jpg")
-        
-        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
-            
-            guard let metadata = metadata else {
-                print("uploadtask error \(String(describing: error))")
-                return
-            }
-            if error == nil {
-                _ = metadata.downloadURL()
-            }
-        }
-        uploadTask.enqueue()
-    }
+//    func uploadToFirebase(photo: UIImage, jobs: [Job.UserJob]) {
+//
+//        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
+//            print("Could not get JPEG representation of UIImage")
+//            return
+//        }
+//
+//        let storage = Storage.storage()
+//        let data = imageData
+//        let storageRef = storage.reference()
+//
+//        let date = Date()
+//        let formatter = DateFormatter()
+//        formatter.dateFormat = "MM.dd.yyyy"
+//        let result = formatter.string(from: date)
+//        print("\n imageName will be: image\(result)\(jobs[1].jobName)_PO_\(jobs[1].poNumber).jpg")
+//
+//        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].jobName)_PO_\(jobs[0].poNumber).jpg")
+//
+//        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
+//
+//            guard let metadata = metadata else {
+//                print("uploadtask error \(String(describing: error))")
+//                return
+//            }
+//            if error == nil {
+//                _ = metadata.downloadURL()
+//            }
+//        }
+//        uploadTask.enqueue()
+//    }
 }
 
 extension APICalls {
