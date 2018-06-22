@@ -9,13 +9,12 @@
 import Foundation
 import UIKit
 import Firebase
-import FirebaseStorage
 import CoreLocation
 import UserNotifications
 import UserNotificationsUI
 import ImagePicker
-import Photos
-//import Alamofire
+import Alamofire
+//import FirebaseStorage
 //import SwiftyJSON
 
 class HomeView: UIViewController, UINavigationControllerDelegate { // UIImagePickerControllerDelegate
@@ -98,39 +97,21 @@ extension HomeView: ImagePickerDelegate {
     
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         let images = imageAssets
-        print(images)
-        uploadPhoto(photo: images[0], poNumber: "1234")
+        print("iamges to upload: \(images.count)")
         
-//        if let po = todaysJob.poNumber {
-//                uploadPhoto(photo: images[0], poNumber: po)
-//
-//        } else {
-//                uploadPhoto(photo: images[0], poNumber: "--")
-//        }
+        if let po = todaysJob.poNumber {
+            uploadPhoto(photos: images, poNumber: po)
+            
+        } else {
+            uploadPhoto(photos: images, poNumber: "1234")
+        }
         
         dismiss(animated: true, completion: nil)
     }
     
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
-        dismiss(animated: true, completion: nil)
     }
-    
-//    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-//
-//        let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-//
-//        photoToUpload.contentMode = .scaleAspectFit
-//        photoToUpload.image = selectedPhoto
-//
-//        dismiss(animated: true)
-//        guard let po = todaysJob.poNumber else { print("todays job po number: ", todaysJob.poNumber); return }
-//        uploadPhoto(photo: selectedPhoto, poNumber: po)
-//    }
-    
-//    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-//        dismiss(animated: true, completion: nil)
-//    }
-    
+
     func setMonitoringForJobLoc() {
         if todaysJob.jobName != nil && todaysJob.jobLocation?[0] != nil && todaysJob.jobLocation?[1] != nil && todaysJob.jobLocation?.count == 2 {
             guard let lat = todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
@@ -215,17 +196,69 @@ extension HomeView: ImagePickerDelegate {
         self.present(actionsheet, animated: true)
     }
     
-    func uploadPhoto(photo: UIImage, poNumber: String){
+    func uploadPhoto(photos: [UIImage], poNumber: String){
         self.main.addOperation { self.inProgress() }
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else { print("Couldn't get JPEG representation"); return }
-//        guard let poNum = todaysJob.poNumber else { print("couldnt find todays po number"); return }
+//        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
+//        print("Couldn't get JPEG representation"); return
+//    }
         
-        APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
+        var data = Data()
+
+        do {
+            data = try NSKeyedArchiver.archivedData(withRootObject: photos)
+        } catch {
+            print(error)
+        }
+        
+        APICalls().sendPhoto(imageData: data, poNumber: poNumber) { responseObj in
             self.main.addOperation {
                 self.completedProgress()
                 self.confirmUpload()
             }
         }
+    }
+    
+    func upload(images: [UIImage],
+                progressCompletion: @escaping (_ percent: Float) -> Void) {
+                UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        
+        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
+        let jobNumber = String(1234) // PO - Grand and Foothill
+        let url = address + jobNumber + "/upload"
+        guard let photoName = HomeView.employeeInfo?.employeeJobs[0].jobName else { return }
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                for img in images {
+                    guard let imageData = UIImageJPEGRepresentation(img, 0.5) else { return }
+                    let fileName = photoName + ".jpg"
+                    multipartFormData.append(imageData,
+                                             withName: fileName,
+                                             mimeType: "image/jpeg")
+                }
+        },
+            to: url,
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                    
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        progressCompletion(Float(progress.fractionCompleted))
+                    }
+                    //                    upload.validate()
+                    upload.responseJSON { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)")
+                            return
+                        }
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+                //                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        }
+        )
     }
 }
 

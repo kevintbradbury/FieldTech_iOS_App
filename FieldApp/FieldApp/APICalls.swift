@@ -9,9 +9,8 @@
 import Foundation
 import UIKit
 import CoreLocation
-import Firebase
-import FirebaseStorage
 import EventKit
+//import Firebase
 
 
 class APICalls {
@@ -80,8 +79,11 @@ class APICalls {
         let session = URLSession.shared;
         
         var request = setupRequest(route: route, method: "POST")
-        request.addValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/x-www-formurlencoded", forHTTPHeaderField: "Content-Type")
+        // "image/jpeg"
         request.httpBody = imageData
+        
+        print(request.httpBody)
         
         let task = session.dataTask(with: request) {data, response, error in
             
@@ -233,7 +235,8 @@ extension APICalls {
 
 extension APICalls {
     
-    //Doesn't set an alarm but does add an event to calendar, which may be useeful for adding jobs to internal calendar
+    //Doesn't set an alarm but does add an event to calendar, which may be useful for adding jobs to internal calendar
+    
     func setAnAlarm(jobName: String, jobStart: Date, jobEnd: Date) {
         var calendar: EKCalendar?
         let eventstore = EKEventStore()
