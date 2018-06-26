@@ -100,10 +100,12 @@ extension HomeView: ImagePickerDelegate {
         print("iamges to upload: \(images.count)")
         
         if let po = todaysJob.poNumber {
-            uploadPhoto(photos: images, poNumber: po)
+            upload(images: images, jobNumber: po)
+//            uploadPhoto(photos: images, poNumber: po)
             
         } else {
-            uploadPhoto(photos: images, poNumber: "1234")
+            upload(images: images, jobNumber: "1234")
+//            uploadPhoto(photos: images, poNumber: "1234")
         }
         
         dismiss(animated: true, completion: nil)
@@ -172,24 +174,12 @@ extension HomeView: ImagePickerDelegate {
         
         let actionsheet = UIAlertController(title: "Choose Upload method", message: "You can upload by Camera or from your Photos", preferredStyle: UIAlertControllerStyle.actionSheet)
         
-//        let chooseCamera = UIAlertAction(title: "Camera", style: UIAlertActionStyle.default) { (action) -> Void in
-//            //present Camera
-//            self.picker.allowsEditing = false
-//            self.picker.sourceType = .camera
-//            self.picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .camera)!
-//            self.present(self.picker, animated: true, completion: nil)
-//        }
         let choosePhotos = UIAlertAction(title: "Photos", style: UIAlertActionStyle.default) { (action) -> Void in
-            //present Photos
-//            self.picker.allowsEditing = false
-//            self.picker.sourceType = .photoLibrary
-//            self.picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary)!
             self.present(self.picker, animated: true, completion: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in
             print("chose Cancel")
         }
-//        actionsheet.addAction(chooseCamera)
         actionsheet.addAction(choosePhotos)
         actionsheet.addAction(cancel)
         
@@ -218,47 +208,53 @@ extension HomeView: ImagePickerDelegate {
         }
     }
     
-    func upload(images: [UIImage],
-                progressCompletion: @escaping (_ percent: Float) -> Void) {
-                UIApplication.shared.isNetworkActivityIndicatorVisible = true
+    func upload(images: [UIImage], jobNumber: String) { // progressCompletion: @escaping (_ percent: Float) -> Void
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        self.inProgress()
         
         let address = "https://mb-server-app-kbradbury.c9users.io/job/"
-        let jobNumber = String(1234) // PO - Grand and Foothill
         let url = address + jobNumber + "/upload"
-        guard let photoName = HomeView.employeeInfo?.employeeJobs[0].jobName else { return }
+        let headers: HTTPHeaders = ["Content-type" : "multipart/form-data"]
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
+//                var i = 0
                 for img in images {
-                    guard let imageData = UIImageJPEGRepresentation(img, 0.5) else { return }
-                    let fileName = photoName + ".jpg"
+                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
+//                    let fileName = "\(jobNumber)-\(i).jpg)"
                     multipartFormData.append(imageData,
-                                             withName: fileName,
-                                             mimeType: "image/jpeg")
+                                             withName: "photo") // , mimeType: "image/jpeg"
+//                i += 1
                 }
         },
+            usingThreshold: UInt64.init(),
             to: url,
+            method: .post,
+            headers: headers,
             encodingCompletion: { encodingResult in
                 switch encodingResult {
                     
                 case .success(let upload, _, _):
                     upload.uploadProgress { progress in
-                        progressCompletion(Float(progress.fractionCompleted))
+                        //                        progressCompletion(Float(progress.fractionCompleted))
                     }
-                    //                    upload.validate()
-                    upload.responseJSON { response in
+                    upload.validate()
+                    upload.responseString { response in
                         guard response.result.isSuccess else {
                             print("error while uploading file: \(response.result.error)")
                             return
                         }
+                        //
+                        self.completedProgress()
+                        self.confirmUpload()
                     }
                     
                 case .failure(let encodingError):
                     print(encodingError)
                 }
-                //                UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
         )
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 }
 
