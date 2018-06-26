@@ -80,10 +80,7 @@ class APICalls {
         
         var request = setupRequest(route: route, method: "POST")
         request.addValue("application/x-www-formurlencoded", forHTTPHeaderField: "Content-Type")
-        // "image/jpeg"
         request.httpBody = imageData
-        
-        print(request.httpBody)
         
         let task = session.dataTask(with: request) {data, response, error in
             

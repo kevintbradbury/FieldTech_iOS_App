@@ -100,12 +100,10 @@ extension HomeView: ImagePickerDelegate {
         print("iamges to upload: \(images.count)")
         
         if let po = todaysJob.poNumber {
-            upload(images: images, jobNumber: po) // , imageNumber: i
-//            uploadPhoto(photos: images, poNumber: po)
+            upload(images: images, jobNumber: po)
             
         } else {
-            upload(images: images, jobNumber: "----") // , imageNumber: 0
-//            uploadPhoto(photos: images, poNumber: "1234")
+            upload(images: images, jobNumber: "---")
         }
         
         dismiss(animated: true, completion: nil)
@@ -186,40 +184,27 @@ extension HomeView: ImagePickerDelegate {
         self.present(actionsheet, animated: true)
     }
     
-    func uploadPhoto(photos: [UIImage], poNumber: String){
+    func uploadPhoto(photo: UIImage, poNumber: String){
         self.main.addOperation { self.inProgress() }
-//        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
-//        print("Couldn't get JPEG representation"); return
-//    }
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
+        print("Couldn't get JPEG representation"); return
+    }
         
-        var data = Data()
-
-        do {
-            data = try NSKeyedArchiver.archivedData(withRootObject: photos)
-        } catch {
-            print(error)
-        }
-        
-        APICalls().sendPhoto(imageData: data, poNumber: poNumber) { responseObj in
+        APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
             self.main.addOperation {
                 self.completedProgress()
-                self.confirmUpload()
             }
         }
     }
     
-    func upload(images: [UIImage], jobNumber: String) {    // , imageNumber: Int
-        // progressCompletion: @escaping (_ percent: Float) -> Void
+    func upload(images: [UIImage], jobNumber: String) {
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         self.inProgress()
         
         let address = "https://mb-server-app-kbradbury.c9users.io/job/"
         let url = address + jobNumber + "/upload"
-        let headers: HTTPHeaders = [
-            "Content-type" : "multipart/form-data"
-            //"imagenumber" : String(imageNumber)
-            ]
+        let headers: HTTPHeaders = ["Content-type" : "multipart/form-data"]
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
@@ -249,11 +234,16 @@ extension HomeView: ImagePickerDelegate {
                     upload.responseString { response in
                         guard response.result.isSuccess else {
                             print("error while uploading file: \(response.result.error)")
+                            self.failedUpload()
                             return
                         }
                         //
                         self.completedProgress()
-                        self.confirmUpload()
+                        let request = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
+                        
+                        self.notificationCenter.add(request, withCompletionHandler: { (error) in
+                            if error != nil { return } else {}
+                        })
                     }
                     
                 case .failure(let encodingError):
@@ -263,11 +253,12 @@ extension HomeView: ImagePickerDelegate {
         )
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
+ 
 }
 
 extension HomeView {
-    func confirmUpload() {
-        let actionsheet = UIAlertController(title: "Successful", message: "Photo was uploaded successfully", preferredStyle: UIAlertControllerStyle.alert)
+    func failedUpload() {
+        let actionsheet = UIAlertController(title: "Upload Failed", message: "Photo failed to upload.", preferredStyle: UIAlertControllerStyle.alert)
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             actionsheet.dismiss(animated: true, completion: nil)
         }
