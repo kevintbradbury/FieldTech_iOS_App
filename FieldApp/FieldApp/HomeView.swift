@@ -100,11 +100,11 @@ extension HomeView: ImagePickerDelegate {
         print("iamges to upload: \(images.count)")
         
         if let po = todaysJob.poNumber {
-            upload(images: images, jobNumber: po)
+            upload(images: images, jobNumber: po) // , imageNumber: i
 //            uploadPhoto(photos: images, poNumber: po)
             
         } else {
-            upload(images: images, jobNumber: "1234")
+            upload(images: images, jobNumber: "----") // , imageNumber: 0
 //            uploadPhoto(photos: images, poNumber: "1234")
         }
         
@@ -208,23 +208,30 @@ extension HomeView: ImagePickerDelegate {
         }
     }
     
-    func upload(images: [UIImage], jobNumber: String) { // progressCompletion: @escaping (_ percent: Float) -> Void
+    func upload(images: [UIImage], jobNumber: String) {    // , imageNumber: Int
+        // progressCompletion: @escaping (_ percent: Float) -> Void
+        
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         self.inProgress()
         
         let address = "https://mb-server-app-kbradbury.c9users.io/job/"
         let url = address + jobNumber + "/upload"
-        let headers: HTTPHeaders = ["Content-type" : "multipart/form-data"]
+        let headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data"
+            //"imagenumber" : String(imageNumber)
+            ]
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
-//                var i = 0
+                var i = 0
                 for img in images {
+                    
                     guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
-//                    let fileName = "\(jobNumber)-\(i).jpg)"
                     multipartFormData.append(imageData,
-                                             withName: "photo") // , mimeType: "image/jpeg"
-//                i += 1
+                                             withName: "\(jobNumber)_\(i)",
+                        fileName: "\(jobNumber)_\(i).jpg",
+                        mimeType: "image/jpeg")
+                    i += 1
                 }
         },
             usingThreshold: UInt64.init(),
@@ -236,7 +243,7 @@ extension HomeView: ImagePickerDelegate {
                     
                 case .success(let upload, _, _):
                     upload.uploadProgress { progress in
-                        //                        progressCompletion(Float(progress.fractionCompleted))
+                        //progressCompletion(Float(progress.fractionCompleted))
                     }
                     upload.validate()
                     upload.responseString { response in
