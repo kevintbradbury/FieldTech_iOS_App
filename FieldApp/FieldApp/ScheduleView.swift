@@ -65,7 +65,9 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             APICalls().fetchJobInfo(employeeID: idToString) { jobs in
                 self.jobsArray = jobs
                 self.jobsArray.sort {($0.jobName < $1.jobName)}
-                print(self.jobsArray)
+                
+                for i in self.jobsArray { print(i.jobName, i.dates) }
+                
                 self.main.addOperation {
                     self.activityIndicator.stopAnimating()
                     self.calendarView.reloadData()
@@ -84,6 +86,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             cell.dateLabel.textColor = UIColor.lightGray
         } else {
             cell.dateLabel.textColor = UIColor.black
+            cell.backgroundColor = UIColor.white
         }
         
         var dateIsEqual = false
@@ -93,7 +96,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         func checkJobsDates(cellstateDate: Date, withHandler completion: () -> Void) {
             
             for job in jobsArray {
-                let adjustedDateTime = job.dates[0]+(28800)
+                let adjustedDateTime = job.dates[0] //
                 if adjustedDateTime == cellstateDate {
                     dateIsEqual = true
                     jobIndex = i
@@ -121,14 +124,15 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         
         if cellState.dateBelongsTo != .thisMonth {
             cell.dateLabel.textColor = UIColor.lightGray
-            cell.backgroundColor = UIColor.white
         } else {
+            cell.dateLabel.textColor = UIColor.black
             cell.backgroundColor = UIColor.white
         }
         
         checkJobsDates(date: cellState.date) { matchingJob in
             cell.highlightView.isHidden = false
             cell.jobName.text = matchingJob.jobName
+            cell.dateLabel.textColor = UIColor.white
         }
         
         return cell
@@ -137,12 +141,10 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else {return}
         
-        checkJobsDates(date: cellState.date) {matchingJob in
-            let installDate = getMonthDayYear(date: matchingJob.dates[0])
-            
+        checkJobsDates(date: cellState.date) { matchingJob in
             self.jobNameLbl.text = matchingJob.jobName
             self.poNumberLbl.text = "PO# " + String(matchingJob.poNumber)
-            self.installDateLbl.text = installDate
+            self.installDateLbl.text = getMonthDayYear(date: matchingJob.dates[0])
             self.directionsBtn.isHidden = false
         }
     }
@@ -176,10 +178,15 @@ extension ScheduleView {
     
     func checkJobsDates(date: Date, callback: (Job.UserJob) -> ()) {
         for job in jobsArray {
-            let adjustedDateTime = job.dates[0]+(28800)
-            if adjustedDateTime == date {
-                guard let matchingJob = job as? Job.UserJob else { return }
-                callback(matchingJob)
+
+            if job.dates.count > 0 {
+                guard let jobDate = getMonthDayYear(date: job.dates[0]) as? String else { return }
+                let dt = getMonthDayYear(date: date)
+                
+                if jobDate == dt {
+                    guard let matchingJob = job as? Job.UserJob else { return }
+                    callback(matchingJob)
+                }
             }
         }
     }
@@ -274,9 +281,7 @@ extension ScheduleView {
     }
     
     func getMonthDayYear(date: Date) -> String {
-        print( date.description(with: Locale(identifier: "en")) )
-        let adjustedDateTime = date + (28800)
-        print(adjustedDateTime)
+        let adjustedDateTime = date //+ (28800)
         //since mongoDB defaults to UTC or GMT 0, and time is set for midnight UTC, that defaults to 4pm PST one day before, this could be resolved by setting DB local to PST and setting specific start time
         
         formatter.dateFormat = "MMM"

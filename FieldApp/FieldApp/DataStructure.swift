@@ -60,7 +60,6 @@ class UserData {
             for job in jobs {
                 guard let newJob = Job.UserJob.jsonToDictionary(dictionary: job as! NSDictionary) else { return nil }
                 jobsToAdd.append(newJob)
-                print("Employee job: \(newJob.jobName)")
             }
             
             //                let userNumber = dictionary["phoneNumber"] as? Int,
@@ -173,10 +172,14 @@ class Job: Codable {
             var dates = [Date]()
             
             if datesObj is [Any] {
-                guard let datesCollection = datesObj as? [Dictionary<String, Any>] else { print("couldnt cast datesinto an array"); return dates}
+                guard let datesCollection = datesObj as? [Dictionary<String, Any>] else {
+                    print("couldnt cast dates to array"); return dates
+                }
                 for i in datesCollection {
-                    guard let install = i["installDate"] as? String else { print("couldnt cast install date from array to string"); return dates}
-                    let date = stringToDate(string: install)
+                    guard let dt = i["installDate"] as? String else {
+                        print("couldnt cast install date from array to string"); return dates
+                    }
+                    let date = stringToDate(string: dt)
                     dates.append(date)
                 }
             } else {

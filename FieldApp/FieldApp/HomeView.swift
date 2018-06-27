@@ -64,7 +64,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate { // UIImagePic
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
-    @IBAction func chooseUploadMethod(_ sender: Any) { showUploadMethods() }
+    @IBAction func chooseUploadMethod(_ sender: Any) { present(picker, animated: true, completion: nil) } //showUploadMethods()
     @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
     @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
     
