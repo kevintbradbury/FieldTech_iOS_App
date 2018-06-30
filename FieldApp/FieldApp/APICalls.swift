@@ -43,8 +43,8 @@ class APICalls {
         let session = URLSession.shared;
         let bool = true
         var auto: String { if autoClockOut == true { return "true" } else { return "" } }
-//        var testBool: String { var bool = true; if bool == true { return "true" } else { return "" } }
         var request = setupRequest(route: route, method: "POST")
+        
         request.httpBody = data
         request.addValue(auto, forHTTPHeaderField: "autoClockOut")
         print(request.allHTTPHeaderFields)

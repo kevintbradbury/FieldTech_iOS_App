@@ -17,13 +17,14 @@ import Alamofire
 //import FirebaseStorage
 //import SwiftyJSON
 
-class HomeView: UIViewController, UINavigationControllerDelegate { // UIImagePickerControllerDelegate
+class HomeView: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet weak var homeButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
+    @IBOutlet weak var labelBkgd: UIView!
     @IBOutlet weak var clockInOut: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
