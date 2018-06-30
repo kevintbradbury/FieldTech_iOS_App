@@ -136,9 +136,13 @@ class Job: Codable {
                 coordinates.latitude = lat
                 coordinates.longitude = long
                 
+                print(dictionary["jobAddress"])
+                
                 if let addressAsString = dictionary["jobAddress"] as? String,
                     let cityAsString = dictionary["jobCity"] as? String,
                     let stateAsString = dictionary["jobState"] as? String {
+//                    print("job address from server: \(addressAsString)")
+                    
                     address = addressAsString
                     city = cityAsString
                     state = stateAsString

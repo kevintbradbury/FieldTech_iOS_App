@@ -94,20 +94,22 @@ extension HomeView: ImagePickerDelegate {
     
     func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         print("wrapper did press")
+        imagePicker.expandGalleryView()
     }
     
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         let images = imageAssets
-        print("iamges to upload: \(images.count)")
+        print("images to upload: \(images.count)")
         
-        if let po = todaysJob.poNumber {
-            upload(images: images, jobNumber: po)
+        if images.count < 11 {
             
+            if let po = todaysJob.poNumber {    upload(images: images, jobNumber: po)       }
+            else { upload(images: images, jobNumber: "---") }
+            
+            dismiss(animated: true, completion: nil)
         } else {
-            upload(images: images, jobNumber: "---")
+            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
         }
-        
-        dismiss(animated: true, completion: nil)
     }
     
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {

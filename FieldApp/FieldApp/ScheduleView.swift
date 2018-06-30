@@ -70,7 +70,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
                 self.jobsArray = jobs
                 self.jobsArray.sort {($0.jobName < $1.jobName)}
                 
-                for i in self.jobsArray { print(i.jobName, i.dates) }
+                for i in self.jobsArray { print(i.jobName, i.dates, i.jobAddress) }
                 
                 self.main.addOperation { self.activityIndicator.stopAnimating(); self.calendarView.reloadData() }
             }
@@ -128,8 +128,8 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             self.jobNameLbl.text = matchingJob.jobName
             self.poNumberLbl.text = "PO " + String(matchingJob.poNumber)
             self.installDateLbl.text = "\(getMonthDayYear(date: matchingJob.dates[0].installDate)) \n \(getTime(date: matchingJob.dates[0].installDate))"
-            self.directionsBtn.titleLabel!.text = "\(matchingJob.jobAddress) \n \(matchingJob.jobCity), \(matchingJob.jobState)"
             self.directionsBtn.isHidden = false
+//            self.directionsBtn.titleLabel!.text = "\(matchingJob.jobAddress) \n \(matchingJob.jobCity), \(matchingJob.jobState)"
         }
     }
     
@@ -149,7 +149,7 @@ extension ScheduleView {
         jobNameLbl.text = ""
         poNumberLbl.text = ""
         installDateLbl.text = ""
-        directionsBtn.titleLabel?.text = ""
+//        directionsBtn.titleLabel?.text = ""
         directionsBtn.isHidden = true
     }
     
