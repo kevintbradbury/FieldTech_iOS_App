@@ -40,6 +40,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data){
+        print("did register for remote notifications")
+        
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
         let tokenChars = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
@@ -47,6 +49,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        print("received notification \n \(notification)")
+        
         if Auth.auth().canHandleNotification(notification) { completionHandler(UIBackgroundFetchResult.noData); return }
         // IF this notification is not auth related, developer should handle it.
     }
@@ -97,21 +101,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func checkToken(token: String) {
         guard let id = UserDefaults.standard.string(forKey: "employeeID"),
         let route = "employee/token/" + id as? String else { return }
-        var request = APICalls().setupRequest(route: route, method: "POST")
         
         func updateToken() {
+            var request = APICalls().setupRequest(route: route, method: "POST")
             request.addValue(token, forHTTPHeaderField: "token")
             
             let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                if error != nil { print("failed to fetch JSON from database)"); print(error); return }
+                if error != nil {
+                    print("failed to fetch JSON from database w/ error: \(error)");
+                    return
+                }
                 else { print("sent device token successfully") }
             }
             task.resume()
         }
         
         if let existingToken = UserDefaults.standard.string(forKey: "token") {
-            if existingToken == token { return } else { updateToken() }
-        } else { UserDefaults.standard.set(token, forKey: "token"); updateToken() }
+            
+//            if existingToken == token {
+//                return
+//            } else {
+                UserDefaults.standard.set(token, forKey: "token");
+                updateToken()
+//            }
+            
+        } else {
+            UserDefaults.standard.set(token, forKey: "token");
+            updateToken()
+        }
     }
 }
 
