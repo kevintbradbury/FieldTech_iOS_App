@@ -182,9 +182,9 @@ class EmployeeIDEntry: UIViewController {
 }
 
 extension EmployeeIDEntry: WebSocketDelegate {
-    func websocketDidConnect(_ socket: WebSocket) { print("web socket was able to connect") }
+    func websocketDidConnect(_ socket: WebSocket) { print("web socket connected") }
     func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) { print("web socket DISconnected") }
-    func websocketDidReceiveData(_ socket: WebSocket, data: Data) { print("did recieve binary data from server socket") }
+    func websocketDidReceiveData(_ socket: WebSocket, data: Data) { print("recieved binary data from server") }
     func websocketDidReceiveMessage(_ socket: WebSocket, text: String) { print("web socket received message") }
 }
 

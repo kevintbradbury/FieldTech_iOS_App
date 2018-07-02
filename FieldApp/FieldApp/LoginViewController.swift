@@ -11,14 +11,15 @@ import Foundation
 import CoreLocation
 import Firebase
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, AuthUIDelegate {
     
     @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var authId: String?
-//    let firebaseAuth = Auth.auth()
+    let firebaseAuth = Auth.auth()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +53,7 @@ class LoginViewController: UIViewController {
     func authPhoneNumber(phoneNumber: String) {
         var phoneNumberToString = "+1"; phoneNumberToString += phoneNumberField.text!
         
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumberToString) { (verificationID, error) in
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumberToString, uiDelegate: nil) { (verificationID, error) in
             DispatchQueue.main.async {
                 if let error = error {
                     print("could not verify phone number due to \(error)")

@@ -19,21 +19,12 @@ class UserData {
     var proximityConfirm: Bool?
     var timeIn: Int?
     var timeOut: Int?
-    //keys set to minutes, values set to seconds
-    let timer: NSDictionary = [
-        15 : 600,
-        30 : 1500,
-        45 : 2400,
-        60 : 3000
-    ]
     var timerSet: TimeInterval?
     var breakComplete: Bool?
     var overBreak: Bool?
     var punchedIn: Bool?
     var completedWorkPhotos: [UIImage]?
     var locationConfirm: Bool?
-    
-    
     
     struct UserInfo {
         
@@ -45,7 +36,6 @@ class UserData {
         //                let employeePhone: Int?
         //                let workWeekHours: Int?
         //                let userPoints: Int?
-        
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
@@ -60,7 +50,6 @@ class UserData {
             for job in jobs {
                 guard let newJob = Job.UserJob.jsonToDictionary(dictionary: job as! NSDictionary) else { return nil }
                 jobsToAdd.append(newJob)
-                print("Employee job: \(newJob.jobName)")
             }
             
             //                let userNumber = dictionary["phoneNumber"] as? Int,
@@ -115,29 +104,30 @@ class Job: Codable {
         
         let poNumber: String
         let jobName: String
-        let dates: [Date]
+        let dates: [JobDates]
         let jobLocation: CLLocationCoordinate2D
+        let jobAddress: String
+        let jobCity: String
+        let jobState: String
+        let projCoord: String
         
-        //        let jobAddress: String
-        //        let jobCity: String
-        //        let jobState: String
-        //        let employeeJobHours: String?
+        struct JobDates {
+            let installDate: Date
+            let endDate: Date
+        }
+
+//        let employeeJobHours: String?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else {
-                print("couldnt parse poNumber")
-                return nil
-            }
-            guard let jobName = dictionary["name"] as? String else {
-                print("couldnt parse storeName")
-                return nil
-            }
+            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else { print("couldnt parse poNumber"); return nil }
+            guard let jobName = dictionary["name"] as? String else { print("couldnt parse storeName"); return nil }
             
             var lat = CLLocationDegrees()
             var long = CLLocationDegrees()
             var coordinates = CLLocationCoordinate2D()
-            var dates = [Date()]
+            var address = "", city = "", state = "", coordinator = ""
+            let dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
             
             if let location = dictionary["jobLocation"] as? [Double] {
                 lat = CLLocationDegrees(location[0])
@@ -145,50 +135,75 @@ class Job: Codable {
                 coordinates = CLLocationCoordinate2D()
                 coordinates.latitude = lat
                 coordinates.longitude = long
-                dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
+                
+                print(dictionary["jobAddress"])
+                
+                if let addressAsString = dictionary["jobAddress"] as? String,
+                    let cityAsString = dictionary["jobCity"] as? String,
+                    let stateAsString = dictionary["jobState"] as? String {
+//                    print("job address from server: \(addressAsString)")
+                    
+                    address = addressAsString
+                    city = cityAsString
+                    state = stateAsString
+                    
+                    if let projC = dictionary["projCoord"] as? String { coordinator = projC }
+                }
             }
             
-            //                let address = dictionary["Address"] as? String,
-            //                let city = dictionary["City"] as? String,
-            //                let state = dictionary["State"] as? String,
             //                let budgetHours = dictionary["jobBudgetHours"] as? String,
             //                let employeeHours = dictionary["employeeJobHours"] as? String
             
-            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, jobLocation: coordinates)
+            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, jobLocation: coordinates, jobAddress: address, jobCity: city, jobState: state, projCoord: coordinator)
         }
         
         static func stringToDate(string: String) -> Date {
-            
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
             
-            guard let dateString = dateFormatter.date(from: string) else {
-                fatalError("failed to cast string to type: date")
-            }
+            guard let dateString = dateFormatter.date(from: string) else { fatalError("failed to cast string to type: date") }
             
             return dateString
         }
         
-        static func checkForArray(datesObj: Any, dictionary: NSDictionary) -> [Date]{
-            var dates = [Date]()
+        static func checkForArray(datesObj: Any?, dictionary: NSDictionary) -> [JobDates] {
+            var dates = [JobDates]()
+            
+            func handleJustDates() -> [JobDates] {
+                var endString = ""
+                guard let start = dictionary["installDate"] as? String else { return dates }
+                guard let end = dictionary["endDate"] as? String else {
+                    
+                    var complete = stringToDate(string: start) + (86400)  // if no endDate, make end 24hrs * 60min * 60sec after start
+                    let dtObj = JobDates(installDate: stringToDate(string: start), endDate: complete)
+                    dates.append(dtObj)
+                    
+                    return dates
+                }
+                
+                let dtObj = JobDates(installDate: stringToDate(string: start), endDate: stringToDate(string: end))
+                dates.append(dtObj)
+                
+                return dates
+            }
             
             if datesObj is [Any] {
-                guard let datesCollection = datesObj as? [Dictionary<String, Any>] else { print("couldnt cast datesinto an array"); return dates}
+                guard let datesCollection = datesObj as? [Dictionary<String, Any>] else { return dates }
+                
                 for i in datesCollection {
-                    guard let install = i["installDate"] as? String else { print("couldnt cast install date from array to string"); return dates}
-                    let date = stringToDate(string: install)
-                    dates.append(date)
+                    guard let start = i["installDate"] as? String else { return handleJustDates() }
+                    guard let end = i["endDate"] as? String else { return handleJustDates() }
+
+                    let startEnd = JobDates(installDate: stringToDate(string: start), endDate: stringToDate(string: end))
+                    
+                    dates.append(startEnd)
                 }
-            } else {
-                guard let install = dictionary["installDate"] as? String else { print("couldnt cast date to string"); return dates}
-                let date = stringToDate(string: install)
-                dates.append(date)
-            }
+            } else { handleJustDates() }
+            
             return dates
         }
     }
-    
-    
 }
 
 class ContactInfo {

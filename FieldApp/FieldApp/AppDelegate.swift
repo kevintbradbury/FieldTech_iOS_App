@@ -20,11 +20,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var myViewController: HomeView?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
+
+    override init() {
+        super.init()
+        FirebaseApp.configure()
+    }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
         UserLocation.instance.initialize()
-        FirebaseApp.configure()
         registerForPushNotif()
         
         didEnterBackground = false

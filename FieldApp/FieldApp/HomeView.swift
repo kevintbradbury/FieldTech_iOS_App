@@ -9,27 +9,29 @@
 import Foundation
 import UIKit
 import Firebase
-import FirebaseStorage
 import CoreLocation
 import UserNotifications
 import UserNotificationsUI
-//import Alamofire
+import ImagePicker
+import Alamofire
+//import FirebaseStorage
 //import SwiftyJSON
 
-class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class HomeView: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet weak var homeButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
     @IBOutlet weak var photoToUpload: UIImageView!
     @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
+    @IBOutlet weak var labelBkgd: UIView!
     @IBOutlet weak var clockInOut: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet weak var calendarButton: UIButton!
     
     let notificationCenter = UNUserNotificationCenter.current()
-    let picker = UIImagePickerController()
+    let picker = ImagePickerController() // UIImagePickerController()
     let firebaseAuth = Auth.auth()
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
@@ -37,6 +39,9 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
     var todaysJob = Job()
+    public var imageAssets: [UIImage] {
+        return AssetManager.resolveAssets(picker.stack.assets)
+    }
     
     
     override func viewDidLoad() {
@@ -60,13 +65,13 @@ class HomeView: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
-    @IBAction func chooseUploadMethod(_ sender: Any) { showUploadMethods() }
+    @IBAction func chooseUploadMethod(_ sender: Any) { present(picker, animated: true, completion: nil) } //showUploadMethods()
     @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
     @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
     
 }
 
-extension HomeView {
+extension HomeView: ImagePickerDelegate {
     
     func checkAppDelANDnotif() {
         let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
@@ -87,20 +92,29 @@ extension HomeView {
         catch let signOutError as NSError { print("Error signing out: %@", signOutError); return }
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        
-        let selectedPhoto = info[UIImagePickerControllerOriginalImage] as! UIImage
-        
-        photoToUpload.contentMode = .scaleAspectFit
-        photoToUpload.image = selectedPhoto
-        
-        dismiss(animated: true)
-        guard let po = todaysJob.poNumber else { print("todays job po number: ", todaysJob.poNumber); return }
-        uploadPhoto(photo: selectedPhoto, poNumber: po)
+    func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        print("wrapper did press")
+        imagePicker.expandGalleryView()
     }
     
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismiss(animated: true, completion: nil) }
+    func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        let images = imageAssets
+        print("images to upload: \(images.count)")
+        
+        if images.count < 11 {
+            
+            if let po = todaysJob.poNumber {    upload(images: images, jobNumber: po)       }
+            else { upload(images: images, jobNumber: "---") }
+            
+            dismiss(animated: true, completion: nil)
+        } else {
+            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+        }
+    }
     
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+    }
+
     func setMonitoringForJobLoc() {
         if todaysJob.jobName != nil && todaysJob.jobLocation?[0] != nil && todaysJob.jobLocation?[1] != nil && todaysJob.jobLocation?.count == 2 {
             guard let lat = todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
@@ -161,24 +175,12 @@ extension HomeView {
         
         let actionsheet = UIAlertController(title: "Choose Upload method", message: "You can upload by Camera or from your Photos", preferredStyle: UIAlertControllerStyle.actionSheet)
         
-        let chooseCamera = UIAlertAction(title: "Camera", style: UIAlertActionStyle.default) { (action) -> Void in
-            //present Camera
-            self.picker.allowsEditing = false
-            self.picker.sourceType = .camera
-            self.picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .camera)!
-            self.present(self.picker, animated: true, completion: nil)
-        }
         let choosePhotos = UIAlertAction(title: "Photos", style: UIAlertActionStyle.default) { (action) -> Void in
-            //present Photos
-            self.picker.allowsEditing = false
-            self.picker.sourceType = .photoLibrary
-            self.picker.mediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary)!
             self.present(self.picker, animated: true, completion: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in
             print("chose Cancel")
         }
-        actionsheet.addAction(chooseCamera)
         actionsheet.addAction(choosePhotos)
         actionsheet.addAction(cancel)
         
@@ -187,21 +189,79 @@ extension HomeView {
     
     func uploadPhoto(photo: UIImage, poNumber: String){
         self.main.addOperation { self.inProgress() }
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else { print("Couldn't get JPEG representation"); return }
-        guard let poNum = todaysJob.poNumber else { print("couldnt find todays po number"); return }
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
+        print("Couldn't get JPEG representation"); return
+    }
         
-        APICalls().sendPhoto(imageData: imageData, poNumber: poNum) { responseObj in
+        APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
             self.main.addOperation {
                 self.completedProgress()
-                self.confirmUpload()
             }
         }
     }
+    
+    func upload(images: [UIImage], jobNumber: String) {
+        
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        self.inProgress()
+        
+        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
+        let url = address + jobNumber + "/upload"
+        let headers: HTTPHeaders = ["Content-type" : "multipart/form-data"]
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                var i = 0
+                for img in images {
+                    
+                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
+                    multipartFormData.append(imageData,
+                                             withName: "\(jobNumber)_\(i)",
+                        fileName: "\(jobNumber)_\(i).jpg",
+                        mimeType: "image/jpeg")
+                    i += 1
+                }
+        },
+            usingThreshold: UInt64.init(),
+            to: url,
+            method: .post,
+            headers: headers,
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                    
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        //progressCompletion(Float(progress.fractionCompleted))
+                    }
+                    upload.validate()
+                    upload.responseString { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)")
+                            self.failedUpload()
+                            return
+                        }
+                        //
+                        self.completedProgress()
+                        let request = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
+                        
+                        self.notificationCenter.add(request, withCompletionHandler: { (error) in
+                            if error != nil { return } else {}
+                        })
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+        }
+        )
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+    }
+ 
 }
 
 extension HomeView {
-    func confirmUpload() {
-        let actionsheet = UIAlertController(title: "Successful", message: "Photo was uploaded successfully", preferredStyle: UIAlertControllerStyle.alert)
+    func failedUpload() {
+        let actionsheet = UIAlertController(title: "Upload Failed", message: "Photo failed to upload.", preferredStyle: UIAlertControllerStyle.alert)
         let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
             actionsheet.dismiss(animated: true, completion: nil)
         }
