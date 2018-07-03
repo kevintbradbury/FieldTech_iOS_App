@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     var notificationDelegate = UYLNotificationDelegate()
-    var notificationCenter: UNUserNotificationCenter?
+    var notificationCenter = UNUserNotificationCenter.current()
     var myViewController: HomeView?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
@@ -88,43 +88,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func registerForPushNotif() {
-        notificationCenter?.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
-            guard granted else { print("Notification permission NOT granted"); return };
+        notificationCenter.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             
-            self.notificationCenter?.getNotificationSettings { (settings) in
-                guard settings.authorizationStatus == .authorized else { print("notification settings not authorized"); return }
-                self.main.addOperation(UIApplication.shared.registerForRemoteNotifications)
-            }
+            if granted == true {
+                self.notificationCenter.getNotificationSettings { (settings) in
+                    
+                    if settings.authorizationStatus == .authorized {
+                        self.main.addOperation(UIApplication.shared.registerForRemoteNotifications)
+                        return
+                    }
+                }
+            } else { print("notification not granted: ", granted, error) }
         }
+        
     }
     
     func checkToken(token: String) {
-        guard let id = UserDefaults.standard.string(forKey: "employeeID"),
-        let route = "employee/token/" + id as? String else { return }
+        guard let id = UserDefaults.standard.string(forKey: "employeeID") else { print("no saved id"); return }
+        let route = "employee/token/" + id
         
-        func updateToken() {
-            var request = APICalls().setupRequest(route: route, method: "POST")
-            request.addValue(token, forHTTPHeaderField: "token")
-            
-            let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                if error != nil {
-                    print("failed to fetch JSON from database w/ error: \(error)");
-                    return
-                } else { print("sent device token successfully") }
-            }
-            task.resume()
+        guard let existingToken = UserDefaults.standard.string(forKey: "token") else {
+            updateToken(token: token, route: route)
+            return
         }
+        if existingToken == token { return }
+        else { updateToken(token: token, route: route) }
+    }
+    
+    func updateToken(token: String, route: String) {
+        UserDefaults.standard.set(token, forKey: "token");
         
-        if let existingToken = UserDefaults.standard.string(forKey: "token") {
-            if existingToken == token { return }
-            else {
-                UserDefaults.standard.set(token, forKey: "token");
-                updateToken()
-            }
-        } else {
-            UserDefaults.standard.set(token, forKey: "token");
-            updateToken()
+        var request = APICalls().setupRequest(route: route, method: "POST")
+        request.addValue(token, forHTTPHeaderField: "token")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if error != nil { print("fetch to server failed w/ error: \(error)"); return }
+            else { print("sent device token successfully") }
         }
+        task.resume()
     }
 }
 
