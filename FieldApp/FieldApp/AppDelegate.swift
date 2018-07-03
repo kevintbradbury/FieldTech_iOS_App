@@ -110,21 +110,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if error != nil {
                     print("failed to fetch JSON from database w/ error: \(error)");
                     return
-                }
-                else { print("sent device token successfully") }
+                } else { print("sent device token successfully") }
             }
             task.resume()
         }
         
         if let existingToken = UserDefaults.standard.string(forKey: "token") {
-            
-//            if existingToken == token {
-//                return
-//            } else {
+            if existingToken == token { return }
+            else {
                 UserDefaults.standard.set(token, forKey: "token");
                 updateToken()
-//            }
-            
+            }
         } else {
             UserDefaults.standard.set(token, forKey: "token");
             updateToken()
