@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var notificationDelegate = UYLNotificationDelegate()
     var notificationCenter = UNUserNotificationCenter.current()
     var myViewController: HomeView?
+    var myEmployeeVC: EmployeeIDEntry?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
 
@@ -84,7 +85,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        UserDefaults.standard.set(nil, forKey: "todaysJobPO"); UserDefaults.standard.set(nil, forKey: "employeeName"); print("app will terminate")
+        UserDefaults.standard.set(nil, forKey: "todaysJobPO");
+        UserDefaults.standard.set(nil, forKey: "employeeName");
+        UserDefaults.standard.set(nil, forKey: "employeeID");
+        print("app will terminate")
     }
     
     func registerForPushNotif() {

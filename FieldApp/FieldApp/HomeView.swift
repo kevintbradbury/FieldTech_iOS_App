@@ -31,14 +31,14 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet weak var calendarButton: UIButton!
     
     let notificationCenter = UNUserNotificationCenter.current()
-    let picker = ImagePickerController() // UIImagePickerController()
+    let picker = ImagePickerController()
     let firebaseAuth = Auth.auth()
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
-    static var employeeInfo: UserData.UserInfo?
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
-    var todaysJob = Job()
+    static var employeeInfo: UserData.UserInfo?
+    static var todaysJob = Job()
     public var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
@@ -65,9 +65,12 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
-    @IBAction func chooseUploadMethod(_ sender: Any) { present(picker, animated: true, completion: nil) } //showUploadMethods()
     @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
     @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
+    @IBAction func chooseUploadMethod(_ sender: Any) {
+        present(picker, animated: true, completion: nil)
+        picker.showAlert(withTitle: "Reminder", message: "Make sure to clear area of tools, debris, or other materials, before taking a photo. ")
+    }
     
 }
 
@@ -105,11 +108,10 @@ extension HomeView: ImagePickerDelegate {
         
         if images.count < 11 {
             
-            if let po = todaysJob.poNumber,
+            if let po = HomeView.todaysJob.poNumber,
                 let emply = HomeView.employeeInfo?.userName {
                 upload(images: images, jobNumber: po, employee: emply)
-            }
-            else {
+            } else {
                 upload(images: images, jobNumber: "---", employee: "---")
             }
             
@@ -121,18 +123,18 @@ extension HomeView: ImagePickerDelegate {
     
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
     }
-
+    
     func setMonitoringForJobLoc() {
-        if todaysJob.jobName != nil && todaysJob.jobLocation?[0] != nil && todaysJob.jobLocation?[1] != nil && todaysJob.jobLocation?.count == 2 {
-            guard let lat = todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
-            guard let lng = todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
+        if HomeView.todaysJob.jobName != nil && HomeView.todaysJob.jobLocation?[0] != nil && HomeView.todaysJob.jobLocation?[1] != nil && HomeView.todaysJob.jobLocation?.count == 2 {
+            guard let lat = HomeView.todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
+            guard let lng = HomeView.todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
             guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
                 print("failed to set job coordinates for monitoring"); return
             }
             UserLocation.instance.startMonitoring(location: coordindates)
             
-            UserDefaults.standard.set(todaysJob.poNumber, forKey: "todaysJobPO")
-            UserDefaults.standard.set(todaysJob.jobLocation, forKey: "todaysJobLatLong")
+            UserDefaults.standard.set(HomeView.todaysJob.poNumber, forKey: "todaysJobPO")
+            UserDefaults.standard.set(HomeView.todaysJob.jobLocation, forKey: "todaysJobLatLong")
             
         } else if let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") {
             guard let lat = latLong[0] as? CLLocationDegrees else { return }
@@ -173,42 +175,23 @@ extension HomeView: ImagePickerDelegate {
             self.userLabel.textColor = UIColor.white
             self.userLabel.backgroundColor = UIColor.blue
             self.userLabel.text = "Hello \n" + (HomeView.employeeInfo?.userName)!
-            self.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
+            HomeView.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
             self.completedProgress()
         }
-    }
-    
-    func showUploadMethods() {
-        
-        let actionsheet = UIAlertController(title: "Choose Upload method", message: "You can upload by Camera or from your Photos", preferredStyle: UIAlertControllerStyle.actionSheet)
-        
-        let choosePhotos = UIAlertAction(title: "Photos", style: UIAlertActionStyle.default) { (action) -> Void in
-            self.present(self.picker, animated: true, completion: nil)
-        }
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in
-            print("chose Cancel")
-        }
-        actionsheet.addAction(choosePhotos)
-        actionsheet.addAction(cancel)
-        
-        self.present(actionsheet, animated: true)
     }
     
     func uploadPhoto(photo: UIImage, poNumber: String){
         self.main.addOperation { self.inProgress() }
         guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
-        print("Couldn't get JPEG representation"); return
-    }
+            print("Couldn't get JPEG representation"); return
+        }
         
         APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
-            self.main.addOperation {
-                self.completedProgress()
-            }
+            self.main.addOperation { self.completedProgress() }
         }
     }
     
     func upload(images: [UIImage], jobNumber: String, employee: String) {
-        
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         self.inProgress()
         
@@ -249,7 +232,6 @@ extension HomeView: ImagePickerDelegate {
                             self.failedUpload()
                             return
                         }
-                        //
                         self.completedProgress()
                         let completeNotif = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
                         
@@ -265,17 +247,12 @@ extension HomeView: ImagePickerDelegate {
         )
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
- 
+    
 }
 
 extension HomeView {
     func failedUpload() {
-        let actionsheet = UIAlertController(title: "Upload Failed", message: "Photo failed to upload.", preferredStyle: UIAlertControllerStyle.alert)
-        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
-            actionsheet.dismiss(animated: true, completion: nil)
-        }
-        actionsheet.addAction(ok)
-        self.present(actionsheet, animated: true)
+        showAlert(withTitle: "Upload Failed", message: "Photo failed to upload.")
     }
     
     func checkJobProximity() {
@@ -328,6 +305,7 @@ extension HomeView {
         if segue.identifier == "schedule" {
             let vc = segue.destination as! ScheduleView
             vc.employee = HomeView.employeeInfo
+            
         } else if segue.identifier == "clock_in" {
             let vc = segue.destination as! EmployeeIDEntry
             vc.foundUser = HomeView.employeeInfo
@@ -344,7 +322,7 @@ extension HomeView {
         self.present(actionsheet, animated: true, completion: nil)
     }
     
-    func checkPunchStatus() {
+    public func checkPunchStatus() {
         if HomeView.employeeInfo?.userName != nil {
             UserDefaults.standard.set(HomeView.employeeInfo?.userName, forKey: "employeeName")
             
@@ -378,9 +356,9 @@ extension UIViewController {
     func showAlert(withTitle title: String?, message: String?) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-        alert.addAction(action)
-        
         let main = OperationQueue.main
+        
+        alert.addAction(action)
         main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
 }
