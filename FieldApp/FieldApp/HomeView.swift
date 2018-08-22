@@ -89,7 +89,9 @@ extension HomeView: ImagePickerDelegate {
     
     func logOut() {
         do { try firebaseAuth.signOut() }
-        catch let signOutError as NSError { print("Error signing out: %@", signOutError); return }
+        catch let signOutError as NSError {
+            showAlert(withTitle: "Error signing out: %@", message:  "\(signOutError)")
+            print("Error signing out: %@", signOutError); return }
     }
     
     func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
@@ -103,8 +105,13 @@ extension HomeView: ImagePickerDelegate {
         
         if images.count < 11 {
             
-            if let po = todaysJob.poNumber {    upload(images: images, jobNumber: po)       }
-            else { upload(images: images, jobNumber: "---") }
+            if let po = todaysJob.poNumber,
+                let emply = HomeView.employeeInfo?.userName {
+                upload(images: images, jobNumber: po, employee: emply)
+            }
+            else {
+                upload(images: images, jobNumber: "---", employee: "---")
+            }
             
             dismiss(animated: true, completion: nil)
         } else {
@@ -200,14 +207,16 @@ extension HomeView: ImagePickerDelegate {
         }
     }
     
-    func upload(images: [UIImage], jobNumber: String) {
+    func upload(images: [UIImage], jobNumber: String, employee: String) {
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         self.inProgress()
         
-        let address = "https://mb-server-app-kbradbury.c9users.io/job/"
-        let url = address + jobNumber + "/upload"
-        let headers: HTTPHeaders = ["Content-type" : "multipart/form-data"]
+        let url = "https://mb-server-app-kbradbury.c9users.io/job/" + jobNumber + "/upload"
+        let headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data",
+            "employee": employee
+        ]
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
@@ -242,9 +251,9 @@ extension HomeView: ImagePickerDelegate {
                         }
                         //
                         self.completedProgress()
-                        let request = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
+                        let completeNotif = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
                         
-                        self.notificationCenter.add(request, withCompletionHandler: { (error) in
+                        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
                             if error != nil { return } else {}
                         })
                     }
