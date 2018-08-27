@@ -18,6 +18,7 @@ import AVKit
 import Starscream
 import ImagePicker
 import Alamofire
+import EventKit
 
 
 class EmployeeIDEntry: UIViewController {
@@ -288,9 +289,9 @@ extension EmployeeIDEntry {
     }
     
     func wrapUpAlert() {
-        let actionsheet = UIAlertController(title: "Reminder", message: "Make sure to clean up the job site, wrap up, collect your tools, & take photos before you leave.", preferredStyle: UIAlertControllerStyle.actionSheet)
+        let actionsheet = UIAlertController(title: "Reminder", message: "Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
         let finishUp = UIAlertAction(title: "OK, Go Clock Out", style: UIAlertActionStyle.default) { (action) -> Void in self.clockInClockOut() }
-        let cancel = UIAlertAction(title: "WAIT, Don't Clock Out", style: UIAlertActionStyle.destructive) { (action) -> Void in // UIAlertActionStyle.destructive
+        let cancel = UIAlertAction(title: "WAIT, Don't Clock Out", style: UIAlertActionStyle.destructive) { (action) -> Void in
             self.present(self.picker, animated: true, completion: nil)
             print("chose Cancel")
         }
