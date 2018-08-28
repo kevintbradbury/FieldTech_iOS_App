@@ -45,6 +45,7 @@
 	<string>Uses the library to document Materials and Tool rentals</string>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
 		<string>location</string>
 		<string>remote-notification</string>
 	</array>

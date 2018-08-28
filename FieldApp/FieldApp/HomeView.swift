@@ -46,6 +46,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         

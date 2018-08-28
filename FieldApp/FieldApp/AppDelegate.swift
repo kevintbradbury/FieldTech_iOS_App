@@ -32,6 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UserLocation.instance.initialize()
         registerForPushNotif()
+        UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
         
         didEnterBackground = false
         print("app didFinishLaunching w/ options")
@@ -54,6 +55,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if Auth.auth().canHandleNotification(notification) { completionHandler(UIBackgroundFetchResult.noData); return }
         // IF this notification is not auth related, developer should handle it.
+    }
+    
+    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        print("fetch stuff")
+        guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        
+        APICalls().justCheckCoordinates(location: locationArray) { success in
+            if success != true {
+                completionHandler(.failed)
+            } else {                
+                let request = UIViewController().createNotification(intervalInSeconds: 2, title: "GPS updated", message: "YEA BABY!", identifier: "identifier")
+                self.notificationCenter.add(request) { (error) in
+                    if error != nil { print("error setting clock notif: "); print(error) } else { print("added reminder at 4 hour mark") }
+                }
+                
+                print("coordinate check succeeded")
+                completionHandler(.newData)
+            }
+        }
     }
     
     func applicationWillResignActive(_ application: UIApplication) {

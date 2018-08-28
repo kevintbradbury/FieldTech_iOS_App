@@ -75,6 +75,44 @@ class APICalls {
         task.resume()
     }
     
+    func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()){
+        guard let employee = UserDefaults.standard.string(forKey: "employeeName") else { return }
+        guard let emplyID = UserDefaults.standard.string(forKey: "employeeID") else { return }
+        let route = "checkCoordinates/" + employee
+        let session = URLSession.shared;
+        let person = UserInfoCodeable(userName: employee, employeeID: emplyID, coordinateLat: location[0], coordinateLong: location[1])
+        var request = setupRequest(route: route, method: "POST")
+        var data = Data()
+        
+        do {
+            let jsonEncoder = JSONEncoder()
+            data = try jsonEncoder.encode(person)
+        } catch {
+            print(error); return;
+        }
+        
+        request.httpBody = data
+        
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response))"); return
+            } else {
+                print("no errors sending GPS coordinates")
+                guard let verifiedData = data else {
+                    print("could not verify data from dataTask"); return
+                }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
+                    print("json serialization failed"); return
+                }
+                guard let successfulPunch = json["success"] as? Bool else {
+                    print("failed on success bool"); return
+                }
+                callback(successfulPunch)
+            }
+        }
+        task.resume()
+    }
+    
     func sendPhoto(imageData: Data, poNumber: String, callback: @escaping (HTTPURLResponse) -> () ) {
         
         let route = "job/" + poNumber + "/upload"
@@ -92,7 +130,6 @@ class APICalls {
             } else {
                 if let responseObj = response as? HTTPURLResponse {
                     if responseObj.statusCode == 201 {
-                        
                         callback(responseObj)
                     } else {
                         print("error sending photo to server")
@@ -129,8 +166,6 @@ class APICalls {
             }
         }
         task.resume()
-        
-        
     }
     
     func setupRequest(route: String, method: String) -> URLRequest {
@@ -252,8 +287,9 @@ extension APICalls {
         
         func clockNgps() {
 //            employee: UserData.UserInfo, location: [Double], autoClockOut: Bool?
-            guard let data = "test string".data(using: .ascii) else { return }
 //                "{ employee: \(employee), location:  \(location), autoClockOut: \(autoClockOut) }".data(using: .ascii)!
+            
+            guard let data = "testing string".data(using: .ascii) else { return }
             _ = data.withUnsafeBytes { outputStream.write($0, maxLength: data.count) }
         }
     }
