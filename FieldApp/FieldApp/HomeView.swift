@@ -69,7 +69,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
     @IBAction func chooseUploadMethod(_ sender: Any) {
         present(picker, animated: true, completion: nil)
-        picker.showAlert(withTitle: "Reminder", message: "Make sure to clear area of tools, debris, or other materials, before taking a photo. ")
+        picker.showAlert(withTitle: "Reminder",
+                         message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. ")
     }
     
 }
@@ -313,13 +314,7 @@ extension HomeView {
     }
     
     func incorrectID() {
-        let actionsheet = UIAlertController(title: "Error", message: "Unable to find that user", preferredStyle: UIAlertControllerStyle.alert)
-        
-        let ok = UIAlertAction(title: "Ok", style: UIAlertActionStyle.default) {(action) in
-            actionsheet.dismiss(animated: true, completion: nil)
-        }
-        actionsheet.addAction(ok)
-        self.present(actionsheet, animated: true, completion: nil)
+        showAlert(withTitle: "Error", message: "Unable to find that user")
     }
     
     public func checkPunchStatus() {

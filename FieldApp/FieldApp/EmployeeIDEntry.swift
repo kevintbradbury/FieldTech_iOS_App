@@ -59,6 +59,11 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+        
+        let sock = APICalls.gpsClockInOut()
+        sock.setUpNetworkComm()
+        sock.clockNgps()
+        
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }

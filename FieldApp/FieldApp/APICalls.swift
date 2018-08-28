@@ -14,13 +14,15 @@ import EventKit
 
 
 class APICalls {
-    let jsonString = "https://mb-server-app-kbradbury.c9users.io/"
+    static let host = "https://mb-server-app-kbradbury.c9users.io/"
     
     func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob]) -> ()) {
         
         let route = "employee/" + employeeID + "/jobs"
         let request = setupRequest(route: route, method: "GET")
         let session = URLSession.shared;
+        let sock = gpsClockInOut()
+
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
@@ -132,7 +134,7 @@ class APICalls {
     }
     
     func setupRequest(route: String, method: String) -> URLRequest {
-        let url = URL(string: jsonString + route)!
+        let url = URL(string: APICalls.host + route)!
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -197,43 +199,7 @@ extension APICalls {
 
 extension APICalls {
     
-//    func uploadToFirebase(photo: UIImage, jobs: [Job.UserJob]) {
-//
-//        guard let imageData = UIImageJPEGRepresentation(photo, 0.5) else {
-//            print("Could not get JPEG representation of UIImage")
-//            return
-//        }
-//
-//        let storage = Storage.storage()
-//        let data = imageData
-//        let storageRef = storage.reference()
-//
-//        let date = Date()
-//        let formatter = DateFormatter()
-//        formatter.dateFormat = "MM.dd.yyyy"
-//        let result = formatter.string(from: date)
-//        print("\n imageName will be: image\(result)\(jobs[1].jobName)_PO_\(jobs[1].poNumber).jpg")
-//
-//        let imageStorageRef = storageRef.child("image\(result)\(jobs[0].jobName)_PO_\(jobs[0].poNumber).jpg")
-//
-//        let uploadTask = imageStorageRef.putData(data, metadata: nil) { (metadata, error) in
-//
-//            guard let metadata = metadata else {
-//                print("uploadtask error \(String(describing: error))")
-//                return
-//            }
-//            if error == nil {
-//                _ = metadata.downloadURL()
-//            }
-//        }
-//        uploadTask.enqueue()
-//    }
-}
-
-extension APICalls {
-    
     //Doesn't set an alarm but does add an event to calendar, which may be useful for adding jobs to internal calendar
-    
     func setAnAlarm(jobName: String, jobStart: Date, jobEnd: Date) {
         var calendar: EKCalendar?
         let eventstore = EKEventStore()
@@ -257,3 +223,41 @@ extension APICalls {
     }
     
 }
+
+extension APICalls {
+    
+    class gpsClockInOut: NSObject {
+        var inputStream: InputStream!
+        var outputStream: OutputStream!
+        
+        let maxReadLength = 102400
+        
+        
+        func setUpNetworkComm() {
+            var readStream: Unmanaged<CFReadStream>?
+            var writeStream: Unmanaged<CFWriteStream>?
+            
+            CFStreamCreatePairWithSocketToHost(kCFAllocatorDefault, "https://mb-server-app-kbradbury.c9users.io" as CFString, 7070, &readStream, &writeStream)
+            
+            inputStream = readStream!.takeRetainedValue()
+            outputStream = writeStream!.takeRetainedValue()
+            
+            inputStream.schedule(in: .current, forMode: .commonModes)
+            outputStream.schedule(in: .current, forMode: .commonModes)
+            
+            inputStream.open()
+            outputStream.open()
+            print("socket connected ?? ")
+        }
+        
+        func clockNgps() {
+//            employee: UserData.UserInfo, location: [Double], autoClockOut: Bool?
+            guard let data = "test string".data(using: .ascii) else { return }
+//                "{ employee: \(employee), location:  \(location), autoClockOut: \(autoClockOut) }".data(using: .ascii)!
+            _ = data.withUnsafeBytes { outputStream.write($0, maxLength: data.count) }
+        }
+    }
+    
+}
+
+
