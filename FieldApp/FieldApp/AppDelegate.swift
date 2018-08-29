@@ -78,8 +78,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         print("app did enter bkgrd, with window");
         didEnterBackground = true;
-        
-//        myViewController?.employeeInfo = nil;
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
