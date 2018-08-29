@@ -32,8 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UserLocation.instance.initialize()
         registerForPushNotif()
-        UIApplication.shared.setMinimumBackgroundFetchInterval(10.00)
-        print( "background update time remaining", UIApplication.shared.backgroundTimeRemaining)
 
         didEnterBackground = false
         print("app didFinishLaunching w/ options")
@@ -52,13 +50,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print("received notification")
-        
         guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
             let action = alert["action"] as? String else { return }
         
-        print("notification action \n \(action)")
+        print("received notification: with action -  \(action)")
         
         if Auth.auth().canHandleNotification(notification) { completionHandler(UIBackgroundFetchResult.noData); return }
         else if action == "gps Update" {
@@ -70,22 +66,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 else { completionHandler(.newData); print("coordinate check succeeded") }
             }
         }
-        // IF this notification is not auth related, developer should handle it.
-    }
-    
-    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print("fetch stuff")
-//        guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-//        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-//
-//        APICalls().justCheckCoordinates(location: locationArray) { success in
-//            if success != true {
-//                completionHandler(.failed)
-//            } else {
-//                print("coordinate check succeeded")
-//                completionHandler(.newData)
-//            }
-//        }
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
