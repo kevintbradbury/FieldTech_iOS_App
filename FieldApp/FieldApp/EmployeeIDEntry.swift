@@ -23,15 +23,15 @@ import EventKit
 
 class EmployeeIDEntry: UIViewController {
     
+    @IBOutlet weak var backBtn: UIButton!
+    @IBOutlet weak var enterIDText: UILabel!
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var enterIDText: UILabel!
     @IBOutlet weak var clockIn: UIButton!
     @IBOutlet weak var clockOut: UIButton!
-    @IBOutlet weak var backBtn: UIButton!
-    @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet weak var lunchBreakBtn: UIButton!
+    @IBOutlet weak var activityBckgd: UIView!
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
@@ -59,6 +59,9 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+        
+        let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
+        setShadows(btns: btns)
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -457,19 +460,6 @@ extension EmployeeIDEntry: ImagePickerDelegate {
     }
 }
 
-extension UIViewController {
-    func createNotification(intervalInSeconds interval: Double, title: String, message: String, identifier: String) -> UNNotificationRequest {
-        let timeInterval = TimeInterval(interval)
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = message
-        content.sound = UNNotificationSound.default()
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-        
-        return request
-    }
-}
 
 
 

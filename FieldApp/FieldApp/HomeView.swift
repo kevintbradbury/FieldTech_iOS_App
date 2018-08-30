@@ -21,14 +21,16 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet weak var homeButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
-    @IBOutlet weak var photoToUpload: UIImageView!
-    @IBOutlet weak var choosePhotoButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
     @IBOutlet weak var labelBkgd: UIView!
     @IBOutlet weak var clockInOut: UIButton!
+    @IBOutlet weak var choosePhotoButton: UIButton!
+    @IBOutlet weak var toolsRentButton: UIButton!
+    @IBOutlet weak var hotelResButton: UIButton!
+    @IBOutlet weak var timeOffButton: UIButton!
+    @IBOutlet weak var calendarButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
-    @IBOutlet weak var calendarButton: UIButton!
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
@@ -58,6 +60,9 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         setUpNotifications()
         checkAppDelANDnotif()
         NotificationCenter.default.addObserver(self, selector: #selector(checkForUserInfo), name: .info, object: nil)
+        
+        let btns = [clockInOut!, choosePhotoButton!, toolsRentButton!, hotelResButton!, timeOffButton!, calendarButton!]
+        setShadows(btns: btns)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -346,18 +351,9 @@ extension HomeView {
         }
         notificationCenter.getNotificationSettings { (settings) in if settings.authorizationStatus != .authorized { print("user did not authorize alerts") } }
     }
+    
 }
 
-extension UIViewController {
-    func showAlert(withTitle title: String?, message: String?) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
-        let main = OperationQueue.main
-        
-        alert.addAction(action)
-        main.addOperation { self.present(alert, animated: true, completion: nil) }
-    }
-}
 
 extension Notification.Name {
     static let info = Notification.Name("employeeInfo")

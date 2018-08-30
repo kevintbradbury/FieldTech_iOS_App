@@ -44,7 +44,6 @@ class ScheduleView: UIViewController {
                 self.activityIndicator.startAnimating()
             }
         }
-        
         getCalendarInfo()
     }
     
@@ -72,7 +71,10 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
                 
                 for i in self.jobsArray { print(i.jobName, i.dates, i.jobAddress) }
                 
-                self.main.addOperation { self.activityIndicator.stopAnimating(); self.calendarView.reloadData() }
+                self.main.addOperation {
+                    self.activityIndicator.stopAnimating();
+                    self.calendarView.reloadData()
+                }
             }
         }
     }
@@ -80,15 +82,22 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func calendar(_ calendar: JTAppleCalendarView, willDisplay cell: JTAppleCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
 
         let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: "customCalendarCell", for: indexPath) as! CalendarCell
-        
-        cell.dateLabel.text = cellState.text
         cell.highlightView.isHidden = true
         
         if cellState.dateBelongsTo != .thisMonth {
+            formatter.dateFormat = "MMM"
+            cell.dateLabel.text = formatter.string(from: date) + "\n " + cellState.text
             cell.dateLabel.textColor = UIColor.lightGray
+            
         } else {
+            cell.dateLabel.text = cellState.text
             cell.dateLabel.textColor = UIColor.black
             cell.backgroundColor = UIColor.white
+            
+            formatter.dateFormat = "yyyy"
+            yearLabel.text = formatter.string(from: date)
+            formatter.dateFormat = "MMMM"
+            monthLabel.text = formatter.string(from: date)
         }
         
         checkJobsDates(date: cellState.date) { matchingJob in
@@ -101,15 +110,22 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func calendar(_ calendar: JTAppleCalendarView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTAppleCell {
         
         let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: "customCalendarCell", for: indexPath) as! CalendarCell
-        
-        cell.dateLabel.text = cellState.text
         cell.highlightView.isHidden = true
         
         if cellState.dateBelongsTo != .thisMonth {
+            formatter.dateFormat = "MMM"
+            cell.dateLabel.text = formatter.string(from: date) + "\n " + cellState.text
             cell.dateLabel.textColor = UIColor.lightGray
+            
         } else {
+            cell.dateLabel.text = cellState.text
             cell.dateLabel.textColor = UIColor.black
             cell.backgroundColor = UIColor.white
+            
+            formatter.dateFormat = "yyyy"
+            yearLabel.text = formatter.string(from: date)
+            formatter.dateFormat = "MMMM"
+            monthLabel.text = formatter.string(from: date)
         }
         
         checkJobsDates(date: cellState.date) { matchingJob in
@@ -149,8 +165,8 @@ extension ScheduleView {
         jobNameLbl.text = ""
         poNumberLbl.text = ""
         installDateLbl.text = ""
-//        directionsBtn.titleLabel?.text = ""
         directionsBtn.isHidden = true
+        //        directionsBtn.titleLabel?.text = ""
     }
     
     func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
@@ -162,17 +178,17 @@ extension ScheduleView {
     }
     
     func checkJobsDates(date: Date, callback: (Job.UserJob) -> ()) {
-        
         for job in jobsArray {
             if job.dates.count > 0 {
-                let calMDY = getMonthDayYear(date: date)
-                let jobStartMDY = getMonthDayYear(date: job.dates[0].installDate)
-                let jobEndMDY = getMonthDayYear(date: job.dates[0].endDate)
                 
-                if date >= job.dates[0].installDate  && date <= job.dates[0].endDate {
-                    callback(job)
-                } else if jobStartMDY == calMDY || jobEndMDY == calMDY {
-                    callback(job)
+                for dt in job.dates {
+                    let calMDY = getMonthDayYear(date: date)
+                    let jobStartMDY = getMonthDayYear(date: dt.installDate)
+                    let jobEndMDY = getMonthDayYear(date: dt.endDate)
+                    
+                    if date >= dt.installDate  && date <= dt.endDate { callback(job) }
+                    else if jobStartMDY == calMDY || jobEndMDY == calMDY { callback(job) }
+                    
                 }
             }
         }
@@ -200,7 +216,6 @@ extension ScheduleView {
         yearLabel.text = formatter.string(from: date)
         formatter.dateFormat = "MMMM"
         monthLabel.text = formatter.string(from: date)
-        
     }
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
