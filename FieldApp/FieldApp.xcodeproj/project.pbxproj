@@ -11,6 +11,7 @@
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
 		062FD96020DB081D0049F747 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 062FD95F20DB081D0049F747 /* GoogleService-Info.plist */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
+		067365AC2139A0EF00F1F8A8 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 067365AB2139A0EE00F1F8A8 /* Info.plist */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
 		0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */; };
 		0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */; };
@@ -51,6 +52,7 @@
 		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
 		062FD95F20DB081D0049F747 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
+		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
 		0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -60,7 +62,6 @@
 		0AC8EF531F71826200E86DD6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		0AC8EF551F71826200E86DD6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0AC8EF581F71826200E86DD6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		0AC8EF5A1F71826200E86DD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0AC8EF5F1F71826200E86DD6 /* FieldAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FieldAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AC8EF631F71826200E86DD6 /* FieldAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldAppTests.swift; sourceTree = "<group>"; };
 		0AC8EF651F71826200E86DD6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -159,7 +160,7 @@
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
-				0AC8EF5A1F71826200E86DD6 /* Info.plist */,
+				067365AB2139A0EE00F1F8A8 /* Info.plist */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";
@@ -330,6 +331,7 @@
 				062FD96020DB081D0049F747 /* GoogleService-Info.plist in Resources */,
 				0AC8EF591F71826200E86DD6 /* LaunchScreen.storyboard in Resources */,
 				0AC8EF561F71826200E86DD6 /* Assets.xcassets in Resources */,
+				067365AC2139A0EF00F1F8A8 /* Info.plist in Resources */,
 				0AC8EF541F71826200E86DD6 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

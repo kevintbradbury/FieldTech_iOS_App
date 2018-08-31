@@ -133,12 +133,6 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
-        print(
-        "\n in-dates", visibleDates.indates,
-        "\n monthDates", visibleDates.monthDates,
-        "\n out-dates", visibleDates.outdates
-        )
-        
         setUpCalendarViews(visibleDates: visibleDates)
     }
 }
@@ -194,7 +188,8 @@ extension ScheduleView {
         calendarView.minimumLineSpacing = 1
         calendarView.minimumInteritemSpacing = 1
         
-        guard let date = visibleDates.monthDates.first?.date else {return} // .
+        guard let date = visibleDates.monthDates.first?.date else { return }
+        print("visible Dates: date", date)
         
         formatter.dateFormat = "yyyy"
         yearLabel.text = formatter.string(from: date)
