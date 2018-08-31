@@ -114,6 +114,7 @@
 		062FD96120DB086D0049F747 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				067365AB2139A0EE00F1F8A8 /* Info.plist */,
 				062FD95F20DB081D0049F747 /* GoogleService-Info.plist */,
 			);
 			path = Resources;
@@ -160,7 +161,6 @@
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
-				067365AB2139A0EE00F1F8A8 /* Info.plist */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";
