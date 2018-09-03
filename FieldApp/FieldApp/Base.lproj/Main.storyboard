@@ -142,17 +142,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AFE-De-iRq">
-                                <rect key="frame" x="90" y="219" width="140" height="130"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="140" id="FXg-4V-d0x"/>
-                                    <constraint firstAttribute="height" constant="130" id="tRO-ug-l8U"/>
-                                </constraints>
-                                <state key="normal" title="clock in" image="clockIn"/>
-                                <connections>
-                                    <action selector="goClockIn:" destination="bq0-eu-ofj" eventType="touchUpInside" id="iqa-NS-ADN"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mkf-uE-ifr">
                                 <rect key="frame" x="89" y="218" width="142" height="132"/>
                                 <constraints>
@@ -162,6 +151,17 @@
                                 <state key="normal" title="clock out" image="clockOut"/>
                                 <connections>
                                     <action selector="goClockOut:" destination="bq0-eu-ofj" eventType="touchUpInside" id="moQ-KB-mZb"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AFE-De-iRq">
+                                <rect key="frame" x="90" y="219" width="140" height="130"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="140" id="FXg-4V-d0x"/>
+                                    <constraint firstAttribute="height" constant="130" id="tRO-ug-l8U"/>
+                                </constraints>
+                                <state key="normal" title="clock in" image="clockIn"/>
+                                <connections>
+                                    <action selector="goClockIn:" destination="bq0-eu-ofj" eventType="touchUpInside" id="iqa-NS-ADN"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nct-pa-u5V">
@@ -227,7 +227,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LGY-O2-z5N" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1492.5" y="845.07042253521126"/>
+            <point key="canvasLocation" x="1494" y="-785"/>
         </scene>
         <!--Home View-->
         <scene sceneID="kAf-eN-8VW">
@@ -728,7 +728,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hbt-N8-hG1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2420.625" y="845.07042253521126"/>
+            <point key="canvasLocation" x="1494" y="854"/>
         </scene>
     </scenes>
     <resources>
@@ -744,6 +744,7 @@
         <image name="tools" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="pAu-Wh-4fN"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

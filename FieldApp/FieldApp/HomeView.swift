@@ -75,8 +75,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
     @IBAction func chooseUploadMethod(_ sender: Any) {
         present(picker, animated: true, completion: nil)
-        picker.showAlert(withTitle: "Reminder",
-                         message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. ")
+        picker.showAlert(withTitle: "Reminder", message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. ")
     }
     
 }
@@ -87,7 +86,6 @@ extension HomeView: ImagePickerDelegate {
         let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
         appDelegate.myViewController = self
         
-        // Do something to handle notifications
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
                 if notifications != nil {
@@ -110,16 +108,15 @@ extension HomeView: ImagePickerDelegate {
     }
     
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
-        let images = imageAssets
-        print("images to upload: \(images.count)")
+        print("images to upload: \(imageAssets.count)")
         
-        if images.count < 11 {
-            
-            if let po = HomeView.todaysJob.poNumber,
-                let emply = HomeView.employeeInfo?.userName {
-                upload(images: images, jobNumber: po, employee: emply)
+        if imageAssets.count < 11 {
+            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
+                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                upload(images: imageAssets, jobNumber: po, employee: emply)
+                
             } else {
-                upload(images: images, jobNumber: "---", employee: "---")
+                upload(images: imageAssets, jobNumber: "---", employee: "---")
             }
             
             dismiss(animated: true, completion: nil)
@@ -187,17 +184,6 @@ extension HomeView: ImagePickerDelegate {
         }
     }
     
-    func uploadPhoto(photo: UIImage, poNumber: String){
-        self.main.addOperation { self.inProgress() }
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
-            print("Couldn't get JPEG representation"); return
-        }
-        
-        APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
-            self.main.addOperation { self.completedProgress() }
-        }
-    }
-    
     func upload(images: [UIImage], jobNumber: String, employee: String) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         self.inProgress()
@@ -259,7 +245,15 @@ extension HomeView: ImagePickerDelegate {
 
 extension HomeView {
     func failedUpload() {
-        showAlert(withTitle: "Upload Failed", message: "Photo failed to upload.")
+        OperationQueue.main.addOperation {
+            
+            if (UIApplication.shared.applicationState == .active) {
+                self.showAlert(withTitle: "Upload Failed", message: "Photo failed to upload.")
+            } else {
+                let failedNotif = self.createNotification(intervalInSeconds: 0, title: "FAILED", message: "Photo(s) faield to upload to server.", identifier: "uploadFail")
+                self.notificationCenter.add(failedNotif, withCompletionHandler: { (error) in    if error != nil { return } })
+            }
+        }
     }
     
     func checkJobProximity() {

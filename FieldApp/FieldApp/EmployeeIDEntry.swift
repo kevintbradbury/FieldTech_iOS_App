@@ -292,42 +292,18 @@ extension EmployeeIDEntry {
     }
     
     func wrapUpAlert() {
-        let actionsheet = UIAlertController(title: "Reminder", message: "Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
-        let finishUp = UIAlertAction(title: "OK, Go Clock Out", style: UIAlertActionStyle.default) { (action) -> Void in self.clockInClockOut() }
-        let cancel = UIAlertAction(title: "WAIT, Don't Clock Out", style: UIAlertActionStyle.destructive) { (action) -> Void in
-            self.present(self.picker, animated: true, completion: nil)
-            print("chose Cancel")
+        let actionsheet = UIAlertController(title: "Reminder", message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
+        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: UIAlertActionStyle.default) { (action) -> Void in self.clockInClockOut() }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: UIAlertActionStyle.destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil) }
+        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: UIAlertActionStyle.destructive) { (action) -> Void in
+            self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
         }
         
         actionsheet.addAction(finishUp)
-        actionsheet.addAction(cancel)
+        actionsheet.addAction(takePhotos)
+        actionsheet.addAction(reqMaterials)
         
         self.present(actionsheet, animated: true)
-    }
-}
-
-
-class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .sound, .badge])
-    }
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        switch response.actionIdentifier {
-        case UNNotificationDismissActionIdentifier:
-            print("Dismiss Action")
-        case UNNotificationDefaultActionIdentifier:
-            print("Default")
-        case "STOP_ACTION":
-            print("stop alarm")
-        case "SNOOZE":
-            print("Snooze action")
-            
-        default:
-            print("unknown action")
-        }
-        completionHandler()
     }
 }
 
