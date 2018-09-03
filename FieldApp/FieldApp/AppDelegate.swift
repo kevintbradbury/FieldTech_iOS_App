@@ -16,17 +16,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     var notificationDelegate = UYLNotificationDelegate()
-    var notificationCenter: UNUserNotificationCenter?
+    var notificationCenter = UNUserNotificationCenter.current()
     var myViewController: HomeView?
+    var myEmployeeVC: EmployeeIDEntry?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
+
+    override init() {
+        super.init()
+        FirebaseApp.configure()
+    }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        UserLocation.instance.initialize()
-        FirebaseApp.configure()
-        registerForPushNotif()
         
+        UserLocation.instance.initialize()
+        registerForPushNotif()
+
         didEnterBackground = false
         print("app didFinishLaunching w/ options")
         
@@ -35,6 +41,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data){
+        print("did register for remote notifications")
+        
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
         let tokenChars = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
@@ -42,8 +50,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
+            let alert = aps[AnyHashable("alert")] as? NSDictionary,
+            let action = alert["action"] as? String else { return }
+        
+        print("received notification: with action -  \(action)")
+        
         if Auth.auth().canHandleNotification(notification) { completionHandler(UIBackgroundFetchResult.noData); return }
-        // IF this notification is not auth related, developer should handle it.
+        else if action == "gps Update" {
+            guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+            
+            APICalls().justCheckCoordinates(location: locationArray) { success in
+                if success != true { completionHandler(.failed) }
+                else { completionHandler(.newData); print("coordinate check succeeded") }
+            }
+        }
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
@@ -56,8 +78,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
         print("app did enter bkgrd, with window");
         didEnterBackground = true;
-        
-//        myViewController?.employeeInfo = nil;
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -75,38 +95,50 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        UserDefaults.standard.set(nil, forKey: "todaysJobPO"); UserDefaults.standard.set(nil, forKey: "employeeName"); print("app will terminate")
+        UserDefaults.standard.set(nil, forKey: "todaysJobPO");
+        UserDefaults.standard.set(nil, forKey: "employeeName");
+        print("app will terminate")
     }
     
     func registerForPushNotif() {
-        notificationCenter?.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
-            guard granted else { print("Notification permission NOT granted"); return };
+        notificationCenter.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             
-            self.notificationCenter?.getNotificationSettings { (settings) in
-                guard settings.authorizationStatus == .authorized else { print("notification settings not authorized"); return }
-                self.main.addOperation(UIApplication.shared.registerForRemoteNotifications)
-            }
+            if granted == true {
+                self.notificationCenter.getNotificationSettings { (settings) in
+                    
+                    if settings.authorizationStatus == .authorized {
+                        self.main.addOperation(UIApplication.shared.registerForRemoteNotifications)
+                        return
+                    }
+                }
+            } else { print("notification not granted: ", granted, error) }
         }
+        
     }
     
     func checkToken(token: String) {
-        guard let id = UserDefaults.standard.string(forKey: "employeeID"),
-        let route = "employee/token/" + id as? String else { return }
-        var request = APICalls().setupRequest(route: route, method: "POST")
+        guard let id = UserDefaults.standard.string(forKey: "employeeID") else { print("no saved id"); return }
+        let route = "employee/token/" + id
         
-        func updateToken() {
-            request.addValue(token, forHTTPHeaderField: "token")
-            
-            let task = URLSession.shared.dataTask(with: request) {data, response, error in
-                if error != nil { print("failed to fetch JSON from database)"); print(error); return }
-                else { print("sent device token successfully") }
-            }
-            task.resume()
+        guard let existingToken = UserDefaults.standard.string(forKey: "token") else {
+            updateToken(token: token, route: route)
+            return
         }
+        if existingToken == token { return }
+        else { updateToken(token: token, route: route) }
+    }
+    
+    func updateToken(token: String, route: String) {
+        UserDefaults.standard.set(token, forKey: "token");
         
-        if let existingToken = UserDefaults.standard.string(forKey: "token") {
-            if existingToken == token { return } else { updateToken() }
-        } else { UserDefaults.standard.set(token, forKey: "token"); updateToken() }
+        var request = APICalls().setupRequest(route: route, method: "POST")
+        request.addValue(token, forHTTPHeaderField: "token")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if error != nil { print("fetch to server failed w/ error: \(error)"); return }
+            else { print("sent device token successfully") }
+        }
+        task.resume()
     }
 }
 
