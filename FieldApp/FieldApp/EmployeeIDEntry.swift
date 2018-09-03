@@ -16,23 +16,28 @@ import CoreAudioKit
 import CoreAudio
 import AVKit
 import Starscream
+import ImagePicker
+import Alamofire
+import EventKit
 
 
 class EmployeeIDEntry: UIViewController {
     
+    @IBOutlet weak var backBtn: UIButton!
+    @IBOutlet weak var enterIDText: UILabel!
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var enterIDText: UILabel!
     @IBOutlet weak var clockIn: UIButton!
     @IBOutlet weak var clockOut: UIButton!
-    @IBOutlet weak var backBtn: UIButton!
-    @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet weak var lunchBreakBtn: UIButton!
+    @IBOutlet weak var activityBckgd: UIView!
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
+    let picker = ImagePickerController()
+
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -41,19 +46,28 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var hadLunch = false
+    var imageAssets: [UIImage] {
+        return AssetManager.resolveAssets(picker.stack.assets)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        picker.delegate = self as! ImagePickerDelegate
+        
+        checkAppDelANDnotif()
         UserLocation.instance.locationManager.startUpdatingLocation()
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+        
+        let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
+        setShadows(btns: btns)
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
     @IBAction func backToHome(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
-    @IBAction func goClockOut(_ sender: Any) { clockInClockOut() }
+    @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
@@ -152,9 +166,9 @@ class EmployeeIDEntry: UIViewController {
         
         if segue.identifier == "return" {
             HomeView.employeeInfo?.punchedIn = foundUser?.punchedIn
-            vc.todaysJob.jobName = todaysJob.jobName
-            vc.todaysJob.poNumber = todaysJob.poNumber
-            vc.todaysJob.jobLocation = todaysJob.jobLocation
+            HomeView.todaysJob.jobName = todaysJob.jobName
+            HomeView.todaysJob.poNumber = todaysJob.poNumber
+            HomeView.todaysJob.jobLocation = todaysJob.jobLocation
         }
     }
     
@@ -276,46 +290,152 @@ extension EmployeeIDEntry {
         
         self.present(actionsheet, animated: true)
     }
-}
-
-
-class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .sound, .badge])
-    }
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        switch response.actionIdentifier {
-        case UNNotificationDismissActionIdentifier:
-            print("Dismiss Action")
-        case UNNotificationDefaultActionIdentifier:
-            print("Default")
-        case "STOP_ACTION":
-            print("stop alarm")
-        case "SNOOZE":
-            print("Snooze action")
-            
-        default:
-            print("unknown action")
+    func wrapUpAlert() {
+        let actionsheet = UIAlertController(title: "Reminder", message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
+        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: UIAlertActionStyle.default) { (action) -> Void in self.clockInClockOut() }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: UIAlertActionStyle.destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil) }
+        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: UIAlertActionStyle.destructive) { (action) -> Void in
+            self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
         }
-        completionHandler()
+        
+        actionsheet.addAction(finishUp)
+        actionsheet.addAction(takePhotos)
+        actionsheet.addAction(reqMaterials)
+        
+        self.present(actionsheet, animated: true)
     }
 }
 
-extension UIViewController {
-    func createNotification(intervalInSeconds interval: Double, title: String, message: String, identifier: String) -> UNNotificationRequest {
-        let timeInterval = TimeInterval(interval)
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = message
-        content.sound = UNNotificationSound.default()
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+extension EmployeeIDEntry: ImagePickerDelegate {
+    func checkAppDelANDnotif() {
+        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
+        appDelegate.myEmployeeVC = self
         
-        return request
+        if appDelegate.didEnterBackground == true {
+            notificationCenter.getDeliveredNotifications() { notifications in
+                if notifications != nil {
+                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
+                }
+            }
+        }
+    }
+    
+    func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        print("wrapper did press")
+        imagePicker.expandGalleryView()
+    }
+    
+    func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        let images = imageAssets
+        print("images to upload: \(images.count)")
+        
+        if images.count < 11 {
+            
+            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
+                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                upload(images: images, jobNumber: po, employee: emply)
+            } else {
+                upload(images: images, jobNumber: "---", employee: "---")
+            }
+            
+            dismiss(animated: true, completion: nil)
+        } else {
+            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+        }
+    }
+    
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+    }
+    
+    func checkForUserInfo() {
+        if HomeView.employeeInfo?.employeeID != nil {
+            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
+            HomeView().checkPunchStatus()
+            
+        } else {
+            if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
+                inProgress()
+                
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
+                    HomeView.employeeInfo = user
+                    HomeView().checkPunchStatus()
+                }
+            } else { completedProgress() }
+        }
+    }
+    
+    func uploadPhoto(photo: UIImage, poNumber: String){
+        self.main.addOperation { self.inProgress() }
+        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
+            print("Couldn't get JPEG representation"); return
+        }
+        
+        APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
+            self.main.addOperation { self.completedProgress() }
+        }
+    }
+    
+    func upload(images: [UIImage], jobNumber: String, employee: String) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        self.inProgress()
+        
+        let url = "https://mb-server-app-kbradbury.c9users.io/job/" + jobNumber + "/upload"
+        let headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data",
+            "employee": employee
+        ]
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                var i = 0
+                for img in images {
+                    
+                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
+                    multipartFormData.append(imageData,
+                                             withName: "\(jobNumber)_\(i)",
+                        fileName: "\(jobNumber)_\(i).jpg",
+                        mimeType: "image/jpeg")
+                    i += 1
+                }
+        },
+            usingThreshold: UInt64.init(),
+            to: url,
+            method: .post,
+            headers: headers,
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                    
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        //progressCompletion(Float(progress.fractionCompleted))
+                    }
+                    upload.validate()
+                    upload.responseString { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)")
+                            self.showAlert(withTitle: "Failed", message: "Photo(s) upload failed.")
+                            self.completedProgress()
+                            return
+                        }
+                        self.completedProgress()
+                        
+                        let completeNotif = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
+
+                        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
+                            if error != nil { return } else {}
+                        })
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+        }
+        )
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 }
+
 
 
 
