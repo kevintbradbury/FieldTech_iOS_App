@@ -29,6 +29,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet weak var hotelResButton: UIButton!
     @IBOutlet weak var timeOffButton: UIButton!
     @IBOutlet weak var calendarButton: UIButton!
+    @IBOutlet weak var changOrderButton: UIButton!
+    @IBOutlet weak var materialReqButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
     
@@ -61,7 +63,9 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         checkAppDelANDnotif()
         NotificationCenter.default.addObserver(self, selector: #selector(checkForUserInfo), name: .info, object: nil)
         
-        let btns = [clockInOut!, choosePhotoButton!, toolsRentButton!, hotelResButton!, timeOffButton!, calendarButton!]
+        let btns = [
+            clockInOut!, choosePhotoButton!, toolsRentButton!, hotelResButton!, timeOffButton!, calendarButton!, changOrderButton!, materialReqButton!
+        ]
         setShadows(btns: btns)
     }
     
