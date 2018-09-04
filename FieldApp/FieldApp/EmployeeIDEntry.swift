@@ -10,15 +10,16 @@ import Foundation
 import UIKit
 import CoreLocation
 import Firebase
+import FirebaseAuth
 import UserNotifications
 import UserNotificationsUI
 import CoreAudioKit
 import CoreAudio
 import AVKit
-import Starscream
 import ImagePicker
 import Alamofire
 import EventKit
+//import Starscream
 
 
 class EmployeeIDEntry: UIViewController {
@@ -195,12 +196,6 @@ class EmployeeIDEntry: UIViewController {
     }
 }
 
-extension EmployeeIDEntry: WebSocketDelegate {
-    func websocketDidConnect(_ socket: WebSocket) { print("web socket connected") }
-    func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) { print("web socket DISconnected") }
-    func websocketDidReceiveData(_ socket: WebSocket, data: Data) { print("recieved binary data from server") }
-    func websocketDidReceiveMessage(_ socket: WebSocket, text: String) { print("web socket received message") }
-}
 
 extension EmployeeIDEntry {
     
@@ -241,8 +236,6 @@ extension EmployeeIDEntry {
     }
     
     func completedProgress() {
-        print("updated punch in-out is now: \(String(describing: foundUser?.punchedIn))")
-        
         self.main.addOperation {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
@@ -334,9 +327,16 @@ extension EmployeeIDEntry: ImagePickerDelegate {
             
             if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                 let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                upload(images: images, jobNumber: po, employee: emply)
+                inProgress()
+                APICalls().upload(images: images, jobNumber: po, employee: emply) { success in
+                    self.checkSuccess(success: success)
+                }
+
             } else {
-                upload(images: images, jobNumber: "---", employee: "---")
+                inProgress()
+                APICalls().upload(images: images, jobNumber: "---", employee: "---") { success in
+                    self.checkSuccess(success: success)
+                }
             }
             
             dismiss(animated: true, completion: nil)
@@ -365,75 +365,15 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         }
     }
     
-    func uploadPhoto(photo: UIImage, poNumber: String){
-        self.main.addOperation { self.inProgress() }
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
-            print("Couldn't get JPEG representation"); return
-        }
-        
-        APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
-            self.main.addOperation { self.completedProgress() }
+    func checkSuccess(success: Bool) {
+        if success == true {
+            completedProgress()
+        } else {
+            completedProgress()
+            showAlert(withTitle: "Upload Failed", message: "Photos failed to upload to Server.")
         }
     }
     
-    func upload(images: [UIImage], jobNumber: String, employee: String) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        self.inProgress()
-        
-        let url = "https://mb-server-app-kbradbury.c9users.io/job/" + jobNumber + "/upload"
-        let headers: HTTPHeaders = [
-            "Content-type" : "multipart/form-data",
-            "employee": employee
-        ]
-        
-        Alamofire.upload(
-            multipartFormData: { multipartFormData in
-                var i = 0
-                for img in images {
-                    
-                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
-                    multipartFormData.append(imageData,
-                                             withName: "\(jobNumber)_\(i)",
-                        fileName: "\(jobNumber)_\(i).jpg",
-                        mimeType: "image/jpeg")
-                    i += 1
-                }
-        },
-            usingThreshold: UInt64.init(),
-            to: url,
-            method: .post,
-            headers: headers,
-            encodingCompletion: { encodingResult in
-                switch encodingResult {
-                    
-                case .success(let upload, _, _):
-                    upload.uploadProgress { progress in
-                        //progressCompletion(Float(progress.fractionCompleted))
-                    }
-                    upload.validate()
-                    upload.responseString { response in
-                        guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)")
-                            self.showAlert(withTitle: "Failed", message: "Photo(s) upload failed.")
-                            self.completedProgress()
-                            return
-                        }
-                        self.completedProgress()
-                        
-                        let completeNotif = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
-
-                        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
-                            if error != nil { return } else {}
-                        })
-                    }
-                    
-                case .failure(let encodingError):
-                    print(encodingError)
-                }
-        }
-        )
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-    }
 }
 
 

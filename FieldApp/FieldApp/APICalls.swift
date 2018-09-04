@@ -10,19 +10,22 @@ import Foundation
 import UIKit
 import CoreLocation
 import EventKit
+import Alamofire
+import UserNotifications
+import UserNotificationsUI
 //import Firebase
 
 
 class APICalls {
     static let host = "https://mb-server-app-kbradbury.c9users.io/"
+    let notificationCenter = UNUserNotificationCenter.current()
+    
     
     func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob]) -> ()) {
         
         let route = "employee/" + employeeID + "/jobs"
         let request = setupRequest(route: route, method: "GET")
         let session = URLSession.shared;
-        let sock = gpsClockInOut()
-
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
@@ -168,6 +171,69 @@ class APICalls {
         task.resume()
     }
     
+    func upload(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        let url = APICalls.host + "job/" + jobNumber + "/upload"
+        let headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data",
+            "employee": employee
+        ]
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                var i = 0
+                for img in images {
+                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
+                    multipartFormData.append(imageData,
+                                             withName: "\(jobNumber)_\(i)",
+                        fileName: "\(jobNumber)_\(i).jpg",
+                        mimeType: "image/jpeg")
+                    i += 1
+                }
+        },
+            usingThreshold: UInt64.init(),
+            to: url,
+            method: .post,
+            headers: headers,
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                    
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        //progressCompletion(Float(progress.fractionCompleted))
+                    }
+                    upload.validate()
+                    upload.responseString { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)")
+                            self.failedUpload()
+                            callback(false)
+                            return
+                        }
+                        self.successUpload()
+                        callback(true)
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError)
+                    self.failedUpload()
+                    callback(false)
+                }
+        }
+        ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
+    }
+    
+    func sendChangeOrder(co: FieldActions.ChangeOrders) {
+        guard let po = co.poNumber as? String else { return }
+        let route = "changeOrder/" + po
+        let req = setupRequest(route: route, method: "POST")
+
+        startSession(request: req) { data in
+            //handle data here
+        }
+
+    }
+    
     func setupRequest(route: String, method: String) -> URLRequest {
         let url = URL(string: APICalls.host + route)!
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
@@ -177,6 +243,23 @@ class APICalls {
         return request
     }
     
+    func startSession(request: URLRequest, callback: @escaping (Data)->()) {
+        let session = URLSession.shared;
+        
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
+                return
+            } else {
+                guard let verifiedData = data as? Data else {
+                    print("could not verify data from dataTask")
+                    return
+                }
+                callback(verifiedData)
+            }
+        }
+        task.resume()
+    }
 }
 
 extension APICalls {
@@ -203,7 +286,6 @@ extension APICalls {
     }
     
     struct UserInfoCodeable: Encodable {
-        
         let userName: String
         let employeeID: String
         let coordinateLat: String
@@ -222,8 +304,7 @@ extension APICalls {
         do {
             let jsonEncoder = JSONEncoder()
             data = try jsonEncoder.encode(person)
-        }
-        catch {
+        } catch {
             print(error)
             data = combinedString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
         }
@@ -257,43 +338,24 @@ extension APICalls {
         }
     }
     
-}
-
-extension APICalls {
+    func failedUpload() {    
+            let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: "Photos failed to upload.", identifier: "uploadFail")
+            
+            self.notificationCenter.add(failedNotifc, withCompletionHandler: { (error) in
+                if error != nil { return }
+            })
+    }
     
-    class gpsClockInOut: NSObject {
-        var inputStream: InputStream!
-        var outputStream: OutputStream!
+    func successUpload()  {
+        let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
         
-        let maxReadLength = 102400
-        
-        
-        func setUpNetworkComm() {
-            var readStream: Unmanaged<CFReadStream>?
-            var writeStream: Unmanaged<CFWriteStream>?
-            
-            CFStreamCreatePairWithSocketToHost(kCFAllocatorDefault, "https://mb-server-app-kbradbury.c9users.io" as CFString, 7070, &readStream, &writeStream)
-            
-            inputStream = readStream!.takeRetainedValue()
-            outputStream = writeStream!.takeRetainedValue()
-            
-            inputStream.schedule(in: .current, forMode: .commonModes)
-            outputStream.schedule(in: .current, forMode: .commonModes)
-            
-            inputStream.open()
-            outputStream.open()
-            print("socket connected ?? ")
-        }
-        
-        func clockNgps() {
-//            employee: UserData.UserInfo, location: [Double], autoClockOut: Bool?
-//                "{ employee: \(employee), location:  \(location), autoClockOut: \(autoClockOut) }".data(using: .ascii)!
-            
-            guard let data = "testing string".data(using: .ascii) else { return }
-            _ = data.withUnsafeBytes { outputStream.write($0, maxLength: data.count) }
-        }
+        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
+            if error != nil { return }
+        })
     }
     
 }
+
+
 
 

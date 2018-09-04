@@ -221,53 +221,52 @@ class ContactInfo {
 
 class FieldActions {
     
+    let poFolder = URL(string: "P O Server Folder")
     var requestedUser: String?
     var poNumber: Int?
-    let poFolder = URL(string: "P O Server Folder")
     var date: Date?
     var jobName: String?
     var neededBy: String?
     var description: String?
     
-    class SuppliesRequest {
-        
+    struct SuppliesRequest {
         let hardwareLocations: Array = ["Home Depot", "Lowes", "Ace Hardware", "Orchards"]
-        var chosenLocation: String?
         let maxDistance = 5  // Miles?
+        let material: Array = ["material1", "material2", "etc."]
+        var chosenLocation: String?
         var receiptPhoto = UIImage()
         var arrived: Bool?
-        let material: Array = ["material1", "material2", "etc."]
         var materialQuantity: Int?
         var receiptUploaded: Bool?
         var fieldSuppliesDestinationFolder = URL(string: "Supplies Server Folder")
-        
     }
     
-    class ToolRental {
-        
+    struct ToolRental {
         let toolType: Array = ["drill", "hammer", "powerTools", "etc."]
         let brand = ["brand1", "brand2", "brand3"]
+        let rentalLogDestination = URL(string: "Tool Rental Server Folder")
+        let supervisorEmail = "super@millworkbrothers.com"
+        let reminderPeriods = [24, 48, 72, 96]
         var toolQuantity: Int?
         var duration: Int?
         var toolPhoto: UIImage?
         var photoUploaded: Bool?
-        let rentalLogDestination = URL(string: "Tool Rental Server Folder")
-        let supervisorEmail = "super@millworkbrothers.com"
         var rentalIn: Date?
-        var rentalOut: Date? //This value is to record the actual return date.
         var returnDate: Date? //This is the user entered date value.
-        let reminderPeriods = [24, 48, 72, 96]
+        var rentalOut: Date? //This value is to record the actual return date.
         var rentalAuthorized: Bool?
-        
     }
     
-    class ChangeOrders {
-        
-        var location: String? //Field Installers reference OR documentation purposes?
+    struct  ChangeOrders: Encodable {
+        var jobName: String?
+        var poNumber: String?
+        var requestedBy: String?
+        var location: String? // Address?
         var material: String?
         var colorSpec: String?
-        var quantity: Int?
-        
+        var quantity: String?
+        var neededBy: String?
+        var description: String?
     }
     
     class PhotoUpload {
@@ -292,43 +291,5 @@ enum EventType: String {
     case onExit = "On Exit"
 }
 
-class Geotification: NSObject, NSCoding, MKAnnotation {
-    var coordinate: CLLocationCoordinate2D
-    var radius: CLLocationDistance
-    var identifier: String
-    var note: String
-    var eventType: EventType
-    
-    var title: String? {
-        if note.isEmpty {
-            return "no note"
-        }
-        return note
-    }
-    init(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, identifier: String, note: String, eventType: EventType) {
-        self.coordinate = coordinate
-        self.radius = radius
-        self.identifier = identifier
-        self.note = note
-        self.eventType = eventType
-    }
-    required init?(coder decoder: NSCoder) {
-        let latitude = decoder.decodeDouble(forKey: GeoKey.latitude)
-        let longitude = decoder.decodeDouble(forKey: GeoKey.longitude)
-        coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        radius = decoder.decodeDouble(forKey: GeoKey.radius)
-        identifier = decoder.decodeObject(forKey: GeoKey.identifier) as! String
-        note = decoder.decodeObject(forKey: GeoKey.note) as! String
-        eventType = EventType(rawValue: decoder.decodeObject(forKey: GeoKey.eventType)as! String)!
-    }
-    func encode(with coder: NSCoder) {
-        coder.encode(coordinate.latitude, forKey: GeoKey.latitude)
-        coder.encode(coordinate.longitude, forKey: GeoKey.longitude)
-        coder.encode(radius, forKey: GeoKey.radius)
-        coder.encode(identifier, forKey: GeoKey.identifier)
-        coder.encode(note, forKey: GeoKey.note)
-        coder.encode(eventType.rawValue, forKey: GeoKey.eventType)
-    }
-}
 
 

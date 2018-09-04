@@ -10,12 +10,13 @@ import UIKit
 import Foundation
 import CoreLocation
 import Firebase
+import FirebaseAuth
 
 class LoginViewController: UIViewController, AuthUIDelegate {
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var authId: String?
     let firebaseAuth = Auth.auth()

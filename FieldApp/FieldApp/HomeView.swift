@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Firebase
+import FirebaseAuth
 import CoreLocation
 import UserNotifications
 import UserNotificationsUI
@@ -36,7 +37,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
-    let firebaseAuth = Auth.auth()
+    let firebaseAuth =  Auth.auth()
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var main = OperationQueue.main
@@ -117,10 +118,15 @@ extension HomeView: ImagePickerDelegate {
         if imageAssets.count < 11 {
             if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                 let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                upload(images: imageAssets, jobNumber: po, employee: emply)
-                
+                inProgress()
+                APICalls().upload(images: imageAssets, jobNumber: po, employee: emply) { success in
+                    self.checkSuccess(success: success)
+                }
             } else {
-                upload(images: imageAssets, jobNumber: "---", employee: "---")
+                inProgress()
+                APICalls().upload(images: imageAssets, jobNumber: "---", employee: "---") { success in
+                    self.checkSuccess(success: success)
+                }
             }
             
             dismiss(animated: true, completion: nil)
@@ -187,75 +193,20 @@ extension HomeView: ImagePickerDelegate {
             self.completedProgress()
         }
     }
-    
-    func upload(images: [UIImage], jobNumber: String, employee: String) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        self.inProgress()
-        
-        let url = "https://mb-server-app-kbradbury.c9users.io/job/" + jobNumber + "/upload"
-        let headers: HTTPHeaders = [
-            "Content-type" : "multipart/form-data",
-            "employee": employee
-        ]
-        
-        Alamofire.upload(
-            multipartFormData: { multipartFormData in
-                var i = 0
-                for img in images {
-                    
-                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
-                    multipartFormData.append(imageData,
-                                             withName: "\(jobNumber)_\(i)",
-                        fileName: "\(jobNumber)_\(i).jpg",
-                        mimeType: "image/jpeg")
-                    i += 1
-                }
-        },
-            usingThreshold: UInt64.init(),
-            to: url,
-            method: .post,
-            headers: headers,
-            encodingCompletion: { encodingResult in
-                switch encodingResult {
-                    
-                case .success(let upload, _, _):
-                    upload.uploadProgress { progress in
-                        //progressCompletion(Float(progress.fractionCompleted))
-                    }
-                    upload.validate()
-                    upload.responseString { response in
-                        guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)")
-                            self.failedUpload()
-                            return
-                        }
-                        self.completedProgress()
-                        let completeNotif = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
-                        
-                        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
-                            if error != nil { return } else {}
-                        })
-                    }
-                    
-                case .failure(let encodingError):
-                    print(encodingError)
-                }
-        }
-        )
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-    }
-    
 }
 
 extension HomeView {
+    
     func failedUpload() {
         OperationQueue.main.addOperation {
-            
-            if (UIApplication.shared.applicationState == .active) {
+            if (UIApplication.shared.applicationState == .active && self.isViewLoaded && (self.view.window != nil)) {
                 self.showAlert(withTitle: "Upload Failed", message: "Photo failed to upload.")
+                
             } else {
-                let failedNotif = self.createNotification(intervalInSeconds: 0, title: "FAILED", message: "Photo(s) faield to upload to server.", identifier: "uploadFail")
-                self.notificationCenter.add(failedNotif, withCompletionHandler: { (error) in    if error != nil { return } })
+                let failedNotif = self.createNotification(intervalInSeconds: 0, title: "FAILED", message: "Photo(s) failed to upload to server.", identifier: "uploadFail")
+                self.notificationCenter.add(failedNotif, withCompletionHandler: { (error) in
+                    if error != nil { return }
+                })
             }
         }
     }
@@ -314,6 +265,9 @@ extension HomeView {
         } else if segue.identifier == "clock_in" {
             let vc = segue.destination as! EmployeeIDEntry
             vc.foundUser = HomeView.employeeInfo
+        } else if segue.identifier == "goToChangeOrder" {
+            let vc = segue.destination as! ChangeOrdersView
+            vc.todaysJob = HomeView.todaysJob.jobName
         }
     }
     
@@ -348,6 +302,11 @@ extension HomeView {
             if !granted { print("there was an error or the user did not authorize alerts: ", error) }
         }
         notificationCenter.getNotificationSettings { (settings) in if settings.authorizationStatus != .authorized { print("user did not authorize alerts") } }
+    }
+    
+    func checkSuccess(success: Bool) {
+        if success == true { completedProgress() }
+        else { failedUpload() }
     }
     
 }
