@@ -85,7 +85,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
 }
 
-extension HomeView: ImagePickerDelegate {
+extension HomeView {
     
     func checkAppDelANDnotif() {
         let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
@@ -105,37 +105,6 @@ extension HomeView: ImagePickerDelegate {
         catch let signOutError as NSError {
             showAlert(withTitle: "Error signing out: %@", message:  "\(signOutError)")
             print("Error signing out: %@", signOutError); return }
-    }
-    
-    func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
-        print("wrapper did press")
-        imagePicker.expandGalleryView()
-    }
-    
-    func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
-        print("images to upload: \(imageAssets.count)")
-        
-        if imageAssets.count < 11 {
-            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                inProgress()
-                APICalls().upload(images: imageAssets, jobNumber: po, employee: emply) { success in
-                    self.checkSuccess(success: success)
-                }
-            } else {
-                inProgress()
-                APICalls().upload(images: imageAssets, jobNumber: "---", employee: "---") { success in
-                    self.checkSuccess(success: success)
-                }
-            }
-            
-            dismiss(animated: true, completion: nil)
-        } else {
-            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
-        }
-    }
-    
-    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
     }
     
     func setMonitoringForJobLoc() {
@@ -309,11 +278,43 @@ extension HomeView {
         if success == true { completedProgress() }
         else { failedUpload() }
     }
-    
 }
 
+extension HomeView: ImagePickerDelegate {
+    func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        print("wrapper did press")
+        imagePicker.expandGalleryView()
+    }
+    
+    func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        print("images to upload: \(imageAssets.count)")
+        
+        if imageAssets.count < 11 {
+            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
+                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                inProgress()
+                APICalls().upload(images: imageAssets, jobNumber: po, employee: emply) { success in
+                    self.checkSuccess(success: success)
+                }
+            } else {
+                inProgress()
+                APICalls().upload(images: imageAssets, jobNumber: "---", employee: "---") { success in
+                    self.checkSuccess(success: success)
+                }
+            }
+            
+            dismiss(animated: true, completion: nil)
+        } else {
+            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+        }
+    }
+    
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+    }
+}
 
 extension Notification.Name {
     static let info = Notification.Name("employeeInfo")
 }
+
 

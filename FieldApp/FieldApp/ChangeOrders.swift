@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import UserNotifications
 import NotificationCenter
+import ImagePicker
 
 class ChangeOrdersView: UIViewController {
     
@@ -26,14 +27,18 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
     
-    var todaysJob = UserDefaults.standard.string(forKey: "todaysJobName")
     let employeeID = UserDefaults.standard.string(forKey: "employeeID")
     let todaysJobPO = UserDefaults.standard.string(forKey: "todaysJobPO")
     let employeeName = UserDefaults.standard.string(forKey: "employeeName")
+    let picker = ImagePickerController()
     
+    var todaysJob = UserDefaults.standard.string(forKey: "todaysJobName")
+    var changeOrder: FieldActions.ChangeOrders?
+    var imageAssets: [UIImage] { return AssetManager.resolveAssets(picker.stack.assets) }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        picker.delegate = self
         setViews()
     }
     
@@ -50,7 +55,8 @@ class ChangeOrdersView: UIViewController {
         view.frame.origin.y = 0
 
         getTextVals() { co in
-            APICalls().sendChangeOrder(co: co)
+            self.changeOrder = co
+            self.present(self.picker, animated: true)
         }
     }
     
@@ -84,7 +90,7 @@ class ChangeOrdersView: UIViewController {
             let location = locationText.text,
             let material = materialText.text,
             let colorspec = colorSpecText.text,
-            let quantity = quantityText.text,
+            let quantity: Double = Double(quantityText.text!),
             let needBy = needByText.text,
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: "The Change Order form is missing values.")
@@ -127,5 +133,43 @@ class ChangeOrdersView: UIViewController {
     
 }
 
+extension ChangeOrdersView: ImagePickerDelegate {
+    
+    func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        print("wrapper did press")
+        imagePicker.expandGalleryView()
+    }
+    
+    func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        let images = imageAssets
+        
+        if images.count < 2 {
+            
+            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
+                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                
+                guard let co = changeOrder else { return }
+                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else { print("Couldn't get JPEG representation");  return }
+                
+                APICalls().sendPhoto(imageData: imageData, co: co) { response in
+                    
+                }
+            } else {
+                guard let co = changeOrder else { return }
+                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else { print("Couldn't get JPEG representation");  return }
+
+                APICalls().sendPhoto(imageData: imageData, co: co) { response in
+                    
+                }
+            };  dismiss(animated: true, completion: nil)
+        } else {
+            picker.showAlert(withTitle: "Single Photo", message: "You can only select 1 photo for change orders.")
+        }
+    }
+    
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+    }
+    
+}
 
 

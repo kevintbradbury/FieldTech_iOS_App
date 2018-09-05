@@ -91,53 +91,85 @@ class APICalls {
             let jsonEncoder = JSONEncoder()
             data = try jsonEncoder.encode(person)
         } catch {
-            print(error)
-            return
-        }
+            print(error);   return
+        };  request.httpBody = data
         
-        request.httpBody = data
-        
-//        let task = session.dataTask(with: request) {data, response, error in
-//            if error != nil {
-//                print("failed to fetch JSON from database \n \(String(describing: response))"); return
-//            } else {
-//                print("no errors sending GPS coordinates")
-//                guard let verifiedData = data else {
-//                    print("could not verify data from dataTask"); return
-//                }
-
-        startSession(request: request, session: session) { success, data in
-                guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response))"); return
+            } else {
+                print("no errors sending GPS coordinates")
+                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
                     print("json serialization failed"); return
                 }
-                guard let successfulPunch = json["success"] as? Bool else {
-                    print("failed on success bool"); return
-                }
+                guard let successfulPunch = json["success"] as? Bool else { print("failed on success bool"); return }
                 callback(successfulPunch)
-        }
-                
-//            }
-//        }
-//        task.resume()
+            }
+        };  task.resume()
     }
     
-    func sendPhoto(imageData: Data, poNumber: String, callback: @escaping (HTTPURLResponse) -> () ) {
-        let route = "job/" + poNumber + "/upload"
-        let session = URLSession.shared;
-        var request = setupRequest(route: route, method: "POST")
-        request.addValue("application/x-www-formurlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = imageData
+//    func sendPhoto(imageData: Data, co: FieldActions.ChangeOrders, callback: @escaping (HTTPURLResponse) -> () ) {
+//        guard let po = co.poNumber as? String else { return }
+//        let route = "changeOrder/" + po
+//        let session = URLSession.shared;
+//        let json = generateCOstring(co: co)
+//        var request = setupRequest(route: route, method: "POST")
+
+//        request.httpBody = imageData
+//        request.addValue("application/x-www-formurlencoded", forHTTPHeaderField: "Content-Type")
+//        request.addValue(json, forHTTPHeaderField: "changeorder")
+//
+//        let task = session.dataTask(with: request) { data, res, err in
+//            if err != nil {
+//                print("Error", err); return
+//            } else {
+//                guard let responseObj = res as? HTTPURLResponse else { return }
+//                if responseObj.statusCode == 201 { callback(responseObj) }
+//                else { print("error sending photo to server"); return }
+//            }
+//        };  task.resume()
+//    }
+    
+    func sendPhoto(imageData: Data, co: FieldActions.ChangeOrders, callback: @escaping (Bool) -> () ) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        guard let po = co.poNumber as? String else { return }
+        let json = generateCOstring(co: co)
+        let url = APICalls.host + "changeOrder/" + po
+        let contentType = "multipart/form-data"
+        let headers: HTTPHeaders = [ "Content-type" : contentType , "changeorder": json ]
         
-        let task = session.dataTask(with: request) { data, res, err in
-            if err != nil {
-                print("Error", err); return
-            } else {
-                guard let responseObj = res as? HTTPURLResponse else { return }
-                
-                if responseObj.statusCode == 201 { callback(responseObj) }
-                else { print("error sending photo to server"); return }
-            }
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                multipartFormData.append(imageData,
+                                         withName: "changeOrder_PO: \(co.poNumber)_",
+                    fileName: "changeOrder_PO: \(co.poNumber).jpg",
+                    mimeType: "image/jpeg")
+        },
+            usingThreshold: UInt64.init(),
+            to: url,
+            method: .post,
+            headers: headers,
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        //progressCompletion(Float(progress.fractionCompleted))
+                    }; upload.validate()
+                    upload.responseString { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)"); self.failedUpload(msg: "Photo failed to upload.")
+                            callback(false); return
+                        }
+                        self.successUpload(msg: "Photo uploaded successfully."); callback(true)
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError); self.failedUpload(msg: "Photo failed to upload.")
+                    callback(false)
+                }
         }
+        ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
@@ -146,9 +178,9 @@ class APICalls {
         let session = URLSession.shared;
         
         let task = session.dataTask(with: request) { data, response, error in
-            if error != nil {
-                print(error); return
-            } else {
+            
+            if error != nil { print(error); return }
+            else {
                 guard let verifiedData = data as? Data else {
                     print("couldn't verify data from server"); return
                 }
@@ -156,11 +188,9 @@ class APICalls {
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
                     return
-                }
-                callback(user)
+                }; callback(user)
             }
-        }
-        task.resume()
+        }; task.resume()
     }
     
     func upload(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
@@ -215,23 +245,30 @@ class APICalls {
         ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
     
-    func sendChangeOrder(co: FieldActions.ChangeOrders) {
-        guard let po = co.poNumber as? String else { return }
-        let route = "changeOrder/" + po
-        let req = setupRequest(route: route, method: "POST")
-        let session = URLSession.shared;
-
-        startSession(request: req, session: session) { success, data in
-            if success {
-                print("success: ",success)
-
-            } else {
-                print("success: ",success)
-                
-            }
-        }
-
-    }
+//    func sendChangeOrder(co: FieldActions.ChangeOrders, callback: @escaping (Bool) -> ()) {
+//        guard let po = co.poNumber as? String else { return }
+//        let route = "changeOrder/" + po
+//        let session = URLSession.shared;
+//        var req = setupRequest(route: route, method: "POST")
+//        var data = Data()
+//
+//        do {
+//            let jsonEncoder = JSONEncoder()
+//            data = try jsonEncoder.encode(co)
+//        } catch {
+//            print(error);   return
+//        };  req.httpBody = data
+//
+//        startSession(request: req, session: session) { success, data in
+//            if success == true {
+//                print("success: ",success)
+//                callback(success)
+//            } else {
+//                print("success - fail: ",success)
+//                callback(success)
+//            }
+//        }
+//    }
     
     func setupRequest(route: String, method: String) -> URLRequest {
         let url = URL(string: APICalls.host + route)!
@@ -309,6 +346,17 @@ extension APICalls {
         return data
     }
     
+    func generateCOstring(co: FieldActions.ChangeOrders) -> String {
+        var data = Data()
+        var json = ""
+        do {
+            let jsonEncoder = JSONEncoder()
+            data = try jsonEncoder.encode(co)
+        } catch {
+            print(error);   return ""
+        };
+        return String(data: data, encoding: String.Encoding.utf8)!
+    }
 }
 
 extension APICalls {

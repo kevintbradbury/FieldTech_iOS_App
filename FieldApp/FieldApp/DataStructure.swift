@@ -264,7 +264,7 @@ class FieldActions {
         var location: String? // Address?
         var material: String?
         var colorSpec: String?
-        var quantity: String?
+        var quantity: Double?
         var neededBy: String?
         var description: String?
     }

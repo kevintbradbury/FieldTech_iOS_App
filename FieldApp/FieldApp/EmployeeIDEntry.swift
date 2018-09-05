@@ -38,7 +38,6 @@ class EmployeeIDEntry: UIViewController {
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
-
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -53,7 +52,7 @@ class EmployeeIDEntry: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        picker.delegate = self as! ImagePickerDelegate
+        picker.delegate = self as? ImagePickerDelegate
         
         checkAppDelANDnotif()
         UserLocation.instance.locationManager.startUpdatingLocation()
@@ -287,7 +286,9 @@ extension EmployeeIDEntry {
     func wrapUpAlert() {
         let actionsheet = UIAlertController(title: "Reminder", message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
         let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: UIAlertActionStyle.default) { (action) -> Void in self.clockInClockOut() }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: UIAlertActionStyle.destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil) }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: UIAlertActionStyle.destructive) { (action) -> Void in
+            self.present(self.picker, animated: true, completion: nil)
+        }
         let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: UIAlertActionStyle.destructive) { (action) -> Void in
             self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
         }
@@ -297,55 +298,6 @@ extension EmployeeIDEntry {
         actionsheet.addAction(reqMaterials)
         
         self.present(actionsheet, animated: true)
-    }
-}
-
-extension EmployeeIDEntry: ImagePickerDelegate {
-    func checkAppDelANDnotif() {
-        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
-        appDelegate.myEmployeeVC = self
-        
-        if appDelegate.didEnterBackground == true {
-            notificationCenter.getDeliveredNotifications() { notifications in
-                if notifications != nil {
-                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
-                }
-            }
-        }
-    }
-    
-    func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
-        print("wrapper did press")
-        imagePicker.expandGalleryView()
-    }
-    
-    func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
-        let images = imageAssets
-        print("images to upload: \(images.count)")
-        
-        if images.count < 11 {
-            
-            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                inProgress()
-                APICalls().upload(images: images, jobNumber: po, employee: emply) { success in
-                    self.checkSuccess(success: success)
-                }
-
-            } else {
-                inProgress()
-                APICalls().upload(images: images, jobNumber: "---", employee: "---") { success in
-                    self.checkSuccess(success: success)
-                }
-            }
-            
-            dismiss(animated: true, completion: nil)
-        } else {
-            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
-        }
-    }
-    
-    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
     }
     
     func checkForUserInfo() {
@@ -372,6 +324,54 @@ extension EmployeeIDEntry: ImagePickerDelegate {
             completedProgress()
             showAlert(withTitle: "Upload Failed", message: "Photos failed to upload to Server.")
         }
+    }
+    
+    func checkAppDelANDnotif() {
+        let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
+        appDelegate.myEmployeeVC = self
+        
+        if appDelegate.didEnterBackground == true {
+            notificationCenter.getDeliveredNotifications() { notifications in
+                if notifications != nil {
+                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
+                }
+            }
+        }
+    }
+    
+}
+
+extension EmployeeIDEntry: ImagePickerDelegate {
+    
+    func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        print("wrapper did press")
+        imagePicker.expandGalleryView()
+    }
+
+    func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
+        let imgs = imageAssets
+        print("images to upload: \(imgs.count)")
+
+        if imgs.count < 11 {
+
+            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
+                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                inProgress()
+                APICalls().upload(images: imgs, jobNumber: po, employee: emply) { success in
+                    self.checkSuccess(success: success)
+                }
+            } else {
+                inProgress()
+                APICalls().upload(images: imgs, jobNumber: "---", employee: "---") { success in
+                    self.checkSuccess(success: success)
+                }
+            };  dismiss(animated: true, completion: nil)
+        } else {
+            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+        }
+    }
+
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
     }
     
 }
