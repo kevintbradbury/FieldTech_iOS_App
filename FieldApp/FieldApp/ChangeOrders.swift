@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import UserNotifications
+import NotificationCenter
 
 class ChangeOrdersView: UIViewController {
     
@@ -24,52 +26,72 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
     
-    let employeeName = UserDefaults.standard.string(forKey: "employeeName")
+    var todaysJob = UserDefaults.standard.string(forKey: "todaysJobName")
     let employeeID = UserDefaults.standard.string(forKey: "employeeID")
     let todaysJobPO = UserDefaults.standard.string(forKey: "todaysJobPO")
-    var todaysJob: String?
+    let employeeName = UserDefaults.standard.string(forKey: "employeeName")
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setViews()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
     }
     
     @IBAction func backAction(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
     @IBAction func uploadCO(_ sender: Any) {
-        let co = getTextVals()
-        APICalls().sendChangeOrder(co: co)
+        view.frame.origin.y = 0
+
+        getTextVals() { co in
+            APICalls().sendChangeOrder(co: co)
+        }
     }
-//    @IBAction func superviewTap(_ sender: Any) {
-//        self.resignFirstResponder()
-//    }
     
     func setViews() {
         employeeNameTitle.text = employeeName
         requestedByLabel.text = employeeName
-        jobNameLabel.text = todaysJob
         poNumberLabel.text = todaysJobPO
+        jobNameLabel.text = todaysJob
         
-        for textField in self.view.subviews where textField is UITextField {
-            textField.resignFirstResponder()
+        self.view.addGestureRecognizer(
+            UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
+        )
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+    }
+    
+    @objc func keyboardWillChange(notification: Notification) {
+        guard let keyboardRect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        if notification.name == Notification.Name.UIKeyboardWillShow || notification.name == Notification.Name.UIKeyboardWillChangeFrame {
+            view.frame.origin.y = -(keyboardRect.height - 125)
+        } else {
+            view.frame.origin.y = 0
         }
     }
     
-    func getTextVals() -> FieldActions.ChangeOrders {
-        guard let job = jobNameLabel.text,
+    func getTextVals(callback: @escaping (FieldActions.ChangeOrders) -> ()) {
+        guard let employee = employeeName,
             let po = todaysJobPO,
-            let employee = employeeName,
             let location = locationText.text,
             let material = materialText.text,
             let colorspec = colorSpecText.text,
             let quantity = quantityText.text,
             let needBy = needByText.text,
-            let descrip = descripText.text else { return FieldActions.ChangeOrders() }
-        
-        let changeOrderObj = FieldActions.ChangeOrders(
-            jobName: job,
+            let descrip = descripText.text else {
+                showAlert(withTitle: "Incomplete", message: "The Change Order form is missing values.")
+                return
+        }
+        var changeOrderObj = FieldActions.ChangeOrders(
+            jobName: "",
             poNumber: po,
             requestedBy: employee,
             location: location,
@@ -79,7 +101,28 @@ class ChangeOrdersView: UIViewController {
             neededBy: needBy,
             description: descrip
         )
-        return changeOrderObj
+        
+        if let job = todaysJob {
+            changeOrderObj.jobName = job
+            callback(changeOrderObj)
+            
+        } else if let theJobs = HomeView.employeeInfo?.employeeJobs {
+            var job = ""
+            
+            for oneJob in theJobs {
+                if oneJob.poNumber == todaysJobPO {
+                    guard let jbName = oneJob.jobName as? String else { return }
+                    UserDefaults.standard.set(jbName, forKey: "todaysJobName")
+                    HomeView.todaysJob.jobName = jbName
+                    job = jbName
+                }
+            }
+            changeOrderObj.jobName = job
+            callback(changeOrderObj)
+            
+        } else { callback(changeOrderObj) }
+        
+        
     }
     
 }

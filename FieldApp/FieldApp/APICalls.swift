@@ -91,75 +91,67 @@ class APICalls {
             let jsonEncoder = JSONEncoder()
             data = try jsonEncoder.encode(person)
         } catch {
-            print(error); return;
+            print(error)
+            return
         }
         
         request.httpBody = data
         
-        let task = session.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response))"); return
-            } else {
-                print("no errors sending GPS coordinates")
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask"); return
-                }
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
+//        let task = session.dataTask(with: request) {data, response, error in
+//            if error != nil {
+//                print("failed to fetch JSON from database \n \(String(describing: response))"); return
+//            } else {
+//                print("no errors sending GPS coordinates")
+//                guard let verifiedData = data else {
+//                    print("could not verify data from dataTask"); return
+//                }
+
+        startSession(request: request, session: session) { success, data in
+                guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
                     print("json serialization failed"); return
                 }
                 guard let successfulPunch = json["success"] as? Bool else {
                     print("failed on success bool"); return
                 }
                 callback(successfulPunch)
-            }
         }
-        task.resume()
+                
+//            }
+//        }
+//        task.resume()
     }
     
     func sendPhoto(imageData: Data, poNumber: String, callback: @escaping (HTTPURLResponse) -> () ) {
-        
         let route = "job/" + poNumber + "/upload"
         let session = URLSession.shared;
-        
         var request = setupRequest(route: route, method: "POST")
         request.addValue("application/x-www-formurlencoded", forHTTPHeaderField: "Content-Type")
         request.httpBody = imageData
         
-        let task = session.dataTask(with: request) {data, response, error in
-            
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
+        let task = session.dataTask(with: request) { data, res, err in
+            if err != nil {
+                print("Error", err); return
             } else {
-                if let responseObj = response as? HTTPURLResponse {
-                    if responseObj.statusCode == 201 {
-                        callback(responseObj)
-                    } else {
-                        print("error sending photo to server")
-                        return
-                    }
-                }
+                guard let responseObj = res as? HTTPURLResponse else { return }
+                
+                if responseObj.statusCode == 201 { callback(responseObj) }
+                else { print("error sending photo to server"); return }
             }
         }
-        task.resume()
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
-        
         let route = "employee/" + String(employeeId)
         let request = setupRequest(route: route, method: "GET")
         let session = URLSession.shared;
         
-        let task = session.dataTask(with: request) {data, response, error in
+        let task = session.dataTask(with: request) { data, response, error in
             if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
+                print(error); return
             } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
+                guard let verifiedData = data as? Data else {
+                    print("couldn't verify data from server"); return
                 }
-                
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
@@ -206,17 +198,17 @@ class APICalls {
                     upload.responseString { response in
                         guard response.result.isSuccess else {
                             print("error while uploading file: \(response.result.error)")
-                            self.failedUpload()
+                            self.failedUpload(msg: "Photos failed to upload.")
                             callback(false)
                             return
                         }
-                        self.successUpload()
+                        self.successUpload(msg: "Photos uploaded successfully.")
                         callback(true)
                     }
                     
                 case .failure(let encodingError):
                     print(encodingError)
-                    self.failedUpload()
+                    self.failedUpload(msg: "Photos failed to upload.")
                     callback(false)
                 }
         }
@@ -227,9 +219,16 @@ class APICalls {
         guard let po = co.poNumber as? String else { return }
         let route = "changeOrder/" + po
         let req = setupRequest(route: route, method: "POST")
+        let session = URLSession.shared;
 
-        startSession(request: req) { data in
-            //handle data here
+        startSession(request: req, session: session) { success, data in
+            if success {
+                print("success: ",success)
+
+            } else {
+                print("success: ",success)
+                
+            }
         }
 
     }
@@ -243,19 +242,21 @@ class APICalls {
         return request
     }
     
-    func startSession(request: URLRequest, callback: @escaping (Data)->()) {
-        let session = URLSession.shared;
+    func startSession(request: URLRequest, session: URLSession, callback: @escaping (Bool, Data)->()) {
+        print("start session w/ req: ", request)
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
                 print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
+                callback(false, Data())
                 return
             } else {
                 guard let verifiedData = data as? Data else {
                     print("could not verify data from dataTask")
+                    callback(false, Data())
                     return
                 }
-                callback(verifiedData)
+                callback(true, verifiedData)
             }
         }
         task.resume()
@@ -268,8 +269,7 @@ extension APICalls {
         var jobsArray: [Job.UserJob] = []
         
         guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
-            print("couldn't parse json objects as an Array")
-            return jobsArray
+            print("couldn't parse json objects as an Array"); return jobsArray
         }
         
         for jobJson in json {
@@ -278,8 +278,7 @@ extension APICalls {
                     jobsArray.append(job)
                 }
             } else {
-                print("couldn't cast index json to type Dictionary")
-                return jobsArray
+                print("couldn't cast index json to type Dictionary"); return jobsArray
             }
         }
         return jobsArray
@@ -295,7 +294,6 @@ extension APICalls {
     func convertToJSON(employee: UserData.UserInfo, location: [String]) -> Data {
         
         let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1])
-        
         var combinedString = person.userName + " -- " + person.employeeID  + " |"
         combinedString += person.coordinateLat + ", " + person.coordinateLong + "|"
         
@@ -330,24 +328,25 @@ extension APICalls {
                 event.structuredLocation = EKStructuredLocation() // Geofence location for event
                 event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
                 
-                do { try eventstore.save(event, span: .thisEvent, commit: true) }
-                catch { (error)
+                do {
+                    try eventstore.save(event, span: .thisEvent, commit: true)
+                } catch { (error)
                     if error != nil { print("looks like we couldn't setup that alarm"); print(error) }
                 }
             }
         }
     }
     
-    func failedUpload() {    
-            let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: "Photos failed to upload.", identifier: "uploadFail")
+    func failedUpload(msg: String) {
+            let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
             
             self.notificationCenter.add(failedNotifc, withCompletionHandler: { (error) in
                 if error != nil { return }
             })
     }
     
-    func successUpload()  {
-        let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
+    func successUpload(msg: String)  {
+        let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "SUCCESS", message: msg, identifier: "uploadSuccess")
         
         self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
             if error != nil { return }

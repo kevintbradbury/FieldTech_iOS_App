@@ -148,6 +148,7 @@ extension HomeView: ImagePickerDelegate {
             UserLocation.instance.startMonitoring(location: coordindates)
             
             UserDefaults.standard.set(HomeView.todaysJob.poNumber, forKey: "todaysJobPO")
+            UserDefaults.standard.set(HomeView.todaysJob.jobName, forKey: "todaysJobName")
             UserDefaults.standard.set(HomeView.todaysJob.jobLocation, forKey: "todaysJobLatLong")
             
         } else if let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") {
