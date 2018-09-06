@@ -109,28 +109,6 @@ class APICalls {
         };  task.resume()
     }
     
-//    func sendPhoto(imageData: Data, co: FieldActions.ChangeOrders, callback: @escaping (HTTPURLResponse) -> () ) {
-//        guard let po = co.poNumber as? String else { return }
-//        let route = "changeOrder/" + po
-//        let session = URLSession.shared;
-//        let json = generateCOstring(co: co)
-//        var request = setupRequest(route: route, method: "POST")
-
-//        request.httpBody = imageData
-//        request.addValue("application/x-www-formurlencoded", forHTTPHeaderField: "Content-Type")
-//        request.addValue(json, forHTTPHeaderField: "changeorder")
-//
-//        let task = session.dataTask(with: request) { data, res, err in
-//            if err != nil {
-//                print("Error", err); return
-//            } else {
-//                guard let responseObj = res as? HTTPURLResponse else { return }
-//                if responseObj.statusCode == 201 { callback(responseObj) }
-//                else { print("error sending photo to server"); return }
-//            }
-//        };  task.resume()
-//    }
-    
     func sendPhoto(imageData: Data, co: FieldActions.ChangeOrders, callback: @escaping (Bool) -> () ) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         guard let po = co.poNumber as? String else { return }
@@ -142,8 +120,8 @@ class APICalls {
         Alamofire.upload(
             multipartFormData: { multipartFormData in
                 multipartFormData.append(imageData,
-                                         withName: "changeOrder_PO: \(co.poNumber)_",
-                    fileName: "changeOrder_PO: \(co.poNumber).jpg",
+                                         withName: "changeOrder",
+                    fileName: "changeOrder_PO: \(po).jpg",
                     mimeType: "image/jpeg")
         },
             usingThreshold: UInt64.init(),
@@ -158,14 +136,14 @@ class APICalls {
                     }; upload.validate()
                     upload.responseString { response in
                         guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)"); self.failedUpload(msg: "Photo failed to upload.")
+                            print("error while uploading file: \(response.result.error)"); self.failedUpload(msg: "Change order failed to upload.")
                             callback(false); return
                         }
-                        self.successUpload(msg: "Photo uploaded successfully."); callback(true)
+                        self.successUpload(msg: "Change order uploaded successfully."); callback(true)
                     }
                     
                 case .failure(let encodingError):
-                    print(encodingError); self.failedUpload(msg: "Photo failed to upload.")
+                    print(encodingError); self.failedUpload(msg: "Change order failed to upload.")
                     callback(false)
                 }
         }

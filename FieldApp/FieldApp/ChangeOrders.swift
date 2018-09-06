@@ -32,7 +32,7 @@ class ChangeOrdersView: UIViewController {
     let employeeName = UserDefaults.standard.string(forKey: "employeeName")
     let picker = ImagePickerController()
     
-    var todaysJob = UserDefaults.standard.string(forKey: "todaysJobName")
+    var todaysJob = "---"
     var changeOrder: FieldActions.ChangeOrders?
     var imageAssets: [UIImage] { return AssetManager.resolveAssets(picker.stack.assets) }
     
@@ -72,6 +72,9 @@ class ChangeOrdersView: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        
+        guard let jobName = UserDefaults.standard.string(forKey: "todaysJobName") as? String else { return }
+        jobNameLabel.text = jobName
     }
     
     @objc func keyboardWillChange(notification: Notification) {
@@ -108,7 +111,7 @@ class ChangeOrdersView: UIViewController {
             description: descrip
         )
         
-        if let job = todaysJob {
+        if let job = todaysJob as? String {
             changeOrderObj.jobName = job
             callback(changeOrderObj)
             

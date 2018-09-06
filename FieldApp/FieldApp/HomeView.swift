@@ -237,7 +237,8 @@ extension HomeView {
             vc.foundUser = HomeView.employeeInfo
         } else if segue.identifier == "goToChangeOrder" {
             let vc = segue.destination as! ChangeOrdersView
-            vc.todaysJob = HomeView.todaysJob.jobName
+            guard let jbName = HomeView.todaysJob.jobName else { return }
+            vc.todaysJob = jbName
         }
     }
     
