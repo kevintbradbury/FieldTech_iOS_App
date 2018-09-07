@@ -97,7 +97,8 @@ class ChangeOrdersView: UIViewController {
             let material = materialText.text,
             let colorspec = colorSpecText.text,
             let quantity: Double = Double(quantityText.text!),
-            let dateFromPicker: Date = datePickerFields.date,
+            let secsFrom1970: Double = datePickerFields.date.timeIntervalSince1970,
+
 //            let needBy: Date = getDate(dateText: needByText.text!),
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: "The Change Order form is missing values.")
@@ -111,7 +112,7 @@ class ChangeOrdersView: UIViewController {
             material: material,
             colorSpec: colorspec,
             quantity: quantity,
-            neededBy: dateFromPicker,
+            neededBy: secsFrom1970,
             description: descrip
         )
         
