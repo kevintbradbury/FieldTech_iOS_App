@@ -22,6 +22,7 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet weak var materialText: UITextField!
     @IBOutlet weak var colorSpecText: UITextField!
     @IBOutlet weak var quantityText: UITextField!
+    @IBOutlet weak var datePickerFields: UIDatePicker!
     @IBOutlet weak var needByText: UITextField!
     @IBOutlet weak var descripText: UITextView!
     @IBOutlet weak var sendButton: UIButton!
@@ -39,6 +40,8 @@ class ChangeOrdersView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
+        datePickerFields.calendar = Calendar.current
+        datePickerFields.timeZone = Calendar.current.timeZone
         setViews()
     }
     
@@ -94,7 +97,8 @@ class ChangeOrdersView: UIViewController {
             let material = materialText.text,
             let colorspec = colorSpecText.text,
             let quantity: Double = Double(quantityText.text!),
-            let needBy = needByText.text,
+            let dateFromPicker: Date = datePickerFields.date,
+//            let needBy: Date = getDate(dateText: needByText.text!),
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: "The Change Order form is missing values.")
                 return
@@ -107,7 +111,7 @@ class ChangeOrdersView: UIViewController {
             material: material,
             colorSpec: colorspec,
             quantity: quantity,
-            neededBy: needBy,
+            neededBy: dateFromPicker,
             description: descrip
         )
         
@@ -130,10 +134,25 @@ class ChangeOrdersView: UIViewController {
             callback(changeOrderObj)
             
         } else { callback(changeOrderObj) }
-        
-        
     }
     
+    func getDate(dateText: String) -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM.dd.yy"     //      formatter.dateFormat = "h:mm a"
+        formatter.timeZone = Calendar.current.timeZone
+        formatter.locale = Calendar.current.locale
+        
+        guard let date = formatter.date(from: dateText) else {
+            print("failed to cast string to dateFormatter"); return Date()
+        }
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.month, .day, .year], from: date)
+        guard let humanReadableDt = calendar.date(from: components) else {
+            print("failed to cast calendar components to Date"); return Date()
+        }
+        
+        return humanReadableDt
+    }
 }
 
 extension ChangeOrdersView: ImagePickerDelegate {
@@ -174,5 +193,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
 }
+
+
 
 

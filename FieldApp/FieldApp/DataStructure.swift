@@ -265,7 +265,7 @@ class FieldActions {
         var material: String?
         var colorSpec: String?
         var quantity: Double?
-        var neededBy: String?
+        var neededBy: Date?
         var description: String?
     }
     
