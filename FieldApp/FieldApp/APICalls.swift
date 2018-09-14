@@ -112,17 +112,23 @@ class APICalls {
     func sendPhoto(imageData: Data, co: FieldActions.ChangeOrders, callback: @escaping (Bool) -> () ) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         guard let po = co.poNumber as? String else { return }
-        let json = generateCOstring(co: co)
+        let coData = generateCOstring(co: co)
         let url = APICalls.host + "changeOrder/" + po
         let contentType = "multipart/form-data"
-        let headers: HTTPHeaders = [ "Content-type" : contentType , "changeorder": json ]
+        let headers: HTTPHeaders = [ "Content-type" : contentType ]
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
-                multipartFormData.append(imageData,
-                                         withName: "changeOrder",
+                multipartFormData.append(
+                    coData,
+                    withName: "changeOrder"
+                )
+                multipartFormData.append(
+                    imageData,
+                    withName: "changeOrderImg",
                     fileName: "changeOrder_PO: \(po).jpg",
-                    mimeType: "image/jpeg")
+                    mimeType: "image/jpeg"
+                )
         },
             usingThreshold: UInt64.init(),
             to: url,
@@ -222,31 +228,7 @@ class APICalls {
         }
         ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
-    
-//    func sendChangeOrder(co: FieldActions.ChangeOrders, callback: @escaping (Bool) -> ()) {
-//        guard let po = co.poNumber as? String else { return }
-//        let route = "changeOrder/" + po
-//        let session = URLSession.shared;
-//        var req = setupRequest(route: route, method: "POST")
-//        var data = Data()
-//
-//        do {
-//            let jsonEncoder = JSONEncoder()
-//            data = try jsonEncoder.encode(co)
-//        } catch {
-//            print(error);   return
-//        };  req.httpBody = data
-//
-//        startSession(request: req, session: session) { success, data in
-//            if success == true {
-//                print("success: ",success)
-//                callback(success)
-//            } else {
-//                print("success - fail: ",success)
-//                callback(success)
-//            }
-//        }
-//    }
+
     
     func setupRequest(route: String, method: String) -> URLRequest {
         let url = URL(string: APICalls.host + route)!
@@ -324,16 +306,21 @@ extension APICalls {
         return data
     }
     
-    func generateCOstring(co: FieldActions.ChangeOrders) -> String {
+    func generateCOstring(co: FieldActions.ChangeOrders) -> Data {
+        var combinedString = "\(co.jobName!)  -- \(co.poNumber!)  | \(co.requestedBy!), \(co.location!) | \(co.material!) - \(co.quantity!)"
         var data = Data()
-        var json = ""
+//        var json = ""
+        
         do {
             let jsonEncoder = JSONEncoder()
             data = try jsonEncoder.encode(co)
         } catch {
-            print(error);   return ""
+            print("error converting CO to DATA", error);
+//            return ""
+            data = combinedString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
         };
-        return String(data: data, encoding: String.Encoding.utf8)!
+        return data
+//            String(data: data, encoding: String.Encoding.utf8)!
     }
 }
 

@@ -23,7 +23,6 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet weak var colorSpecText: UITextField!
     @IBOutlet weak var quantityText: UITextField!
     @IBOutlet weak var datePickerFields: UIDatePicker!
-    @IBOutlet weak var needByText: UITextField!
     @IBOutlet weak var descripText: UITextView!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
