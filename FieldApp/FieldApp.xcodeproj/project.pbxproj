@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A11FFC572100F1E193 /* CalendarCell.swift */; };
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
+		066223352150236200B9C8E2 /* StoresMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066223342150236200B9C8E2 /* StoresMap.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
 		067365AC2139A0EF00F1F8A8 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 067365AB2139A0EE00F1F8A8 /* Info.plist */; };
 		06775987213DDABD001F8802 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06775986213DDABD001F8802 /* GoogleService-Info.plist */; };
@@ -51,6 +52,7 @@
 /* Begin PBXFileReference section */
 		062005A11FFC572100F1E193 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
+		066223342150236200B9C8E2 /* StoresMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMap.swift; sourceTree = "<group>"; };
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06775986213DDABD001F8802 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
 				062005A51FFC642900F1E193 /* ScheduleView.swift */,
+				066223342150236200B9C8E2 /* StoresMap.swift */,
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
@@ -453,6 +456,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				066223352150236200B9C8E2 /* StoresMap.swift in Sources */,
 				067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */,
 				0AC8EF831F71E69400E86DD6 /* APICalls.swift in Sources */,
 				0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */,
