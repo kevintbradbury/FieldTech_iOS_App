@@ -14,7 +14,7 @@ import ImagePicker
 
 class ChangeOrdersView: UIViewController {
     
-    @IBOutlet weak var employeeNameTitle: UILabel!
+    @IBOutlet weak var formType: UILabel!
     @IBOutlet weak var jobNameLabel: UILabel!
     @IBOutlet weak var poNumberLabel: UILabel!
     @IBOutlet weak var requestedByLabel: UILabel!
@@ -32,7 +32,8 @@ class ChangeOrdersView: UIViewController {
     let employeeName = UserDefaults.standard.string(forKey: "employeeName")
     let picker = ImagePickerController()
     
-    var todaysJob = "---"
+    public var formTypeVal = ""
+    public var todaysJob: String?
     var changeOrder: FieldActions.ChangeOrders?
     var imageAssets: [UIImage] { return AssetManager.resolveAssets(picker.stack.assets) }
     
@@ -63,20 +64,29 @@ class ChangeOrdersView: UIViewController {
     }
     
     func setViews() {
-        employeeNameTitle.text = employeeName
+        formType.text = formTypeVal
         requestedByLabel.text = employeeName
         poNumberLabel.text = todaysJobPO
-        jobNameLabel.text = todaysJob
         
-        self.view.addGestureRecognizer(
-            UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
+        self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil
         )
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil
+        )
+        let jobName = UserDefaults.standard.string(forKey: "todaysJobName")
         
-        guard let jobName = UserDefaults.standard.string(forKey: "todaysJobName") as? String else { return }
-        jobNameLabel.text = jobName
+        if todaysJob != "" && todaysJob != nil {
+            jobNameLabel.text = todaysJob
+        } else if jobName != "" && jobName != nil {
+            jobNameLabel.text = jobName
+        } else {
+            jobNameLabel.text = "---"
+        }
     }
     
     @objc func keyboardWillChange(notification: Notification) {
@@ -97,8 +107,6 @@ class ChangeOrdersView: UIViewController {
             let colorspec = colorSpecText.text,
             let quantity: Double = Double(quantityText.text!),
             let secsFrom1970: Double = datePickerFields.date.timeIntervalSince1970,
-
-//            let needBy: Date = getDate(dateText: needByText.text!),
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: "The Change Order form is missing values.")
                 return
@@ -138,7 +146,7 @@ class ChangeOrdersView: UIViewController {
     
     func getDate(dateText: String) -> Date {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MM.dd.yy"     //      formatter.dateFormat = "h:mm a"
+        formatter.dateFormat = "MM.dd.yy"
         formatter.timeZone = Calendar.current.timeZone
         formatter.locale = Calendar.current.locale
         

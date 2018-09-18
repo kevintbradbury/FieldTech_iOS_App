@@ -14,14 +14,16 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
 
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var backButton: UIButton!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var loadingBkgd: UIView!
     
-    var mapDelegate: MKMapViewDelegate?
-   
+    let main = OperationQueue.main
+    public var todaysJob: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        activityIndicator.hidesWhenStopped = true
         
-        mapDelegate = self
         UserLocation.instance.initialize()
 
         intitMap()
@@ -33,12 +35,15 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
     }
     
     func intitMap() {
+        showLoading()
+        
         guard let currentLoc = UserLocation.instance.currentCoordinate else { return }
         guard let region = UserLocation.instance.currentRegion else { return }
         
         mapView.setRegion(region, animated: true)
         mapView.setCenter(currentLoc, animated: true)
         mapView.showsUserLocation = true
+        mapView.delegate = self
     }
     
     func findHWStores() {
@@ -51,17 +56,22 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
         search.start { (res, error) in
             if error != nil {
                 self.showAlert(withTitle: "Error", message: "Failed completing map search request.")
+                self.stopLoading()
+                
             } else {
                 print("request was good")
                 guard let allMapItems = res?.mapItems else { return }
                 
                 for mapItem in allMapItems {
-                    let annotation = MKPointAnnotation()
-                    annotation.coordinate = mapItem.placemark.coordinate
-                    annotation.title = mapItem.name
+                    let annotation = CustomAnnotation(
+                        title: mapItem.name!,
+                        coordinate: mapItem.placemark.coordinate,
+                        info: "customAnt"
+                    )
                     
                     self.mapView.addAnnotation(annotation)
                 }
+                self.stopLoading()
             }
             
         }
@@ -69,20 +79,24 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
-        guard let annotn = annotation as? MKAnnotation else {
-            showAlert(withTitle: "error", message: "couldnt cast annotation"); return nil
+        let identifier = "customAnt"
+        
+        if annotation is CustomAnnotation {
+            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+            
+            if annotationView == nil {
+                let btn = UIButton(type: .detailDisclosure)
+                annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                annotationView!.canShowCallout = true
+                annotationView!.rightCalloutAccessoryView = btn
+            } else {
+                annotationView!.annotation = annotation
+            }
+            
+            return annotationView
         }
-        let identifier = "identifier"
         
-        var annotationView = MKPinAnnotationView(annotation: annotn, reuseIdentifier: identifier)
-        annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotn) as! MKPinAnnotationView
-        annotationView.canShowCallout = true
-        annotationView.calloutOffset = CGPoint(x: -5, y: -5)
-        annotationView.leftCalloutAccessoryView = UIButton(type: .detailDisclosure)
-        annotationView.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-        //            (frame: CGRect(origin: CGPoint.zero, size: CGSize(width: 30, height: 30)))
-        
-        return annotationView
+        return nil
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
@@ -92,4 +106,40 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
         ScheduleView.openMapsWithDirections(to: annotation.coordinate, destination: destination)
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier ==  "suppliesReq" {
+            let vc = segue.destination as! ChangeOrdersView
+    
+            vc.formTypeVal = "Supplies Request"
+            vc.todaysJob = "\(todaysJob)"
+        }
+    }
+    
+    func showLoading() {
+        main.addOperation {
+            self.activityIndicator.startAnimating()
+            self.loadingBkgd.isHidden = false
+        }
+    }
+    
+    func stopLoading() {
+        main.addOperation {
+            self.activityIndicator.stopAnimating()
+            self.loadingBkgd.isHidden = true
+        }
+    }
 }
+
+class CustomAnnotation: NSObject, MKAnnotation {
+    var title: String?
+    var coordinate: CLLocationCoordinate2D
+    var info: String
+    
+    init(title: String, coordinate: CLLocationCoordinate2D, info: String) {
+        self.title = title
+        self.coordinate = coordinate
+        self.info = info
+    }
+}
+

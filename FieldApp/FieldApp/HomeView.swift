@@ -42,8 +42,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
-    static var employeeInfo: UserData.UserInfo?
-    static var todaysJob = Job()
+    public static var employeeInfo: UserData.UserInfo?
+    public static var todaysJob = Job()
     public var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
@@ -229,17 +229,26 @@ extension HomeView {
 extension HomeView {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "schedule" {
+        let idtn = segue.identifier
+        
+        if idtn == "schedule" {
             let vc = segue.destination as! ScheduleView
             vc.employee = HomeView.employeeInfo
             
-        } else if segue.identifier == "clock_in" {
+        } else if idtn == "clock_in" {
             let vc = segue.destination as! EmployeeIDEntry
             vc.foundUser = HomeView.employeeInfo
-        } else if segue.identifier == "goToChangeOrder" {
+            
+        } else if idtn == "changeOrder" {
             let vc = segue.destination as! ChangeOrdersView
-            guard let jbName = HomeView.todaysJob.jobName else { return }
-            vc.todaysJob = jbName
+            let jbName = HomeView.todaysJob.jobName
+            vc.todaysJob = jbName ?? ""
+            vc.formTypeVal = "Change Order"
+            
+        } else if idtn == "map" {
+            let vc = segue.destination as! StoresMapView
+            let jbName = HomeView.todaysJob.jobName
+            vc.todaysJob = jbName ?? ""
         }
     }
     
