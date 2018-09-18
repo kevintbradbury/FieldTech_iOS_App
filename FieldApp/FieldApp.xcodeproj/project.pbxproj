@@ -9,12 +9,11 @@
 /* Begin PBXBuildFile section */
 		062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A11FFC572100F1E193 /* CalendarCell.swift */; };
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
-		066223352150236200B9C8E2 /* StoresMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066223342150236200B9C8E2 /* StoresMap.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
-		067365AC2139A0EF00F1F8A8 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 067365AB2139A0EE00F1F8A8 /* Info.plist */; };
 		06775987213DDABD001F8802 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06775986213DDABD001F8802 /* GoogleService-Info.plist */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
+		06FADEBD2150351D00021943 /* StoresMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066223362150322800B9C8E2 /* StoresMapView.swift */; };
 		0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */; };
 		0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */; };
 		0AC8EF511F71826200E86DD6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF501F71826200E86DD6 /* LoginViewController.swift */; };
@@ -52,7 +51,7 @@
 /* Begin PBXFileReference section */
 		062005A11FFC572100F1E193 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
-		066223342150236200B9C8E2 /* StoresMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMap.swift; sourceTree = "<group>"; };
+		066223362150322800B9C8E2 /* StoresMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMapView.swift; sourceTree = "<group>"; };
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06775986213DDABD001F8802 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -163,7 +162,7 @@
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
 				062005A51FFC642900F1E193 /* ScheduleView.swift */,
-				066223342150236200B9C8E2 /* StoresMap.swift */,
+				066223362150322800B9C8E2 /* StoresMapView.swift */,
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
@@ -279,7 +278,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0830;
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Kevin Bradbury";
 				TargetAttributes = {
 					0AC8EF4A1F71826200E86DD6 = {
@@ -337,7 +336,6 @@
 				0AC8EF591F71826200E86DD6 /* LaunchScreen.storyboard in Resources */,
 				0AC8EF561F71826200E86DD6 /* Assets.xcassets in Resources */,
 				06775987213DDABD001F8802 /* GoogleService-Info.plist in Resources */,
-				067365AC2139A0EF00F1F8A8 /* Info.plist in Resources */,
 				0AC8EF541F71826200E86DD6 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -456,11 +454,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				066223352150236200B9C8E2 /* StoresMap.swift in Sources */,
 				067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */,
 				0AC8EF831F71E69400E86DD6 /* APICalls.swift in Sources */,
 				0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */,
 				0AC8EF511F71826200E86DD6 /* LoginViewController.swift in Sources */,
+				06FADEBD2150351D00021943 /* StoresMapView.swift in Sources */,
 				0AC8EF811F71E31000E86DD6 /* GeoCodingAPIcall.swift in Sources */,
 				0AC8EF7F1F71854C00E86DD6 /* DataStructure.swift in Sources */,
 				06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */,
@@ -533,15 +531,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -583,15 +589,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;

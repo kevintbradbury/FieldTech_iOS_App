@@ -52,7 +52,7 @@ class ScheduleView: UIViewController {
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
-                self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
+                ScheduleView.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
             }
         }
     }
@@ -122,7 +122,7 @@ extension ScheduleView {
         //        directionsBtn.titleLabel?.text = ""
     }
     
-    func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
+    static func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
         let options = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
         let placemark = MKPlacemark(coordinate: coordinate, addressDictionary: nil)
         let mapItem = MKMapItem(placemark: placemark)

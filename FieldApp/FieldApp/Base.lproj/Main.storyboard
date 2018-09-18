@@ -242,10 +242,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view hidden="YES" opaque="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJW-NP-9cu">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <color key="backgroundColor" red="0.92754600253807107" green="0.92754600253807107" blue="0.92754600253807107" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                            </view>
                             <button opaque="NO" contentMode="scaleAspectFit" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kzM-Sf-a7X">
                                 <rect key="frame" x="267" y="20" width="52" height="48"/>
                                 <constraints>
@@ -367,6 +363,7 @@
                                 </state>
                                 <connections>
                                     <action selector="goToSchedule:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="jNZ-OQ-Huu"/>
+                                    <segue destination="gwV-lw-m8q" kind="presentation" identifier="schedule" id="fk8-Gi-Chx"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LMD-e6-pbg" userLabel="CHange Order">
@@ -384,21 +381,20 @@
                                     <segue destination="bP6-Xq-Etq" kind="presentation" identifier="goToChangeOrder" id="HJf-JZ-d2B"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ojP-UY-OcT" userLabel="FIeld Supplies">
-                                <rect key="frame" x="60" y="438" width="90" height="82"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WUa-mn-fXE" userLabel="Field Supplies">
+                                <rect key="frame" x="60" y="440" width="90" height="84"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="90" id="IbA-J7-RWK"/>
-                                    <constraint firstAttribute="width" secondItem="ojP-UY-OcT" secondAttribute="height" multiplier="11:10" id="R1E-YG-7K4"/>
+                                    <constraint firstAttribute="width" constant="90" id="hHe-Vl-NWO"/>
                                 </constraints>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="Button" image="materials">
-                                    <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
+                                <state key="normal" title="Button" image="materials"/>
                                 <connections>
-                                    <action selector="goToSchedule:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="LWq-25-255"/>
-                                    <segue destination="dip-GN-7tK" kind="presentation" id="lei-dD-edi"/>
+                                    <segue destination="dip-GN-7tK" kind="presentation" id="iyi-ix-yjF"/>
                                 </connections>
                             </button>
+                            <view hidden="YES" opaque="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJW-NP-9cu">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <color key="backgroundColor" red="0.92754600253807107" green="0.92754600253807107" blue="0.92754600253807107" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="vaz-4K-nny">
                                 <rect key="frame" x="142" y="265" width="37" height="37"/>
                                 <constraints>
@@ -410,6 +406,7 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="WUa-mn-fXE" firstAttribute="trailing" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="-10" id="1aW-sv-i24"/>
                             <constraint firstItem="pmF-ul-qVq" firstAttribute="top" secondItem="FRb-fi-I8j" secondAttribute="topMargin" id="21s-NW-Gmb"/>
                             <constraint firstItem="VuN-ir-UVJ" firstAttribute="top" secondItem="hKS-a2-6EN" secondAttribute="bottom" constant="20" id="3d9-dj-Sb0"/>
                             <constraint firstItem="vsJ-P5-s3O" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="10" id="7f6-MY-qM5"/>
@@ -420,7 +417,6 @@
                             <constraint firstItem="hKS-a2-6EN" firstAttribute="trailing" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="-10" id="HYp-ZP-i9Q"/>
                             <constraint firstAttribute="trailing" secondItem="aJW-NP-9cu" secondAttribute="trailing" id="IGx-Hx-YgJ"/>
                             <constraint firstItem="pmF-ul-qVq" firstAttribute="top" secondItem="kzM-Sf-a7X" secondAttribute="top" id="K50-cQ-3MK"/>
-                            <constraint firstItem="ojP-UY-OcT" firstAttribute="top" secondItem="vsJ-P5-s3O" secondAttribute="bottom" constant="20" id="LId-xi-mGZ"/>
                             <constraint firstItem="aJW-NP-9cu" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="leading" id="M0t-bh-2mj"/>
                             <constraint firstItem="YvG-O8-KGh" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="10" id="ONz-pB-6P4"/>
                             <constraint firstItem="LMD-e6-pbg" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="10" id="XE7-d6-HkO"/>
@@ -431,7 +427,8 @@
                             <constraint firstItem="LMD-e6-pbg" firstAttribute="top" secondItem="dXO-mp-iuY" secondAttribute="bottom" constant="20" id="ZAt-zm-TwB"/>
                             <constraint firstItem="VuN-ir-UVJ" firstAttribute="trailing" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="-10" id="dgT-Lo-jgS"/>
                             <constraint firstItem="pmF-ul-qVq" firstAttribute="centerX" secondItem="FRb-fi-I8j" secondAttribute="centerX" id="fHc-oN-Zfe"/>
-                            <constraint firstItem="ojP-UY-OcT" firstAttribute="trailing" secondItem="aJW-NP-9cu" secondAttribute="centerX" constant="-10" id="lNQ-LD-K81"/>
+                            <constraint firstItem="WUa-mn-fXE" firstAttribute="top" secondItem="dXO-mp-iuY" secondAttribute="bottom" constant="20" id="fXq-VB-02u"/>
+                            <constraint firstItem="LMD-e6-pbg" firstAttribute="height" secondItem="WUa-mn-fXE" secondAttribute="height" id="i8G-bw-02U"/>
                             <constraint firstItem="VuN-ir-UVJ" firstAttribute="centerY" secondItem="FRb-fi-I8j" secondAttribute="centerY" constant="-10" id="lUf-6f-wtn"/>
                             <constraint firstItem="Emo-Ae-v6f" firstAttribute="top" secondItem="aJW-NP-9cu" secondAttribute="bottom" id="pcZ-6e-dxz"/>
                             <constraint firstItem="aJW-NP-9cu" firstAttribute="top" secondItem="FRb-fi-I8j" secondAttribute="top" id="sCh-xq-kVf"/>
@@ -451,12 +448,11 @@
                         <outlet property="hotelResButton" destination="FPG-xZ-sGl" id="36l-qs-w3b"/>
                         <outlet property="labelBkgd" destination="yyp-OB-pjb" id="wxi-q8-GTt"/>
                         <outlet property="logoutButton" destination="kzM-Sf-a7X" id="3p0-tV-PU4"/>
-                        <outlet property="materialReqButton" destination="ojP-UY-OcT" id="zS9-f0-ivg"/>
+                        <outlet property="materialReqButton" destination="WUa-mn-fXE" id="j3b-c7-EM0"/>
                         <outlet property="timeOffButton" destination="dXO-mp-iuY" id="e8N-6t-PBj"/>
                         <outlet property="toolsRentButton" destination="VuN-ir-UVJ" id="38Y-zM-I6a"/>
                         <outlet property="userLabel" destination="zhP-4P-kVW" id="ouC-NF-shE"/>
                         <segue destination="bq0-eu-ofj" kind="show" identifier="clock_in" id="pAu-Wh-4fN"/>
-                        <segue destination="gwV-lw-m8q" kind="presentation" identifier="schedule" id="7cA-Rx-OUX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JgU-go-kFO" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -788,6 +784,9 @@
                                     <constraint firstAttribute="height" constant="30" id="JNb-RF-q6q"/>
                                 </constraints>
                                 <state key="normal" title="back"/>
+                                <connections>
+                                    <action selector="returnHome:" destination="dip-GN-7tK" eventType="touchUpInside" id="X0Q-OZ-Qqb"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -802,6 +801,10 @@
                             <constraint firstItem="Ckv-b6-zL8" firstAttribute="trailing" secondItem="WC1-rI-7SU" secondAttribute="trailingMargin" id="whQ-B7-HZw"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="backButton" destination="Ckv-b6-zL8" id="z0O-hQ-K1S"/>
+                        <outlet property="mapView" destination="qMy-xV-J4t" id="IQv-Ee-U7t"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zGJ-rD-ZgT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -1099,6 +1102,7 @@
         <image name="tools" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="pAu-Wh-4fN"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>
