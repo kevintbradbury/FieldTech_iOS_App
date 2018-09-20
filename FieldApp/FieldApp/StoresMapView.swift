@@ -112,7 +112,7 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
             let vc = segue.destination as! ChangeOrdersView
     
             vc.formTypeVal = "Supplies Request"
-            vc.todaysJob = "\(todaysJob)"
+            vc.todaysJob = todaysJob
         }
     }
     

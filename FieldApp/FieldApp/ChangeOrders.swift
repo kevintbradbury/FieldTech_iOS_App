@@ -78,11 +78,12 @@ class ChangeOrdersView: UIViewController {
         NotificationCenter.default.addObserver(
             self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil
         )
+        
         let jobName = UserDefaults.standard.string(forKey: "todaysJobName")
         
         if todaysJob != "" && todaysJob != nil {
             jobNameLabel.text = todaysJob
-        } else if jobName != "" && jobName != nil {
+        } else if jobName != nil {
             jobNameLabel.text = jobName
         } else {
             jobNameLabel.text = "---"
@@ -112,6 +113,7 @@ class ChangeOrdersView: UIViewController {
                 return
         }
         var changeOrderObj = FieldActions.ChangeOrders(
+            formType: formTypeVal,
             jobName: "",
             poNumber: po,
             requestedBy: employee,
@@ -179,14 +181,18 @@ extension ChangeOrdersView: ImagePickerDelegate {
                 let emply =  UserDefaults.standard.string(forKey: "employeeName") {
                 
                 guard let co = changeOrder else { return }
-                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else { print("Couldn't get JPEG representation");  return }
+                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else {
+                    print("Couldn't get JPEG representation");  return
+                }
                 
                 APICalls().sendPhoto(imageData: imageData, co: co) { response in
                     
                 }
             } else {
                 guard let co = changeOrder else { return }
-                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else { print("Couldn't get JPEG representation");  return }
+                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else {
+                    print("Couldn't get JPEG representation");  return
+                }
 
                 APICalls().sendPhoto(imageData: imageData, co: co) { response in
                     
@@ -201,7 +207,6 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
 }
-
 
 
 

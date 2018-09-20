@@ -258,6 +258,7 @@ class FieldActions {
     }
     
     struct  ChangeOrders: Encodable {
+        var formType: String?
         var jobName: String?
         var poNumber: String?
         var requestedBy: String?

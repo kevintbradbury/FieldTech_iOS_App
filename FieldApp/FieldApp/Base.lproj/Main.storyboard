@@ -328,6 +328,9 @@
                                 <state key="normal" title="Button" image="tools">
                                     <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
+                                <connections>
+                                    <segue destination="bP6-Xq-Etq" kind="presentation" identifier="toolRental" id="U9N-hb-YGp"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FPG-xZ-sGl" userLabel="Hotel_request">
                                 <rect key="frame" x="170" y="232" width="90" height="84"/>
@@ -1131,7 +1134,7 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="pAu-Wh-4fN"/>
-        <segue reference="ZAD-5v-qw4"/>
+        <segue reference="U9N-hb-YGp"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -245,6 +245,12 @@ extension HomeView {
             vc.todaysJob = jbName ?? ""
             vc.formTypeVal = "Change Order"
             
+        } else if idtn == "toolRental" {
+            let vc = segue.destination as! ChangeOrdersView
+            let jbName = HomeView.todaysJob.jobName
+            vc.todaysJob = jbName ?? ""
+            vc.formTypeVal = "Tool Rental"
+            
         } else if idtn == "map" {
             let vc = segue.destination as! StoresMapView
             let jbName = HomeView.todaysJob.jobName
