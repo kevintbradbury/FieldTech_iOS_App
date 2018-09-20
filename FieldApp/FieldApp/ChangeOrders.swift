@@ -18,6 +18,10 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet weak var jobNameLabel: UILabel!
     @IBOutlet weak var poNumberLabel: UILabel!
     @IBOutlet weak var requestedByLabel: UILabel!
+    @IBOutlet var locationLabel: UILabel!
+    @IBOutlet var materialLabel: UILabel!
+    @IBOutlet var colorSpecLabel: UILabel!
+    @IBOutlet var descripLabel: UILabel!
     @IBOutlet weak var locationText: UITextField!
     @IBOutlet weak var materialText: UITextField!
     @IBOutlet weak var colorSpecText: UITextField!
@@ -68,6 +72,13 @@ class ChangeOrdersView: UIViewController {
         requestedByLabel.text = employeeName
         poNumberLabel.text = todaysJobPO
         
+        setGestures()
+        setJobName()
+        
+        if formTypeVal == "Tool Rental" { viewForToolRental() }
+    }
+    
+    func setGestures() {
         self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
         NotificationCenter.default.addObserver(
             self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil
@@ -78,7 +89,9 @@ class ChangeOrdersView: UIViewController {
         NotificationCenter.default.addObserver(
             self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil
         )
-        
+    }
+    
+    func setJobName() {
         let jobName = UserDefaults.standard.string(forKey: "todaysJobName")
         
         if todaysJob != "" && todaysJob != nil {
@@ -162,6 +175,15 @@ class ChangeOrdersView: UIViewController {
         }
         
         return humanReadableDt
+    }
+    
+    func viewForToolRental() {
+        locationLabel.text = "Tool Type"
+        materialLabel.text = "Brand"
+        descripLabel.text = "Location"
+        colorSpecLabel.text = "Duration"
+        colorSpecText.placeholder = "Number of Days"
+        colorSpecText.keyboardType = .numberPad
     }
 }
 

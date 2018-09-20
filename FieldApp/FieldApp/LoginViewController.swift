@@ -30,7 +30,6 @@ class LoginViewController: UIViewController, AuthUIDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        activityIndicator.startAnimating()
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user != nil {
                 self.activityIndicator.stopAnimating()
@@ -47,6 +46,8 @@ class LoginViewController: UIViewController, AuthUIDelegate {
     }
     
     @IBAction func loginPressed(_ sender: Any) {
+        activityIndicator.startAnimating()
+
         if phoneNumberField.text == nil { return }
         authPhoneNumber(phoneNumber: phoneNumberField.text!)
     }

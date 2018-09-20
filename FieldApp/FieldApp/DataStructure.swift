@@ -242,19 +242,20 @@ class FieldActions {
     }
     
     struct ToolRental {
-        let toolType: Array = ["drill", "hammer", "powerTools", "etc."]
-        let brand = ["brand1", "brand2", "brand3"]
+        var formType: String?
+        var jobName: String?
+        var poNumber: String?
+        var requestedBy: String?
+        var toolType: String?
+        var brand: String?
+        var duration: Int? // Number of Days
+        var quantity: Double?
+        var neededBy: Double? // Seconds from 1970
+        var location: String?
+        
         let rentalLogDestination = URL(string: "Tool Rental Server Folder")
         let supervisorEmail = "super@millworkbrothers.com"
         let reminderPeriods = [24, 48, 72, 96]
-        var toolQuantity: Int?
-        var duration: Int?
-        var toolPhoto: UIImage?
-        var photoUploaded: Bool?
-        var rentalIn: Date?
-        var returnDate: Date? //This is the user entered date value.
-        var rentalOut: Date? //This value is to record the actual return date.
-        var rentalAuthorized: Bool?
     }
     
     struct  ChangeOrders: Encodable {
