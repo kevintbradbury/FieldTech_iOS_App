@@ -109,18 +109,22 @@ class APICalls {
         };  task.resume()
     }
     
-    func sendPhoto(imageData: Data, co: FieldActions.ChangeOrders, callback: @escaping (Bool) -> () ) {
+//    FieldActions.ChangeOrders
+//    let coData = generateCOstring(co: co)
+    
+    func sendChangeOrderReq(imageData: Data, formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        guard let po = co.poNumber as? String else { return }
-        let coData = generateCOstring(co: co)
         let url = APICalls.host + "changeOrder/" + po
         let contentType = "multipart/form-data"
-        let headers: HTTPHeaders = [ "Content-type" : contentType ]
+        let headers: HTTPHeaders = [
+            "Content-type" : contentType,
+            "formType" : formType
+        ]
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
                 multipartFormData.append(
-                    coData,
+                    formBody,
                     withName: "changeOrder"
                 )
                 multipartFormData.append(
@@ -307,20 +311,23 @@ extension APICalls {
     }
     
     func generateCOstring(co: FieldActions.ChangeOrders) -> Data {
-        var combinedString = "\(co.jobName!)  -- \(co.poNumber!)  | \(co.requestedBy!), \(co.location!) | \(co.material!) - \(co.quantity!)"
         var data = Data()
-//        var json = ""
+        let jsonEncoder = JSONEncoder()
         
-        do {
-            let jsonEncoder = JSONEncoder()
-            data = try jsonEncoder.encode(co)
-        } catch {
-            print("error converting CO to DATA", error);
-//            return ""
-            data = combinedString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
-        };
+        do { data = try jsonEncoder.encode(co) }
+        catch { print("error converting CO to DATA", error) };
+        
         return data
-//            String(data: data, encoding: String.Encoding.utf8)!
+    }
+    
+    func generateTOOLstring(toolForm: FieldActions.ToolRental) -> Data {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+        
+        do { data = try jsonEncoder.encode(toolForm) }
+        catch { print("error converting TOOLRT to DATA", error) };
+        
+        return data
     }
 }
 

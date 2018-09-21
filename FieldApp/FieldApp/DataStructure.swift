@@ -241,7 +241,7 @@ class FieldActions {
         var fieldSuppliesDestinationFolder = URL(string: "Supplies Server Folder")
     }
     
-    struct ToolRental {
+    struct ToolRental: Encodable {
         var formType: String?
         var jobName: String?
         var poNumber: String?
@@ -253,8 +253,6 @@ class FieldActions {
         var neededBy: Double? // Seconds from 1970
         var location: String?
         
-        let rentalLogDestination = URL(string: "Tool Rental Server Folder")
-        let supervisorEmail = "super@millworkbrothers.com"
         let reminderPeriods = [24, 48, 72, 96]
     }
     

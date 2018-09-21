@@ -35,10 +35,12 @@ class ChangeOrdersView: UIViewController {
     let todaysJobPO = UserDefaults.standard.string(forKey: "todaysJobPO")
     let employeeName = UserDefaults.standard.string(forKey: "employeeName")
     let picker = ImagePickerController()
+    let tool_rental = "Tool Rental"
     
     public var formTypeVal = ""
     public var todaysJob: String?
     var changeOrder: FieldActions.ChangeOrders?
+    var toolRentalForm: FieldActions.ToolRental?
     var imageAssets: [UIImage] { return AssetManager.resolveAssets(picker.stack.assets) }
     
     override func viewDidLoad() {
@@ -62,7 +64,14 @@ class ChangeOrdersView: UIViewController {
         view.frame.origin.y = 0
 
         getTextVals() { co in
-            self.changeOrder = co
+            
+            if self.formTypeVal == self.tool_rental {
+                self.generateToolForm(co: co)
+                
+            } else {
+                self.changeOrder = co
+            }
+            
             self.present(self.picker, animated: true)
         }
     }
@@ -75,7 +84,7 @@ class ChangeOrdersView: UIViewController {
         setGestures()
         setJobName()
         
-        if formTypeVal == "Tool Rental" { viewForToolRental() }
+        if formTypeVal == tool_rental { viewForToolRental() }
     }
     
     func setGestures() {
@@ -159,6 +168,23 @@ class ChangeOrdersView: UIViewController {
         } else { callback(changeOrderObj) }
     }
     
+    func generateToolForm(co: FieldActions.ChangeOrders) {
+        var rentForm = FieldActions.ToolRental(
+            formType: co.formType,
+            jobName: co.jobName,
+            poNumber: co.poNumber,
+            requestedBy: co.requestedBy,
+            toolType: co.location,
+            brand: co.material,
+            duration: Int(co.colorSpec!),
+            quantity: co.quantity,
+            neededBy: co.neededBy,
+            location: co.description
+        )
+        
+        toolRentalForm = rentForm
+    }
+    
     func getDate(dateText: String) -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM.dd.yy"
@@ -198,34 +224,48 @@ extension ChangeOrdersView: ImagePickerDelegate {
         let images = imageAssets
         
         if images.count < 2 {
-            
-            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                
-                guard let co = changeOrder else { return }
-                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else {
-                    print("Couldn't get JPEG representation");  return
-                }
-                
-                APICalls().sendPhoto(imageData: imageData, co: co) { response in
-                    
-                }
-            } else {
-                guard let co = changeOrder else { return }
-                guard let imageData = UIImageJPEGRepresentation(images[0], 1) else {
-                    print("Couldn't get JPEG representation");  return
-                }
-
-                APICalls().sendPhoto(imageData: imageData, co: co) { response in
-                    
-                }
-            };  dismiss(animated: true, completion: nil)
+            sendCO(images: images)
         } else {
             picker.showAlert(withTitle: "Single Photo", message: "You can only select 1 photo for change orders.")
         }
     }
     
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+    }
+    
+    func sendCO(images: [UIImage]) {
+        guard let imageData = UIImageJPEGRepresentation(images[0], 1) else {
+            print("Couldn't get JPEG representation");  return
+        }
+        
+        if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
+            let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+            
+            checkFormTyp(imageData: imageData, po: po, employee: emply)
+        } else {
+            checkFormTyp(imageData: imageData, po: "---", employee: "---")
+        };
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func checkFormTyp(imageData: Data, po: String, employee: String) {
+
+        if formTypeVal == tool_rental {
+            guard let tlRent = toolRentalForm else { return }
+            let formBody = APICalls().generateTOOLstring(toolForm: tlRent)
+            
+            APICalls().sendChangeOrderReq(imageData: imageData, formType: tlRent.formType!, formBody: formBody, po: po) { response in
+                
+            }
+            
+        } else {
+            guard let co = changeOrder else { return }
+            let formBody = APICalls().generateCOstring(co: co)
+            
+            APICalls().sendChangeOrderReq(imageData: imageData, formType: co.formType!, formBody: formBody, po: po) { response in
+                
+            }
+        }
     }
     
 }
