@@ -25,6 +25,7 @@ import EventKit
 class EmployeeIDEntry: UIViewController {
     
     @IBOutlet weak var backBtn: UIButton!
+    @IBOutlet var roleSelection: UIPickerView!
     @IBOutlet weak var enterIDText: UILabel!
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
@@ -38,6 +39,7 @@ class EmployeeIDEntry: UIViewController {
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
+    let dataSource = ["---", "Field", "Shop", "Driver", "Measurements"]
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -52,8 +54,9 @@ class EmployeeIDEntry: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        picker.delegate = self as? ImagePickerDelegate
+        picker.delegate = self
         
+        setRoles()
         checkAppDelANDnotif()
         UserLocation.instance.locationManager.startUpdatingLocation()
         activityIndicator.isHidden = true
@@ -69,6 +72,10 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
+}
+
+
+extension EmployeeIDEntry {
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
@@ -105,6 +112,7 @@ class EmployeeIDEntry: UIViewController {
     func makeAcall(user: UserData.UserInfo) {
         guard let coordinate = UserLocation.instance.currentCoordinate else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        // do smth with role here
         
         APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
             self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
@@ -193,10 +201,6 @@ class EmployeeIDEntry: UIViewController {
         }
         task.resume()
     }
-}
-
-
-extension EmployeeIDEntry {
     
     func hideTextfield() {
         if foundUser != nil {
@@ -372,6 +376,27 @@ extension EmployeeIDEntry: ImagePickerDelegate {
     }
 
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+    }
+    
+}
+
+extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
+    
+    func setRoles() {
+        roleSelection.dataSource = self
+        roleSelection.delegate = self
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return dataSource.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return dataSource[row]
     }
     
 }
