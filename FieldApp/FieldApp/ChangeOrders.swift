@@ -242,8 +242,10 @@ extension ChangeOrdersView: ImagePickerDelegate {
             let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             
             checkFormTyp(imageData: imageData, po: po, employee: emply)
+        } else if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+            checkFormTyp(imageData: imageData, po: "---", employee: emply)
         } else {
-            checkFormTyp(imageData: imageData, po: "---", employee: "---")
+            showAlert(withTitle: "Error", message: "An employee name is required for COs, Tool Rentals, & Supplies Reqs.")
         };
         dismiss(animated: true, completion: nil)
     }
