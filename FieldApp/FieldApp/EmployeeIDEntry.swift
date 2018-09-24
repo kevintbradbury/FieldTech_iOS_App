@@ -48,6 +48,7 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var hadLunch = false
+    var role: String?
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
@@ -97,24 +98,29 @@ extension EmployeeIDEntry {
     func clockInClockOut() {
         inProgress()
         
-        if foundUser?.employeeID != nil {
-            guard let unwrappedUser = foundUser else { return }
-            makeAcall(user: unwrappedUser)
+        if role != nil && role != "---" && role != "" {
             
-        } else if employeeID.text != "" {
-            isEmployeeIDNum() { foundUser in
-                self.makeAcall(user: foundUser)
-            }
-            
-        } else { self.incorrectID(success: true) }
+            if foundUser?.employeeID != nil {
+                guard let unwrappedUser = foundUser else { return }
+                makeAcall(user: unwrappedUser)
+                
+            } else if employeeID.text != "" {
+                isEmployeeIDNum() { foundUser in
+                    self.makeAcall(user: foundUser)
+                }
+            } else { self.incorrectID(success: true) }
+        } else {
+            finishedLoading()
+            self.showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
+        }
     }
     
     func makeAcall(user: UserData.UserInfo) {
         guard let coordinate = UserLocation.instance.currentCoordinate else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        // do smth with role here
+        guard let unwrappedRole = role else { return }
         
-        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
+        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole) { success, currentJob, poNumber, jobLatLong, clockedIn in
             self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
         }
     }
@@ -156,13 +162,7 @@ extension EmployeeIDEntry {
             else { return "Your location did not match the job location." }
         }
         
-        self.main.addOperation {
-            self.activityBckgd.isHidden = true
-            self.activityIndicator.hidesWhenStopped = true
-            self.activityIndicator.stopAnimating()
-            UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        }
-        
+        finishedLoading()
         showAlert(withTitle: "Alert", message: actionMsg)
     }
     
@@ -245,6 +245,15 @@ extension EmployeeIDEntry {
             self.activityIndicator.stopAnimating()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.performSegue(withIdentifier: "return", sender: self)
+        }
+    }
+    
+    func finishedLoading() {
+        self.main.addOperation {
+            self.activityBckgd.isHidden = true
+            self.activityIndicator.hidesWhenStopped = true
+            self.activityIndicator.stopAnimating()
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
 }
@@ -375,9 +384,7 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         }
     }
 
-    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
-    }
-    
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {   }
 }
 
 extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
@@ -387,17 +394,13 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
         roleSelection.delegate = self
     }
     
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {   return 1    }
     
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return dataSource.count
-    }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {    return dataSource.count }
     
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return dataSource[row]
-    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {     return dataSource[row]  }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {    role = dataSource[row]  }
     
 }
 

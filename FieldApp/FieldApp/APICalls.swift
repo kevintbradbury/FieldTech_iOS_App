@@ -42,9 +42,9 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
         let route = "employee/" + String(describing: employee.employeeID)
-        let data = convertToJSON(employee: employee, location: location)
+        let data = convertToJSON(employee: employee, location: location, role: role)
         let session = URLSession.shared;
         let bool = true
         var auto: String { if autoClockOut == true { return "true" } else { return "" } }
@@ -81,9 +81,16 @@ class APICalls {
     func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()){
         guard let employee = UserDefaults.standard.string(forKey: "employeeName") else { return }
         guard let emplyID = UserDefaults.standard.string(forKey: "employeeID") else { return }
+
+        // Get role from UserDefaults or CoreData
+        let role: String
+
         let route = "checkCoordinates/" + employee
         let session = URLSession.shared;
-        let person = UserInfoCodeable(userName: employee, employeeID: emplyID, coordinateLat: location[0], coordinateLong: location[1])
+        let person = UserInfoCodeable(userName: employee, employeeID: emplyID, coordinateLat: location[0], coordinateLong: location[1],
+                                      role: "role"
+        )
+        
         var request = setupRequest(route: route, method: "POST")
         var data = Data()
         
@@ -109,8 +116,6 @@ class APICalls {
         };  task.resume()
     }
     
-//    FieldActions.ChangeOrders
-//    let coData = generateCOstring(co: co)
     
     func sendChangeOrderReq(imageData: Data, formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
@@ -290,15 +295,14 @@ extension APICalls {
         let employeeID: String
         let coordinateLat: String
         let coordinateLong: String
+        let role: String
     }
     
-    func convertToJSON(employee: UserData.UserInfo, location: [String]) -> Data {
-        
-        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1])
-        var combinedString = person.userName + " -- " + person.employeeID  + " |"
-        combinedString += person.coordinateLat + ", " + person.coordinateLong + "|"
-        
+    func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {
+        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1], role: role)
         var data = Data()
+        var combinedString = person.userName + " -- " + person.employeeID  + " |"
+        combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.role
         
         do {
             let jsonEncoder = JSONEncoder()

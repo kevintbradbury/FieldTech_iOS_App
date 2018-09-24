@@ -129,7 +129,12 @@ extension UserLocation {
         guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut) { success, currentJob, poNumber, jobLatLong, clockedIn in
+        // get role here
+        let role: String
+        
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut,
+                                   role: "role"
+        ) { success, currentJob, poNumber, jobLatLong, clockedIn in
             let content = UNMutableNotificationContent()
             content.title = "Clocked Out"
             content.body = "You were clocked out because you left the job site."
