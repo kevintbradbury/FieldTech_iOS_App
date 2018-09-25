@@ -116,16 +116,16 @@ extension EmployeeIDEntry {
     }
     
     func makeAcall(user: UserData.UserInfo) {
-        guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+        guard let coordinate = UserLocation.instance.currentCoordinate,
+            let unwrappedRole = role else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        guard let unwrappedRole = role else { return }
         
         APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole) { success, currentJob, poNumber, jobLatLong, clockedIn in
-            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
+            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false)
         }
     }
     
-    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool) {
+    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool) {
         if success == true {
             print("punched in / out: \(String(describing: foundUser?.punchedIn))")
             self.todaysJob.jobName = currentJob
@@ -153,7 +153,14 @@ extension EmployeeIDEntry {
                     if error != nil { print("error setting clock notif: "); print(error) } else { print("added reminder at 4 hour mark") }
                 }
             }
-        } else { incorrectID(success: success) }
+        } else if manualPO == false {
+            showPONumEntryWin()
+            
+            // Handle PO not found, only receive success BOOL
+            
+        } else {
+            self.incorrectID(success: success)
+        }
     }
     
     func incorrectID(success: Bool) {
@@ -177,6 +184,7 @@ extension EmployeeIDEntry {
             HomeView.todaysJob.jobName = todaysJob.jobName
             HomeView.todaysJob.poNumber = todaysJob.poNumber
             HomeView.todaysJob.jobLocation = todaysJob.jobLocation
+            HomeView.role = role
         }
     }
     
@@ -200,6 +208,40 @@ extension EmployeeIDEntry {
             }
         }
         task.resume()
+    }
+    
+    func showPONumEntryWin() {
+        let alert = UIAlertController(title: "Manual PO Entry", message: "No PO found for current time and date, would you like to enter PO number manually?", preferredStyle: .alert)
+        
+        let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
+            self.inProgress()
+            
+            guard let coordinate = UserLocation.instance.currentCoordinate,
+                let uwrappedUsr = self.foundUser,
+                let unwrappedRole = self.role else { return }
+            
+            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+            let poNumber = alert.textFields![0]
+            var poToString = "";
+            
+            if poNumber.text != nil && poNumber.text != "" {
+                poToString = poNumber.text!
+                
+                APICalls().manualSendPO(employee: uwrappedUsr, location: locationArray, role: unwrappedRole, po: poToString) { success, currentJob, poNumber, jobLatLong, clockedIn in
+                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true)
+                }
+            }
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive) { action in    self.finishedLoading() }
+        
+        alert.addTextField { textFieldPhoneNumber in
+            textFieldPhoneNumber.placeholder = "PO number"
+            textFieldPhoneNumber.keyboardType = UIKeyboardType.asciiCapableNumberPad
+        }
+        alert.addAction(manualPOentry)
+        alert.addAction(cancel)
+        
+        self.present(alert, animated: true, completion: nil)
     }
     
     func hideTextfield() {

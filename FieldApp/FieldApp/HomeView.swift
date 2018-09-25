@@ -44,6 +44,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var jobs: [Job.UserJob] = []
     public static var employeeInfo: UserData.UserInfo?
     public static var todaysJob = Job()
+    public static var role: String?
     public var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
@@ -109,7 +110,11 @@ extension HomeView {
     }
     
     func setMonitoringForJobLoc() {
-        if HomeView.todaysJob.jobName != nil && HomeView.todaysJob.jobLocation?[0] != nil && HomeView.todaysJob.jobLocation?[1] != nil && HomeView.todaysJob.jobLocation?.count == 2 {
+        if HomeView.role == "Driver" || HomeView.role == "Measurements" {
+            UserDefaults.standard.set(HomeView.todaysJob.poNumber, forKey: "todaysJobPO")
+            UserDefaults.standard.set(HomeView.todaysJob.jobName, forKey: "todaysJobName")
+            
+        } else if HomeView.todaysJob.jobName != nil && HomeView.todaysJob.jobLocation?[0] != nil && HomeView.todaysJob.jobLocation?[1] != nil && HomeView.todaysJob.jobLocation?.count == 2 {
             guard let lat = HomeView.todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
             guard let lng = HomeView.todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
             guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {

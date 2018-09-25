@@ -28,9 +28,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     var regionToCheck: CLCircularRegion?
     
     func initialize() {
-        //        if alreadyInitialized { print("locationManager is already initialized"); return }
-        //        locationManager = CLLocationManager()
-        
         locationManager.delegate = self
         locationManager.distanceFilter = kCLDistanceFilterNone
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -54,7 +51,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         onLocation?(location.coordinate)
         print(location.coordinate)
     }
-    //        defer { locationManager?.stopUpdatingLocation() }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         var allowAuthorization = false

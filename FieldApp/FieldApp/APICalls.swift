@@ -46,13 +46,44 @@ class APICalls {
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location, role: role)
         let session = URLSession.shared;
-        let bool = true
         var auto: String { if autoClockOut == true { return "true" } else { return "" } }
         var request = setupRequest(route: route, method: "POST")
         
         request.httpBody = data
         request.addValue(auto, forHTTPHeaderField: "autoClockOut")
         print(request.allHTTPHeaderFields)
+        
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response))");
+                return
+                
+            } else {
+                print("no errors sending GPS coordinatess")
+                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { print("json serialization failed"); return }
+                guard let successfulPunch = json["success"] as? Bool else { print("failed on success bool"); return }
+                
+                if let currentJob = json["job"] as? String,
+                    let poNumber = json["poNumber"] as? String,
+                    let jobLatLong = json["jobLatLong"] as? [Double],
+                    let clockedIn = json["punchedIn"] as? Bool {
+                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn)
+                    
+                } else { callback(successfulPunch, "", "", [0.0], false) }
+            }
+        }
+        task.resume()
+    }
+
+    func manualSendPO(employee: UserData.UserInfo, location: [String], role: String, po: String, callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
+        let route = "employee/" + String(describing: employee.employeeID) + "/override/" + po
+        let data = convertToJSON(employee: employee, location: location, role: role)
+        let session = URLSession.shared;
+        var request = setupRequest(route: route, method: "POST")
+        
+        request.httpBody = data
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
