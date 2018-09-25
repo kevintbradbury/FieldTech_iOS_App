@@ -242,6 +242,7 @@
                         <outlet property="roleSelection" destination="i9j-eu-RJ9" id="4Dj-zO-hs0"/>
                         <outlet property="sendButton" destination="8V0-xo-CLS" id="Mw3-Qj-lTu"/>
                         <segue destination="dvo-Ab-kYb" kind="presentation" identifier="return" id="PNM-CA-SzQ"/>
+                        <segue destination="bP6-Xq-Etq" kind="show" identifier="clockTOchange" id="iSq-Lv-Ec5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LGY-O2-z5N" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1155,7 +1156,7 @@
         <image name="tools" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="U9N-hb-YGp"/>
+        <segue reference="iSq-Lv-Ec5"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

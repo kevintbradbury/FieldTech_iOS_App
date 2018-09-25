@@ -83,8 +83,8 @@ extension UserLocation {
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
-        let latDelta: CLLocationDistance = 0.05 // set @ 20 for testing, BUT change to 500 for production
-        let longDelta: CLLocationDistance = 0.05 // 500
+        let latDelta: CLLocationDistance = 402 // set @ 20 for testing, BUT change to 402 for production
+        let longDelta: CLLocationDistance = 402 // 402
         let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta)
         let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let region = MKCoordinateRegion(center: location, span: span)
@@ -96,7 +96,7 @@ extension UserLocation {
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
-            let radius = CLLocationDistance(100) // radius: 402
+            let radius = CLLocationDistance(402) // radius: 402
             guard let region = CLCircularRegion(center: location, radius: radius, identifier: "range") as? CLCircularRegion else { return } // radius 1/4 mile ~= 402 meters
             print("region to start monitoring: \(region)")
             locationManager.startMonitoring(for: region)

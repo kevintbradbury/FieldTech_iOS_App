@@ -118,10 +118,8 @@ class APICalls {
 
         let route = "checkCoordinates/" + employee
         let session = URLSession.shared;
-        let person = UserInfoCodeable(userName: employee, employeeID: emplyID, coordinateLat: location[0], coordinateLong: location[1],
-                                      role: "role"
-        )
-        
+        let person = UserInfoCodeable(userName: employee, employeeID: emplyID, coordinateLat: location[0], coordinateLong: location[1], currentRole: "-")
+        // Receives currentRole from DB, so no need to send here
         var request = setupRequest(route: route, method: "POST")
         var data = Data()
         
@@ -326,14 +324,14 @@ extension APICalls {
         let employeeID: String
         let coordinateLat: String
         let coordinateLong: String
-        let role: String
+        let currentRole: String
     }
     
     func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {
-        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1], role: role)
+        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1], currentRole: role)
         var data = Data()
         var combinedString = person.userName + " -- " + person.employeeID  + " |"
-        combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.role
+        combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.currentRole
         
         do {
             let jsonEncoder = JSONEncoder()

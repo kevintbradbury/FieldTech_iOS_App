@@ -48,7 +48,7 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var hadLunch = false
-    var role: String?
+    public var role: String?
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
@@ -174,17 +174,20 @@ extension EmployeeIDEntry {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let vc = segue.destination as! HomeView
-        
+        let id = segue.identifier
         UserDefaults.standard.set(foundUser?.employeeID, forKey: "employeeID")
         UserDefaults.standard.set(foundUser?.userName, forKey: "employeeName")
         
-        if segue.identifier == "return" {
+        if id == "return" {
             HomeView.employeeInfo?.punchedIn = foundUser?.punchedIn
             HomeView.todaysJob.jobName = todaysJob.jobName
             HomeView.todaysJob.poNumber = todaysJob.poNumber
             HomeView.todaysJob.jobLocation = todaysJob.jobLocation
             HomeView.role = role
+            
+        } else  if id == "clockTOchange" {
+            let vc = segue.destination as! ChangeOrdersView
+            vc.formTypeVal = "Change Order"
         }
     }
     
@@ -340,17 +343,18 @@ extension EmployeeIDEntry {
     
     func wrapUpAlert() {
         let actionsheet = UIAlertController(title: "Reminder", message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
-        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: UIAlertActionStyle.default) { (action) -> Void in self.clockInClockOut() }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: UIAlertActionStyle.destructive) { (action) -> Void in
-            self.present(self.picker, animated: true, completion: nil)
+        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in self.clockInClockOut() }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil) }
+        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
+//            self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
+            self.performSegue(withIdentifier: "clockTOchange", sender: nil)
         }
-        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: UIAlertActionStyle.destructive) { (action) -> Void in
-            self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
-        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         
         actionsheet.addAction(finishUp)
         actionsheet.addAction(takePhotos)
         actionsheet.addAction(reqMaterials)
+        actionsheet.addAction(cancel)
         
         self.present(actionsheet, animated: true)
     }
@@ -434,6 +438,14 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     func setRoles() {
         roleSelection.dataSource = self
         roleSelection.delegate = self
+        
+        if role != nil && role != "" {
+            guard let index = dataSource.index(where: { (obj) -> Bool in
+                obj == role
+            }) else  { return }
+            
+            roleSelection.selectRow(index, inComponent: 0, animated: true)
+        }
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {   return 1    }

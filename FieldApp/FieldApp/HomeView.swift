@@ -243,6 +243,8 @@ extension HomeView {
         } else if idtn == "clock_in" {
             let vc = segue.destination as! EmployeeIDEntry
             vc.foundUser = HomeView.employeeInfo
+            guard let unwrap = HomeView.role else { return }
+            vc.role = unwrap
             
         } else if idtn == "changeOrder" {
             let vc = segue.destination as! ChangeOrdersView
