@@ -128,9 +128,7 @@ extension UserLocation {
         // get role here
         let role: String
         
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut,
-                                   role: "role"
-        ) { success, currentJob, poNumber, jobLatLong, clockedIn in
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut, role: "-") { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             let content = UNMutableNotificationContent()
             content.title = "Clocked Out"
             content.body = "You were clocked out because you left the job site."
@@ -139,8 +137,8 @@ extension UserLocation {
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
             let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
             
-            self.notificationCenter?.add(request) { (err) in
-                if err != nil { print("error setting up notification request") } else {
+            self.notificationCenter?.add(request) { (error) in
+                if error != nil { print("error setting up notification request") } else {
                     print("added notification")
                 }
             }

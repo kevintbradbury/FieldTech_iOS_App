@@ -120,12 +120,12 @@ extension EmployeeIDEntry {
             let unwrappedRole = role else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
-        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole) { success, currentJob, poNumber, jobLatLong, clockedIn in
-            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false)
+        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err)
         }
     }
     
-    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool) {
+    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String) {
         if success == true {
             print("punched in / out: \(String(describing: foundUser?.punchedIn))")
             self.todaysJob.jobName = currentJob
@@ -155,9 +155,8 @@ extension EmployeeIDEntry {
             }
         } else if manualPO == false {
             showPONumEntryWin()
-            
-            // Handle PO not found, only receive success BOOL
-            
+        } else if err != "" {
+            self.showAlert(withTitle: "Error", message: err); finishedLoading()
         } else {
             self.incorrectID(success: success)
         }
@@ -230,8 +229,8 @@ extension EmployeeIDEntry {
             if poNumber.text != nil && poNumber.text != "" {
                 poToString = poNumber.text!
                 
-                APICalls().manualSendPO(employee: uwrappedUsr, location: locationArray, role: unwrappedRole, po: poToString) { success, currentJob, poNumber, jobLatLong, clockedIn in
-                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true)
+                APICalls().manualSendPO(employee: uwrappedUsr, location: locationArray, role: unwrappedRole, po: poToString) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err)
                 }
             }
         }

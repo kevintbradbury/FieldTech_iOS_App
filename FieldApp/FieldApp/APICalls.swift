@@ -42,7 +42,7 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()){
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location, role: role)
         let session = URLSession.shared;
@@ -68,16 +68,20 @@ class APICalls {
                     let poNumber = json["poNumber"] as? String,
                     let jobLatLong = json["jobLatLong"] as? [Double],
                     let clockedIn = json["punchedIn"] as? Bool {
-                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
-                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn)
                     
-                } else { callback(successfulPunch, "", "", [0.0], false) }
+                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
+                    
+                } else {
+                    guard let err = json["error"] as? String else { return }
+                    callback(successfulPunch, "", "", [0.0], false, err)
+                }
             }
         }
         task.resume()
     }
 
-    func manualSendPO(employee: UserData.UserInfo, location: [String], role: String, po: String, callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
+    func manualSendPO(employee: UserData.UserInfo, location: [String], role: String, po: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()){
         let route = "employee/" + String(describing: employee.employeeID) + "/override/" + po
         let data = convertToJSON(employee: employee, location: location, role: role)
         let session = URLSession.shared;
@@ -101,9 +105,12 @@ class APICalls {
                     let jobLatLong = json["jobLatLong"] as? [Double],
                     let clockedIn = json["punchedIn"] as? Bool {
                     print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
-                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn)
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
                     
-                } else { callback(successfulPunch, "", "", [0.0], false) }
+                } else {
+                    guard let err = json["error"] as? String else { return }
+                    callback(successfulPunch, "", "", [0.0], false, err)
+                }
             }
         }
         task.resume()
