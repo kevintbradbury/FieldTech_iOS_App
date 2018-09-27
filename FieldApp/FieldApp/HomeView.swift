@@ -79,6 +79,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
     @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
+    @IBAction func rentalOrReturn(_ sender: Any) { showRentOrReturnWin() }
     @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
     @IBAction func chooseUploadMethod(_ sender: Any) {
         present(picker, animated: true, completion: nil)
@@ -258,6 +259,11 @@ extension HomeView {
             vc.todaysJob = jbName ?? ""
             vc.formTypeVal = "Tool Rental"
             
+        } else if idtn == "toolReturn" {
+            let vc = segue.destination as! ToolReturnView
+            guard let id = HomeView.employeeInfo?.employeeID as? Int else { return }
+            APICalls().getToolRentals(employeeID: id)
+            
         } else if idtn == "map" {
             let vc = segue.destination as! StoresMapView
             let jbName = HomeView.todaysJob.jobName
@@ -302,6 +308,19 @@ extension HomeView {
         if success == true { completedProgress() }
         else { failedUpload() }
     }
+    
+    func showRentOrReturnWin() {
+        
+        let alert = UIAlertController(title: "Rent or Return", message: "Are you renting or returning a tool?", preferredStyle: .alert)
+        let rental = UIAlertAction(title: "Rental", style: .default) { action in    self.performSegue(withIdentifier: "toolRental", sender: nil) }
+        let returnTool = UIAlertAction(title: "Return", style: .destructive) { action in    self.performSegue(withIdentifier: "toolReturn", sender: nil) }
+        
+        alert.addAction(rental)
+        alert.addAction(returnTool)
+        
+        self.present(alert, animated: true, completion: nil)
+    }
+    
 }
 
 extension HomeView: ImagePickerDelegate {

@@ -274,6 +274,40 @@ class APICalls {
         ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 
+    func getToolRentals(employeeID: Int)  { // -> [FieldActions.ToolRental]
+        let route = APICalls.host + "toolRentals/\(employeeID)"
+        
+        Alamofire.request(route).responseData { response in
+            print(response.result)
+            
+//            if let json = response.result.value {
+//                print("JSON: ", json)
+//            }
+            if let data = response.data,
+                let utf8Text = String(data:  data, encoding: .utf8) {
+                print("Data: ", utf8Text)
+            }
+        }
+        
+        
+//        let request = setupRequest(route: route, method: "GET")
+//        let session = URLSession.shared
+//
+//        let task = session.dataTask(with: request) { data, response, error in
+//            if error != nil {
+//                print("error: ", error)
+//            } else if response != nil {
+//
+//                print(response)
+//            }
+//        }
+//
+//        task.resume()
+    }
+    
+}
+
+extension APICalls {
     
     func setupRequest(route: String, method: String) -> URLRequest {
         let url = URL(string: APICalls.host + route)!
@@ -303,9 +337,6 @@ class APICalls {
         }
         task.resume()
     }
-}
-
-extension APICalls {
     
     func parseJobs(from data: Data) -> [Job.UserJob] {
         var jobsArray: [Job.UserJob] = []
