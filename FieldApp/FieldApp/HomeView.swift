@@ -262,7 +262,7 @@ extension HomeView {
         } else if idtn == "toolReturn" {
             let vc = segue.destination as! ToolReturnView
             guard let id = HomeView.employeeInfo?.employeeID as? Int else { return }
-            APICalls().getToolRentals(employeeID: id)
+            vc.employeeID = id
             
         } else if idtn == "map" {
             let vc = segue.destination as! StoresMapView

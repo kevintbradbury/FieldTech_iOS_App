@@ -256,6 +256,44 @@ class FieldActions {
         let reminderPeriods = [24, 48, 72, 96]
     }
     
+    static func fromJSONtoTool(json: Any) -> ([FieldActions.ToolRental], [UIImage]) {
+        var boxOtools = [FieldActions.ToolRental]()
+        var toolImages = [UIImage]()
+        
+        if let tools = json as? Array<Any> {
+            
+            for oneTool in tools {
+                
+                if let dictionary = oneTool as? Dictionary<String, Any>,
+                    let formType = dictionary["formType"] as? String,
+                    let jobName = dictionary["jobName"] as? String,
+                    let poNumber = dictionary["poNumber"] as? String,
+                    let requestedBy = dictionary["requestedBy"] as? String,
+                    let toolType = dictionary["toolType"] as? String,
+                    let brand = dictionary["brand"] as? String,
+                    let duration = dictionary["duration"] as? Int,
+                    let neededBy = dictionary["neededBy"] as? String,
+                    let quantity = dictionary["quantity"] as? Int,
+                    let location = dictionary["location"] as? String,
+                    let returnDate = dictionary["returnDate"] as? String,
+                    let photoStr = dictionary["photo"] as? String,
+                    let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
+                    let image = UIImage(data: photoDecoded),
+                    let neededDate = Job.UserJob.stringToDate(string: neededBy) as? Date,
+                    let needDouble = neededDate.timeIntervalSince1970 as? Double {
+                    
+                    let toolToAdd = FieldActions.ToolRental(
+                        formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: needDouble, location: location
+                    )
+                    boxOtools.append(toolToAdd)
+                    toolImages.append(image)
+                }
+            }
+        }
+        
+        return (boxOtools, toolImages)
+    }
+    
     struct  ChangeOrders: Encodable {
         var formType: String?
         var jobName: String?

@@ -10,5 +10,8 @@ import Foundation
 import UIKit
 
 class ToolRentalReturnCell: UITableViewCell {
+    @IBOutlet var toolImg: UIImageView!
+    @IBOutlet var toolInfoLabel: UILabel!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     
 }

@@ -274,38 +274,28 @@ class APICalls {
         ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 
-    func getToolRentals(employeeID: Int)  { // -> [FieldActions.ToolRental]
-        let route = APICalls.host + "toolRentals/\(employeeID)"
-        
-        Alamofire.request(route).responseData { response in
-            print(response.result)
-            
-//            if let json = response.result.value {
-//                print("JSON: ", json)
-//            }
-            if let data = response.data,
-                let utf8Text = String(data:  data, encoding: .utf8) {
-                print("Data: ", utf8Text)
-            }
-        }
-        
-        
-//        let request = setupRequest(route: route, method: "GET")
-//        let session = URLSession.shared
-//
-//        let task = session.dataTask(with: request) { data, response, error in
-//            if error != nil {
-//                print("error: ", error)
-//            } else if response != nil {
-//
-//                print(response)
-//            }
-//        }
-//
-//        task.resume()
+    struct ToolsNImages {
+        let tools: [FieldActions.ToolRental]
+        let images: [UIImage]
     }
     
+    func getToolRentals(employeeID: Int, callback: @escaping (ToolsNImages) -> ()) {
+        let route = APICalls.host + "toolRentals/\(employeeID)"
+        
+        Alamofire.request(route).responseJSON { response in
+            
+            if let json = response.result.value {
+                print("JSON ")
+                let toolsNphotos = FieldActions.fromJSONtoTool(json: json)
+                let sendBackObj = ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1)
+                print("tools & images count: ", toolsNphotos.0.count, toolsNphotos.1.count)
+                
+                callback(sendBackObj)
+            }
+        }
+    }
 }
+
 
 extension APICalls {
     

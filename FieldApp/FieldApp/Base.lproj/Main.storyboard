@@ -1170,15 +1170,43 @@
                                     <rect key="frame" x="0.0" y="0.0" width="320" height="78.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XuA-Ck-TDo">
-                                            <rect key="frame" x="60" y="29" width="42" height="21"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="35A-U8-rda">
+                                            <rect key="frame" x="16" y="0.0" width="110" height="79"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="110" id="LeS-rz-Gmt"/>
+                                            </constraints>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XuA-Ck-TDo">
+                                            <rect key="frame" x="134" y="11" width="170" height="57"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="nCR-fi-eqo">
+                                            <rect key="frame" x="142" y="21" width="37" height="37"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </activityIndicatorView>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="XuA-Ck-TDo" firstAttribute="bottom" secondItem="jUM-LD-jtf" secondAttribute="bottomMargin" id="03V-5W-hAd"/>
+                                        <constraint firstItem="XuA-Ck-TDo" firstAttribute="top" secondItem="jUM-LD-jtf" secondAttribute="topMargin" id="0vR-PI-08J"/>
+                                        <constraint firstItem="XuA-Ck-TDo" firstAttribute="top" secondItem="jUM-LD-jtf" secondAttribute="topMargin" id="Ele-Zd-quL"/>
+                                        <constraint firstItem="XuA-Ck-TDo" firstAttribute="trailing" secondItem="jUM-LD-jtf" secondAttribute="trailingMargin" id="I4y-gg-njX"/>
+                                        <constraint firstItem="XuA-Ck-TDo" firstAttribute="leading" secondItem="35A-U8-rda" secondAttribute="trailing" constant="8" id="KFh-2g-iIr"/>
+                                        <constraint firstItem="XuA-Ck-TDo" firstAttribute="trailing" secondItem="jUM-LD-jtf" secondAttribute="trailingMargin" id="S3s-YF-awr"/>
+                                        <constraint firstItem="XuA-Ck-TDo" firstAttribute="bottom" secondItem="jUM-LD-jtf" secondAttribute="bottomMargin" id="YQN-yn-bc5"/>
+                                        <constraint firstItem="35A-U8-rda" firstAttribute="top" secondItem="jUM-LD-jtf" secondAttribute="top" id="bLh-nO-93I"/>
+                                        <constraint firstAttribute="bottom" secondItem="35A-U8-rda" secondAttribute="bottom" id="gvl-Mg-2LD"/>
+                                        <constraint firstItem="35A-U8-rda" firstAttribute="leading" secondItem="jUM-LD-jtf" secondAttribute="leading" constant="16" id="lRC-LK-385"/>
+                                    </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="activityIndicator" destination="nCR-fi-eqo" id="eNR-oM-omU"/>
+                                    <outlet property="toolImg" destination="35A-U8-rda" id="0rI-fK-y8g"/>
+                                    <outlet property="toolInfoLabel" destination="XuA-Ck-TDo" id="Bbi-2X-yIq"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
