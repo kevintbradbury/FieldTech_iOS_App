@@ -283,9 +283,8 @@ class APICalls {
         let route = APICalls.host + "toolRentals/\(employeeID)"
         
         Alamofire.request(route).responseJSON { response in
-            
             if let json = response.result.value {
-                print("JSON ")
+                print("JSON")
                 let toolsNphotos = FieldActions.fromJSONtoTool(json: json)
                 let sendBackObj = ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1)
                 print("tools & images count: ", toolsNphotos.0.count, toolsNphotos.1.count)

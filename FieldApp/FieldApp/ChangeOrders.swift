@@ -256,7 +256,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
             guard let tlRent = toolRentalForm else { return }
             let formBody = APICalls().generateTOOLstring(toolForm: tlRent)
             
-            APICalls().sendChangeOrderReq(imageData: imageData, formType: tlRent.formType!, formBody: formBody, po: po) { response in
+            APICalls().sendChangeOrderReq(imageData: imageData, formType: "Tool Rental", formBody: formBody, po: po) { response in
                 
             }
             
