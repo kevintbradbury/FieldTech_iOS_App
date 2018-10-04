@@ -336,12 +336,12 @@ extension HomeView: ImagePickerDelegate {
             if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                 let emply =  UserDefaults.standard.string(forKey: "employeeName") {
                 inProgress()
-                APICalls().upload(images: imageAssets, jobNumber: po, employee: emply) { success in
+                APICalls().uploadJobImages(images: imageAssets, jobNumber: po, employee: emply) { success in
                     self.checkSuccess(success: success)
                 }
             } else {
                 inProgress()
-                APICalls().upload(images: imageAssets, jobNumber: "---", employee: "---") { success in
+                APICalls().uploadJobImages(images: imageAssets, jobNumber: "---", employee: "---") { success in
                     self.checkSuccess(success: success)
                 }
             }

@@ -415,12 +415,12 @@ extension EmployeeIDEntry: ImagePickerDelegate {
             if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                 let emply =  UserDefaults.standard.string(forKey: "employeeName") {
                 inProgress()
-                APICalls().upload(images: imgs, jobNumber: po, employee: emply) { success in
+                APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
                     self.checkSuccess(success: success)
                 }
             } else {
                 inProgress()
-                APICalls().upload(images: imgs, jobNumber: "---", employee: "---") { success in
+                APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
                     self.checkSuccess(success: success)
                 }
             };  dismiss(animated: true, completion: nil)

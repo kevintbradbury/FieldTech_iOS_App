@@ -131,7 +131,7 @@ class ChangeOrdersView: UIViewController {
             let quantity: Double = Double(quantityText.text!),
             let secsFrom1970: Double = datePickerFields.date.timeIntervalSince1970,
             let descrip = descripText.text else {
-                showAlert(withTitle: "Incomplete", message: "The Change Order form is missing values.")
+                showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
                 return
         }
         var changeOrderObj = FieldActions.ChangeOrders(
@@ -234,38 +234,35 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
     func sendCO(images: [UIImage]) {
-        guard let imageData = UIImageJPEGRepresentation(images[0], 1) else {
-            print("Couldn't get JPEG representation");  return
-        }
         
         if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
             let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             
-            checkFormTyp(imageData: imageData, po: po, employee: emply)
+            checkFormType(images: images, po: po, employee: emply)
         } else if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-            checkFormTyp(imageData: imageData, po: "---", employee: emply)
+            checkFormType(images: images, po: "---", employee: emply)
         } else {
             showAlert(withTitle: "Error", message: "An employee name is required for COs, Tool Rentals, & Supplies Reqs.")
         };
         dismiss(animated: true, completion: nil)
     }
     
-    func checkFormTyp(imageData: Data, po: String, employee: String) {
+    func checkFormType(images: [UIImage], po: String, employee: String) {
 
         if formTypeVal == tool_rental {
             guard let tlRent = toolRentalForm else { return }
             let formBody = APICalls().generateTOOLstring(toolForm: tlRent)
             
-            APICalls().sendChangeOrderReq(imageData: imageData, formType: "Tool Rental", formBody: formBody, po: po) { response in
-                
+            APICalls().sendChangeOrderReq(images: images, formType: "Tool Rental", formBody: formBody, po: po) { response in
+                // handle response here
             }
             
         } else {
             guard let co = changeOrder else { return }
             let formBody = APICalls().generateCOstring(co: co)
             
-            APICalls().sendChangeOrderReq(imageData: imageData, formType: co.formType!, formBody: formBody, po: po) { response in
-                
+            APICalls().sendChangeOrderReq(images: images, formType: co.formType!, formBody: formBody, po: po) { response in
+                // handle response here
             }
         }
     }

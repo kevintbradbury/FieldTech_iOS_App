@@ -16,6 +16,7 @@ class ToolReturnView: UITableViewController {
     @IBOutlet var backButton: UIBarButtonItem!
     
     public var employeeID: Int?
+    var toolToReturn: FieldActions.ToolRental?
     var rentals = [FieldActions.ToolRental]()
     var images = [UIImage]()
     
@@ -88,28 +89,39 @@ extension ToolReturnView {
             let dt = Date(timeIntervalSince1970: secs)
             let dtReadable = ScheduleView().getMonthDayYear(date: dt)
             
-            showRentalDetails(jobName: jobNm, tool: toolName, returnDate: dtReadable)
+            showRentalDetails(tool: toolRntl, returnDate: dtReadable)
         }
     }
 }
 
 extension ToolReturnView {
-    func showRentalDetails(jobName: String, tool: String, returnDate: String) {
-        let msg = jobName + "\n" + tool + ": " + returnDate
-        let alert = UIAlertController(
-            title: "Confirm Tool Return",
-            message: msg,
-            preferredStyle: .alert
-        )
+    func showRentalDetails(tool: FieldActions.ToolRental, returnDate: String) {
         
-        let returnTool = UIAlertAction(title: "YES", style: .default) { action in
+        let msg = "\(tool.jobName)  \n \(tool.toolType): \(returnDate)"
+        let alert = UIAlertController(title: "Confirm Tool Return", message: msg, preferredStyle: .alert),
+        cancel = UIAlertAction(title: "NO", style: .destructive),
+        returnTool = UIAlertAction(title: "YES", style: .default) { action in
+            self.toolToReturn = tool
             self.performSegue(withIdentifier: "toolSignOff", sender: nil)
         }
-        let cancel = UIAlertAction(title: "NO", style: .destructive)
         
         alert.addAction(returnTool)
         alert.addAction(cancel)
         
         self.present(alert, animated: true, completion: nil)
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "toolSignOff",
+            let vc = segue.destination as? ToolSignOffView,
+            let theTool = toolToReturn as? FieldActions.ToolRental {
+
+            vc.toolToReturn = theTool
+        }
+    }
+    
 }
+
+
+

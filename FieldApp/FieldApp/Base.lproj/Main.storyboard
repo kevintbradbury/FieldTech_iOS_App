@@ -1230,15 +1230,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Faj-2H-77B">
-                                <rect key="frame" x="16" y="100" width="288" height="142"/>
-                                <connections>
-                                    <segue destination="RVs-Le-SaJ" kind="embed" id="Y2Z-AA-Chl"/>
-                                </connections>
-                            </containerView>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vfC-7P-zf6">
-                                <rect key="frame" x="16" y="304" width="288" height="142"/>
-                            </containerView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hLM-oB-6zm">
                                 <rect key="frame" x="16" y="60" width="288" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -1251,6 +1242,9 @@
                                 <state key="normal" title="Send">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
+                                <connections>
+                                    <action selector="submitReturn:" destination="ace-3O-hgX" eventType="touchUpInside" id="jAP-F7-EpU"/>
+                                </connections>
                             </button>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Print Person Who Rented Here" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tRW-d4-X0w">
                                 <rect key="frame" x="16" y="252" width="288" height="30"/>
@@ -1270,34 +1264,78 @@
                                     <constraint firstAttribute="height" constant="35" id="jbl-hQ-Ob6"/>
                                 </constraints>
                                 <state key="normal" title="Button" image="back"/>
+                                <connections>
+                                    <action selector="goBack:" destination="ace-3O-hgX" eventType="touchUpInside" id="Rjd-mp-cK1"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="Q6i-Qn-2bI" userLabel="Returner Signature View">
+                                <rect key="frame" x="16" y="100" width="288" height="143"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="GVa-44-Aop" appends="YES" id="5Rw-1l-12c"/>
+                                </connections>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="lny-yJ-T6d">
+                                <rect key="frame" x="16" y="304" width="288" height="142"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="ecD-oi-7cJ" appends="YES" id="043-mm-hXN"/>
+                                </connections>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="koa-9T-nt4">
+                                <rect key="frame" x="16" y="100.5" width="288" height="143"/>
+                                <state key="normal" title="SIGN">
+                                    <color key="titleColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="returnerTap:" destination="ace-3O-hgX" eventType="touchUpInside" id="WOJ-d7-dVn"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="anP-Mx-q56">
+                                <rect key="frame" x="16" y="304" width="288" height="142"/>
+                                <state key="normal" title="SIGN">
+                                    <color key="titleColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="receiverTap:" destination="ace-3O-hgX" eventType="touchUpInside" id="DrJ-Sd-cMV"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="vfC-7P-zf6" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="56c-XU-0mI"/>
+                            <constraint firstItem="lny-yJ-T6d" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="0aC-dK-HYv"/>
+                            <constraint firstItem="SHj-Jh-e23" firstAttribute="top" secondItem="lny-yJ-T6d" secondAttribute="bottom" constant="10" id="0nk-rf-9rX"/>
+                            <constraint firstItem="koa-9T-nt4" firstAttribute="centerY" secondItem="Q6i-Qn-2bI" secondAttribute="centerY" id="174-00-382"/>
+                            <constraint firstItem="koa-9T-nt4" firstAttribute="height" secondItem="Q6i-Qn-2bI" secondAttribute="height" id="5IU-qf-ILk"/>
                             <constraint firstItem="hLM-oB-6zm" firstAttribute="centerX" secondItem="M83-CI-JMA" secondAttribute="centerX" id="8QV-O3-xtp"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="Faj-2H-77B" secondAttribute="trailing" id="AEq-ag-8LG"/>
                             <constraint firstItem="7aF-Qv-IoM" firstAttribute="top" secondItem="5aN-XK-moF" secondAttribute="bottom" constant="8" id="ECQ-FC-xfc"/>
-                            <constraint firstItem="Faj-2H-77B" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="H66-Wp-Yu9"/>
-                            <constraint firstItem="vfC-7P-zf6" firstAttribute="top" relation="greaterThanOrEqual" secondItem="tRW-d4-X0w" secondAttribute="bottom" constant="20" id="IXa-OG-Kx3"/>
+                            <constraint firstItem="koa-9T-nt4" firstAttribute="width" secondItem="Q6i-Qn-2bI" secondAttribute="width" id="FnP-qG-FR6"/>
                             <constraint firstItem="TAQ-Ad-U6P" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="Iax-47-U2V"/>
-                            <constraint firstItem="Faj-2H-77B" firstAttribute="top" secondItem="hLM-oB-6zm" secondAttribute="bottom" constant="20" id="Lv7-fk-kRT"/>
                             <constraint firstItem="hLM-oB-6zm" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="N1h-xw-yTh"/>
                             <constraint firstAttribute="trailingMargin" secondItem="tRW-d4-X0w" secondAttribute="trailing" id="OLN-Df-Cnk"/>
+                            <constraint firstItem="Q6i-Qn-2bI" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="QMr-Ih-jSN"/>
+                            <constraint firstItem="Q6i-Qn-2bI" firstAttribute="top" secondItem="hLM-oB-6zm" secondAttribute="bottom" constant="19.5" id="Sc5-oD-9OB"/>
                             <constraint firstItem="TAQ-Ad-U6P" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="T8w-qo-rZ9"/>
                             <constraint firstItem="5Lf-2T-YlV" firstAttribute="top" secondItem="TAQ-Ad-U6P" secondAttribute="bottom" constant="20" id="Tmy-LU-u1K"/>
                             <constraint firstItem="7aF-Qv-IoM" firstAttribute="width" secondItem="M83-CI-JMA" secondAttribute="width" multiplier="0.15" id="Voa-pU-KDg"/>
                             <constraint firstItem="hLM-oB-6zm" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="Weu-bz-01K"/>
-                            <constraint firstItem="vfC-7P-zf6" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="XJg-lh-hny"/>
-                            <constraint firstItem="SHj-Jh-e23" firstAttribute="top" secondItem="vfC-7P-zf6" secondAttribute="bottom" constant="10" id="aLW-mS-kU2"/>
+                            <constraint firstItem="lny-yJ-T6d" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="Xd1-zg-9fJ"/>
+                            <constraint firstItem="lny-yJ-T6d" firstAttribute="top" relation="greaterThanOrEqual" secondItem="tRW-d4-X0w" secondAttribute="bottom" constant="22" id="aUn-10-FFZ"/>
+                            <constraint firstItem="anP-Mx-q56" firstAttribute="width" secondItem="lny-yJ-T6d" secondAttribute="width" id="af9-6g-1jU"/>
+                            <constraint firstItem="anP-Mx-q56" firstAttribute="centerX" secondItem="lny-yJ-T6d" secondAttribute="centerX" id="bKw-ka-Phw"/>
                             <constraint firstAttribute="trailingMargin" secondItem="SHj-Jh-e23" secondAttribute="trailing" id="bgw-Dc-Lpm"/>
-                            <constraint firstItem="vfC-7P-zf6" firstAttribute="height" secondItem="M83-CI-JMA" secondAttribute="height" multiplier="0.25" id="f7r-Pj-iRL"/>
-                            <constraint firstItem="Faj-2H-77B" firstAttribute="height" secondItem="M83-CI-JMA" secondAttribute="height" multiplier="0.25" id="giI-dZ-Ena"/>
                             <constraint firstItem="hLM-oB-6zm" firstAttribute="top" secondItem="5aN-XK-moF" secondAttribute="bottom" constant="40" id="hct-wn-H6J"/>
-                            <constraint firstItem="tRW-d4-X0w" firstAttribute="top" secondItem="Faj-2H-77B" secondAttribute="bottom" constant="10" id="kNQ-a8-oX1"/>
+                            <constraint firstItem="anP-Mx-q56" firstAttribute="height" secondItem="lny-yJ-T6d" secondAttribute="height" id="iJJ-hQ-dnn"/>
+                            <constraint firstItem="koa-9T-nt4" firstAttribute="centerX" secondItem="Q6i-Qn-2bI" secondAttribute="centerX" id="mpV-53-zme"/>
+                            <constraint firstItem="Q6i-Qn-2bI" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="nx3-wy-0eJ"/>
                             <constraint firstItem="SHj-Jh-e23" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="oI3-4t-Bjy"/>
-                            <constraint firstItem="vfC-7P-zf6" firstAttribute="top" secondItem="M83-CI-JMA" secondAttribute="centerY" constant="20" id="pTF-3x-XYi"/>
+                            <constraint firstItem="Q6i-Qn-2bI" firstAttribute="height" secondItem="M83-CI-JMA" secondAttribute="height" multiplier="0.25" constant="1" id="pzr-JT-er1"/>
+                            <constraint firstItem="anP-Mx-q56" firstAttribute="centerY" secondItem="lny-yJ-T6d" secondAttribute="centerY" id="snC-H5-RlG"/>
+                            <constraint firstItem="TAQ-Ad-U6P" firstAttribute="top" relation="greaterThanOrEqual" secondItem="SHj-Jh-e23" secondAttribute="bottom" constant="31.5" id="vSD-Q0-HGr"/>
+                            <constraint firstItem="lny-yJ-T6d" firstAttribute="height" secondItem="M83-CI-JMA" secondAttribute="height" multiplier="0.25" id="wEo-cU-OCx"/>
+                            <constraint firstItem="tRW-d4-X0w" firstAttribute="top" secondItem="Q6i-Qn-2bI" secondAttribute="bottom" constant="9" id="xHZ-HS-Npi"/>
                             <constraint firstItem="tRW-d4-X0w" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="xtu-2x-8Gu"/>
+                            <constraint firstItem="lny-yJ-T6d" firstAttribute="top" secondItem="M83-CI-JMA" secondAttribute="centerY" constant="20" id="yph-7J-7m0"/>
                             <constraint firstItem="7aF-Qv-IoM" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="zfh-ZW-8a4"/>
                         </constraints>
                     </view>
@@ -1306,12 +1344,16 @@
                         <outlet property="dateLabel" destination="hLM-oB-6zm" id="5y4-Rr-GzQ"/>
                         <outlet property="printNameReceiverField" destination="SHj-Jh-e23" id="GaZ-IC-quf"/>
                         <outlet property="printNameRenterField" destination="tRW-d4-X0w" id="WOT-hB-iA7"/>
-                        <outlet property="receiverSignatureView" destination="vfC-7P-zf6" id="GnO-cx-YFj"/>
-                        <outlet property="returnerSignatureView" destination="Faj-2H-77B" id="NRl-lG-vLU"/>
+                        <outlet property="receiverBtn" destination="anP-Mx-q56" id="hN8-aY-V84"/>
+                        <outlet property="receiverSignatureView" destination="lny-yJ-T6d" id="ibp-tO-QfU"/>
+                        <outlet property="returnerBtn" destination="koa-9T-nt4" id="e7t-7Y-0ma"/>
+                        <outlet property="returnerSIgnatureView" destination="Q6i-Qn-2bI" id="t71-RA-D19"/>
                         <outlet property="sendButton" destination="TAQ-Ad-U6P" id="v9Q-dT-iLj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EXP-6A-tnK" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="GVa-44-Aop"/>
+                <tapGestureRecognizer id="ecD-oi-7cJ"/>
             </objects>
             <point key="canvasLocation" x="4216.875" y="1330.9859154929577"/>
         </scene>
@@ -1319,8 +1361,12 @@
         <scene sceneID="RMS-Xk-bkD">
             <objects>
                 <viewController id="RVs-Le-SaJ" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="0Fa-Q2-5CJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="Zv3-l0-pJL"/>
+                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="A6I-FS-cbl">
-                        <rect key="frame" x="0.0" y="0.0" width="288" height="142"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
@@ -1341,6 +1387,7 @@
         <image name="lunch" width="700" height="700"/>
         <image name="materials" width="700" height="700"/>
         <image name="schedule" width="700" height="700"/>
+        <image name="signature" width="700" height="700"/>
         <image name="time_off" width="700" height="700"/>
         <image name="tools" width="700" height="700"/>
     </resources>

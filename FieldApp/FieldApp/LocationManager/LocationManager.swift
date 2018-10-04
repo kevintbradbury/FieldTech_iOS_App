@@ -83,9 +83,10 @@ extension UserLocation {
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
-        let latDelta: CLLocationDistance = 402 // set @ 20 for testing, BUT change to 402 for production
-        let longDelta: CLLocationDistance = 402 // 402
-        let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta)
+        let dist = CLLocationDistance(0.5)
+//        let latDelta = dist
+//        let longDelta = dist
+        let span = MKCoordinateSpan(latitudeDelta: dist, longitudeDelta: dist)
         let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let region = MKCoordinateRegion(center: location, span: span)
         

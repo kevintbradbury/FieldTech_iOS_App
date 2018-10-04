@@ -119,14 +119,16 @@ class APICalls {
     func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()){
         guard let employee = UserDefaults.standard.string(forKey: "employeeName") else { return }
         guard let emplyID = UserDefaults.standard.string(forKey: "employeeID") else { return }
-
-        // Get role from UserDefaults or CoreData
-        let role: String
-
+        
         let route = "checkCoordinates/" + employee
         let session = URLSession.shared;
-        let person = UserInfoCodeable(userName: employee, employeeID: emplyID, coordinateLat: location[0], coordinateLong: location[1], currentRole: "-")
-        // Receives currentRole from DB, so no need to send here
+        let person = UserInfoCodeable(
+            userName: employee,
+            employeeID: emplyID,
+            coordinateLat: location[0],
+            coordinateLong: location[1],
+            currentRole: "-"    //  Receives currentRole from DB, so no need to send here
+        )
         var request = setupRequest(route: route, method: "POST")
         var data = Data()
         
@@ -152,55 +154,6 @@ class APICalls {
         };  task.resume()
     }
     
-    
-    func sendChangeOrderReq(imageData: Data, formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        let url = APICalls.host + "changeOrder/" + po
-        let contentType = "multipart/form-data"
-        let headers: HTTPHeaders = [
-            "Content-type" : contentType,
-            "formType" : formType
-        ]
-        
-        Alamofire.upload(
-            multipartFormData: { multipartFormData in
-                multipartFormData.append(
-                    formBody,
-                    withName: "changeOrder"
-                )
-                multipartFormData.append(
-                    imageData,
-                    withName: "changeOrderImg",
-                    fileName: "changeOrder_PO: \(po).jpg",
-                    mimeType: "image/jpeg"
-                )
-        },
-            usingThreshold: UInt64.init(),
-            to: url,
-            method: .post,
-            headers: headers,
-            encodingCompletion: { encodingResult in
-                switch encodingResult {
-                case .success(let upload, _, _):
-                    upload.uploadProgress { progress in
-                        //progressCompletion(Float(progress.fractionCompleted))
-                    }; upload.validate()
-                    upload.responseString { response in
-                        guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)"); self.failedUpload(msg: "Change order failed to upload.")
-                            callback(false); return
-                        }
-                        self.successUpload(msg: "Change order uploaded successfully."); callback(true)
-                    }
-                    
-                case .failure(let encodingError):
-                    print(encodingError); self.failedUpload(msg: "Change order failed to upload.")
-                    callback(false)
-                }
-        }
-        ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
-    }
-    
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
         let route = "employee/" + String(employeeId)
         let request = setupRequest(route: route, method: "GET")
@@ -222,23 +175,55 @@ class APICalls {
         }; task.resume()
     }
     
-    func upload(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
+    func sendChangeOrderReq(images: [UIImage], formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        let url = APICalls.host + "job/" + jobNumber + "/upload"
+        let url = APICalls.host + "changeOrder/" + po
         let headers: HTTPHeaders = [
             "Content-type" : "multipart/form-data",
-            "employee": employee
+            "formType" : formType
+        ]
+        
+        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "changeOrder") { success in
+            callback(success)
+        }
+    }
+    
+    func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        let url = APICalls.host + "job/\(jobNumber)/upload"
+        let headers = ["employee", employee]
+
+        alamoUpload(url: url, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { success in
+            callback(success)
+        }
+    }
+    
+    func submitSignature(images: [UIImage], formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        let url = APICalls.host +
+//        "toolReturn/"
+        let headers = ["formType", formType]
+        
+        alamoUpload(url: url, headers: headers, formBody: Data(), images: images, uploadType: "toolReturn") { success in
+            callback(success)
+        }
+    }
+    
+    func alamoUpload(url: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping (Bool) -> ()) {
+        let headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data",
+            headers[0] : headers[1]
         ]
         
         Alamofire.upload(
             multipartFormData: { multipartFormData in
+                multipartFormData.append(formBody, withName: uploadType)
                 var i = 0
                 for img in images {
-                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
-                    multipartFormData.append(imageData,
-                                             withName: "\(jobNumber)_\(i)",
-                        fileName: "\(jobNumber)_\(i).jpg",
-                        mimeType: "image/jpeg")
+                    guard let imageData = UIImageJPEGRepresentation(img, 1) else { return }
+                    let nm = "\(uploadType)_\(i)"
+                    
+                    multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")
                     i += 1
                 }
         },
@@ -248,30 +233,25 @@ class APICalls {
             headers: headers,
             encodingCompletion: { encodingResult in
                 switch encodingResult {
-                    
                 case .success(let upload, _, _):
                     upload.uploadProgress { progress in
-                        //progressCompletion(Float(progress.fractionCompleted))
+                        print("progress: ", Float(progress.fractionCompleted * 100))
                     }
                     upload.validate()
                     upload.responseString { response in
                         guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)")
-                            self.failedUpload(msg: "Photos failed to upload.")
-                            callback(false)
-                            return
+                            print("error while uploading file: \(response.result.error)"); self.failedUpload(msg: "\(uploadType) failed to upload.")
+                            callback(false); return
                         }
-                        self.successUpload(msg: "Photos uploaded successfully.")
-                        callback(true)
+                        self.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
                     }
                     
                 case .failure(let encodingError):
-                    print(encodingError)
-                    self.failedUpload(msg: "Photos failed to upload.")
+                    print(encodingError); self.failedUpload(msg: "\(uploadType) failed to upload.")
                     callback(false)
                 }
         }
-        ); UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        ); UIApplication.shared.isNetworkActivityIndicatorVisible = true
     }
 
     struct ToolsNImages {
@@ -419,7 +399,6 @@ extension APICalls {
     
     func failedUpload(msg: String) {
             let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
-            
             self.notificationCenter.add(failedNotifc, withCompletionHandler: { (error) in
                 if error != nil { return }
             })
@@ -427,7 +406,6 @@ extension APICalls {
     
     func successUpload(msg: String)  {
         let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "SUCCESS", message: msg, identifier: "uploadSuccess")
-        
         self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
             if error != nil { return }
         })
