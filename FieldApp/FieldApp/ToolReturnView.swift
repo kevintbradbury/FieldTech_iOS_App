@@ -103,7 +103,7 @@ extension ToolReturnView {
         )
         
         let returnTool = UIAlertAction(title: "YES", style: .default) { action in
-//            self.performSegue(withIdentifier: "toolSignOff", sender: nil)
+            self.performSegue(withIdentifier: "toolSignOff", sender: nil)
         }
         let cancel = UIAlertAction(title: "NO", style: .destructive)
         

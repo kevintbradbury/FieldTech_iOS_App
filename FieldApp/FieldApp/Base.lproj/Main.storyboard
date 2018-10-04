@@ -1211,11 +1211,122 @@
                         <outlet property="backButton" destination="9vY-yb-pLZ" id="Stb-jr-UiS"/>
                         <outlet property="navBar" destination="RcE-17-vQ5" id="dwu-d8-Zuf"/>
                         <outlet property="tableTitle" destination="jKB-np-7lc" id="meg-xE-eUW"/>
+                        <segue destination="ace-3O-hgX" kind="presentation" identifier="toolSignOff" id="Itz-hy-EMN"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="V1b-gG-VQj" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3266.25" y="1330.9859154929577"/>
+        </scene>
+        <!--Tool Sign Off View-->
+        <scene sceneID="mpt-vx-bk6">
+            <objects>
+                <viewController id="ace-3O-hgX" customClass="ToolSignOffView" customModule="FieldApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="5aN-XK-moF"/>
+                        <viewControllerLayoutGuide type="bottom" id="5Lf-2T-YlV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="M83-CI-JMA">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Faj-2H-77B">
+                                <rect key="frame" x="16" y="100" width="288" height="142"/>
+                                <connections>
+                                    <segue destination="RVs-Le-SaJ" kind="embed" id="Y2Z-AA-Chl"/>
+                                </connections>
+                            </containerView>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vfC-7P-zf6">
+                                <rect key="frame" x="16" y="304" width="288" height="142"/>
+                            </containerView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hLM-oB-6zm">
+                                <rect key="frame" x="16" y="60" width="288" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TAQ-Ad-U6P">
+                                <rect key="frame" x="16" y="517.5" width="288" height="30"/>
+                                <color key="backgroundColor" red="0.5" green="0.11530746710000001" blue="0.054244892009999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <state key="normal" title="Send">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                            </button>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Print Person Who Rented Here" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tRW-d4-X0w">
+                                <rect key="frame" x="16" y="252" width="288" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Print Person who received tool here" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="SHj-Jh-e23">
+                                <rect key="frame" x="16" y="456" width="288" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7aF-Qv-IoM">
+                                <rect key="frame" x="256" y="28" width="48" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="jbl-hQ-Ob6"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="back"/>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="vfC-7P-zf6" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="56c-XU-0mI"/>
+                            <constraint firstItem="hLM-oB-6zm" firstAttribute="centerX" secondItem="M83-CI-JMA" secondAttribute="centerX" id="8QV-O3-xtp"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Faj-2H-77B" secondAttribute="trailing" id="AEq-ag-8LG"/>
+                            <constraint firstItem="7aF-Qv-IoM" firstAttribute="top" secondItem="5aN-XK-moF" secondAttribute="bottom" constant="8" id="ECQ-FC-xfc"/>
+                            <constraint firstItem="Faj-2H-77B" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="H66-Wp-Yu9"/>
+                            <constraint firstItem="vfC-7P-zf6" firstAttribute="top" relation="greaterThanOrEqual" secondItem="tRW-d4-X0w" secondAttribute="bottom" constant="20" id="IXa-OG-Kx3"/>
+                            <constraint firstItem="TAQ-Ad-U6P" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="Iax-47-U2V"/>
+                            <constraint firstItem="Faj-2H-77B" firstAttribute="top" secondItem="hLM-oB-6zm" secondAttribute="bottom" constant="20" id="Lv7-fk-kRT"/>
+                            <constraint firstItem="hLM-oB-6zm" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="N1h-xw-yTh"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="tRW-d4-X0w" secondAttribute="trailing" id="OLN-Df-Cnk"/>
+                            <constraint firstItem="TAQ-Ad-U6P" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="T8w-qo-rZ9"/>
+                            <constraint firstItem="5Lf-2T-YlV" firstAttribute="top" secondItem="TAQ-Ad-U6P" secondAttribute="bottom" constant="20" id="Tmy-LU-u1K"/>
+                            <constraint firstItem="7aF-Qv-IoM" firstAttribute="width" secondItem="M83-CI-JMA" secondAttribute="width" multiplier="0.15" id="Voa-pU-KDg"/>
+                            <constraint firstItem="hLM-oB-6zm" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="Weu-bz-01K"/>
+                            <constraint firstItem="vfC-7P-zf6" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="XJg-lh-hny"/>
+                            <constraint firstItem="SHj-Jh-e23" firstAttribute="top" secondItem="vfC-7P-zf6" secondAttribute="bottom" constant="10" id="aLW-mS-kU2"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="SHj-Jh-e23" secondAttribute="trailing" id="bgw-Dc-Lpm"/>
+                            <constraint firstItem="vfC-7P-zf6" firstAttribute="height" secondItem="M83-CI-JMA" secondAttribute="height" multiplier="0.25" id="f7r-Pj-iRL"/>
+                            <constraint firstItem="Faj-2H-77B" firstAttribute="height" secondItem="M83-CI-JMA" secondAttribute="height" multiplier="0.25" id="giI-dZ-Ena"/>
+                            <constraint firstItem="hLM-oB-6zm" firstAttribute="top" secondItem="5aN-XK-moF" secondAttribute="bottom" constant="40" id="hct-wn-H6J"/>
+                            <constraint firstItem="tRW-d4-X0w" firstAttribute="top" secondItem="Faj-2H-77B" secondAttribute="bottom" constant="10" id="kNQ-a8-oX1"/>
+                            <constraint firstItem="SHj-Jh-e23" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="oI3-4t-Bjy"/>
+                            <constraint firstItem="vfC-7P-zf6" firstAttribute="top" secondItem="M83-CI-JMA" secondAttribute="centerY" constant="20" id="pTF-3x-XYi"/>
+                            <constraint firstItem="tRW-d4-X0w" firstAttribute="leading" secondItem="M83-CI-JMA" secondAttribute="leadingMargin" id="xtu-2x-8Gu"/>
+                            <constraint firstItem="7aF-Qv-IoM" firstAttribute="trailing" secondItem="M83-CI-JMA" secondAttribute="trailingMargin" id="zfh-ZW-8a4"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="backBtn" destination="7aF-Qv-IoM" id="nnd-eE-MQF"/>
+                        <outlet property="dateLabel" destination="hLM-oB-6zm" id="5y4-Rr-GzQ"/>
+                        <outlet property="printNameReceiverField" destination="SHj-Jh-e23" id="GaZ-IC-quf"/>
+                        <outlet property="printNameRenterField" destination="tRW-d4-X0w" id="WOT-hB-iA7"/>
+                        <outlet property="receiverSignatureView" destination="vfC-7P-zf6" id="GnO-cx-YFj"/>
+                        <outlet property="returnerSignatureView" destination="Faj-2H-77B" id="NRl-lG-vLU"/>
+                        <outlet property="sendButton" destination="TAQ-Ad-U6P" id="v9Q-dT-iLj"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="EXP-6A-tnK" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4216.875" y="1330.9859154929577"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="RMS-Xk-bkD">
+            <objects>
+                <viewController id="RVs-Le-SaJ" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="A6I-FS-cbl">
+                        <rect key="frame" x="0.0" y="0.0" width="288" height="142"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="byB-GC-XC9" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
         </scene>
     </scenes>
     <resources>
@@ -1234,7 +1345,7 @@
         <image name="tools" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="iSq-Lv-Ec5"/>
+        <segue reference="ZAD-5v-qw4"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>
