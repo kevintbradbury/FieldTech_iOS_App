@@ -28,6 +28,8 @@ class ToolReturnView: UITableViewController {
             self.rentals = toolsNimgs.tools
             self.images = toolsNimgs.images
             self.tableView.reloadData()
+            
+            if self.rentals.count == 0 { self.showAlert(withTitle: "No Tools", message: "Didn't find any tools rented.") }
         }
     }
     

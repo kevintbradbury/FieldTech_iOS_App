@@ -80,7 +80,7 @@ class APICalls {
         }
         task.resume()
     }
-
+    
     func manualSendPO(employee: UserData.UserInfo, location: [String], role: String, po: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()){
         let route = "employee/" + String(describing: employee.employeeID) + "/override/" + po
         let data = convertToJSON(employee: employee, location: location, role: role)
@@ -187,7 +187,7 @@ class APICalls {
     func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
         let url = APICalls.host + "job/\(jobNumber)/upload"
         let headers = ["employee", employee]
-
+        
         alamoUpload(url: url, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { success in
             callback(success)
         }
@@ -234,20 +234,22 @@ class APICalls {
                     upload.validate()
                     upload.responseString { response in
                         guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)"); self.failedUpload(msg: "\(uploadType) failed to upload.")
+                            print("error while uploading file: \(response.result.error)");
+                            self.failedUpload(msg: "\(uploadType) failed to upload.")
                             callback(false); return
                         }
                         self.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
                     }
                     
                 case .failure(let encodingError):
-                    print(encodingError); self.failedUpload(msg: "\(uploadType) failed to upload.")
+                    print(encodingError);
+                    self.failedUpload(msg: "\(uploadType) failed to upload.")
                     callback(false)
                 }
         }
         );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
-
+    
     struct ToolsNImages {
         let tools: [FieldActions.ToolRental]
         let images: [UIImage]
@@ -363,11 +365,11 @@ extension APICalls {
         
         return data
     }
-
+    
     func generateToolReturnData(toolForm: FieldActions.ToolRental, signedDate: String, printedNames: [String]) -> Data {
         var data = Data()
         let jsonEncoder = JSONEncoder()
-    
+        
         struct ToolReturn: Encodable {
             let rental: FieldActions.ToolRental
             let signedDate: String
@@ -411,10 +413,10 @@ extension APICalls {
     }
     
     func failedUpload(msg: String) {
-            let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
-            self.notificationCenter.add(failedNotifc, withCompletionHandler: { (error) in
-                if error != nil { return }
-            })
+        let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
+        self.notificationCenter.add(failedNotifc, withCompletionHandler: { (error) in
+            if error != nil { return }
+        })
     }
     
     func successUpload(msg: String)  {
