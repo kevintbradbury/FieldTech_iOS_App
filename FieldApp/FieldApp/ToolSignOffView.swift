@@ -36,10 +36,7 @@ class ToolSignOffView: UIViewController {
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func returnerTap(_ sender: Any) { presentSignature(role: "returner") }
     @IBAction func receiverTap(_ sender: Any) { presentSignature(role: "receiver") }
-    @IBAction func submitReturn(_ sender: Any) {
-        showAlert(withTitle: "Send Return", message: "(under construction)")
-        sendSignatures()
-    }
+    @IBAction func submitReturn(_ sender: Any) { sendSignatures() }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
@@ -91,14 +88,24 @@ extension ToolSignOffView {
     }
     
     func sendSignatures() {
-        let dt = dateLabel.text
-        let returnerSig = returnerSIgnatureView.image
-        let returnerNm = printNameRenterField.text
-        let receiverSig = receiverSignatureView.image
-        let receiverNm = printNameReceiverField.text
-        let rental = toolToReturn
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy, h:mm a"
         
-        APICalls()
+        guard let dt =  dateFormatter.string(from: Date()) as? String,
+            let returnerSig = returnerSIgnatureView.image,
+            let receiverSig = receiverSignatureView.image,
+            let images = [returnerSig, receiverSig] as? [UIImage],
+            let returnerNm = printNameRenterField.text,
+            let receiverNm = printNameReceiverField.text,
+            let printedNames = [returnerNm, receiverNm] as? [String],
+            let rental = toolToReturn as? FieldActions.ToolRental,
+            let employeeID = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
+        
+        let formBody = APICalls().generateToolReturnData(toolForm: rental, signedDate: dt, printedNames: printedNames)
+        
+        APICalls().submitSignature(images: images, formType: "Tool Return", formBody: formBody, employeeID: employeeID, returnDate: dt) { success in
+            // handle response here
+        }
     }
 }
 

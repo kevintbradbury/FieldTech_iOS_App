@@ -176,12 +176,8 @@ class APICalls {
     }
     
     func sendChangeOrderReq(images: [UIImage], formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         let url = APICalls.host + "changeOrder/" + po
-        let headers: HTTPHeaders = [
-            "Content-type" : "multipart/form-data",
-            "formType" : formType
-        ]
+        let headers = ["formType", formType]
         
         alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "changeOrder") { success in
             callback(success)
@@ -189,7 +185,6 @@ class APICalls {
     }
     
     func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         let url = APICalls.host + "job/\(jobNumber)/upload"
         let headers = ["employee", employee]
 
@@ -198,18 +193,17 @@ class APICalls {
         }
     }
     
-    func submitSignature(images: [UIImage], formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        let url = APICalls.host +
-//        "toolReturn/"
+    func submitSignature(images: [UIImage], formType: String, formBody: Data, employeeID: String, returnDate: String, callback: @escaping (Bool) -> () ) {
+        let url = APICalls.host + "toolReturn/\(employeeID)"
         let headers = ["formType", formType]
         
-        alamoUpload(url: url, headers: headers, formBody: Data(), images: images, uploadType: "toolReturn") { success in
+        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { success in
             callback(success)
         }
     }
     
     func alamoUpload(url: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping (Bool) -> ()) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         let headers: HTTPHeaders = [
             "Content-type" : "multipart/form-data",
             headers[0] : headers[1]
@@ -251,7 +245,7 @@ class APICalls {
                     callback(false)
                 }
         }
-        ); UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
 
     struct ToolsNImages {
@@ -369,6 +363,25 @@ extension APICalls {
         
         return data
     }
+
+    func generateToolReturnData(toolForm: FieldActions.ToolRental, signedDate: String, printedNames: [String]) -> Data {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+    
+        struct ToolReturn: Encodable {
+            let rental: FieldActions.ToolRental
+            let signedDate: String
+            let printedNames: [String]
+        }
+        
+        let returnObj = ToolReturn(rental: toolForm, signedDate: signedDate, printedNames: printedNames)
+        
+        do { data = try jsonEncoder.encode(returnObj) }
+        catch { print("error converting TOOLRT to DATA", error) };
+        
+        return data
+    }
+    
 }
 
 extension APICalls {

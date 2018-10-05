@@ -260,6 +260,7 @@ extension HomeView {
             vc.formTypeVal = "Tool Rental"
             
         } else if idtn == "toolReturn" {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
             let vc = segue.destination as! ToolReturnView
             guard let id = HomeView.employeeInfo?.employeeID as? Int else { return }
             vc.employeeID = id

@@ -22,9 +22,9 @@ class ToolReturnView: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.reloadData()
         
         APICalls().getToolRentals(employeeID: employeeID!) { toolsNimgs in
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.rentals = toolsNimgs.tools
             self.images = toolsNimgs.images
             self.tableView.reloadData()
@@ -97,7 +97,7 @@ extension ToolReturnView {
 extension ToolReturnView {
     func showRentalDetails(tool: FieldActions.ToolRental, returnDate: String) {
         
-        let msg = "\(tool.jobName)  \n \(tool.toolType): \(returnDate)"
+        let msg = "\(tool.jobName!)  \n \(tool.toolType!): \(returnDate)"
         let alert = UIAlertController(title: "Confirm Tool Return", message: msg, preferredStyle: .alert),
         cancel = UIAlertAction(title: "NO", style: .destructive),
         returnTool = UIAlertAction(title: "YES", style: .default) { action in
