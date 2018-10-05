@@ -52,7 +52,7 @@ class ScheduleView: UIViewController {
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
-                self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
+                ScheduleView.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
             }
         }
     }
@@ -87,31 +87,6 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func calendar(_ calendar: JTAppleCalendarView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTAppleCell {
         
         let tableCell = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
-        
-//        cell.highlightView.isHidden = true
-//
-//        if cellState.dateBelongsTo != .thisMonth {
-//            formatter.dateFormat = "MMM"
-//            cell.dateLabel.text = formatter.string(from: date) + "\n " + cellState.text
-//            cell.dateLabel.textColor = UIColor.lightGray
-//
-//        } else {
-//            cell.dateLabel.text = cellState.text
-//            cell.dateLabel.textColor = UIColor.black
-//            cell.backgroundColor = UIColor.white
-//
-//            formatter.dateFormat = "yyyy"
-//            yearLabel.text = formatter.string(from: date)
-//            formatter.dateFormat = "MMMM"
-//            monthLabel.text = formatter.string(from: date)
-//        }
-//
-//        checkJobsDates(date: cellState.date) { matchingJob, jobDate in
-//            cell.highlightView.isHidden = false
-//            cell.jobName.text = matchingJob.jobName
-//            cell.dateLabel.textColor = UIColor.white
-//        }
-        
         return tableCell
     }
     
@@ -147,7 +122,7 @@ extension ScheduleView {
         //        directionsBtn.titleLabel?.text = ""
     }
     
-    func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
+    static func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
         let options = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
         let placemark = MKPlacemark(coordinate: coordinate, addressDictionary: nil)
         let mapItem = MKMapItem(placemark: placemark)

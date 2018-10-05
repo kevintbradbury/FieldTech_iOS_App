@@ -221,53 +221,90 @@ class ContactInfo {
 
 class FieldActions {
     
+    let poFolder = URL(string: "P O Server Folder")
     var requestedUser: String?
     var poNumber: Int?
-    let poFolder = URL(string: "P O Server Folder")
     var date: Date?
     var jobName: String?
     var neededBy: String?
     var description: String?
     
-    class SuppliesRequest {
-        
+    struct SuppliesRequest {
         let hardwareLocations: Array = ["Home Depot", "Lowes", "Ace Hardware", "Orchards"]
-        var chosenLocation: String?
         let maxDistance = 5  // Miles?
+        let material: Array = ["material1", "material2", "etc."]
+        var chosenLocation: String?
         var receiptPhoto = UIImage()
         var arrived: Bool?
-        let material: Array = ["material1", "material2", "etc."]
         var materialQuantity: Int?
         var receiptUploaded: Bool?
         var fieldSuppliesDestinationFolder = URL(string: "Supplies Server Folder")
-        
     }
     
-    class ToolRental {
+    struct ToolRental: Encodable {
+        var formType: String?
+        var jobName: String?
+        var poNumber: String?
+        var requestedBy: String?
+        var toolType: String?
+        var brand: String?
+        var duration: Int? // Number of Days
+        var quantity: Double?
+        var neededBy: Double? // Seconds from 1970
+        var location: String?
         
-        let toolType: Array = ["drill", "hammer", "powerTools", "etc."]
-        let brand = ["brand1", "brand2", "brand3"]
-        var toolQuantity: Int?
-        var duration: Int?
-        var toolPhoto: UIImage?
-        var photoUploaded: Bool?
-        let rentalLogDestination = URL(string: "Tool Rental Server Folder")
-        let supervisorEmail = "super@millworkbrothers.com"
-        var rentalIn: Date?
-        var rentalOut: Date? //This value is to record the actual return date.
-        var returnDate: Date? //This is the user entered date value.
         let reminderPeriods = [24, 48, 72, 96]
-        var rentalAuthorized: Bool?
-        
     }
     
-    class ChangeOrders {
+    static func fromJSONtoTool(json: Any) -> ([FieldActions.ToolRental], [UIImage]) {
+        var boxOtools = [FieldActions.ToolRental]()
+        var toolImages = [UIImage]()
         
-        var location: String? //Field Installers reference OR documentation purposes?
+        if let tools = json as? Array<Any> {
+            
+            for oneTool in tools {
+                
+                if let dictionary = oneTool as? Dictionary<String, Any>,
+                    let formType = dictionary["formType"] as? String,
+                    let jobName = dictionary["jobName"] as? String,
+                    let poNumber = dictionary["poNumber"] as? String,
+                    let requestedBy = dictionary["requestedBy"] as? String,
+                    let toolType = dictionary["toolType"] as? String,
+                    let brand = dictionary["brand"] as? String,
+                    let duration = dictionary["duration"] as? Int,
+                    let neededBy = dictionary["neededBy"] as? String,
+                    let quantity = dictionary["quantity"] as? Int,
+                    let location = dictionary["location"] as? String,
+                    let returnDate = dictionary["returnDate"] as? String,
+                    let photoStr = dictionary["photo"] as? String,
+                    let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
+                    let image = UIImage(data: photoDecoded),
+                    let neededDate = Job.UserJob.stringToDate(string: neededBy) as? Date,
+                    let needDouble = neededDate.timeIntervalSince1970 as? Double {
+                    
+                    let toolToAdd = FieldActions.ToolRental(
+                        formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: needDouble, location: location
+                    )
+                    boxOtools.append(toolToAdd)
+                    toolImages.append(image)
+                }
+            }
+        }
+        
+        return (boxOtools, toolImages)
+    }
+    
+    struct  ChangeOrders: Encodable {
+        var formType: String?
+        var jobName: String?
+        var poNumber: String?
+        var requestedBy: String?
+        var location: String? // Address?
         var material: String?
         var colorSpec: String?
-        var quantity: Int?
-        
+        var quantity: Double?
+        var neededBy: Double? // Seconds from 1970
+        var description: String?
     }
     
     class PhotoUpload {
@@ -292,43 +329,5 @@ enum EventType: String {
     case onExit = "On Exit"
 }
 
-class Geotification: NSObject, NSCoding, MKAnnotation {
-    var coordinate: CLLocationCoordinate2D
-    var radius: CLLocationDistance
-    var identifier: String
-    var note: String
-    var eventType: EventType
-    
-    var title: String? {
-        if note.isEmpty {
-            return "no note"
-        }
-        return note
-    }
-    init(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, identifier: String, note: String, eventType: EventType) {
-        self.coordinate = coordinate
-        self.radius = radius
-        self.identifier = identifier
-        self.note = note
-        self.eventType = eventType
-    }
-    required init?(coder decoder: NSCoder) {
-        let latitude = decoder.decodeDouble(forKey: GeoKey.latitude)
-        let longitude = decoder.decodeDouble(forKey: GeoKey.longitude)
-        coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        radius = decoder.decodeDouble(forKey: GeoKey.radius)
-        identifier = decoder.decodeObject(forKey: GeoKey.identifier) as! String
-        note = decoder.decodeObject(forKey: GeoKey.note) as! String
-        eventType = EventType(rawValue: decoder.decodeObject(forKey: GeoKey.eventType)as! String)!
-    }
-    func encode(with coder: NSCoder) {
-        coder.encode(coordinate.latitude, forKey: GeoKey.latitude)
-        coder.encode(coordinate.longitude, forKey: GeoKey.longitude)
-        coder.encode(radius, forKey: GeoKey.radius)
-        coder.encode(identifier, forKey: GeoKey.identifier)
-        coder.encode(note, forKey: GeoKey.note)
-        coder.encode(eventType.rawValue, forKey: GeoKey.eventType)
-    }
-}
 
 

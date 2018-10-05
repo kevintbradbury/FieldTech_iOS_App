@@ -10,12 +10,13 @@ import UIKit
 import Foundation
 import CoreLocation
 import Firebase
+import FirebaseAuth
 
 class LoginViewController: UIViewController, AuthUIDelegate {
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var authId: String?
     let firebaseAuth = Auth.auth()
@@ -29,7 +30,6 @@ class LoginViewController: UIViewController, AuthUIDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        activityIndicator.startAnimating()
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user != nil {
                 self.activityIndicator.stopAnimating()
@@ -46,6 +46,8 @@ class LoginViewController: UIViewController, AuthUIDelegate {
     }
     
     @IBAction func loginPressed(_ sender: Any) {
+        activityIndicator.startAnimating()
+
         if phoneNumberField.text == nil { return }
         authPhoneNumber(phoneNumber: phoneNumberField.text!)
     }

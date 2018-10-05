@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import FirebaseAuth
 import UserNotifications
 import CoreLocation
 
@@ -50,21 +51,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
+        
+        if let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
-            let action = alert["action"] as? String else { return }
-        
-        print("received notification: with action -  \(action)")
-        
-        if Auth.auth().canHandleNotification(notification) { completionHandler(UIBackgroundFetchResult.noData); return }
-        else if action == "gps Update" {
-            guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+            let action = alert["action"] as? String {
+            print("received notification: with action -  \(action)")
             
-            APICalls().justCheckCoordinates(location: locationArray) { success in
-                if success != true { completionHandler(.failed) }
-                else { completionHandler(.newData); print("coordinate check succeeded") }
+            if action == "gps Update" {
+                guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+                
+                APICalls().justCheckCoordinates(location: locationArray) { success in
+                    if success != true { completionHandler(.failed) }
+                    else { completionHandler(.newData); print("coordinate check succeeded") }
+                }
             }
+        } else if Auth.auth().canHandleNotification(notification) {
+            completionHandler(UIBackgroundFetchResult.noData); return
+        } else {
+            print("Received notification:", notification)
         }
     }
     
@@ -95,8 +100,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        UserDefaults.standard.set(nil, forKey: "todaysJobPO");
-        UserDefaults.standard.set(nil, forKey: "employeeName");
+        UserDefaults.standard.set(nil, forKey: "employeeName")
+        UserDefaults.standard.set(nil, forKey: "todaysJobName")
+        UserDefaults.standard.set(nil, forKey: "todaysJobLatLong")
+
         print("app will terminate")
     }
     
@@ -120,12 +127,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let id = UserDefaults.standard.string(forKey: "employeeID") else { print("no saved id"); return }
         let route = "employee/token/" + id
         
-        guard let existingToken = UserDefaults.standard.string(forKey: "token") else {
-            updateToken(token: token, route: route)
-            return
-        }
-        if existingToken == token { return }
-        else { updateToken(token: token, route: route) }
+        if let existingToken = UserDefaults.standard.string(forKey: "token") {
+            if existingToken == token {
+                return
+            } else { updateToken(token: token, route: route) }
+        } else { updateToken(token: token, route: route) }
     }
     
     func updateToken(token: String, route: String) {

@@ -90,7 +90,7 @@ extension JTAppleCalendarView {
     ///     - Month: The state of the found month
     public func monthStatus(for date: Date) -> Month? {
         guard
-            let calendar = cachedConfiguration?.calendar,
+            let calendar = _cachedConfiguration?.calendar,
             let startMonth = startOfMonthCache,
             let monthIndex = calendar.dateComponents([.month], from: startMonth, to: date).month else {
                 return nil
@@ -132,7 +132,10 @@ extension JTAppleCalendarView {
     
     /// Notifies the container that the size of its view is about to change.
     public func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator, anchorDate: Date?) {
-        self.anchorDate = anchorDate
+        DispatchQueue.main.async { [weak self] in
+            guard let _self = self else { return }
+            _self.reloadData(withanchor: anchorDate)
+        }
     }
     
     /// Generates a range of dates from from a startDate to an
@@ -215,9 +218,8 @@ extension JTAppleCalendarView {
         let selectedDates = self.selectedDates
         let data = reloadDelegateDataSource()
         if data.shouldReload {
-            calendarViewLayout.invalidateLayout()
+            calendarViewLayout.clearCache()
             setupMonthInfoAndMap(with: data.configParameters)
-            
             selectedCellData = [:]
         }
 
@@ -237,8 +239,7 @@ extension JTAppleCalendarView {
             completionHandler?()
             if !_self.generalDelayedExecutionClosure.isEmpty { _self.executeDelayedTasks(.general) }
         }
-                
-        if !data.shouldReload { calendarViewLayout.shouldClearCacheOnInvalidate = false }
+        calendarViewLayout.reloadWasTriggered = true
         super.reloadData()
     }
     
@@ -402,18 +403,24 @@ extension JTAppleCalendarView {
                                      extraAddedOffset: extraAddedOffset,
                                      completionHandler: completionHandler)
             }
+            return
         }
         var xOffset: CGFloat = 0
         var yOffset: CGFloat = 0
         
         let fixedScrollSize: CGFloat
         if scrollDirection == .horizontal {
-            if calendarViewLayout.thereAreHeaders || cachedConfiguration.generateOutDates == .tillEndOfGrid {
+            if calendarViewLayout.thereAreHeaders || _cachedConfiguration.generateOutDates == .tillEndOfGrid {
                 fixedScrollSize = calendarViewLayout.sizeOfContentForSection(0)
             } else {
                 fixedScrollSize = frame.width
             }
-            let section = CGFloat(Int(contentOffset.x / fixedScrollSize))
+
+            var section = contentOffset.x / fixedScrollSize
+            let roundedSection = round(section)
+            if abs(roundedSection - section) < errorDelta { section = roundedSection }
+            section = CGFloat(Int(section))
+
             xOffset = (fixedScrollSize * section)
             switch destination {
             case .next:
@@ -444,13 +451,13 @@ extension JTAppleCalendarView {
                 
                 switch destination {
                 case .next:
-                    scrollToHeaderInSection(section + 1, extraAddedOffset: extraAddedOffset)
+                    scrollToHeaderInSection(section + 1, extraAddedOffset: extraAddedOffset, completionHandler: completionHandler)
                 case .previous:
-                    scrollToHeaderInSection(section - 1, extraAddedOffset: extraAddedOffset)
+                    scrollToHeaderInSection(section - 1, extraAddedOffset: extraAddedOffset, completionHandler: completionHandler)
                 case .start:
-                    scrollToHeaderInSection(0, extraAddedOffset: extraAddedOffset)
+                    scrollToHeaderInSection(0, extraAddedOffset: extraAddedOffset, completionHandler: completionHandler)
                 case .end:
-                    scrollToHeaderInSection(numberOfSections(in: self) - 1, extraAddedOffset: extraAddedOffset)
+                    scrollToHeaderInSection(numberOfSections(in: self) - 1, extraAddedOffset: extraAddedOffset, completionHandler: completionHandler)
                 }
                 return
             } else {
@@ -483,7 +490,7 @@ extension JTAppleCalendarView {
     public func scrollToDate(_ date: Date,
                              triggerScrollToDateDelegate: Bool = true,
                              animateScroll: Bool = true,
-                             preferredScrollPosition: UICollectionViewScrollPosition? = nil,
+                             preferredScrollPosition: UICollectionViewScrollPosition, //  = nil
                              extraAddedOffset: CGFloat = 0,
                              completionHandler: (() -> Void)? = nil) {
         
@@ -517,7 +524,7 @@ extension JTAppleCalendarView {
         // Ensure valid scroll position is set
         var position: UICollectionViewScrollPosition = scrollDirection == .horizontal ? .left : .top
         if !scrollingMode.pagingIsEnabled(),
-            let validPosition = preferredScrollPosition {
+            let validPosition = preferredScrollPosition as? UICollectionViewScrollPosition {
             if scrollDirection == .horizontal {
                 if validPosition == .left || validPosition == .right || validPosition == .centeredHorizontally {
                     position = validPosition
@@ -583,16 +590,9 @@ extension JTAppleCalendarView {
     /// - returns:
     ///     - DateSegmentInfo
     public func visibleDates()-> DateSegmentInfo {
-        let emptySegment = DateSegmentInfo(indates: [], monthDates: [], outdates: [])
-        
-        if !isCalendarLayoutLoaded {
-            return emptySegment
-        }
-        
-        let cellAttributes = calendarViewLayout.visibleElements(excludeHeaders: true)
-        let indexPaths: [IndexPath] = cellAttributes.map { $0.indexPath }.sorted()
-        return dateSegmentInfoFrom(visible: indexPaths)
+        return datesAtCurrentOffset()
     }
+    
     /// Returns the visible dates of the calendar.
     /// - returns:
     ///     - DateSegmentInfo

@@ -28,9 +28,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     var regionToCheck: CLCircularRegion?
     
     func initialize() {
-        //        if alreadyInitialized { print("locationManager is already initialized"); return }
-        //        locationManager = CLLocationManager()
-        
         locationManager.delegate = self
         locationManager.distanceFilter = kCLDistanceFilterNone
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -54,7 +51,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         onLocation?(location.coordinate)
         print(location.coordinate)
     }
-    //        defer { locationManager?.stopUpdatingLocation() }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         var allowAuthorization = false
@@ -87,9 +83,10 @@ extension UserLocation {
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
-        let latDelta: CLLocationDistance = 0.05 // set @ 20 for testing, BUT change to 500 for production
-        let longDelta: CLLocationDistance = 0.05 // 500
-        let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: longDelta)
+        let dist = CLLocationDistance(0.5)
+//        let latDelta = dist
+//        let longDelta = dist
+        let span = MKCoordinateSpan(latitudeDelta: dist, longitudeDelta: dist)
         let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let region = MKCoordinateRegion(center: location, span: span)
         
@@ -100,7 +97,7 @@ extension UserLocation {
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
-            let radius = CLLocationDistance(100) // radius: 402
+            let radius = CLLocationDistance(402) // radius: 402
             guard let region = CLCircularRegion(center: location, radius: radius, identifier: "range") as? CLCircularRegion else { return } // radius 1/4 mile ~= 402 meters
             print("region to start monitoring: \(region)")
             locationManager.startMonitoring(for: region)
@@ -129,7 +126,10 @@ extension UserLocation {
         guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut) { success, currentJob, poNumber, jobLatLong, clockedIn in
+        // get role here
+        let role: String
+        
+        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut, role: "-") { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             let content = UNMutableNotificationContent()
             content.title = "Clocked Out"
             content.body = "You were clocked out because you left the job site."
@@ -138,8 +138,8 @@ extension UserLocation {
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
             let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
             
-            self.notificationCenter?.add(request) { (err) in
-                if err != nil { print("error setting up notification request") } else {
+            self.notificationCenter?.add(request) { (error) in
+                if error != nil { print("error setting up notification request") } else {
                     print("added notification")
                 }
             }

@@ -43,12 +43,14 @@ open class JTAppleCalendarView: UICollectionView {
                 calendarViewLayout.cellSize.height = cellSize
             }
             calendarViewLayout.invalidateLayout()
-            calendarViewLayout.itemSizeWasSet = cellSize == 0 ? false: true
         }
     }
     
     /// The scroll direction of the sections in JTAppleCalendar.
-    open var scrollDirection: UICollectionViewScrollDirection!
+    open var scrollDirection: UICollectionViewScrollDirection
+    
+    /// The configuration parameters setup by the developer in the confogureCalendar function
+    open var cachedConfiguration: ConfigurationParameters? { return _cachedConfiguration }
     
     /// Enables/Disables the stretching of date cells. When enabled cells will stretch to fit the width of a month in case of a <= 5 row month.
     open var allowsDateCellStretching = true
@@ -87,25 +89,30 @@ open class JTAppleCalendarView: UICollectionView {
     
     /// Implemented by subclasses to initialize a new object (the receiver) immediately after memory for it has been allocated.
     public init() {
-        super.init(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        self.scrollDirection = .horizontal
+        super.init(
+            frame: .zero, collectionViewLayout: UICollectionViewFlowLayout()
+        )
         setupNewLayout(from: collectionViewLayout as! JTAppleCalendarLayoutProtocol)
     }
     
     /// Initializes and returns a newly allocated collection view object with the specified frame and layout.
     @available(*, unavailable, message: "Please use JTAppleCalendarView() instead. It manages its own layout.")
     public override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        self.scrollDirection = .horizontal
         super.init(frame: frame, collectionViewLayout: UICollectionViewFlowLayout())
         setupNewLayout(from: collectionViewLayout as! JTAppleCalendarLayoutProtocol)
     }
     
     /// Initializes using decoder object
     required public init?(coder aDecoder: NSCoder) {
+        self.scrollDirection = .horizontal
         super.init(coder: aDecoder)
         setupNewLayout(from: collectionViewLayout as! JTAppleCalendarLayoutProtocol)
     }
     
     // Configuration parameters from the dataSource
-    var cachedConfiguration: ConfigurationParameters!
+    var _cachedConfiguration: ConfigurationParameters!
     // Set the start of the month
     var startOfMonthCache: Date!
     // Set the end of month
@@ -115,7 +122,7 @@ open class JTAppleCalendarView: UICollectionView {
     
     var anchorDate: Date?
     
-    var firstContentOffset: CGPoint {
+    var requestedContentOffset: CGPoint {
         var retval: CGPoint = .zero
         guard let date = anchorDate else { return retval }
         
@@ -135,7 +142,9 @@ open class JTAppleCalendarView: UICollectionView {
         
         if calendarViewLayout.thereAreHeaders && scrollDirection == .vertical {
             let indexPath = IndexPath(item: 0, section: sectionIndexPath.section)
-            guard let attributes = calendarViewLayout.layoutAttributesForSupplementaryView(ofKind: UICollectionElementKindSectionHeader, at: indexPath) else { return retval }
+            guard let attributes = calendarViewLayout.layoutAttributesForSupplementaryView(
+                ofKind:UICollectionElementKindSectionHeader, at: indexPath // UICollectionView.elementKindSectionHeader
+                ) else { return retval }
             
             let maxYCalendarOffset = max(0, self.contentSize.height - self.frame.size.height)
             retval = CGPoint(x: attributes.frame.origin.x,y: min(maxYCalendarOffset, attributes.frame.origin.y))
@@ -154,7 +163,7 @@ open class JTAppleCalendarView: UICollectionView {
         return retval
     }
     
-    open var sectionInset: UIEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0)
+    open var sectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     open var minimumInteritemSpacing: CGFloat = 0
     open var minimumLineSpacing: CGFloat = 0
     
@@ -168,15 +177,22 @@ open class JTAppleCalendarView: UICollectionView {
         get { return theData.sectionToMonthMap }
         set { theData.sectionToMonthMap = monthMap }
     }
-    
+
+    var decelerationRateMatchingScrollingMode: CGFloat {
+        switch scrollingMode {
+        case .stopAtEachCalendarFrame: return
+            UIScrollViewDecelerationRateFast
+        case .stopAtEach, .stopAtEachSection: return UIScrollViewDecelerationRateFast
+        case .nonStopToSection, .nonStopToCell, .nonStopTo, .none: return
+            UIScrollViewDecelerationRateNormal
+        }
+    }
+
     /// Configure the scrolling behavior
     open var scrollingMode: ScrollingMode = .stopAtEachCalendarFrame {
         didSet {
-            switch scrollingMode {
-            case .stopAtEachCalendarFrame: decelerationRate = UIScrollViewDecelerationRateFast
-            case .stopAtEach, .stopAtEachSection: decelerationRate = UIScrollViewDecelerationRateFast
-            case .nonStopToSection, .nonStopToCell, .nonStopTo, .none: decelerationRate = UIScrollViewDecelerationRateNormal
-            }
+            decelerationRate = UIScrollViewDecelerationRateNormal
+//                UIScrollView.DecelerationRate(rawValue: decelerationRateMatchingScrollingMode)
             #if os(iOS)
                 switch scrollingMode {
                 case .stopAtEachCalendarFrame:

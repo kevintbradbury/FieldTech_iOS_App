@@ -10,19 +10,22 @@ import Foundation
 import UIKit
 import CoreLocation
 import EventKit
+import Alamofire
+import UserNotifications
+import UserNotificationsUI
 //import Firebase
 
 
 class APICalls {
     static let host = "https://mb-server-app-kbradbury.c9users.io/"
+    let notificationCenter = UNUserNotificationCenter.current()
+    
     
     func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob]) -> ()) {
         
         let route = "employee/" + employeeID + "/jobs"
         let request = setupRequest(route: route, method: "GET")
         let session = URLSession.shared;
-        let sock = gpsClockInOut()
-
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
@@ -39,11 +42,10 @@ class APICalls {
         task.resume()
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, callback: @escaping (Bool, String, String, [Double], Bool) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()){
         let route = "employee/" + String(describing: employee.employeeID)
-        let data = convertToJSON(employee: employee, location: location)
+        let data = convertToJSON(employee: employee, location: location, role: role)
         let session = URLSession.shared;
-        let bool = true
         var auto: String { if autoClockOut == true { return "true" } else { return "" } }
         var request = setupRequest(route: route, method: "POST")
         
@@ -66,10 +68,49 @@ class APICalls {
                     let poNumber = json["poNumber"] as? String,
                     let jobLatLong = json["jobLatLong"] as? [Double],
                     let clockedIn = json["punchedIn"] as? Bool {
-                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
-                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn)
                     
-                } else { callback(successfulPunch, "", "", [0.0], false) }
+                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
+                    
+                } else {
+                    guard let err = json["error"] as? String else { return }
+                    callback(successfulPunch, "", "", [0.0], false, err)
+                }
+            }
+        }
+        task.resume()
+    }
+    
+    func manualSendPO(employee: UserData.UserInfo, location: [String], role: String, po: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()){
+        let route = "employee/" + String(describing: employee.employeeID) + "/override/" + po
+        let data = convertToJSON(employee: employee, location: location, role: role)
+        let session = URLSession.shared;
+        var request = setupRequest(route: route, method: "POST")
+        
+        request.httpBody = data
+        
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response))");
+                return
+                
+            } else {
+                print("no errors sending GPS coordinatess")
+                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { print("json serialization failed"); return }
+                guard let successfulPunch = json["success"] as? Bool else { print("failed on success bool"); return }
+                
+                if let currentJob = json["job"] as? String,
+                    let poNumber = json["poNumber"] as? String,
+                    let jobLatLong = json["jobLatLong"] as? [Double],
+                    let clockedIn = json["punchedIn"] as? Bool {
+                    print("successBool, crntJob, jobGPS, clockdINOUT: \n \(successfulPunch), \(currentJob), \(poNumber), \(jobLatLong), \(clockedIn)")
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
+                    
+                } else {
+                    guard let err = json["error"] as? String else { return }
+                    callback(successfulPunch, "", "", [0.0], false, err)
+                }
             }
         }
         task.resume()
@@ -78,9 +119,16 @@ class APICalls {
     func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()){
         guard let employee = UserDefaults.standard.string(forKey: "employeeName") else { return }
         guard let emplyID = UserDefaults.standard.string(forKey: "employeeID") else { return }
+        
         let route = "checkCoordinates/" + employee
         let session = URLSession.shared;
-        let person = UserInfoCodeable(userName: employee, employeeID: emplyID, coordinateLat: location[0], coordinateLong: location[1])
+        let person = UserInfoCodeable(
+            userName: employee,
+            employeeID: emplyID,
+            coordinateLat: location[0],
+            coordinateLong: location[1],
+            currentRole: "-"    //  Receives currentRole from DB, so no need to send here
+        )
         var request = setupRequest(route: route, method: "POST")
         var data = Data()
         
@@ -88,85 +136,143 @@ class APICalls {
             let jsonEncoder = JSONEncoder()
             data = try jsonEncoder.encode(person)
         } catch {
-            print(error); return;
-        }
-        
-        request.httpBody = data
+            print(error);   return
+        };  request.httpBody = data
         
         let task = session.dataTask(with: request) {data, response, error in
             if error != nil {
                 print("failed to fetch JSON from database \n \(String(describing: response))"); return
             } else {
                 print("no errors sending GPS coordinates")
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask"); return
-                }
+                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
                     print("json serialization failed"); return
                 }
-                guard let successfulPunch = json["success"] as? Bool else {
-                    print("failed on success bool"); return
-                }
+                guard let successfulPunch = json["success"] as? Bool else { print("failed on success bool"); return }
                 callback(successfulPunch)
             }
-        }
-        task.resume()
-    }
-    
-    func sendPhoto(imageData: Data, poNumber: String, callback: @escaping (HTTPURLResponse) -> () ) {
-        
-        let route = "job/" + poNumber + "/upload"
-        let session = URLSession.shared;
-        
-        var request = setupRequest(route: route, method: "POST")
-        request.addValue("application/x-www-formurlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpBody = imageData
-        
-        let task = session.dataTask(with: request) {data, response, error in
-            
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
-            } else {
-                if let responseObj = response as? HTTPURLResponse {
-                    if responseObj.statusCode == 201 {
-                        callback(responseObj)
-                    } else {
-                        print("error sending photo to server")
-                        return
-                    }
-                }
-            }
-        }
-        task.resume()
+        };  task.resume()
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
-        
         let route = "employee/" + String(employeeId)
         let request = setupRequest(route: route, method: "GET")
         let session = URLSession.shared;
         
-        let task = session.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                return
-            } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
+        let task = session.dataTask(with: request) { data, response, error in
+            
+            if error != nil { print(error); return }
+            else {
+                guard let verifiedData = data as? Data else {
+                    print("couldn't verify data from server"); return
                 }
-                
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed")
                     return
+                }; callback(user)
+            }
+        }; task.resume()
+    }
+    
+    func sendChangeOrderReq(images: [UIImage], formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
+        let url = APICalls.host + "changeOrder/" + po
+        let headers = ["formType", formType]
+        
+        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "changeOrder") { success in
+            callback(success)
+        }
+    }
+    
+    func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
+        let url = APICalls.host + "job/\(jobNumber)/upload"
+        let headers = ["employee", employee]
+        
+        alamoUpload(url: url, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { success in
+            callback(success)
+        }
+    }
+    
+    func submitSignature(images: [UIImage], formType: String, formBody: Data, employeeID: String, returnDate: String, callback: @escaping (Bool) -> () ) {
+        let url = APICalls.host + "toolReturn/\(employeeID)"
+        let headers = ["formType", formType]
+        
+        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { success in
+            callback(success)
+        }
+    }
+    
+    func alamoUpload(url: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping (Bool) -> ()) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        let headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data",
+            headers[0] : headers[1]
+        ]
+        
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                multipartFormData.append(formBody, withName: uploadType)
+                var i = 0
+                for img in images {
+                    guard let imageData = UIImageJPEGRepresentation(img, 1) else { return }
+                    let nm = "\(uploadType)_\(i)"
+                    
+                    multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")
+                    i += 1
                 }
-                callback(user)
+        },
+            usingThreshold: UInt64.init(),
+            to: url,
+            method: .post,
+            headers: headers,
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                case .success(let upload, _, _):
+                    upload.uploadProgress { progress in
+                        print("progress: ", Float(progress.fractionCompleted * 100))
+                    }
+                    upload.validate()
+                    upload.responseString { response in
+                        guard response.result.isSuccess else {
+                            print("error while uploading file: \(response.result.error)");
+                            self.failedUpload(msg: "\(uploadType) failed to upload.")
+                            callback(false); return
+                        }
+                        self.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
+                    }
+                    
+                case .failure(let encodingError):
+                    print(encodingError);
+                    self.failedUpload(msg: "\(uploadType) failed to upload.")
+                    callback(false)
+                }
+        }
+        );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
+    }
+    
+    struct ToolsNImages {
+        let tools: [FieldActions.ToolRental]
+        let images: [UIImage]
+    }
+    
+    func getToolRentals(employeeID: Int, callback: @escaping (ToolsNImages) -> ()) {
+        let route = APICalls.host + "toolRentals/\(employeeID)"
+        
+        Alamofire.request(route).responseJSON { response in
+            if let json = response.result.value {
+                print("JSON")
+                let toolsNphotos = FieldActions.fromJSONtoTool(json: json)
+                let sendBackObj = ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1)
+                print("tools & images count: ", toolsNphotos.0.count, toolsNphotos.1.count)
+                
+                callback(sendBackObj)
             }
         }
-        task.resume()
     }
+}
+
+
+extension APICalls {
     
     func setupRequest(route: String, method: String) -> URLRequest {
         let url = URL(string: APICalls.host + route)!
@@ -177,16 +283,31 @@ class APICalls {
         return request
     }
     
-}
-
-extension APICalls {
+    func startSession(request: URLRequest, session: URLSession, callback: @escaping (Bool, Data)->()) {
+        print("start session w/ req: ", request)
+        
+        let task = session.dataTask(with: request) {data, response, error in
+            if error != nil {
+                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
+                callback(false, Data())
+                return
+            } else {
+                guard let verifiedData = data as? Data else {
+                    print("could not verify data from dataTask")
+                    callback(false, Data())
+                    return
+                }
+                callback(true, verifiedData)
+            }
+        }
+        task.resume()
+    }
     
     func parseJobs(from data: Data) -> [Job.UserJob] {
         var jobsArray: [Job.UserJob] = []
         
         guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
-            print("couldn't parse json objects as an Array")
-            return jobsArray
+            print("couldn't parse json objects as an Array"); return jobsArray
         }
         
         for jobJson in json {
@@ -195,38 +316,71 @@ extension APICalls {
                     jobsArray.append(job)
                 }
             } else {
-                print("couldn't cast index json to type Dictionary")
-                return jobsArray
+                print("couldn't cast index json to type Dictionary"); return jobsArray
             }
         }
         return jobsArray
     }
     
     struct UserInfoCodeable: Encodable {
-        
         let userName: String
         let employeeID: String
         let coordinateLat: String
         let coordinateLong: String
+        let currentRole: String
     }
     
-    func convertToJSON(employee: UserData.UserInfo, location: [String]) -> Data {
-        
-        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1])
-        
-        var combinedString = person.userName + " -- " + person.employeeID  + " |"
-        combinedString += person.coordinateLat + ", " + person.coordinateLong + "|"
-        
+    func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {
+        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1], currentRole: role)
         var data = Data()
+        var combinedString = person.userName + " -- " + person.employeeID  + " |"
+        combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.currentRole
         
         do {
             let jsonEncoder = JSONEncoder()
             data = try jsonEncoder.encode(person)
-        }
-        catch {
+        } catch {
             print(error)
             data = combinedString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
         }
+        return data
+    }
+    
+    func generateCOstring(co: FieldActions.ChangeOrders) -> Data {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+        
+        do { data = try jsonEncoder.encode(co) }
+        catch { print("error converting CO to DATA", error) };
+        
+        return data
+    }
+    
+    func generateTOOLstring(toolForm: FieldActions.ToolRental) -> Data {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+        
+        do { data = try jsonEncoder.encode(toolForm) }
+        catch { print("error converting TOOLRT to DATA", error) };
+        
+        return data
+    }
+    
+    func generateToolReturnData(toolForm: FieldActions.ToolRental, signedDate: String, printedNames: [String]) -> Data {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+        
+        struct ToolReturn: Encodable {
+            let rental: FieldActions.ToolRental
+            let signedDate: String
+            let printedNames: [String]
+        }
+        
+        let returnObj = ToolReturn(rental: toolForm, signedDate: signedDate, printedNames: printedNames)
+        
+        do { data = try jsonEncoder.encode(returnObj) }
+        catch { print("error converting TOOLRT to DATA", error) };
+        
         return data
     }
     
@@ -249,51 +403,31 @@ extension APICalls {
                 event.structuredLocation = EKStructuredLocation() // Geofence location for event
                 event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
                 
-                do { try eventstore.save(event, span: .thisEvent, commit: true) }
-                catch { (error)
+                do {
+                    try eventstore.save(event, span: .thisEvent, commit: true)
+                } catch { (error)
                     if error != nil { print("looks like we couldn't setup that alarm"); print(error) }
                 }
             }
         }
     }
     
-}
-
-extension APICalls {
+    func failedUpload(msg: String) {
+        let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
+        self.notificationCenter.add(failedNotifc, withCompletionHandler: { (error) in
+            if error != nil { return }
+        })
+    }
     
-    class gpsClockInOut: NSObject {
-        var inputStream: InputStream!
-        var outputStream: OutputStream!
-        
-        let maxReadLength = 102400
-        
-        
-        func setUpNetworkComm() {
-            var readStream: Unmanaged<CFReadStream>?
-            var writeStream: Unmanaged<CFWriteStream>?
-            
-            CFStreamCreatePairWithSocketToHost(kCFAllocatorDefault, "https://mb-server-app-kbradbury.c9users.io" as CFString, 7070, &readStream, &writeStream)
-            
-            inputStream = readStream!.takeRetainedValue()
-            outputStream = writeStream!.takeRetainedValue()
-            
-            inputStream.schedule(in: .current, forMode: .commonModes)
-            outputStream.schedule(in: .current, forMode: .commonModes)
-            
-            inputStream.open()
-            outputStream.open()
-            print("socket connected ?? ")
-        }
-        
-        func clockNgps() {
-//            employee: UserData.UserInfo, location: [Double], autoClockOut: Bool?
-//                "{ employee: \(employee), location:  \(location), autoClockOut: \(autoClockOut) }".data(using: .ascii)!
-            
-            guard let data = "testing string".data(using: .ascii) else { return }
-            _ = data.withUnsafeBytes { outputStream.write($0, maxLength: data.count) }
-        }
+    func successUpload(msg: String)  {
+        let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "SUCCESS", message: msg, identifier: "uploadSuccess")
+        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
+            if error != nil { return }
+        })
     }
     
 }
+
+
 
 
