@@ -83,7 +83,7 @@ extension UserLocation {
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
-        let dist = CLLocationDistance(0.5)
+        let dist = CLLocationDistance(100)
 //        let latDelta = dist
 //        let longDelta = dist
         let span = MKCoordinateSpan(latitudeDelta: dist, longitudeDelta: dist)
@@ -147,7 +147,7 @@ extension UserLocation {
             if clockedIn == false && success == true {
                 UserLocation.instance.stopMonitoring()
                 HomeView.employeeInfo = nil
-                NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : UserData.UserInfo])
+                NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : userInfo])
             }
         }
     }

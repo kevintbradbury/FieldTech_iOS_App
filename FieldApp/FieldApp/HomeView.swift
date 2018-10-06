@@ -15,6 +15,7 @@ import UserNotifications
 import UserNotificationsUI
 import ImagePicker
 import Alamofire
+import Macaw
 //import FirebaseStorage
 //import SwiftyJSON
 
@@ -34,6 +35,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet weak var materialReqButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
+    @IBOutlet var logoView: UIView!
+    @IBOutlet var logoImage: UIImageView!
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
@@ -52,11 +55,11 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         UserLocation.instance.initialize()
         
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
-        
         picker.delegate = self
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
@@ -143,7 +146,7 @@ extension HomeView {
         }
     }
     
-    func checkForUserInfo() {
+    @objc func checkForUserInfo() {
         
         if HomeView.employeeInfo?.employeeID != nil {
             print("punched in -- \(HomeView.employeeInfo!.punchedIn)")

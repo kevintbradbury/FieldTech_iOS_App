@@ -38,9 +38,11 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
         showLoading()
         
         guard let currentLoc = UserLocation.instance.currentCoordinate else { return }
-        guard let region = UserLocation.instance.currentRegion else { return }
+//        guard let region = UserLocation.instance.currentRegion else { return }
+        let span = MKCoordinateSpan(latitudeDelta: CLLocationDegrees(0.25), longitudeDelta: CLLocationDegrees(0.25))
+        let reg = MKCoordinateRegion(center: currentLoc, span:  span)
         
-        mapView.setRegion(region, animated: true)
+        mapView.setRegion(reg, animated: true)
         mapView.setCenter(currentLoc, animated: true)
         mapView.showsUserLocation = true
         mapView.delegate = self
@@ -48,7 +50,11 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
     
     func findHWStores() {
         let req = MKLocalSearchRequest()
-        req.naturalLanguageQuery = "hardware store"
+        var hwStores = ""
+        for store in FieldActions.SuppliesRequest().hardwareLocations {
+            hwStores += "\(store) "
+        }
+        req.naturalLanguageQuery = hwStores
         req.region = mapView.region
         
         let search = MKLocalSearch.init(request: req)
