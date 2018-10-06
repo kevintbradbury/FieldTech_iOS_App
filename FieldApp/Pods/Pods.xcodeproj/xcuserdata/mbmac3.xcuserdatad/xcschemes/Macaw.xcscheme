@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8AC6BBC347FF801BD552C76910C252C3"
+               BlueprintIdentifier = "989015A57AE6592AD89DEDFA1D5EA2B5"
                BlueprintName = "Macaw"
                ReferencedContainer = "container:Pods.xcodeproj"
                BuildableName = "Macaw.framework">

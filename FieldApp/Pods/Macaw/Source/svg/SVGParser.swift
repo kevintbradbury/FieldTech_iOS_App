@@ -200,7 +200,7 @@ open class SVGParser {
     fileprivate func getMask(mask: String) -> Locus? {
         if let maskIdenitifierMatcher = SVGParserRegexHelper.getMaskIdenitifierMatcher() {
             let fullRange = NSMakeRange(0, mask.characters.count)
-            if let match = maskIdenitifierMatcher.firstMatch(in: mask, options: .reportCompletion, range: fullRange), let maskReferenceNode = self.defMasks[(mask as NSString).substring(with: match.rangeAt(1))] {
+            if let match = maskIdenitifierMatcher.firstMatch(in: mask, options: .reportCompletion, range: fullRange), let maskReferenceNode = self.defMasks[(mask as NSString).substring(with: match.range(at: 1))] {
                 return maskReferenceNode.form
             }
         }
@@ -224,8 +224,8 @@ open class SVGParser {
         
         if let matchedAttribute = matcher.firstMatch(in: attributes, options: .reportCompletion, range: fullRange) {
             
-            let attributeName = (attributes as NSString).substring(with: matchedAttribute.rangeAt(1))
-            let values = parseTransformValues((attributes as NSString).substring(with: matchedAttribute.rangeAt(2)))
+            let attributeName = (attributes as NSString).substring(with: matchedAttribute.range(at: 1))
+            let values = parseTransformValues((attributes as NSString).substring(with: matchedAttribute.range(at: 2)))
             if values.isEmpty {
                 return transform
             }
@@ -624,7 +624,7 @@ open class SVGParser {
             let elementString = element.description
             let fullRange = NSMakeRange(0, elementString.characters.count)
             if let match = matcher.firstMatch(in: elementString, options: .reportCompletion, range: fullRange) {
-                let tspans = (elementString as NSString).substring(with: match.rangeAt(1))
+                let tspans = (elementString as NSString).substring(with: match.range(at: 1))
                 return Group(contents: collectTspans(tspans, fill: fill, opacity: opacity, fontName: fontName, fontSize: fontSize,
                                                      bounds: Rect(x: getDoubleValue(element, attribute: "x") ?? 0, y: getDoubleValue(element, attribute: "y") ?? 0)),
                              place: pos, tag: getTag(element))
@@ -764,7 +764,7 @@ open class SVGParser {
             }
             if let maskIdenitifierMatcher = SVGParserRegexHelper.getMaskIdenitifierMatcher() {
                 let fullRange = NSMakeRange(0, mask.characters.count)
-                if let match = maskIdenitifierMatcher.firstMatch(in: mask, options: .reportCompletion, range: fullRange), let maskReferenceNode = self.defMasks[(mask as NSString).substring(with: match.rangeAt(1))] {
+                if let match = maskIdenitifierMatcher.firstMatch(in: mask, options: .reportCompletion, range: fullRange), let maskReferenceNode = self.defMasks[(mask as NSString).substring(with: match.range(at: 1))] {
                     shape.clip = maskReferenceNode.form
                     shape.fill = .none
                 }

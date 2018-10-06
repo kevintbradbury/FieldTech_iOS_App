@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0618A7C7216579AB00A05EEE /* ToolSignOffView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */; };
+		0618A7C92169280C00A05EEE /* MacawButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0618A7C82169280C00A05EEE /* MacawButtonView.swift */; };
 		062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A11FFC572100F1E193 /* CalendarCell.swift */; };
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
 		062A32D5215C09A0001B6703 /* ToolReturnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D4215C09A0001B6703 /* ToolReturnView.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolSignOffView.swift; sourceTree = "<group>"; };
+		0618A7C82169280C00A05EEE /* MacawButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacawButtonView.swift; sourceTree = "<group>"; };
 		062005A11FFC572100F1E193 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
 		062A32D4215C09A0001B6703 /* ToolReturnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolReturnView.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
+				0618A7C82169280C00A05EEE /* MacawButtonView.swift */,
 				062005A51FFC642900F1E193 /* ScheduleView.swift */,
 				066223362150322800B9C8E2 /* StoresMapView.swift */,
 				062A32D4215C09A0001B6703 /* ToolReturnView.swift */,
@@ -375,6 +378,7 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-FieldApp/Pods-FieldApp-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/EPSignature/EPSignature.framework",
+				"${BUILT_PRODUCTS_DIR}/FanMenu/FanMenu.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/ImagePicker/ImagePicker.framework",
@@ -392,6 +396,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EPSignature.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FanMenu.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ImagePicker.framework",
@@ -486,6 +491,7 @@
 				062A32D8215C0C5C001B6703 /* ToolRentalReturnCell.swift in Sources */,
 				0AC8EF7D1F71842F00E86DD6 /* LocationManager.swift in Sources */,
 				06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */,
+				0618A7C92169280C00A05EEE /* MacawButtonView.swift in Sources */,
 				062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

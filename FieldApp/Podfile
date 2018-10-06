@@ -18,6 +18,7 @@ pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 
 pod 'ImagePicker'
 pod "EPSignature"
 pod "Macaw"
+pod "FanMenu"
 pod "SwiftGifOrigin"
 
 

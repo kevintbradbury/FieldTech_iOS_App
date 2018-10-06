@@ -4,7 +4,6 @@
 //
 //  Created by Kevin Bradbury on 9/26/17.
 //  Copyright © 2017 Kevin Bradbury. All rights reserved.
-//
 
 import Foundation
 import UIKit
@@ -14,8 +13,10 @@ import CoreLocation
 import UserNotifications
 import UserNotificationsUI
 import ImagePicker
-import Alamofire
 import Macaw
+import FanMenu
+
+//import Alamofire
 //import FirebaseStorage
 //import SwiftyJSON
 
@@ -35,12 +36,20 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet weak var materialReqButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
-    @IBOutlet var logoView: UIView!
-    @IBOutlet var logoImage: UIImageView!
+    @IBOutlet var logoView: FanMenu!
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
+    let colors = [
+        0x231FE4, 0x00BFB6, 0xFFC43D, 0xFF5F3D, 0xF34766,
+        Color.aqua.val, Color.fuchsia.val, Color.green.val, Color.silver.val
+    ]
+    let icons = [
+        "clock", "schedule", "materials", "form", "time_off",
+        "", // (safety_quiz)
+        "hotel_req", "tools", "camera"
+    ]
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var main = OperationQueue.main
@@ -55,7 +64,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         UserLocation.instance.initialize()
         
         activityIndicator.isHidden = true
@@ -73,6 +81,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
             clockInOut!, choosePhotoButton!, toolsRentButton!, hotelResButton!, timeOffButton!, calendarButton!, changOrderButton!, materialReqButton!
         ]
         setShadows(btns: btns)
+        setUpHomeBtn()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -92,6 +101,42 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 }
 
 extension HomeView {
+    
+    func setUpHomeBtn() {
+        logoView.button = FanMenuButton(
+            id: "main", image: "MB_logo", color: Color.black
+            // "iTunesArtwork"     Int(0x7C93FE)
+        )
+        logoView.items = colors.enumerated().map { (index, item) in
+            FanMenuButton(
+                id: String(index),
+                image: String(icons[index]),
+                color: Color(val: item)
+            )
+        }
+        let btnRadius = 35.0
+        logoView.menuRadius = Double(4 * btnRadius)     //  100.0
+        logoView.duration = 0.2
+        logoView.interval = (0, 2 * Double.pi)      //  2 * Double.pi
+        logoView.radius = btnRadius
+        
+        logoView.onItemWillClick = { button in
+            print("button: ", button.id, button.image)
+            
+            if button.id != "main" {
+//                let newColor = self.colors[Int(button.id)!]
+//                let fanGroup = self.logoView.node as? Group
+//                let circleGroup = fanGroup?.contents[2] as? Group
+//                let shape = circleGroup?.contents[0] as? Shape
+//                shape?.fill = Color(val: newColor)
+                
+            } else {
+
+            }
+        }
+        logoView.backgroundColor = .clear
+        //        logoView.transform = CGAffineTransform(rotationAngle: CGFloat(3 * Double.pi/2.0))
+    }
     
     func checkAppDelANDnotif() {
         let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
@@ -316,8 +361,12 @@ extension HomeView {
     func showRentOrReturnWin() {
         
         let alert = UIAlertController(title: "Rent or Return", message: "Are you renting or returning a tool?", preferredStyle: .alert)
-        let rental = UIAlertAction(title: "Rental", style: .default) { action in    self.performSegue(withIdentifier: "toolRental", sender: nil) }
-        let returnTool = UIAlertAction(title: "Return", style: .destructive) { action in    self.performSegue(withIdentifier: "toolReturn", sender: nil) }
+        let rental = UIAlertAction(title: "Rental", style: .default) { action in
+            self.performSegue(withIdentifier: "toolRental", sender: nil)
+        }
+        let returnTool = UIAlertAction(title: "Return", style: .destructive) { action in
+            self.performSegue(withIdentifier: "toolReturn", sender: nil)
+        }
         
         alert.addAction(rental)
         alert.addAction(returnTool)

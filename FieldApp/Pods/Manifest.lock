@@ -1,6 +1,8 @@
 PODS:
   - Alamofire (4.7.3)
   - EPSignature (1.0.3)
+  - FanMenu (0.7.0):
+    - Macaw
   - Firebase/Auth (5.9.0):
     - Firebase/CoreOnly
     - FirebaseAuth (= 5.0.4)
@@ -95,6 +97,7 @@ PODS:
 DEPENDENCIES:
   - Alamofire
   - EPSignature
+  - FanMenu
   - Firebase/Auth
   - Firebase/Core
   - Firebase/Database
@@ -111,6 +114,7 @@ SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - Alamofire
     - EPSignature
+    - FanMenu
     - Firebase
     - FirebaseAnalytics
     - FirebaseAuth
@@ -146,6 +150,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Alamofire: c7287b6e5d7da964a70935e5db17046b7fde6568
   EPSignature: 6c5c3ca674650a11b16c3cd5641a830bad4793f8
+  FanMenu: aba7ad85e29d7cda4a34eddf5f0938b7ebd2ea9c
   Firebase: 383fa29aca93e371cab776b48a5c66544d3c2003
   FirebaseAnalytics: 831f1f127f4a75698e9875a87bf7e2668730d953
   FirebaseAuth: 504b198ceb3472dca5c65bb95544ea44cfc9439e
@@ -169,6 +174,6 @@ SPEC CHECKSUMS:
   SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
   SWXMLHash: f0761e5c5d1a49f6553609bd0f5696a61738c5b9
 
-PODFILE CHECKSUM: 3cf7fdfa3714af26064bb2b08a60d4b3f701ce7b
+PODFILE CHECKSUM: e97f9e1086c65f087bd0170f288d71c7d726f6e0
 
 COCOAPODS: 1.5.0
