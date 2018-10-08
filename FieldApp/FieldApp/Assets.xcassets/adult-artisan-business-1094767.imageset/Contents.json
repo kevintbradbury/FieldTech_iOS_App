@@ -2,7 +2,6 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "adult-artisan-business-1094767.jpg",
       "scale" : "1x"
     },
     {
@@ -11,6 +10,7 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "adult-artisan-business-1094767.jpg",
       "scale" : "3x"
     }
   ],

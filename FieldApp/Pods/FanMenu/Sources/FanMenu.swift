@@ -122,18 +122,23 @@ class FanMenuScene {
         
         menuCircle = Shape(
             form: Circle(r: fanMenu.radius),
-            fill: button.color
+            fill: button.color,
+            place: Transform.move(
+                dx: -Double(fanMenu.radius) / 2, dy: -Double(fanMenu.radius) / 2
+//                dx: -Double(fanMenu.radius) / 2, dy: -Double(fanMenu.radius) / 2
+            )
         )
         
         buttonNode = [menuCircle].group()
         if let uiImage = UIImage(named: button.image) {
             menuIcon = Image(
-                src: button.image,
-                place: Transform.move(
-                    dx: -Double(uiImage.size.width) / 2,
-                    dy: -Double(uiImage.size.height) / 2
-                )
+                src: button.image, w: 70, h: 70, opaque: true, opacity: 1.0, visible: true
             )
+            
+//            Image(src: button.image, place: Transform.move(
+//                dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2
+//            ))
+            
             buttonNode.contents.append(menuIcon!)
         } else {
             menuIcon = .none
@@ -236,12 +241,12 @@ class FanMenuScene {
         ]
         if let uiImage = UIImage(named: button.image) {
             let image = Image(
-                src: button.image,
-                place: Transform.move(
-                    dx: -Double(uiImage.size.width) / 2,
-                    dy: -Double(uiImage.size.height) / 2
-                )
+                src: button.image, w: 70, h: 70, opaque: true, opacity: 1.0, visible: true
             )
+//            Image(src: button.image, place: Transform.move(
+//                dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2
+//            ))
+            
             contents.append(image)
         }
         let node = Group(contents: contents)

@@ -42,8 +42,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
     let colors = [
-        0x231FE4, 0x00BFB6, 0xFFC43D, 0xFF5F3D, 0xF34766,
-        Color.aqua.val, Color.fuchsia.val, Color.green.val, Color.silver.val
+        Color.yellow.val, 0x00BFB6, Color.teal.val, Color.red.val, Color.fuchsia.val,
+        Color.navy.val, Color.green.val, Color.blue.val, Color.purple.val
     ]
     let icons = [
         "clock", "schedule", "materials", "form", "time_off",
@@ -103,10 +103,16 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 extension HomeView {
     
     func setUpHomeBtn() {
+        let btnRadius = 35.0
+        logoView.menuRadius = Double(3 * btnRadius)     //  100.0
+        logoView.duration = 0.2
+        logoView.interval = (0, 2 * Double.pi)
+        logoView.radius = btnRadius
+        
         logoView.button = FanMenuButton(
             id: "main", image: "MB_logo", color: Color.black
-            // "iTunesArtwork"     Int(0x7C93FE)
         )
+        
         logoView.items = colors.enumerated().map { (index, item) in
             FanMenuButton(
                 id: String(index),
@@ -114,28 +120,18 @@ extension HomeView {
                 color: Color(val: item)
             )
         }
-        let btnRadius = 35.0
-        logoView.menuRadius = Double(4 * btnRadius)     //  100.0
-        logoView.duration = 0.2
-        logoView.interval = (0, 2 * Double.pi)      //  2 * Double.pi
-        logoView.radius = btnRadius
         
         logoView.onItemWillClick = { button in
             print("button: ", button.id, button.image)
             
             if button.id != "main" {
-//                let newColor = self.colors[Int(button.id)!]
-//                let fanGroup = self.logoView.node as? Group
-//                let circleGroup = fanGroup?.contents[2] as? Group
-//                let shape = circleGroup?.contents[0] as? Shape
-//                shape?.fill = Color(val: newColor)
                 
             } else {
 
             }
+            //        logoView.backgroundColor = .clear
+            //        logoView.transform = CGAffineTransform(rotationAngle: CGFloat(3 * Double.pi/2.0))
         }
-        logoView.backgroundColor = .clear
-        //        logoView.transform = CGAffineTransform(rotationAngle: CGFloat(3 * Double.pi/2.0))
     }
     
     func checkAppDelANDnotif() {

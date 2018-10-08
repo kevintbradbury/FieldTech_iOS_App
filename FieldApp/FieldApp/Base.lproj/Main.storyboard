@@ -1370,20 +1370,20 @@
         </scene>
     </scenes>
     <resources>
-        <image name="back" width="700" height="700"/>
-        <image name="camera" width="700" height="700"/>
-        <image name="clock" width="700" height="700"/>
+        <image name="back" width="233" height="233"/>
+        <image name="camera" width="233" height="233"/>
+        <image name="clock" width="233" height="233"/>
         <image name="clockIn" width="700" height="700"/>
         <image name="clockOut" width="700" height="700"/>
-        <image name="form" width="700" height="700"/>
-        <image name="hotel_req" width="700" height="700"/>
+        <image name="form" width="233" height="233"/>
+        <image name="hotel_req" width="233" height="233"/>
         <image name="log_out" width="700" height="700"/>
         <image name="lunch" width="700" height="700"/>
-        <image name="materials" width="700" height="700"/>
-        <image name="schedule" width="700" height="700"/>
+        <image name="materials" width="233" height="233"/>
+        <image name="schedule" width="233" height="233"/>
         <image name="signature" width="700" height="700"/>
-        <image name="time_off" width="700" height="700"/>
-        <image name="tools" width="700" height="700"/>
+        <image name="time_off" width="233" height="233"/>
+        <image name="tools" width="233" height="233"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="up3-NZ-nvU"/>
