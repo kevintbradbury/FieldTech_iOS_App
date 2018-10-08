@@ -95,8 +95,8 @@ public class FanMenu: MacawView {
         let scene = FanMenuScene(fanMenu: self)
         let node = scene.node
         node.place = Transform.move(
-            dx: Double(self.frame.width) / 2,
-            dy: Double(self.frame.height) / 2
+            dx: Double((self.frame.width / 2) + 35.0),
+            dy: Double((self.frame.height / 2) + 35.0)
         )
         self.node = node
         self.scene = scene
@@ -122,22 +122,18 @@ class FanMenuScene {
         
         menuCircle = Shape(
             form: Circle(r: fanMenu.radius),
-            fill: button.color,
-            place: Transform.move(
-                dx: -Double(fanMenu.radius) / 2, dy: -Double(fanMenu.radius) / 2
-//                dx: -Double(fanMenu.radius) / 2, dy: -Double(fanMenu.radius) / 2
-            )
+            fill: button.color
         )
-        
         buttonNode = [menuCircle].group()
+        
         if let uiImage = UIImage(named: button.image) {
             menuIcon = Image(
-                src: button.image, w: 70, h: 70, opaque: true, opacity: 1.0, visible: true
+                src: button.image,
+                w: 70, h: 70,
+                place: Transform.move(dx: -35.0, dy: -35.0),
+                opaque: true, opacity: 1.0, visible: true
             )
-            
-//            Image(src: button.image, place: Transform.move(
-//                dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2
-//            ))
+//            Image(src: button.image, place: Transform.move(dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2))
             
             buttonNode.contents.append(menuIcon!)
         } else {
@@ -241,7 +237,9 @@ class FanMenuScene {
         ]
         if let uiImage = UIImage(named: button.image) {
             let image = Image(
-                src: button.image, w: 70, h: 70, opaque: true, opacity: 1.0, visible: true
+                src: button.image, w: 60, h: 60,
+                place: Transform.move(dx: -35.0, dy: -35.0),
+                opaque: true, opacity: 1.0, visible: true
             )
 //            Image(src: button.image, place: Transform.move(
 //                dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2
