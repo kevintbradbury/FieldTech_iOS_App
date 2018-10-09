@@ -2,6 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
+      "filename" : "hotel_req_yellow.png",
       "scale" : "1x"
     },
     {

@@ -29,18 +29,18 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet var logoView: FanMenu!
     @IBOutlet var bkgdView: MacawView!
-    @IBOutlet var bottomBKGDview: MacawView!
+    
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
     let colors = [
-        Color.yellow.val, 0x00BFB6, Color.teal.val, Color.red.val, Color.fuchsia.val,
+        Color.yellow.val, 0xFF9742, Color.teal.val, Color.red.val, Color.fuchsia.val,
         Color.navy.val, Color.green.val, Color.blue.val, Color.purple.val
     ]
     let icons = [
-        "clock", "schedule", "materials", "form", "time_off",
-        "", /* (safety_quiz) */ "hotel_req", "tools", "camera"
+        "clock", "schedule", "materials", "share_white", "time_off",
+        "safety", "hotel_req", "tools", "camera"
     ]
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
@@ -88,6 +88,7 @@ extension HomeView {
         logoView.duration = 0.2
         logoView.interval = (0, 2 * Double.pi)
         logoView.radius = btnRadius
+        logoView.menuBackground = Color.clear
         
         logoView.button = FanMenuButton(
             id: "main", image: "MB_logo", color: Color.white
@@ -106,49 +107,29 @@ extension HomeView {
             
             if button.id != "main" { self.chooseSegue(image: button.image) }
         }
-        let node = Group()
         
+        let node = Group()
         let shp = Shape(
             form: Rect(
-                x: 0.0, y: 0.0, w: Double(self.view.frame.width), h: Double(self.view.frame.height)
+                x: 0.0, y: 0.0,
+                w: Double(self.view.frame.width), h: Double(self.view.frame.height / 2)
             ),
-//            Circle(cx: Double(self.view.frame.width / 2), cy: Double(self.view.frame.height / 2), r: logoView.menuRadius),
-            fill: RadialGradient(
-                cx: Double(self.view.frame.width / 2),
-                cy: Double(self.view.frame.height / 2),
-                fx: 0.0,
-                fy: 0.0,
-                r: Double(self.view.frame.width),
-                userSpace: true,
-                stops: [Stop.init(color: Color.black), Stop.init(color: Color.white)]
-            )
-//            LinearGradient(degree: 45, from: Color.black, to: Color.white),
-            
-//            stroke: Stroke(fill: Color.white, width: 1.0)
+            fill: LinearGradient(degree: 90, from: Color.black, to: Color.white),
+            stroke: Stroke(fill: Color.green, width: 1.0)
         )
-
-//        node.contents.append(shp)
-//        let shpTwo = Shape(
-//            form: Rect(
-//                x: Double(self.view.frame.width), y: 0.0,
-//                w: -Double(self.view.frame.width / 2), h: Double(self.view.frame.height / 2)
-//            ),
-//            fill: LinearGradient(degree: 135, from: Color.black, to: Color.white),
-//            stroke: Stroke(fill: Color.white, width: 1.0)
-//        )
-//        node.contents.append(shpTwo)
+        node.contents.append(shp)
         
-        bkgdView.node = shp
+        let shpTwo = Shape(
+            form: Rect(
+                x: 0.0, y: Double(self.view.frame.height / 2),
+                w: Double(self.view.frame.width), h: Double(self.view.frame.height / 2)
+            ),
+            fill: LinearGradient(degree: 90, from: Color.white, to: Color.black),
+            stroke: Stroke(fill: Color.white, width: 1.0)
+        )
         
-//        bottomBKGDview.node = Shape(
-//            form: Rect(
-//                x: 0.0, y: Double(self.view.frame.height / 2),
-//                w: Double(self.view.frame.width), h: Double(self.view.frame.height / 2)
-//            ),
-//            fill: LinearGradient(degree: 90, from: Color.white, to: Color.black),
-//            stroke: Stroke(fill: Color.white, width: 1.0)
-//        )
-
+        node.contents.append(shpTwo)
+        bkgdView.node = node
     }
     
     func chooseSegue(image: String) {
@@ -159,7 +140,7 @@ extension HomeView {
             performSegue(withIdentifier: "schedule", sender: nil)
         case "materials":
             performSegue(withIdentifier: "map", sender: nil)
-        case "form":
+        case "share_white":
             performSegue(withIdentifier: "changeOrder", sender: nil)
         case "tools":
             showRentOrReturnWin()

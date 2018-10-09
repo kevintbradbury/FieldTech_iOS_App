@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "MB_logo_nobkgd.png",
+      "filename" : "safety_orange.png",
       "scale" : "1x"
     },
     {
@@ -11,6 +11,7 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "safety.png",
       "scale" : "3x"
     }
   ],
