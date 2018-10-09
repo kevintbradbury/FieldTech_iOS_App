@@ -22,21 +22,14 @@ import FanMenu
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
     
-    @IBOutlet weak var homeButton: UIButton!
     @IBOutlet weak var logoutButton: UIButton!
     @IBOutlet weak var userLabel: UILabel!
     @IBOutlet weak var labelBkgd: UIView!
-    @IBOutlet weak var clockInOut: UIButton!
-    @IBOutlet weak var choosePhotoButton: UIButton!
-    @IBOutlet weak var toolsRentButton: UIButton!
-    @IBOutlet weak var hotelResButton: UIButton!
-    @IBOutlet weak var timeOffButton: UIButton!
-    @IBOutlet weak var calendarButton: UIButton!
-    @IBOutlet weak var changOrderButton: UIButton!
-    @IBOutlet weak var materialReqButton: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet var logoView: FanMenu!
+    @IBOutlet var bkgdView: MacawView!
+    @IBOutlet var bottomBKGDview: MacawView!
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
@@ -47,8 +40,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     ]
     let icons = [
         "clock", "schedule", "materials", "form", "time_off",
-        "", // (safety_quiz)
-        "hotel_req", "tools", "camera"
+        "", /* (safety_quiz) */ "hotel_req", "tools", "camera"
     ]
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
@@ -75,13 +67,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         }
         setUpNotifications()
         checkAppDelANDnotif()
-        NotificationCenter.default.addObserver(self, selector: #selector(checkForUserInfo), name: .info, object: nil)
-        
-        let btns = [
-            clockInOut!, choosePhotoButton!, toolsRentButton!, hotelResButton!, timeOffButton!, calendarButton!, changOrderButton!, materialReqButton!
-        ]
-        setShadows(btns: btns)
         setUpHomeBtn()
+//        NotificationCenter.default.addObserver(self, selector: #selector(checkForUserInfo), name: .info, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -90,13 +77,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     }
     
     @IBAction func logoutPressed(_ sender: Any) { logOut() }
-    @IBAction func goClockInOut(_ sender: Any) { performSegue(withIdentifier: "clock_in", sender: self) }
-    @IBAction func rentalOrReturn(_ sender: Any) { showRentOrReturnWin() }
-    @IBAction func goToSchedule(_ sender: Any) { performSegue(withIdentifier: "schedule", sender: self) }
-    @IBAction func chooseUploadMethod(_ sender: Any) {
-        present(picker, animated: true, completion: nil)
-        picker.showAlert(withTitle: "Reminder", message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. ")
-    }
     
 }
 
@@ -104,13 +84,13 @@ extension HomeView {
     
     func setUpHomeBtn() {
         let btnRadius = 35.0
-        logoView.menuRadius = Double(3 * btnRadius)     //  100.0
+        logoView.menuRadius = Double(4 * btnRadius)     //  100.0
         logoView.duration = 0.2
         logoView.interval = (0, 2 * Double.pi)
         logoView.radius = btnRadius
         
         logoView.button = FanMenuButton(
-            id: "main", image: "MB_logo", color: Color.black
+            id: "main", image: "MB_logo", color: Color.white
         )
         
         logoView.items = colors.enumerated().map { (index, item) in
@@ -124,13 +104,78 @@ extension HomeView {
         logoView.onItemWillClick = { button in
             print("button: ", button.id, button.image)
             
-            if button.id != "main" {
-                
-            } else {
+            if button.id != "main" { self.chooseSegue(image: button.image) }
+        }
+        let node = Group()
+        
+        let shp = Shape(
+            form: Rect(
+                x: 0.0, y: 0.0, w: Double(self.view.frame.width), h: Double(self.view.frame.height)
+            ),
+//            Circle(cx: Double(self.view.frame.width / 2), cy: Double(self.view.frame.height / 2), r: logoView.menuRadius),
+            fill: RadialGradient(
+                cx: Double(self.view.frame.width / 2),
+                cy: Double(self.view.frame.height / 2),
+                fx: 0.0,
+                fy: 0.0,
+                r: Double(self.view.frame.width),
+                userSpace: true,
+                stops: [Stop.init(color: Color.black), Stop.init(color: Color.white)]
+            )
+//            LinearGradient(degree: 45, from: Color.black, to: Color.white),
+            
+//            stroke: Stroke(fill: Color.white, width: 1.0)
+        )
 
-            }
-            //        logoView.backgroundColor = .clear
-            //        logoView.transform = CGAffineTransform(rotationAngle: CGFloat(3 * Double.pi/2.0))
+//        node.contents.append(shp)
+//        let shpTwo = Shape(
+//            form: Rect(
+//                x: Double(self.view.frame.width), y: 0.0,
+//                w: -Double(self.view.frame.width / 2), h: Double(self.view.frame.height / 2)
+//            ),
+//            fill: LinearGradient(degree: 135, from: Color.black, to: Color.white),
+//            stroke: Stroke(fill: Color.white, width: 1.0)
+//        )
+//        node.contents.append(shpTwo)
+        
+        bkgdView.node = shp
+        
+//        bottomBKGDview.node = Shape(
+//            form: Rect(
+//                x: 0.0, y: Double(self.view.frame.height / 2),
+//                w: Double(self.view.frame.width), h: Double(self.view.frame.height / 2)
+//            ),
+//            fill: LinearGradient(degree: 90, from: Color.white, to: Color.black),
+//            stroke: Stroke(fill: Color.white, width: 1.0)
+//        )
+
+    }
+    
+    func chooseSegue(image: String) {
+        switch image {
+        case "clock":
+            performSegue(withIdentifier: "clock_in", sender: nil)
+        case "schedule":
+            performSegue(withIdentifier: "schedule", sender: nil)
+        case "materials":
+            performSegue(withIdentifier: "map", sender: nil)
+        case "form":
+            performSegue(withIdentifier: "changeOrder", sender: nil)
+        case "tools":
+            showRentOrReturnWin()
+        case "camera":
+            present(picker, animated: true, completion: nil)
+            picker.showAlert(
+                withTitle: "Reminder",
+                message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. "
+            )
+            //        case "time_off":
+            //        case "":
+            //        case "hotel_req":
+            
+        default:
+            showAlert(withTitle: "Under Contruction",
+                      message: "Sorry this part is still under construction.")
         }
     }
     
@@ -145,6 +190,10 @@ extension HomeView {
                 }
             }
         }
+        
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(checkForUserInfo), name: .info, object: nil
+        )
     }
     
     func logOut() {

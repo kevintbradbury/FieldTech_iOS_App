@@ -261,44 +261,16 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleAspectFit" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kzM-Sf-a7X">
-                                <rect key="frame" x="267" y="20" width="52" height="48"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="48" id="9uz-7h-uRl"/>
-                                    <constraint firstAttribute="width" constant="52" id="kDa-Xs-jod"/>
-                                    <constraint firstAttribute="width" secondItem="kzM-Sf-a7X" secondAttribute="height" multiplier="13:12" id="kHo-Ru-dwa"/>
-                                </constraints>
-                                <state key="normal" title="Logout" image="log_out"/>
-                                <connections>
-                                    <action selector="logoutPressed:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="xqT-rr-3WC"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pmF-ul-qVq">
-                                <rect key="frame" x="60" y="20" width="200" height="30"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="qIw-jQ-3Z2"/>
-                                </constraints>
-                                <state key="normal" title="Home">
-                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                            </button>
-                            <button contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="clip" translatesAutoresizingMaskIntoConstraints="NO" id="YvG-O8-KGh" userLabel="Photo Button">
-                                <rect key="frame" x="170" y="126" width="90" height="86"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="90" id="4BF-ke-2E2"/>
-                                    <constraint firstAttribute="width" secondItem="YvG-O8-KGh" secondAttribute="height" multiplier="45:43" id="yJq-IG-EWZ"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="Photo" image="camera">
-                                    <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="chooseUploadMethod:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="hpL-nr-sFg"/>
-                                </connections>
-                            </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CZR-Uv-g6q" userLabel="top BKGD View" customClass="MacawView" customModule="Macaw">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="GtL-7M-Qdh" customClass="FanMenu" customModule="FanMenu">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yyp-OB-pjb" userLabel="labelBkgd">
-                                <rect key="frame" x="60" y="55" width="200" height="49"/>
+                                <rect key="frame" x="60" y="20" width="200" height="49"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Clocked Out" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zhP-4P-kVW">
                                         <rect key="frame" x="0.0" y="0.0" width="200" height="49"/>
@@ -323,94 +295,16 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hKS-a2-6EN">
-                                <rect key="frame" x="60" y="128" width="90" height="84"/>
+                            <button opaque="NO" contentMode="scaleAspectFit" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kzM-Sf-a7X">
+                                <rect key="frame" x="267" y="20" width="52" height="48"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="90" id="6ge-c9-Z3x"/>
-                                    <constraint firstAttribute="width" secondItem="hKS-a2-6EN" secondAttribute="height" multiplier="44:41" id="exh-Kb-ajL"/>
+                                    <constraint firstAttribute="height" constant="48" id="9uz-7h-uRl"/>
+                                    <constraint firstAttribute="width" constant="52" id="kDa-Xs-jod"/>
+                                    <constraint firstAttribute="width" secondItem="kzM-Sf-a7X" secondAttribute="height" multiplier="13:12" id="kHo-Ru-dwa"/>
                                 </constraints>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="Button" image="clock">
-                                    <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
+                                <state key="normal" title="Logout" image="log_out"/>
                                 <connections>
-                                    <action selector="goClockInOut:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="PLK-7u-b1J"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VuN-ir-UVJ" userLabel="Tools Rental">
-                                <rect key="frame" x="60" y="232" width="90" height="84"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="VuN-ir-UVJ" secondAttribute="height" multiplier="14:13" id="JWH-C1-Shb"/>
-                                    <constraint firstAttribute="width" constant="90" id="ZwU-Qz-Avw"/>
-                                </constraints>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="Button" image="tools">
-                                    <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="rentalOrReturn:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="gcP-eE-hoj"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FPG-xZ-sGl" userLabel="Hotel_request">
-                                <rect key="frame" x="170" y="232" width="90" height="84"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="FPG-xZ-sGl" secondAttribute="height" multiplier="44:41" id="0ag-qM-SuN"/>
-                                    <constraint firstAttribute="width" constant="90" id="PuU-61-eKd"/>
-                                </constraints>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="Button" image="hotel_req">
-                                    <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                            </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dXO-mp-iuY" userLabel="Time_Off">
-                                <rect key="frame" x="60" y="336" width="90" height="84"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="dXO-mp-iuY" secondAttribute="height" multiplier="44:41" id="5CZ-Uu-p1g"/>
-                                    <constraint firstAttribute="width" constant="90" id="eRk-iR-phJ"/>
-                                </constraints>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="Button" image="time_off">
-                                    <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                            </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vsJ-P5-s3O" userLabel="Schedule">
-                                <rect key="frame" x="170" y="336" width="90" height="82"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="vsJ-P5-s3O" secondAttribute="height" multiplier="11:10" id="ALi-4b-u0i"/>
-                                    <constraint firstAttribute="width" constant="90" id="Y7e-jB-aPR"/>
-                                </constraints>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="Button" image="schedule">
-                                    <color key="titleShadowColor" red="0.66422420739999999" green="0.66424006219999998" blue="0.66423153879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="goToSchedule:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="jNZ-OQ-Huu"/>
-                                    <segue destination="gwV-lw-m8q" kind="presentation" identifier="schedule" id="fk8-Gi-Chx"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LMD-e6-pbg" userLabel="CHange Order">
-                                <rect key="frame" x="170" y="440" width="90" height="84"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="90" id="8XO-e9-Gob"/>
-                                    <constraint firstAttribute="width" secondItem="LMD-e6-pbg" secondAttribute="height" multiplier="44:41" id="GO6-hd-ixN"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="33"/>
-                                <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="COs" image="form">
-                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </state>
-                                <connections>
-                                    <segue destination="bP6-Xq-Etq" kind="presentation" identifier="changeOrder" id="HJf-JZ-d2B"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WUa-mn-fXE" userLabel="Field Supplies">
-                                <rect key="frame" x="60" y="440" width="90" height="84"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="90" id="hHe-Vl-NWO"/>
-                                </constraints>
-                                <state key="normal" title="Button" image="materials"/>
-                                <connections>
-                                    <segue destination="dip-GN-7tK" kind="presentation" identifier="map" id="iyi-ix-yjF"/>
+                                    <action selector="logoutPressed:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="xqT-rr-3WC"/>
                                 </connections>
                             </button>
                             <view hidden="YES" opaque="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJW-NP-9cu">
@@ -425,67 +319,43 @@
                                 </constraints>
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
-                            <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="GtL-7M-Qdh" customClass="FanMenu" customModule="FanMenu">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="WUa-mn-fXE" firstAttribute="trailing" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="-10" id="1aW-sv-i24"/>
-                            <constraint firstItem="pmF-ul-qVq" firstAttribute="top" secondItem="FRb-fi-I8j" secondAttribute="topMargin" id="21s-NW-Gmb"/>
                             <constraint firstItem="GtL-7M-Qdh" firstAttribute="width" secondItem="FRb-fi-I8j" secondAttribute="width" id="23F-UC-oW0"/>
-                            <constraint firstItem="VuN-ir-UVJ" firstAttribute="top" secondItem="hKS-a2-6EN" secondAttribute="bottom" constant="20" id="3d9-dj-Sb0"/>
                             <constraint firstItem="GtL-7M-Qdh" firstAttribute="centerY" secondItem="FRb-fi-I8j" secondAttribute="centerY" id="4bu-Ss-J0v"/>
-                            <constraint firstItem="vsJ-P5-s3O" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="10" id="7f6-MY-qM5"/>
-                            <constraint firstItem="vsJ-P5-s3O" firstAttribute="top" secondItem="FPG-xZ-sGl" secondAttribute="bottom" constant="20" id="CXv-pc-GXc"/>
+                            <constraint firstItem="Emo-Ae-v6f" firstAttribute="top" secondItem="CZR-Uv-g6q" secondAttribute="bottom" id="4i7-qL-RUn"/>
+                            <constraint firstItem="kzM-Sf-a7X" firstAttribute="top" secondItem="Td1-2d-FJP" secondAttribute="bottom" id="B6D-0N-Jvc"/>
                             <constraint firstItem="GtL-7M-Qdh" firstAttribute="height" secondItem="FRb-fi-I8j" secondAttribute="height" id="DbE-hb-Z10"/>
-                            <constraint firstItem="FPG-xZ-sGl" firstAttribute="top" secondItem="YvG-O8-KGh" secondAttribute="bottom" constant="20" id="DjY-fl-U1p"/>
                             <constraint firstAttribute="trailing" secondItem="kzM-Sf-a7X" secondAttribute="trailing" id="EhP-iT-gAj"/>
                             <constraint firstItem="vaz-4K-nny" firstAttribute="centerY" secondItem="FRb-fi-I8j" secondAttribute="centerY" id="Grb-Oq-9qV"/>
-                            <constraint firstItem="hKS-a2-6EN" firstAttribute="trailing" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="-10" id="HYp-ZP-i9Q"/>
                             <constraint firstAttribute="trailing" secondItem="aJW-NP-9cu" secondAttribute="trailing" id="IGx-Hx-YgJ"/>
-                            <constraint firstItem="pmF-ul-qVq" firstAttribute="top" secondItem="kzM-Sf-a7X" secondAttribute="top" id="K50-cQ-3MK"/>
                             <constraint firstItem="aJW-NP-9cu" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="leading" id="M0t-bh-2mj"/>
-                            <constraint firstItem="YvG-O8-KGh" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="10" id="ONz-pB-6P4"/>
+                            <constraint firstAttribute="trailing" secondItem="CZR-Uv-g6q" secondAttribute="trailing" id="MtT-6d-zqL"/>
                             <constraint firstItem="GtL-7M-Qdh" firstAttribute="centerX" secondItem="FRb-fi-I8j" secondAttribute="centerX" id="U6b-S4-00t"/>
-                            <constraint firstItem="LMD-e6-pbg" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="10" id="XE7-d6-HkO"/>
-                            <constraint firstItem="yyp-OB-pjb" firstAttribute="top" secondItem="pmF-ul-qVq" secondAttribute="bottom" constant="5" id="Xft-Xz-azk"/>
                             <constraint firstItem="yyp-OB-pjb" firstAttribute="centerX" secondItem="FRb-fi-I8j" secondAttribute="centerX" id="XpD-Ex-9mA"/>
-                            <constraint firstItem="FPG-xZ-sGl" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="10" id="XyC-s8-tqN"/>
-                            <constraint firstItem="dXO-mp-iuY" firstAttribute="top" secondItem="VuN-ir-UVJ" secondAttribute="bottom" constant="20" id="YNr-3y-z9p"/>
-                            <constraint firstItem="LMD-e6-pbg" firstAttribute="top" secondItem="dXO-mp-iuY" secondAttribute="bottom" constant="20" id="ZAt-zm-TwB"/>
-                            <constraint firstItem="VuN-ir-UVJ" firstAttribute="trailing" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="-10" id="dgT-Lo-jgS"/>
-                            <constraint firstItem="pmF-ul-qVq" firstAttribute="centerX" secondItem="FRb-fi-I8j" secondAttribute="centerX" id="fHc-oN-Zfe"/>
-                            <constraint firstItem="WUa-mn-fXE" firstAttribute="top" secondItem="dXO-mp-iuY" secondAttribute="bottom" constant="20" id="fXq-VB-02u"/>
-                            <constraint firstItem="LMD-e6-pbg" firstAttribute="height" secondItem="WUa-mn-fXE" secondAttribute="height" id="i8G-bw-02U"/>
-                            <constraint firstItem="VuN-ir-UVJ" firstAttribute="centerY" secondItem="FRb-fi-I8j" secondAttribute="centerY" constant="-10" id="lUf-6f-wtn"/>
+                            <constraint firstItem="CZR-Uv-g6q" firstAttribute="top" secondItem="FRb-fi-I8j" secondAttribute="top" id="lgO-Nb-Khn"/>
+                            <constraint firstItem="CZR-Uv-g6q" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="leading" id="pDl-xh-buj"/>
                             <constraint firstItem="Emo-Ae-v6f" firstAttribute="top" secondItem="aJW-NP-9cu" secondAttribute="bottom" id="pcZ-6e-dxz"/>
                             <constraint firstItem="aJW-NP-9cu" firstAttribute="top" secondItem="FRb-fi-I8j" secondAttribute="top" id="sCh-xq-kVf"/>
                             <constraint firstItem="vaz-4K-nny" firstAttribute="centerX" secondItem="FRb-fi-I8j" secondAttribute="centerX" id="thl-S8-g9d"/>
-                            <constraint firstItem="dXO-mp-iuY" firstAttribute="trailing" secondItem="FRb-fi-I8j" secondAttribute="centerX" constant="-10" id="uVx-AN-iYy"/>
-                            <constraint firstItem="FPG-xZ-sGl" firstAttribute="centerY" secondItem="FRb-fi-I8j" secondAttribute="centerY" constant="-10" id="wsQ-3X-C7P"/>
+                            <constraint firstItem="yyp-OB-pjb" firstAttribute="top" secondItem="Td1-2d-FJP" secondAttribute="bottom" id="zck-EE-L99"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="activityBckgd" destination="aJW-NP-9cu" id="JTr-gE-429"/>
                         <outlet property="activityIndicator" destination="vaz-4K-nny" id="eSg-k9-dwA"/>
-                        <outlet property="calendarButton" destination="vsJ-P5-s3O" id="cHV-Ck-nOF"/>
-                        <outlet property="changOrderButton" destination="LMD-e6-pbg" id="9h3-1U-n5c"/>
-                        <outlet property="choosePhotoButton" destination="YvG-O8-KGh" id="qPc-BI-kLo"/>
-                        <outlet property="clockInOut" destination="hKS-a2-6EN" id="eSf-Kk-gJZ"/>
-                        <outlet property="homeButton" destination="pmF-ul-qVq" id="hUx-C2-Sdq"/>
-                        <outlet property="hotelResButton" destination="FPG-xZ-sGl" id="36l-qs-w3b"/>
+                        <outlet property="bkgdView" destination="CZR-Uv-g6q" id="5RD-Uy-n0a"/>
                         <outlet property="labelBkgd" destination="yyp-OB-pjb" id="wxi-q8-GTt"/>
                         <outlet property="logoView" destination="GtL-7M-Qdh" id="CbI-vV-mmP"/>
                         <outlet property="logoutButton" destination="kzM-Sf-a7X" id="3p0-tV-PU4"/>
-                        <outlet property="materialReqButton" destination="WUa-mn-fXE" id="j3b-c7-EM0"/>
-                        <outlet property="timeOffButton" destination="dXO-mp-iuY" id="e8N-6t-PBj"/>
-                        <outlet property="toolsRentButton" destination="VuN-ir-UVJ" id="38Y-zM-I6a"/>
                         <outlet property="userLabel" destination="zhP-4P-kVW" id="ouC-NF-shE"/>
                         <segue destination="bq0-eu-ofj" kind="show" identifier="clock_in" id="pAu-Wh-4fN"/>
                         <segue destination="bP6-Xq-Etq" kind="presentation" identifier="toolRental" id="up3-NZ-nvU"/>
                         <segue destination="eJE-bM-7rH" kind="presentation" identifier="toolReturn" id="u3U-Aq-Q9z"/>
+                        <segue destination="dip-GN-7tK" kind="presentation" identifier="map" id="CGO-c2-lQb"/>
+                        <segue destination="bP6-Xq-Etq" kind="presentation" identifier="changeOrder" id="ZaQ-ls-SCW"/>
+                        <segue destination="gwV-lw-m8q" kind="presentation" identifier="schedule" id="y5X-Cd-pX8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JgU-go-kFO" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1371,22 +1241,15 @@
     </scenes>
     <resources>
         <image name="back" width="233" height="233"/>
-        <image name="camera" width="233" height="233"/>
-        <image name="clock" width="233" height="233"/>
         <image name="clockIn" width="700" height="700"/>
         <image name="clockOut" width="700" height="700"/>
-        <image name="form" width="233" height="233"/>
-        <image name="hotel_req" width="233" height="233"/>
         <image name="log_out" width="700" height="700"/>
         <image name="lunch" width="700" height="700"/>
-        <image name="materials" width="233" height="233"/>
-        <image name="schedule" width="233" height="233"/>
         <image name="signature" width="700" height="700"/>
-        <image name="time_off" width="233" height="233"/>
-        <image name="tools" width="233" height="233"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="up3-NZ-nvU"/>
-        <segue reference="zXA-Vu-bEX"/>
+        <segue reference="pAu-Wh-4fN"/>
+        <segue reference="ZaQ-ls-SCW"/>
+        <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

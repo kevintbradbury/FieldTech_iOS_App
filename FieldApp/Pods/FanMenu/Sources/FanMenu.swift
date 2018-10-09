@@ -95,8 +95,8 @@ public class FanMenu: MacawView {
         let scene = FanMenuScene(fanMenu: self)
         let node = scene.node
         node.place = Transform.move(
-            dx: Double((self.frame.width / 2) + 35.0),
-            dy: Double((self.frame.height / 2) + 35.0)
+            dx: Double((self.frame.width / 2) + CGFloat(self.radius)),
+            dy: Double((self.frame.height / 2) + CGFloat(self.radius))
         )
         self.node = node
         self.scene = scene
@@ -130,7 +130,7 @@ class FanMenuScene {
             menuIcon = Image(
                 src: button.image,
                 w: 70, h: 70,
-                place: Transform.move(dx: -35.0, dy: -35.0),
+                place: Transform.move(dx: -fanMenu.radius, dy: -fanMenu.radius),
                 opaque: true, opacity: 1.0, visible: true
             )
 //            Image(src: button.image, place: Transform.move(dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2))
@@ -238,12 +238,11 @@ class FanMenuScene {
         if let uiImage = UIImage(named: button.image) {
             let image = Image(
                 src: button.image, w: 60, h: 60,
-                place: Transform.move(dx: -35.0, dy: -35.0),
-                opaque: true, opacity: 1.0, visible: true
+                place: Transform.move(dx: -fanMenu.radius, dy: -fanMenu.radius),
+                opaque: true, opacity: 1.0,
+                visible: true
             )
-//            Image(src: button.image, place: Transform.move(
-//                dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2
-//            ))
+//            Image(src: button.image, place: Transform.move(dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2))
             
             contents.append(image)
         }
