@@ -52,7 +52,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         
-        if let aps = notification[AnyHashable("aps")] as? NSDictionary,
+        if Auth.auth().canHandleNotification(notification) {
+            completionHandler(UIBackgroundFetchResult.noData); return
+            
+        } else if let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
             let action = alert["action"] as? String {
             print("received notification: with action -  \(action)")
@@ -66,8 +69,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     else { completionHandler(.newData); print("coordinate check succeeded") }
                 }
             }
-        } else if Auth.auth().canHandleNotification(notification) {
-            completionHandler(UIBackgroundFetchResult.noData); return
         } else {
             print("Received notification:", notification)
         }

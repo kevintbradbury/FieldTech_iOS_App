@@ -12,7 +12,7 @@ import CoreLocation
 import Firebase
 import FirebaseAuth
 
-class LoginViewController: UIViewController, AuthUIDelegate {
+class LoginViewController: UIViewController {     //   , AuthUIDelegate {
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var phoneNumberField: UITextField!
@@ -36,7 +36,9 @@ class LoginViewController: UIViewController, AuthUIDelegate {
                 self.performSegue(withIdentifier: "home", sender: self)
             }
         }
-//        if firebaseAuth.currentUser == nil { activityIndicator.stopAnimating() }
+        
+        if firebaseAuth.currentUser == nil { activityIndicator.stopAnimating() }
+        
         Auth.auth().languageCode = "en"
     }
     
@@ -48,23 +50,31 @@ class LoginViewController: UIViewController, AuthUIDelegate {
     @IBAction func loginPressed(_ sender: Any) {
         activityIndicator.startAnimating()
 
-        if phoneNumberField.text == nil { return }
-        authPhoneNumber(phoneNumber: phoneNumberField.text!)
+        guard let phoneNum = phoneNumberField.text as? String else {
+            showAlert(withTitle: "Error", message: "No number given or formatting issue."); return
+        }
+        authPhoneNumber(phoneNumber: phoneNum)
     }
     
     func authPhoneNumber(phoneNumber: String) {
-        var phoneNumberToString = "+1"; phoneNumberToString += phoneNumberField.text!
+        let adjustedNum = String("+1" + phoneNumber)
+        print("phoneNumber", adjustedNum)
         
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumberToString, uiDelegate: nil) { (verificationID, error) in
+        PhoneAuthProvider.provider().verifyPhoneNumber(adjustedNum, uiDelegate: nil) { (verificationID, error) in
             DispatchQueue.main.async {
                 if let error = error {
-                    print("could not verify phone number due to \(error)")
+                    self.activityIndicator.stopAnimating()
+                    self.showAlert(
+                        withTitle: "Error", message: "Couldn't verify number due to \n \(error.localizedDescription).\n Check formatting and remove 1 from the beginning of the number if necessary."
+                    )
+                    print(error)
                     return
+                } else {
+                    guard let idToString: String = verificationID else { return }
+                    UserDefaults.standard.set(idToString, forKey: "authVerificationID")
+                    self.showVerfWin()
                 }
             }
-            guard let idToString: String = verificationID else { return }
-            UserDefaults.standard.set(idToString, forKey: "authVerificationID")
-            self.showVerfWin()
         }
     }
     

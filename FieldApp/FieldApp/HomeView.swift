@@ -22,7 +22,7 @@ import FanMenu
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
     
-    @IBOutlet weak var logoutButton: UIButton!
+    
     @IBOutlet weak var userLabel: UILabel!
     @IBOutlet weak var labelBkgd: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -75,8 +75,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         super.viewWillAppear(true)
         checkForUserInfo()
     }
-    
-    @IBAction func logoutPressed(_ sender: Any) { logOut() }
     
 }
 
