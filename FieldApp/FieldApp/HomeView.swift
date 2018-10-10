@@ -56,24 +56,28 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        UserLocation.instance.initialize()
-        
-        activityIndicator.isHidden = true
-        activityIndicator.hidesWhenStopped = true
-        picker.delegate = self
-        
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
         }
+        UserLocation.instance.initialize()
         setUpNotifications()
         checkAppDelANDnotif()
         setUpHomeBtn()
-//        NotificationCenter.default.addObserver(self, selector: #selector(checkForUserInfo), name: .info, object: nil)
+        
+        picker.delegate = self
+        activityIndicator.isHidden = true
+        activityIndicator.hidesWhenStopped = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         checkForUserInfo()
+        logoView.close()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        logoView.close()
     }
     
 }
@@ -83,7 +87,7 @@ extension HomeView {
     func setUpHomeBtn() {
         let btnRadius = 35.0
         logoView.menuRadius = Double(4 * btnRadius)     //  100.0
-        logoView.duration = 0.2
+        logoView.duration = 0.1
         logoView.interval = (0, 2 * Double.pi)
         logoView.radius = btnRadius
         logoView.menuBackground = Color.clear
@@ -307,6 +311,7 @@ extension HomeView {
 extension HomeView {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        logoView.close()
         let idtn = segue.identifier
         
         if idtn == "schedule" {

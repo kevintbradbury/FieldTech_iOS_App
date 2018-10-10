@@ -230,7 +230,7 @@ class FieldActions {
     var description: String?
     
     struct SuppliesRequest {
-        let hardwareLocations: Array = ["Home Depot", "Lowes", "Ace Hardware", "Orchards"]
+        let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
         let maxDistance = 5  // Miles?
         let material: Array = ["material1", "material2", "etc."]
         var chosenLocation: String?
