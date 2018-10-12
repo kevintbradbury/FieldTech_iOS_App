@@ -100,6 +100,7 @@ public class FanMenu: MacawView {
         )
         self.node = node
         self.scene = scene
+        
     }
 }
 

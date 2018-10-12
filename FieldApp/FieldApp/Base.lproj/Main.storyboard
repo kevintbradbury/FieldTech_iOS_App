@@ -195,14 +195,21 @@
                                 </constraints>
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eoh-Qc-nCh" userLabel="animatedClockView" customClass="MacawView" customModule="Macaw">
+                                <rect key="frame" x="80" y="238" width="160" height="142"/>
+                                <color key="backgroundColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="0.25" colorSpace="calibratedRGB"/>
+                            </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="1" green="1" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="height" secondItem="pLG-Ve-Unv" secondAttribute="height" multiplier="0.15" id="1jw-2t-Rbm"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.5" id="3hJ-hW-eqR"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="67" id="6SV-Ss-bkG"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="AFE-De-iRq" secondAttribute="centerY" id="6rx-Zg-lUg"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="top" secondItem="pLG-Ve-Unv" secondAttribute="top" id="7Bq-eW-HJ4"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="8BO-5R-fu3"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="top" secondItem="cgM-Ze-PLd" secondAttribute="bottom" constant="7" id="8Jc-uW-1eI"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="8sz-Zl-beD"/>
                             <constraint firstItem="Xgx-TL-7uV" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="9fr-4L-0Id"/>
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Ckc-PT-RTV"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="F6A-AU-53E"/>
@@ -211,6 +218,7 @@
                             <constraint firstAttribute="trailingMargin" secondItem="i9j-eu-RJ9" secondAttribute="trailing" id="Kyk-2l-k46"/>
                             <constraint firstItem="xTO-Fx-Mdi" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" constant="43" id="L7U-Mo-eiN"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="height" secondItem="pLG-Ve-Unv" secondAttribute="height" multiplier="0.25" id="MYx-qP-wst"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leading" id="bnf-dw-BMy"/>
@@ -232,6 +240,7 @@
                     <connections>
                         <outlet property="activityBckgd" destination="SjV-jM-1u8" id="rO3-ON-62m"/>
                         <outlet property="activityIndicator" destination="Xgx-TL-7uV" id="Vfo-7v-hPP"/>
+                        <outlet property="animatedClockView" destination="eoh-Qc-nCh" id="Zcm-in-syv"/>
                         <outlet property="backBtn" destination="Nct-pa-u5V" id="SVx-UC-uSR"/>
                         <outlet property="clockIn" destination="AFE-De-iRq" id="KLp-QQ-Whp"/>
                         <outlet property="clockOut" destination="Mkf-uE-ifr" id="XNj-f5-aZ7"/>
@@ -1231,8 +1240,7 @@
         <image name="signature" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="pAu-Wh-4fN"/>
-        <segue reference="up3-NZ-nvU"/>
+        <segue reference="iSq-Lv-Ec5"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

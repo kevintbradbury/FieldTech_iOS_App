@@ -34,14 +34,16 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
-    let colors = [
-        Color.yellow.val, 0xFF9742, Color.teal.val, Color.red.val, Color.fuchsia.val,
-        Color.navy.val, Color.green.val, Color.blue.val, Color.purple.val
+    let colors: [Int] = [
+        Color.green.val, Color.blue.val, Color.teal.val, Color.red.val,Color.fuchsia.val,
+        Color.navy.val, Color.purple.val, Color.yellow.val, 0xFF9742
     ]
+    //        Color.yellow.val, 0xFF9742, Color.teal.val, Color.red.val, Color.fuchsia.val, Color.navy.val, Color.green.val, Color.blue.val, Color.purple.val as [Any]
     let icons = [
-        "clock", "schedule", "materials", "share_white", "time_off",
-        "safety", "hotel_req", "tools", "camera"
+        "hotel_req", "tools", "materials", "form", "vacation",
+        "safety", "camera", "clock", "schedule"
     ]
+    //        "clock", "schedule", "materials", "share_white", "time_off", "safety", "hotel_req", "tools", "camera"
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var main = OperationQueue.main
@@ -396,9 +398,11 @@ extension HomeView {
         let returnTool = UIAlertAction(title: "Return", style: .destructive) { action in
             self.performSegue(withIdentifier: "toolReturn", sender: nil)
         }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         
         alert.addAction(rental)
         alert.addAction(returnTool)
+        alert.addAction(cancel)
         
         self.present(alert, animated: true, completion: nil)
     }

@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "clockOut_noHands.png",
+      "filename" : "vacation_aqua.png",
       "scale" : "1x"
     },
     {
@@ -11,7 +11,7 @@
     },
     {
       "idiom" : "universal",
-      "filename" : "clockOut.png",
+      "filename" : "vacation.png",
       "scale" : "3x"
     }
   ],

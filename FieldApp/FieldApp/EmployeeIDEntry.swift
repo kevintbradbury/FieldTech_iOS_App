@@ -19,6 +19,7 @@ import AVKit
 import ImagePicker
 import Alamofire
 import EventKit
+import Macaw
 //import Starscream
 
 
@@ -34,6 +35,7 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var lunchBreakBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
+    @IBOutlet var animatedClockView: MacawView!
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
@@ -66,6 +68,8 @@ class EmployeeIDEntry: UIViewController {
         
         let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
         setShadows(btns: btns)
+        
+        setClockBtn()
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -77,6 +81,48 @@ class EmployeeIDEntry: UIViewController {
 
 
 extension EmployeeIDEntry {
+    
+    func setClockBtn() {
+        let image = Image(
+            src: "clock",
+            w: Int(animatedClockView.frame.width),
+            h: Int(animatedClockView.frame.height),
+            place: Transform.move(
+                dx: Double(animatedClockView.frame.width / 8),
+                dy: Double(animatedClockView.frame.height / 8)
+            )
+        )
+        
+        if foundUser?.punchedIn == true {
+            image.src = "clockOut"
+        } else {
+            image.src = "clockIn"
+        }
+
+        let ruler = Image(
+            src: "ruler",
+            w: Int(image.w / 2),
+            h: Int(image.h / 2),
+            place: Transform.move(
+                dx: Double(animatedClockView.frame.width / 2.5),
+                dy: Double(animatedClockView.frame.height / 3)
+            ),
+            tag: ["ruler"]
+        )
+        let grp = Group()
+        grp.contents.append(image)
+        grp.contents.append(ruler)
+        
+        animatedClockView.node = grp
+        
+        self.animatedClockView.node.onTouchPressed({ touch in
+            
+            guard let nodeRuler: Node = self.animatedClockView.node.nodeBy(tag: "ruler"),
+                let anm: Animation = nodeRuler.placeVar.animation(angle: 6.2)  else { return }
+            
+            anm.cycle().play()
+        })
+    }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
