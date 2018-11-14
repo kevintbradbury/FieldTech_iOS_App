@@ -47,7 +47,7 @@ open class JTAppleCalendarView: UICollectionView {
     }
     
     /// The scroll direction of the sections in JTAppleCalendar.
-    open var scrollDirection: UICollectionViewScrollDirection
+    open var scrollDirection: UICollectionView.ScrollDirection
     
     /// The configuration parameters setup by the developer in the confogureCalendar function
     open var cachedConfiguration: ConfigurationParameters? { return _cachedConfiguration }
@@ -143,7 +143,7 @@ open class JTAppleCalendarView: UICollectionView {
         if calendarViewLayout.thereAreHeaders && scrollDirection == .vertical {
             let indexPath = IndexPath(item: 0, section: sectionIndexPath.section)
             guard let attributes = calendarViewLayout.layoutAttributesForSupplementaryView(
-                ofKind:UICollectionElementKindSectionHeader, at: indexPath // UICollectionView.elementKindSectionHeader
+                ofKind:UICollectionView.elementKindSectionHeader, at: indexPath // UICollectionView.elementKindSectionHeader
                 ) else { return retval }
             
             let maxYCalendarOffset = max(0, self.contentSize.height - self.frame.size.height)
@@ -181,17 +181,17 @@ open class JTAppleCalendarView: UICollectionView {
     var decelerationRateMatchingScrollingMode: CGFloat {
         switch scrollingMode {
         case .stopAtEachCalendarFrame: return
-            UIScrollViewDecelerationRateFast
-        case .stopAtEach, .stopAtEachSection: return UIScrollViewDecelerationRateFast
+            UIScrollView.DecelerationRate.fast.rawValue
+        case .stopAtEach, .stopAtEachSection: return UIScrollView.DecelerationRate.fast.rawValue
         case .nonStopToSection, .nonStopToCell, .nonStopTo, .none: return
-            UIScrollViewDecelerationRateNormal
+            UIScrollView.DecelerationRate.normal.rawValue
         }
     }
 
     /// Configure the scrolling behavior
     open var scrollingMode: ScrollingMode = .stopAtEachCalendarFrame {
         didSet {
-            decelerationRate = UIScrollViewDecelerationRateNormal
+            decelerationRate = UIScrollView.DecelerationRate.normal
 //                UIScrollView.DecelerationRate(rawValue: decelerationRateMatchingScrollingMode)
             #if os(iOS)
                 switch scrollingMode {

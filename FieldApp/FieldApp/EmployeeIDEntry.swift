@@ -100,14 +100,14 @@ extension EmployeeIDEntry {
         }
 
         let ruler = Image(
-            src: "ruler",
-            w: Int(image.w / 2),
-            h: Int(image.h / 2),
+            src: "clock_longHand",
+            w: Int(image.w / 8),
+            h: Int(image.h / 4),
             place: Transform.move(
-                dx: Double(animatedClockView.frame.width / 2.5),
-                dy: Double(animatedClockView.frame.height / 3)
+                dx: Double(animatedClockView.frame.width / 2),
+                dy: Double(animatedClockView.frame.height / 2)
             ),
-            tag: ["ruler"]
+            tag: ["clock_longHand"]
         )
         let grp = Group()
         grp.contents.append(image)
@@ -116,9 +116,8 @@ extension EmployeeIDEntry {
         animatedClockView.node = grp
         
         self.animatedClockView.node.onTouchPressed({ touch in
-            
-            guard let nodeRuler: Node = self.animatedClockView.node.nodeBy(tag: "ruler"),
-                let anm: Animation = nodeRuler.placeVar.animation(angle: 6.2)  else { return }
+            guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
+            let anm: Animation = nodeClockHnd.placeVar.animation(angle: 6.2)
             
             anm.cycle().play()
         })

@@ -144,7 +144,7 @@ extension HomeView {
             performSegue(withIdentifier: "schedule", sender: nil)
         case "materials":
             performSegue(withIdentifier: "map", sender: nil)
-        case "share_white":
+        case "form":
             performSegue(withIdentifier: "changeOrder", sender: nil)
         case "tools":
             showRentOrReturnWin()
@@ -155,7 +155,7 @@ extension HomeView {
                 message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. "
             )
             //        case "time_off":
-            //        case "":
+            //        case "safety":
             //        case "hotel_req":
             
         default:

@@ -119,11 +119,11 @@ public class WebSocket : NSObject, StreamDelegate {
 
     // MARK: - Block based API.
 
-    public var onConnect: (() -> Void)?
+    public var onConnect: ((Void) -> Void)?
     public var onDisconnect: ((NSError?) -> Void)?
     public var onText: ((String) -> Void)?
     public var onData: ((Data) -> Void)?
-    public var onPong: (() -> Void)?
+    public var onPong: ((Void) -> Void)?
 
     public var headers = [String: String]()
     public var voipEnabled = false
@@ -461,7 +461,7 @@ public class WebSocket : NSObject, StreamDelegate {
             guard canDispatch else {return}
             callbackQueue.async { [weak self] in
                 guard let s = self else { return }
-                s.onConnect?()
+//                s.onConnect?()
                 s.delegate?.websocketDidConnect(s)
                 s.notificationCenter.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: self)
             }
@@ -655,7 +655,7 @@ public class WebSocket : NSObject, StreamDelegate {
                 if canDispatch {
                     callbackQueue.async { [weak self] in
                         guard let s = self else { return }
-                        s.onPong?()
+//                        s.onPong?()
                         s.pongDelegate?.websocketDidReceivePong(s)
                     }
                 }

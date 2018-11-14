@@ -12,14 +12,15 @@ import CoreLocation
 import Firebase
 import FirebaseAuth
 
-class LoginViewController: UIViewController {     //   , AuthUIDelegate {
+
+class LoginViewController: UIViewController {   //, AuthUIDelegate {
     
+    @IBOutlet var enterPhoneLabel: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
     
     var authId: String?
-    let firebaseAuth = Auth.auth()
     
     
     override func viewDidLoad() {
@@ -29,6 +30,7 @@ class LoginViewController: UIViewController {     //   , AuthUIDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
+        Auth.auth().languageCode = "en"
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user != nil {
@@ -37,9 +39,7 @@ class LoginViewController: UIViewController {     //   , AuthUIDelegate {
             }
         }
         
-        if firebaseAuth.currentUser == nil { activityIndicator.stopAnimating() }
-        
-        Auth.auth().languageCode = "en"
+        if Auth.auth().currentUser == nil { activityIndicator.stopAnimating() }
     }
     
     override func didReceiveMemoryWarning() {
@@ -57,15 +57,16 @@ class LoginViewController: UIViewController {     //   , AuthUIDelegate {
     }
     
     func authPhoneNumber(phoneNumber: String) {
-        let adjustedNum = String("+1" + phoneNumber)
+        let adjustedNum = String("+1\(phoneNumber)")
         print("phoneNumber", adjustedNum)
         
-        PhoneAuthProvider.provider().verifyPhoneNumber(adjustedNum, uiDelegate: nil) { (verificationID, error) in
+        PhoneAuthProvider.provider()
+            .verifyPhoneNumber(adjustedNum, uiDelegate: nil) { (verificationID, error) in
             DispatchQueue.main.async {
                 if let error = error {
                     self.activityIndicator.stopAnimating()
                     self.showAlert(
-                        withTitle: "Error", message: "Couldn't verify number due to \n \(error.localizedDescription).\n Check formatting and remove 1 from the beginning of the number if necessary."
+                        withTitle: "Error", message: "Couldn't verify number, error: \n \(error.localizedDescription).\n Check formatting and remove 1 from the beginning of the number if necessary."
                     )
                     print(error)
                     return

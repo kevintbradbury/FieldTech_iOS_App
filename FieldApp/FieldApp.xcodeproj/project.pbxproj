@@ -15,9 +15,9 @@
 		062A32D6215C0A15001B6703 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8EF521F71826200E86DD6 /* Main.storyboard */; };
 		062A32D8215C0C5C001B6703 /* ToolRentalReturnCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D7215C0C5C001B6703 /* ToolRentalReturnCell.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
-		06775987213DDABD001F8802 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06775986213DDABD001F8802 /* GoogleService-Info.plist */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
+		06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */; };
 		06FADEBD2150351D00021943 /* StoresMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066223362150322800B9C8E2 /* StoresMapView.swift */; };
 		0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */; };
 		0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */; };
@@ -62,9 +62,9 @@
 		066223362150322800B9C8E2 /* StoresMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMapView.swift; sourceTree = "<group>"; };
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		06775986213DDABD001F8802 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		06775988213DDE1C001F8802 /* ChangeOrders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeOrders.swift; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
+		06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
 		0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0AC8EF4B1F71826200E86DD6 /* FieldApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FieldApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,7 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				067365AB2139A0EE00F1F8A8 /* Info.plist */,
-				06775986213DDABD001F8802 /* GoogleService-Info.plist */,
+				06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -295,8 +295,8 @@
 				TargetAttributes = {
 					0AC8EF4A1F71826200E86DD6 = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = 3TAADZBCK9;
-						ProvisioningStyle = Automatic;
+						DevelopmentTeam = 9B58YSTSJ6;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -346,8 +346,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AC8EF591F71826200E86DD6 /* LaunchScreen.storyboard in Resources */,
+				06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */,
 				0AC8EF561F71826200E86DD6 /* Assets.xcassets in Resources */,
-				06775987213DDABD001F8802 /* GoogleService-Info.plist in Resources */,
 				062A32D6215C0A15001B6703 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -665,14 +665,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = FieldApp/FieldApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3TAADZBCK9;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.MillworkBros.FieldApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Testing Development Profile";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -684,14 +686,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = FieldApp/FieldApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3TAADZBCK9;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.MillworkBros.FieldApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Testing Development Profile";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
