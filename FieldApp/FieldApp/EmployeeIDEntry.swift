@@ -65,11 +65,10 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+        setClockBtn()
         
         let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
         setShadows(btns: btns)
-        
-        setClockBtn()
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -83,43 +82,52 @@ class EmployeeIDEntry: UIViewController {
 extension EmployeeIDEntry {
     
     func setClockBtn() {
-        let image = Image(
-            src: "clock",
-            w: Int(animatedClockView.frame.width),
-            h: Int(animatedClockView.frame.height),
-            place: Transform.move(
-                dx: Double(animatedClockView.frame.width / 8),
-                dy: Double(animatedClockView.frame.height / 8)
+        
+            let image = Image(
+                src: "clock",
+                w: Int(animatedClockView.frame.width),
+                h: Int(animatedClockView.frame.height),
+                place: Transform.move(
+                    dx: Double(animatedClockView.frame.width / 8),
+                    dy: Double(animatedClockView.frame.height / 8)
+                )
             )
-        )
-        
-        if foundUser?.punchedIn == true {
-            image.src = "clockOut"
-        } else {
-            image.src = "clockIn"
-        }
-
-        let ruler = Image(
-            src: "clock_longHand",
-            w: Int(image.w / 8),
-            h: Int(image.h / 4),
-            place: Transform.move(
-                dx: Double(animatedClockView.frame.width / 2),
-                dy: Double(animatedClockView.frame.height / 2)
-            ),
-            tag: ["clock_longHand"]
-        )
-        let grp = Group()
-        grp.contents.append(image)
-        grp.contents.append(ruler)
-        
-        animatedClockView.node = grp
-        
-        self.animatedClockView.node.onTouchPressed({ touch in
-            guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
-            let anm: Animation = nodeClockHnd.placeVar.animation(angle: 6.2)
             
+            if foundUser?.punchedIn == true {
+                image.src = "clockOut"
+            } else {
+                image.src = "clockIn"
+            }
+            
+            let ruler = Image(
+                src: "clock_longHand",
+                w: Int(image.w / 8),
+                h: Int(image.h / 2),
+                place: Transform.move(
+                    dx: Double(animatedClockView.frame.width / 1.75),
+                    dy: Double(animatedClockView.frame.height / 3)
+                ),
+                tag: ["clock_longHand"]
+            )
+            let grp = Group()
+            grp.contents.append(image)
+            grp.contents.append(ruler)
+            
+            animatedClockView.node = grp
+            
+        self.animatedClockView.node.onTouchPressed({ touch in
+            guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(
+                tag: "clock_longHand"
+                ) else { return }
+
+            let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
             anm.cycle().play()
+            
+            if self.foundUser?.punchedIn == true {
+                self.wrapUpAlert()
+            } else {
+                self.clockInClockOut()
+            }
         })
     }
     
@@ -153,10 +161,13 @@ extension EmployeeIDEntry {
                 isEmployeeIDNum() { foundUser in
                     self.makeAcall(user: foundUser)
                 }
-            } else { self.incorrectID(success: true) }
+            } else {
+                incorrectID(success: true)
+            }
         } else {
             finishedLoading()
-            self.showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
+            showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
+            stopSpinning()
         }
     }
     
@@ -193,17 +204,24 @@ extension EmployeeIDEntry {
                     }
                 }
                 checkLunch()
-                let request = createNotification(intervalInSeconds: fourHours, title: title, message: message, identifier: identifier)
+                
+                let request = createNotification(
+                    intervalInSeconds: fourHours, title: title, message: message, identifier: identifier
+                )
                 notificationCenter.add(request) { (error) in
-                    if error != nil { print("error setting clock notif: "); print(error) } else { print("added reminder at 4 hour mark") }
+                    if error != nil {
+                        print("error setting clock notif: "); print(error)
+                    } else {
+                        print("added reminder at 4 hour mark")
+                    }
                 }
             }
         } else if manualPO == false {
             showPONumEntryWin()
         } else if err != "" {
-            self.showAlert(withTitle: "Error", message: err); finishedLoading()
+            showAlert(withTitle: "Error", message: err); finishedLoading()
         } else {
-            self.incorrectID(success: success)
+            incorrectID(success: success)
         }
     }
     
@@ -214,7 +232,9 @@ extension EmployeeIDEntry {
         }
         
         finishedLoading()
-        showAlert(withTitle: "Alert", message: actionMsg)
+        self.main.addOperation {
+            self.showAlert(withTitle: "Alert", message: actionMsg)
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -288,7 +308,9 @@ extension EmployeeIDEntry {
         alert.addAction(manualPOentry)
         alert.addAction(cancel)
         
-        self.present(alert, animated: true, completion: nil)
+        self.main.addOperation {
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     func hideTextfield() {
@@ -297,6 +319,7 @@ extension EmployeeIDEntry {
             self.main.addOperation {
                 self.employeeID.isHidden = true
                 self.sendButton.isHidden = true
+                self.animatedClockView.isHidden = false
                 
                 if punchedIn == true {
                     self.clockIn.isHidden = true
@@ -315,6 +338,7 @@ extension EmployeeIDEntry {
                 self.clockIn.isHidden = true
                 self.clockOut.isHidden = true
                 self.lunchBreakBtn.isHidden = true
+                self.animatedClockView.isHidden = true
             }
         }
     }
@@ -332,6 +356,7 @@ extension EmployeeIDEntry {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
+            self.stopSpinning()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.performSegue(withIdentifier: "return", sender: self)
         }
@@ -342,6 +367,7 @@ extension EmployeeIDEntry {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
+            self.stopSpinning()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
@@ -386,11 +412,17 @@ extension EmployeeIDEntry {
     }
     
     func wrapUpAlert() {
-        let actionsheet = UIAlertController(title: "Reminder", message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
-        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in self.clockInClockOut() }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil) }
+        let actionsheet = UIAlertController(
+            title: "Reminder",
+            message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?",
+            preferredStyle: UIAlertControllerStyle.actionSheet
+        )
+        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in
+            self.clockInClockOut()
+        }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil)
+        }
         let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
-//            self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
             self.performSegue(withIdentifier: "clockTOchange", sender: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
@@ -400,7 +432,9 @@ extension EmployeeIDEntry {
         actionsheet.addAction(reqMaterials)
         actionsheet.addAction(cancel)
         
-        self.present(actionsheet, animated: true)
+        self.main.addOperation {
+            self.present(actionsheet, animated: true)
+        }
     }
     
     func checkForUserInfo() {
@@ -442,6 +476,14 @@ extension EmployeeIDEntry {
         }
     }
     
+    func stopSpinning() {
+        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(
+            tag: "clock_longHand"
+            ) else { return }
+        let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
+        
+        anm.cycle().stop()
+    }
 }
 
 extension EmployeeIDEntry: ImagePickerDelegate {

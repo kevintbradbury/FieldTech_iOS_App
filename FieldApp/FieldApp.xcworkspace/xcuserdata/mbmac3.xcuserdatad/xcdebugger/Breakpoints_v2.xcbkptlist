@@ -10,61 +10,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/AppDelegate.swift"
-            timestampString = "563916300.535695"
+            timestampString = "564459388.296706"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "61"
             endingLineNumber = "61"
-            landmarkName = "application(_:didFailToRegisterForRemoteNotificationsWithError:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/AppDelegate.swift"
-            timestampString = "563916300.536054"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "159"
-            endingLineNumber = "159"
-            landmarkName = "checkToken(token:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "FieldApp.AppDelegate.checkToken(token: Swift.String) -&gt; ()"
-                  moduleName = "FieldApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/AppDelegate.swift"
-                  timestampString = "563916332.285807"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "159"
-                  endingLineNumber = "159"
-                  offsetFromSymbolStart = "884">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "FieldApp.AppDelegate.checkToken(token: Swift.String) -&gt; ()"
-                  moduleName = "FieldApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/AppDelegate.swift"
-                  timestampString = "563916332.288449"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "159"
-                  endingLineNumber = "159"
-                  offsetFromSymbolStart = "904">
-               </Location>
-            </Locations>
+            landmarkName = "AppDelegate"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
