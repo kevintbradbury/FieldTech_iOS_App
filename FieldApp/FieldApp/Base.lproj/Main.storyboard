@@ -108,12 +108,6 @@
                                     <action selector="lunchBrkPunchOut:" destination="bq0-eu-ofj" eventType="touchUpInside" id="YAd-c5-5TE"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Role" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xTO-Fx-Mdi">
-                                <rect key="frame" x="16" y="63" width="288" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8V0-xo-CLS">
                                 <rect key="frame" x="142" y="266" width="36" height="30"/>
                                 <constraints>
@@ -194,8 +188,8 @@
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eoh-Qc-nCh" userLabel="animatedClockView" customClass="MacawView" customModule="Macaw">
-                                <rect key="frame" x="80" y="229" width="160" height="160"/>
-                                <color key="backgroundColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="0.25" colorSpace="calibratedRGB"/>
+                                <rect key="frame" x="80" y="204" width="160" height="160"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="eoh-Qc-nCh" secondAttribute="height" multiplier="1:1" id="n96-b8-Wr9"/>
                                 </constraints>
@@ -206,7 +200,6 @@
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="height" secondItem="pLG-Ve-Unv" secondAttribute="height" multiplier="0.15" id="1jw-2t-Rbm"/>
                             <constraint firstItem="eoh-Qc-nCh" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.5" id="3hJ-hW-eqR"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="67" id="6SV-Ss-bkG"/>
-                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="AFE-De-iRq" secondAttribute="centerY" id="6rx-Zg-lUg"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="top" secondItem="pLG-Ve-Unv" secondAttribute="top" id="7Bq-eW-HJ4"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="8BO-5R-fu3"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="top" secondItem="cgM-Ze-PLd" secondAttribute="bottom" constant="7" id="8Jc-uW-1eI"/>
@@ -215,20 +208,18 @@
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Ckc-PT-RTV"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="F6A-AU-53E"/>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leadingMargin" id="Hmf-5b-tL5"/>
-                            <constraint firstItem="xTO-Fx-Mdi" firstAttribute="centerX" secondItem="i9j-eu-RJ9" secondAttribute="centerX" id="IRo-I9-8N8"/>
                             <constraint firstAttribute="trailingMargin" secondItem="i9j-eu-RJ9" secondAttribute="trailing" id="Kyk-2l-k46"/>
-                            <constraint firstItem="xTO-Fx-Mdi" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" constant="43" id="L7U-Mo-eiN"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leading" id="bnf-dw-BMy"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-40" id="cj2-Tl-Eli"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" id="ggg-Ry-PVd"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" constant="15" id="mzN-h5-frs"/>
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="11" id="rtf-gP-5o0"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="top" secondItem="cRn-CE-CNR" secondAttribute="bottom" constant="20" id="tKg-Fx-Q2s"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="Mkf-uE-ifr" secondAttribute="bottom" constant="20" id="taf-7J-8dh"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="25" id="u72-vk-TtN"/>
-                            <constraint firstItem="xTO-Fx-Mdi" firstAttribute="width" secondItem="i9j-eu-RJ9" secondAttribute="width" id="ux5-sg-qF8"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="25" id="vbu-Bo-RLo"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.15" id="vdi-Nf-zc5"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="trailing" secondItem="pLG-Ve-Unv" secondAttribute="trailingMargin" id="xOu-9c-mHb"/>

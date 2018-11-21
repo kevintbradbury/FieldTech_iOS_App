@@ -69,6 +69,9 @@ class EmployeeIDEntry: UIViewController {
         
         let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
         setShadows(btns: btns)
+        
+        clockIn.isHidden = true
+        clockOut.isHidden = true
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -114,15 +117,8 @@ extension EmployeeIDEntry {
             grp.contents.append(ruler)
             
             animatedClockView.node = grp
-            
-        self.animatedClockView.node.onTouchPressed({ touch in
-            guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(
-                tag: "clock_longHand"
-                ) else { return }
 
-            let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
-            anm.cycle().play()
-            
+        self.animatedClockView.node.onTouchPressed({ touch in
             if self.foundUser?.punchedIn == true {
                 self.wrapUpAlert()
             } else {
@@ -149,29 +145,31 @@ extension EmployeeIDEntry {
     }
     
     func clockInClockOut() {
-        inProgress()
+//        inProgress()
+        startSpinning()
         
         if role != nil && role != "---" && role != "" {
             
             if foundUser?.employeeID != nil {
                 guard let unwrappedUser = foundUser else { return }
-                makeAcall(user: unwrappedUser)
+                makePunchCall(user: unwrappedUser)
                 
             } else if employeeID.text != "" {
                 isEmployeeIDNum() { foundUser in
-                    self.makeAcall(user: foundUser)
+                    self.makePunchCall(user: foundUser)
                 }
             } else {
                 incorrectID(success: true)
             }
         } else {
-            finishedLoading()
+//            finishedLoading()
+            
             showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
             stopSpinning()
         }
     }
     
-    func makeAcall(user: UserData.UserInfo) {
+    func makePunchCall(user: UserData.UserInfo) {
         guard let coordinate = UserLocation.instance.currentCoordinate,
             let unwrappedRole = role else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
@@ -268,7 +266,7 @@ extension EmployeeIDEntry {
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                     print("json serialization failed: \(json)")
-                    self.main.addOperation {self.incorrectID(success: true)}
+                    self.main.addOperation { self.incorrectID(success: true) }
                     return
                 }
                 callback(user)
@@ -319,16 +317,17 @@ extension EmployeeIDEntry {
             self.main.addOperation {
                 self.employeeID.isHidden = true
                 self.sendButton.isHidden = true
+                self.enterIDText.isHidden = true
                 self.animatedClockView.isHidden = false
                 
                 if punchedIn == true {
                     self.clockIn.isHidden = true
                     self.lunchBreakBtn.isHidden = false
-                    self.enterIDText.text = "Clock Out"
+//                    self.enterIDText.text = "Clock Out"
                 } else if punchedIn == false {
                     self.clockOut.isHidden = true
                     self.lunchBreakBtn.isHidden = true
-                    self.enterIDText.text = "Clock In"
+//                    self.enterIDText.text = "Clock In"
                 } else {
                     return
                 }
@@ -425,7 +424,9 @@ extension EmployeeIDEntry {
         let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
             self.performSegue(withIdentifier: "clockTOchange", sender: nil)
         }
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
+            self.stopSpinning()
+        }
         
         actionsheet.addAction(finishUp)
         actionsheet.addAction(takePhotos)
@@ -476,13 +477,17 @@ extension EmployeeIDEntry {
         }
     }
     
-    func stopSpinning() {
-        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(
-            tag: "clock_longHand"
-            ) else { return }
-        let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
+    func startSpinning() {
+        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
         
-        anm.cycle().stop()
+        let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
+        anm.cycle().play()
+    }
+    
+    func stopSpinning() {
+        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
+        let anmt: Animation = nodeClockHnd.placeVar.animation(angle: 0.0)
+        anmt.cycle().stop()
     }
 }
 
