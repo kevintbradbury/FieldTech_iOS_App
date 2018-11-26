@@ -35,14 +35,15 @@ class ScheduleView: UIViewController {
 
         formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
         
-        calendarView.calendarDelegate = self
-        calendarView.calendarDataSource = self
+        calendarView.calendarDelegate = self as? JTAppleCalendarViewDelegate
+        calendarView.calendarDataSource = self as? JTAppleCalendarViewDataSource
         calendarView.visibleDates { visibleDates in
-            self.setUpCalendarViews(visibleDates: visibleDates)
             self.main.addOperation {
                 self.clearJobInfo()
+                self.activityIndicator.hidesWhenStopped = true
                 self.activityIndicator.startAnimating()
             }
+            self.setUpCalendarViews(visibleDates: visibleDates)
         }
         getCalendarInfo()
     }
@@ -61,55 +62,98 @@ class ScheduleView: UIViewController {
 
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
     
-    func getCalendarInfo() {
-        if let unwrappedEmployee = self.employee {
-            let idToString = String(unwrappedEmployee.employeeID)
+    func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
+        formatter.dateFormat = "MM-dd-yyyy"
+        formatter.timeZone = Calendar.current.timeZone
+        formatter.locale = Calendar.current.locale
+        
+        let date = Date()
+        let currentCalendar = Calendar.current
+        let currentYear = currentCalendar.component(.year, from: date)
+        let currentMonth = currentCalendar.component(.month, from: date)
+        let currentDay = currentCalendar.component(.day, from: date)
+        let dayOfWeek = currentCalendar.component(.weekday, from: date)
+        
+        func startDateString() -> String {
+            let startDate = String(currentMonth) + "-" + String(currentDay) + "-" + String(currentYear)
             
-            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
-                self.jobsArray = jobs
-                self.jobsArray.sort {($0.jobName < $1.jobName)}
-                
-                for i in self.jobsArray { print(i.jobName, i.dates, i.jobAddress) }
-                
-                self.main.addOperation {
-                    self.activityIndicator.stopAnimating();
-                    self.calendarView.reloadData()
-                }
-            }
+            return startDate
         }
-    }
-    
-    func calendar(_ calendar: JTAppleCalendarView, willDisplay cell: JTAppleCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
-
-        let tableCell = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
+        
+        func endDateString() -> String {
+            let msVal = TimeInterval(Date().timeIntervalSince1970 + TimeInterval(60 * 60 * 24 * 14)) // 21 days
+            let endDate = Date(timeIntervalSince1970: msVal)
+            let endCalendar = Calendar.current
+            let year = currentCalendar.component(.year, from: endDate)
+            let month = currentCalendar.component(.month, from: endDate)
+            let day = currentCalendar.component(.day, from: endDate)
+            let dayOfWeek = currentCalendar.component(.weekday, from: endDate)
+            let endString = String(month) + "-" + String(day) + "-" + String(year)
+            print("endString ", endString)
+            
+            return endString
+        }
+        
+        let startDate = formatter.date(from: startDateString())
+        let endDate = formatter.date(from: endDateString())
+        
+        let parameters = ConfigurationParameters(
+            startDate: startDate!,
+            endDate: endDate!,
+//            numberOfRows: 1,
+            numberOfRows: 5,
+            calendar: Calendar.current,
+            generateInDates: .forAllMonths,
+            generateOutDates: .off,
+            firstDayOfWeek: .sunday)
+        
+        return parameters
     }
     
     func calendar(_ calendar: JTAppleCalendarView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTAppleCell {
-        
         let tableCell = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
         return tableCell
     }
     
+    func calendar(_ calendar: JTAppleCalendarView, willDisplay cell: JTAppleCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
+        let tableCell = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
+    }
+    
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
-        guard let validCell = cell as? CalendarCell else {return}
+        guard let validCell = cell as? CalendarCell else { return }
         
         checkJobsDates(date: cellState.date) { matchingJob, jobDate in
             self.jobNameLbl.text = matchingJob.jobName
-            self.poNumberLbl.text = "PO " + String(matchingJob.poNumber)
+            self.poNumberLbl.text = "PO \(String(matchingJob.poNumber))"
             self.installDateLbl.text = "\(getMonthDayYear(date: jobDate.installDate)) \n\(getTime(date: jobDate.installDate)) "
             self.directionsBtn.isHidden = false
-//            self.directionsBtn.titleLabel!.text = "\(matchingJob.jobAddress) \n \(matchingJob.jobCity), \(matchingJob.jobState)"
         }
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
-        guard let validCell = cell as? CalendarCell else {return}
         clearJobInfo()
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         setUpCalendarViews(visibleDates: visibleDates)
     }
+
+    func getCalendarInfo() {
+        if let unwrappedEmployee = self.employee {
+            let idToString = String(unwrappedEmployee.employeeID)
+            
+            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
+                self.main.addOperation { self.activityIndicator.stopAnimating() }
+                
+                self.jobsArray = jobs
+                self.jobsArray.sort { ($0.jobName < $1.jobName) }
+                print("jobs count: \(self.jobsArray.count)")
+                
+                self.main.addOperation { self.calendarView.reloadData() }
+            }
+        }
+    }
+    
 }
 
 extension ScheduleView {
@@ -119,7 +163,6 @@ extension ScheduleView {
         poNumberLbl.text = ""
         installDateLbl.text = ""
         directionsBtn.isHidden = true
-        //        directionsBtn.titleLabel?.text = ""
     }
     
     static func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
@@ -157,11 +200,10 @@ extension ScheduleView {
     }
     
     func setUpCalendarViews(visibleDates: DateSegmentInfo) {
-        activityIndicator.hidesWhenStopped = true
         calendarView.isPrefetchingEnabled = true
-        
-        calendarView.minimumLineSpacing = 1
         calendarView.minimumInteritemSpacing = 1
+        calendarView.minimumLineSpacing = 1
+        calendarView.scrollDirection = .vertical
         
         guard let date = visibleDates.monthDates.first?.date else { return }
         print("visible Dates: date", date)
@@ -172,51 +214,6 @@ extension ScheduleView {
         monthLabel.text = formatter.string(from: date)
     }
     
-    func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
-        formatter.dateFormat = "MM-dd-yyyy"
-        formatter.timeZone = Calendar.current.timeZone
-        formatter.locale = Calendar.current.locale
-        
-        let date = Date()
-        let currentCalendar = Calendar.current
-        let currentYear = currentCalendar.component(.year, from: date)
-        let currentMonth = currentCalendar.component(.month, from: date)
-        let currentDay = currentCalendar.component(.day, from: date)
-        let dayOfWeek = currentCalendar.component(.weekday, from: date)
-        
-        func startDateString() -> String {
-            let startDate = String(currentMonth) + "-" + String(currentDay) + "-" + String(currentYear)
-            
-            return startDate
-        }
-        
-        func endDateString() -> String {
-            let msVal = TimeInterval(Date().timeIntervalSince1970 + TimeInterval(60 * 60 * 24 * 21)) // 21 days
-            let endDate = Date(timeIntervalSince1970: msVal)
-            let endCalendar = Calendar.current
-            let year = currentCalendar.component(.year, from: endDate)
-            let month = currentCalendar.component(.month, from: endDate)
-            let day = currentCalendar.component(.day, from: endDate)
-            let dayOfWeek = currentCalendar.component(.weekday, from: endDate)
-            let endString = String(month) + "-" + String(day) + "-" + String(year)
-            print("endString ", endString)
-            
-            return endString
-        }
-        
-        let startDate = formatter.date(from: startDateString())
-        let endDate = formatter.date(from: endDateString())
-        
-        let parameters = ConfigurationParameters(startDate: startDate!,
-                                                 endDate: endDate!,
-                                                 numberOfRows: 1,
-                                                 calendar: Calendar.current,
-                                                 generateInDates: .forAllMonths,
-                                                 generateOutDates: .off,
-                                                 firstDayOfWeek: .sunday)
-        
-        return parameters
-    }
     
     func getMonthDayYear(date: Date) -> String {
         let adjustedDateTime = date
@@ -241,14 +238,15 @@ extension ScheduleView {
         return time
     }
     
-    func setViewForCell(calendar: JTAppleCalendarView, date: Date, cellState: CellState, indexPath: IndexPath) -> JTAppleCell {
-        let cell = calendar.dequeueReusableJTAppleCell(withReuseIdentifier: "customCalendarCell", for: indexPath) as! CalendarCell
+    func setViewForCell(calendar: JTAppleCalendarView, date: Date, cellState: CellState, indexPath: IndexPath) -> CalendarCell {
+        let cell = calendar.dequeueReusableCell(withReuseIdentifier: "customCalendarCell", for: indexPath) as! CalendarCell
         cell.highlightView.isHidden = true
         
         if cellState.dateBelongsTo == .previousMonthWithinBoundary || cellState.dateBelongsTo == .followingMonthWithinBoundary || cellState.dateBelongsTo != .thisMonth {
             formatter.dateFormat = "MMM"
-            cell.dateLabel.text = formatter.string(from: date) + "\n " + cellState.text + "previousMonth"
+            cell.dateLabel.text = "\(formatter.string(from: date)) \(cellState.text)"
             cell.dateLabel.textColor = UIColor.lightGray
+            cell.alpha = .init(0.4)
             
         } else {
             cell.dateLabel.text = cellState.text

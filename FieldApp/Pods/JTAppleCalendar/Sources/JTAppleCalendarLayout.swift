@@ -90,6 +90,8 @@ class JTAppleCalendarLayout: UICollectionViewLayout, JTAppleCalendarLayoutProtoc
         // Default Item height and width
         var height: CGFloat = collectionView!.bounds.size.height / CGFloat(cachedConfiguration.numberOfRows)
         var width: CGFloat = collectionView!.bounds.size.width / CGFloat(maxNumberOfDaysInWeek)
+//        var height: CGFloat = collectionView!.bounds.size.height / CGFloat(maxNumberOfDaysInWeek)
+//        var width: CGFloat = collectionView!.bounds.size.width / CGFloat(cachedConfiguration.numberOfRows)
         
         if shouldUseUserItemSizeInsteadOfDefault { // If delegate item size was set
             if scrollDirection == .horizontal {

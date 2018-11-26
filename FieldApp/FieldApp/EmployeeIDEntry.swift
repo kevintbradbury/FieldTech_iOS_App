@@ -486,6 +486,9 @@ extension EmployeeIDEntry {
     
     func stopSpinning() {
         guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
+        nodeClockHnd.placeVar.onChange { (transfrm) in
+            transfrm
+        }
         let anmt: Animation = nodeClockHnd.placeVar.animation(angle: 0.0)
         anmt.cycle().stop()
     }
