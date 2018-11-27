@@ -10,7 +10,7 @@ import Foundation
 import JTAppleCalendar
 
 class CalendarCell: JTAppleCell {
-//JTAppleCell {
+
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var highlightView: UIView!
     @IBOutlet weak var jobName: UILabel!

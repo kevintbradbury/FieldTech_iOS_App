@@ -493,7 +493,7 @@
                                                     </constraints>
                                                     <userDefinedRuntimeAttributes>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                            <integer key="value" value="0"/>
+                                                            <integer key="value" value="20"/>
                                                         </userDefinedRuntimeAttribute>
                                                     </userDefinedRuntimeAttributes>
                                                 </view>
@@ -1217,6 +1217,19 @@
                 <tapGestureRecognizer id="ecD-oi-7cJ"/>
             </objects>
             <point key="canvasLocation" x="4216.875" y="1330.9859154929577"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="nrW-7K-b3e">
+            <objects>
+                <viewController id="RZk-zB-YPH" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Df5-2h-XDU">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tuc-U7-l8k" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
         </scene>
     </scenes>
     <resources>

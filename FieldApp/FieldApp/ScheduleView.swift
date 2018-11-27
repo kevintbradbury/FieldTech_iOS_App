@@ -122,6 +122,16 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else { return }
         
+        let borderView = UIView(frame:
+            CGRect(x: 0.0, y: 0.0, width: validCell.frame.width, height: validCell.frame.height)
+        )
+        borderView.accessibilityIdentifier = "borderView"
+        borderView.layer.borderWidth = 2
+        borderView.layer.borderColor = UIColor.black.cgColor
+        
+        validCell.addSubview(borderView)
+//        validCell.backgroundColor = UIColor.yellow
+        
         checkJobsDates(date: cellState.date) { matchingJob, jobDate in
             self.jobNameLbl.text = matchingJob.jobName
             self.poNumberLbl.text = "PO \(String(matchingJob.poNumber))"
@@ -131,7 +141,16 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
+        guard let validCell = cell as? CalendarCell else { return }
         clearJobInfo()
+        
+        for oneView in validCell.subviews {
+            guard let id = oneView.accessibilityIdentifier else { continue }
+            
+            if id == "borderView" {
+                oneView.removeFromSuperview()
+            }
+        }
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
