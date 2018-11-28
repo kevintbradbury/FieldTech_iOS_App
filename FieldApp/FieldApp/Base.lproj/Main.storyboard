@@ -458,7 +458,7 @@
                                 </subviews>
                             </stackView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="lpg-pI-w0l" customClass="JTAppleCalendarView" customModule="JTAppleCalendar">
-                                <rect key="frame" x="0.0" y="140" width="320" height="293"/>
+                                <rect key="frame" x="0.0" y="140" width="320" height="213"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="1" minimumInteritemSpacing="1" id="fbs-Eq-NYW">
                                     <size key="itemSize" width="60" height="299"/>
@@ -491,11 +491,6 @@
                                                         <constraint firstAttribute="bottom" secondItem="EDG-UW-LuA" secondAttribute="bottom" id="AvI-xi-KGB"/>
                                                         <constraint firstItem="EDG-UW-LuA" firstAttribute="leading" secondItem="vek-gz-LhA" secondAttribute="leading" id="b0V-gW-deh"/>
                                                     </constraints>
-                                                    <userDefinedRuntimeAttributes>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                            <integer key="value" value="20"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                    </userDefinedRuntimeAttributes>
                                                 </view>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s9R-8T-K3z">
                                                     <rect key="frame" x="0.0" y="0.0" width="60" height="75"/>
@@ -601,9 +596,42 @@
                                 </connections>
                             </button>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="SdX-qA-5FG">
-                                <rect key="frame" x="141.5" y="268" width="37" height="37"/>
+                                <rect key="frame" x="141.5" y="228" width="37" height="37"/>
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="2xY-AT-WN8">
+                                <rect key="frame" x="0.0" y="361" width="320" height="207"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="jobInfoCell" id="8go-9J-gr4" customClass="JobCell" customModule="FieldApp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="320" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="8go-9J-gr4" id="Maj-WO-VbJ">
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="idl-5J-K4F">
+                                                    <rect key="frame" x="15" y="11" width="290" height="22"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="bottomMargin" secondItem="idl-5J-K4F" secondAttribute="bottom" id="U87-Zu-7SG"/>
+                                                <constraint firstItem="idl-5J-K4F" firstAttribute="leading" secondItem="Maj-WO-VbJ" secondAttribute="leadingMargin" id="lg2-j3-xDB"/>
+                                                <constraint firstItem="idl-5J-K4F" firstAttribute="top" secondItem="Maj-WO-VbJ" secondAttribute="topMargin" id="rWU-Li-BRs"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <constraints>
+                                            <constraint firstItem="idl-5J-K4F" firstAttribute="trailing" secondItem="8go-9J-gr4" secondAttribute="trailingMargin" id="hdw-WG-pm9"/>
+                                        </constraints>
+                                        <connections>
+                                            <outlet property="jobInfoLabel" destination="idl-5J-K4F" id="UkX-8g-tSx"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -612,18 +640,23 @@
                             <constraint firstItem="7HF-L9-dB1" firstAttribute="top" secondItem="Wu5-U3-x0k" secondAttribute="bottom" constant="10" id="7rI-K9-aCw"/>
                             <constraint firstAttribute="trailing" secondItem="g1v-fe-i20" secondAttribute="trailing" constant="10" id="BLY-iL-XP4"/>
                             <constraint firstItem="7HF-L9-dB1" firstAttribute="trailing" secondItem="R4m-DZ-Sz8" secondAttribute="trailing" id="EXQ-IZ-nZD"/>
+                            <constraint firstAttribute="trailing" secondItem="2xY-AT-WN8" secondAttribute="trailing" id="FWE-re-py8"/>
                             <constraint firstItem="g1v-fe-i20" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leading" constant="10" id="G5D-L9-AYA"/>
                             <constraint firstItem="ou1-D3-FEU" firstAttribute="top" secondItem="R4m-DZ-Sz8" secondAttribute="bottom" constant="8" symbolic="YES" id="GQA-QM-qiF"/>
                             <constraint firstAttribute="trailing" secondItem="ou1-D3-FEU" secondAttribute="trailing" constant="11" id="JTp-Sq-3PY"/>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leading" id="JqA-Yf-CNG"/>
+                            <constraint firstItem="2xY-AT-WN8" firstAttribute="top" secondItem="lpg-pI-w0l" secondAttribute="bottom" constant="8" id="QG3-fC-EBR"/>
+                            <constraint firstItem="lpg-pI-w0l" firstAttribute="height" secondItem="ap4-qu-bc6" secondAttribute="height" multiplier="0.375" id="Yjk-sy-l6G"/>
                             <constraint firstItem="R4m-DZ-Sz8" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leadingMargin" id="Zyc-DT-9MK"/>
                             <constraint firstItem="7HF-L9-dB1" firstAttribute="width" secondItem="ap4-qu-bc6" secondAttribute="width" multiplier="0.15" id="dzh-Cq-Wuy"/>
+                            <constraint firstItem="2xY-AT-WN8" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leading" id="hhp-nx-ziQ"/>
                             <constraint firstItem="ou1-D3-FEU" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leading" constant="10" id="jKu-r5-vxC"/>
                             <constraint firstItem="R4m-DZ-Sz8" firstAttribute="top" secondItem="Wu5-U3-x0k" secondAttribute="bottom" constant="50" id="jSV-k1-Qh3"/>
                             <constraint firstItem="gV3-Ic-bNq" firstAttribute="top" secondItem="g1v-fe-i20" secondAttribute="bottom" constant="15" id="kjk-J2-zfX"/>
                             <constraint firstItem="SdX-qA-5FG" firstAttribute="centerX" secondItem="lpg-pI-w0l" secondAttribute="centerX" id="mAm-mt-Ibb"/>
                             <constraint firstItem="SdX-qA-5FG" firstAttribute="centerY" secondItem="lpg-pI-w0l" secondAttribute="centerY" id="o9p-yf-uRw"/>
-                            <constraint firstItem="g1v-fe-i20" firstAttribute="top" secondItem="lpg-pI-w0l" secondAttribute="bottom" constant="20" id="wSr-Vh-2wy"/>
+                            <constraint firstItem="2xY-AT-WN8" firstAttribute="width" secondItem="ap4-qu-bc6" secondAttribute="width" id="pXr-st-OrZ"/>
+                            <constraint firstItem="gV3-Ic-bNq" firstAttribute="top" secondItem="2xY-AT-WN8" secondAttribute="bottom" id="tPD-x3-cDK"/>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="trailing" secondItem="ap4-qu-bc6" secondAttribute="trailing" id="x9v-TB-DDd"/>
                             <constraint firstAttribute="trailingMargin" secondItem="R4m-DZ-Sz8" secondAttribute="trailing" id="yOZ-ex-hoA"/>
                         </constraints>
@@ -636,6 +669,7 @@
                         <outlet property="installDateLbl" destination="Gqk-bp-Cxo" id="xnO-zI-fBc"/>
                         <outlet property="jobDetailView" destination="g1v-fe-i20" id="JxN-Tu-IHp"/>
                         <outlet property="jobNameLbl" destination="Abz-5m-Agc" id="W7i-cs-ale"/>
+                        <outlet property="jobsTable" destination="2xY-AT-WN8" id="0gh-wC-fzC"/>
                         <outlet property="monthLabel" destination="gQ2-2s-BTt" id="GOd-kh-bWs"/>
                         <outlet property="poNumberLbl" destination="8Yl-a4-K3f" id="rDl-Bn-aFi"/>
                         <outlet property="yearLabel" destination="MM8-Xt-HQz" id="kpc-JR-nEq"/>
@@ -1218,19 +1252,6 @@
             </objects>
             <point key="canvasLocation" x="4216.875" y="1330.9859154929577"/>
         </scene>
-        <!--View Controller-->
-        <scene sceneID="nrW-7K-b3e">
-            <objects>
-                <viewController id="RZk-zB-YPH" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Df5-2h-XDU">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="tuc-U7-l8k" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-        </scene>
     </scenes>
     <resources>
         <image name="back" width="233" height="233"/>
@@ -1240,7 +1261,7 @@
         <image name="signature" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="ZaQ-ls-SCW"/>
+        <segue reference="up3-NZ-nvU"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

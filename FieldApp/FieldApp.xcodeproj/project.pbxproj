@@ -17,6 +17,7 @@
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
+		06D0C19821ADF26500330BFA /* JobCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D0C19721ADF26400330BFA /* JobCell.swift */; };
 		06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */; };
 		06FADEBD2150351D00021943 /* StoresMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066223362150322800B9C8E2 /* StoresMapView.swift */; };
 		0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */; };
@@ -64,6 +65,7 @@
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06775988213DDE1C001F8802 /* ChangeOrders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeOrders.swift; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
+		06D0C19721ADF26400330BFA /* JobCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobCell.swift; sourceTree = "<group>"; };
 		06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
 		0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
+				06D0C19721ADF26400330BFA /* JobCell.swift */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";
@@ -477,6 +480,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */,
+				06D0C19821ADF26500330BFA /* JobCell.swift in Sources */,
 				0AC8EF831F71E69400E86DD6 /* APICalls.swift in Sources */,
 				0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */,
 				0AC8EF511F71826200E86DD6 /* LoginViewController.swift in Sources */,

@@ -15,6 +15,7 @@ import MapKit
 class ScheduleView: UIViewController {
     
     @IBOutlet weak var calendarView: JTAppleCalendarView!
+    @IBOutlet var jobsTable: UITableView!
     @IBOutlet weak var monthLabel: UILabel!
     @IBOutlet weak var yearLabel: UILabel!
     @IBOutlet weak var backButton: UIButton!
@@ -29,23 +30,22 @@ class ScheduleView: UIViewController {
     let main = OperationQueue.main
     var employee: UserData.UserInfo?
     var jobsArray: [Job.UserJob] = []
+    var selectedJobs: [Job.UserJob] = []
+    var selectedDates: [Job.UserJob.JobDates] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
         
         calendarView.calendarDelegate = self as? JTAppleCalendarViewDelegate
         calendarView.calendarDataSource = self as? JTAppleCalendarViewDataSource
         calendarView.visibleDates { visibleDates in
-            self.main.addOperation {
-                self.clearJobInfo()
-                self.activityIndicator.hidesWhenStopped = true
-                self.activityIndicator.startAnimating()
-            }
+            self.loading()
+            self.getCalendarInfo()
             self.setUpCalendarViews(visibleDates: visibleDates)
         }
-        getCalendarInfo()
+        
+        jobsTable.delegate = self
+        jobsTable.dataSource = self as? UITableViewDataSource
     }
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -63,49 +63,26 @@ class ScheduleView: UIViewController {
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
+        let calndr = Calendar.current
+        
+        formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
         formatter.dateFormat = "MM-dd-yyyy"
-        formatter.timeZone = Calendar.current.timeZone
-        formatter.locale = Calendar.current.locale
-        
-        let date = Date()
-        let currentCalendar = Calendar.current
-        let currentYear = currentCalendar.component(.year, from: date)
-        let currentMonth = currentCalendar.component(.month, from: date)
-        let currentDay = currentCalendar.component(.day, from: date)
-        let dayOfWeek = currentCalendar.component(.weekday, from: date)
-        
-        func startDateString() -> String {
-            let startDate = String(currentMonth) + "-" + String(currentDay) + "-" + String(currentYear)
-            
-            return startDate
-        }
-        
-        func endDateString() -> String {
-            let msVal = TimeInterval(Date().timeIntervalSince1970 + TimeInterval(60 * 60 * 24 * 14)) // 21 days
-            let endDate = Date(timeIntervalSince1970: msVal)
-            let endCalendar = Calendar.current
-            let year = currentCalendar.component(.year, from: endDate)
-            let month = currentCalendar.component(.month, from: endDate)
-            let day = currentCalendar.component(.day, from: endDate)
-            let dayOfWeek = currentCalendar.component(.weekday, from: endDate)
-            let endString = String(month) + "-" + String(day) + "-" + String(year)
-            print("endString ", endString)
-            
-            return endString
-        }
-        
-        let startDate = formatter.date(from: startDateString())
-        let endDate = formatter.date(from: endDateString())
-        
+        formatter.timeZone = calndr.timeZone
+        formatter.locale = calndr.locale
+
+        let msVal = TimeInterval(Date().timeIntervalSince1970 + TimeInterval(60 * 60 * 24 * 14)) // 14 days
+        let endDate = Date(timeIntervalSince1970: msVal)
         let parameters = ConfigurationParameters(
-            startDate: startDate!,
-            endDate: endDate!,
-//            numberOfRows: 1,
-            numberOfRows: 5,
-            calendar: Calendar.current,
+            startDate: Date(),
+            endDate: endDate,
+            numberOfRows: 2,
+            calendar: calndr,
             generateInDates: .forAllMonths,
-            generateOutDates: .off,
-            firstDayOfWeek: .sunday)
+            generateOutDates: .tillEndOfRow,
+            firstDayOfWeek: .sunday
+        )
+        
+        calendarView.scrollToHeaderForDate(Date())
         
         return parameters
     }
@@ -121,7 +98,38 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
         guard let validCell = cell as? CalendarCell else { return }
+        dateSelected(validCell: validCell, cellState: cellState)
+    }
+    
+    func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
+        guard let validCell = cell as? CalendarCell else { return }
+        clearJobInfo()
+        deselectCell(subViews: validCell.subviews)
+    }
+    
+    func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
+        setUpCalendarViews(visibleDates: visibleDates)
         
+        for collectionCell in calendar.visibleCells {
+            deselectCell(subViews: collectionCell.subviews)
+        }
+    }
+
+    func getCalendarInfo() {
+        if let unwrappedEmployee = self.employee {
+            let idToString = String(unwrappedEmployee.employeeID)
+            
+            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
+                self.jobsArray = jobs
+                self.jobsArray.sort { ($0.jobName < $1.jobName) }
+                self.stopLoading()
+
+                print("jobs count: \(self.jobsArray.count)")
+            }
+        }
+    }
+    
+    func dateSelected(validCell: CalendarCell, cellState: CellState) {
         let borderView = UIView(frame:
             CGRect(x: 0.0, y: 0.0, width: validCell.frame.width, height: validCell.frame.height)
         )
@@ -130,52 +138,42 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         borderView.layer.borderColor = UIColor.black.cgColor
         
         validCell.addSubview(borderView)
-//        validCell.backgroundColor = UIColor.yellow
         
-        checkJobsDates(date: cellState.date) { matchingJob, jobDate in
-            self.jobNameLbl.text = matchingJob.jobName
-            self.poNumberLbl.text = "PO \(String(matchingJob.poNumber))"
-            self.installDateLbl.text = "\(getMonthDayYear(date: jobDate.installDate)) \n\(getTime(date: jobDate.installDate)) "
-            self.directionsBtn.isHidden = false
-        }
-    }
-    
-    func calendar(_ calendar: JTAppleCalendarView, didDeselectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
-        guard let validCell = cell as? CalendarCell else { return }
-        clearJobInfo()
-        
-        for oneView in validCell.subviews {
-            guard let id = oneView.accessibilityIdentifier else { continue }
-            
-            if id == "borderView" {
-                oneView.removeFromSuperview()
+        checkJobsDates(date: cellState.date) { matchingJbs, jobDts in
+            selectedJobs = matchingJbs
+            selectedDates = jobDts
+ 
+            main.addOperation {
+                self.jobsTable.reloadData()
             }
         }
     }
     
-    func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
-        setUpCalendarViews(visibleDates: visibleDates)
+    func deselectCell(subViews: [UIView]) {
+        for oneView in subViews {
+            guard let id = oneView.accessibilityIdentifier else { continue }
+            if id == "borderView" { oneView.removeFromSuperview() }
+        }
     }
 
-    func getCalendarInfo() {
-        if let unwrappedEmployee = self.employee {
-            let idToString = String(unwrappedEmployee.employeeID)
-            
-            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
-                self.main.addOperation { self.activityIndicator.stopAnimating() }
-                
-                self.jobsArray = jobs
-                self.jobsArray.sort { ($0.jobName < $1.jobName) }
-                print("jobs count: \(self.jobsArray.count)")
-                
-                self.main.addOperation { self.calendarView.reloadData() }
-            }
-        }
-    }
-    
 }
 
 extension ScheduleView {
+    
+    func loading() {
+        self.main.addOperation {
+            self.clearJobInfo()
+            self.activityIndicator.hidesWhenStopped = true
+            self.activityIndicator.startAnimating()
+        }
+    }
+    
+    func stopLoading() {
+        self.main.addOperation {
+            self.calendarView.reloadData()
+            self.activityIndicator.stopAnimating()
+        }
+    }
     
     func clearJobInfo() {
         jobNameLbl.text = ""
@@ -192,7 +190,10 @@ extension ScheduleView {
         mapItem.openInMaps(launchOptions: options)
     }
     
-    func checkJobsDates(date: Date, callback: (Job.UserJob, Job.UserJob.JobDates) -> ()) {
+    func checkJobsDates(date: Date, callback: ([Job.UserJob], [Job.UserJob.JobDates]) -> ()) {
+        var jobsToSend: [Job.UserJob] = []
+        var datesToSend: [Job.UserJob.JobDates] = []
+        
         for job in jobsArray {
             if job.dates.count > 0 {
                 
@@ -201,9 +202,18 @@ extension ScheduleView {
                     let jobStartMDY = getMonthDayYear(date: dt.installDate)
                     let jobEndMDY = getMonthDayYear(date: dt.endDate)
                     
-                    if date >= dt.installDate  && date <= dt.endDate { callback(job, dt) }
-                    else if jobStartMDY == calMDY || jobEndMDY == calMDY { callback(job, dt) }
-                    
+                    if date >= dt.installDate  && date <= dt.endDate {
+                        jobsToSend.append(job)
+                        datesToSend.append(dt)
+                    } else if jobStartMDY == calMDY || jobEndMDY == calMDY {
+                        jobsToSend.append(job)
+                        datesToSend.append(dt)
+                    }
+                }
+                let end = Int(jobsArray.count - 1)
+                
+                if jobsArray.count > 0 && job.jobName == jobsArray[end].jobName {
+                    callback(jobsToSend, datesToSend)
                 }
             }
         }
@@ -222,10 +232,9 @@ extension ScheduleView {
         calendarView.isPrefetchingEnabled = true
         calendarView.minimumInteritemSpacing = 1
         calendarView.minimumLineSpacing = 1
-        calendarView.scrollDirection = .vertical
+        calendarView.scrollDirection = .horizontal
         
         guard let date = visibleDates.monthDates.first?.date else { return }
-        print("visible Dates: date", date)
         
         formatter.dateFormat = "yyyy"
         yearLabel.text = formatter.string(from: date)
@@ -264,7 +273,7 @@ extension ScheduleView {
         if cellState.dateBelongsTo == .previousMonthWithinBoundary || cellState.dateBelongsTo == .followingMonthWithinBoundary || cellState.dateBelongsTo != .thisMonth {
             formatter.dateFormat = "MMM"
             cell.dateLabel.text = "\(formatter.string(from: date)) \(cellState.text)"
-            cell.dateLabel.textColor = UIColor.lightGray
+            cell.dateLabel.textColor = UIColor.black
             cell.alpha = .init(0.4)
             
         } else {
@@ -278,10 +287,14 @@ extension ScheduleView {
             monthLabel.text = formatter.string(from: date)
         }
         
-        checkJobsDates(date: cellState.date) { matchingJob, jobDate in
-            cell.highlightView.isHidden = false
-            cell.jobName.text = matchingJob.jobName
-            cell.dateLabel.textColor = UIColor.white
+        checkJobsDates(date: cellState.date) { matchingJbs, jobDates in
+            print("matchingJobs.count : \(matchingJbs.count)")
+            
+            if matchingJbs.count > 0 {
+                cell.highlightView.isHidden = false
+                cell.dateLabel.textColor = UIColor.white
+            }
+            
         }
         
         return cell
@@ -289,3 +302,50 @@ extension ScheduleView {
     
 }
 
+extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        var z = 0;  z += selectedJobs.count
+        return z
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "jobInfoCell", for: indexPath) as? JobCell else {
+            return UITableViewCell()
+        }
+
+        if selectedJobs.count > 0 {
+            let dt = selectedDates[indexPath.row]
+            let a = selectedJobs[indexPath.row].jobName
+            let b = selectedJobs[indexPath.row].poNumber
+            let bb = getTime(date: dt.installDate)
+            let cc = getMonthDayYear(date: dt.installDate)
+            let dd = getTime(date: dt.endDate)
+            let ee = getMonthDayYear(date: dt.endDate)
+            
+            cell.jobInfoLabel.text = "\(a): PO: \(b) \n\(bb) | \(cc) - \(dd) | \(ee)"
+        }
+
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let matchingJob = selectedJobs[indexPath.row]
+        
+        let alert = UIAlertController(title: "Directions", message: "Get driving Directions?", preferredStyle: .actionSheet)
+        let yes = UIAlertAction(title: "Yes", style: .default) { (action) in
+            ScheduleView.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
+        
+        alert.addAction(yes)
+        alert.addAction(cancel)
+        
+        self.main.addOperation { self.present(alert, animated: true, completion: nil) }
+    }
+
+}
