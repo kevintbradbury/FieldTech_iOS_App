@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/ScheduleView.swift"
-            timestampString = "565833652.621914"
+            timestampString = "565837994.49661"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "228"
-            endingLineNumber = "228"
+            startingLineNumber = "224"
+            endingLineNumber = "224"
             landmarkName = "checkJobsDates(date:callback:)"
             landmarkType = "7">
          </BreakpointContent>

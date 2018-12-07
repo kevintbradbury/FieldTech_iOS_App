@@ -118,9 +118,9 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
         setMonthYearElements(visibleDates: visibleDates)
         
-        for collectionCell in calendar.visibleCells {   deselectCell(subViews: collectionCell.subviews) }
-        
-        self.main.addOperation {    self.calendarView.reloadData()  }
+        for collectionCell in calendar.visibleCells {
+            deselectCell(subViews: collectionCell.subviews)
+        }
     }
 
     func getCalendarInfo() {
@@ -283,7 +283,7 @@ extension ScheduleView {
         } else {
             cell.dateLabel.text = cellState.text
             cell.dateLabel.textColor = UIColor.white
-            cell.backgroundColor = UIColor.black
+            cell.backgroundColor = UIColor.darkGray
             
             formatter.dateFormat = "yyyy"
             yearLabel.text = formatter.string(from: date)
@@ -360,7 +360,7 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
             let dd = getTime(date: dt.endDate)
             let ee = getMonthDayYear(date: dt.endDate)
             
-            cell.jobInfoLabel.text = "\(a): PO: \(b) \n\(bb) | \(cc) - \(dd) | \(ee)"
+            cell.jobInfoLabel.text = " PO: \(b) \(bb) | \(cc) "
         }
 
         return cell
