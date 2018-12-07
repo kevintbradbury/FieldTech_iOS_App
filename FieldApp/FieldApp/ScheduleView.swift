@@ -148,7 +148,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         
         validCell.addSubview(borderView)
         
-        checkJobsDates(date: cellState.date) { matchingJbs, jobDts in
+        checkJobsDates(date: cellState.date) { matchingJbs, jobDts, colorInts in
             selectedJobs = matchingJbs
             selectedDates = jobDts
  
@@ -199,9 +199,11 @@ extension ScheduleView {
         mapItem.openInMaps(launchOptions: options)
     }
     
-    func checkJobsDates(date: Date, callback: ([Job.UserJob], [Job.UserJob.JobDates]) -> ()) {
+    func checkJobsDates(date: Date, callback: ([Job.UserJob], [Job.UserJob.JobDates], [Int]) -> ()) {
         var jobsToSend: [Job.UserJob] = []
         var datesToSend: [Job.UserJob.JobDates] = []
+        var colorInts: [Int] = []
+        var x = 0
         
         for job in jobsArray {
             if job.dates.count > 0 {
@@ -212,9 +214,11 @@ extension ScheduleView {
                     let jobEndMDY = getMonthDayYear(date: dt.endDate)
                     
                     if date >= dt.installDate  && date <= dt.endDate {
+                        colorInts.append(x)
                         jobsToSend.append(job)
                         datesToSend.append(dt)
                     } else if jobStartMDY == calMDY || jobEndMDY == calMDY {
+                        colorInts.append(x)
                         jobsToSend.append(job)
                         datesToSend.append(dt)
                     }
@@ -222,9 +226,11 @@ extension ScheduleView {
                 let end = Int(jobsArray.count - 1)
                 
                 if jobsArray.count > 0 && job.jobName == jobsArray[end].jobName {
-                    callback(jobsToSend, datesToSend)
+                    callback(jobsToSend, datesToSend, colorInts)
                 }
             }
+            x += 1
+            if x == 4 { x = 0 }
         }
     }
     
@@ -291,14 +297,16 @@ extension ScheduleView {
             monthLabel.text = formatter.string(from: date)
         }
         
-        checkJobsDates(date: cellState.date) { matchingJbs, jobDates in
+        checkJobsDates(date: cellState.date) { matchingJbs, jobDates, colorInts in
             print("matchingJobs.count : \(matchingJbs.count)")
             
             if matchingJbs.count > 0 && jobDates.count > 0 {
+                let colorChoices = [UIColor.cyan, UIColor.magenta, UIColor.yellow, UIColor.lightGray]
                 var i = 0
 
                 for oneJb in matchingJbs {
-                    let jobVw = createJobTab(cell: cell, oneDt: jobDates[i], oneJb: oneJb, i: i, indxPh: indexPath)
+                    let jobVw = createJobTab(cell: cell, oneDt: jobDates[i], oneJb: oneJb, i: i)
+                    jobVw.backgroundColor = colorChoices[colorInts[i]]
                     self.main.addOperation { cell.addSubview(jobVw) }
                     i += 1
                 }
@@ -316,10 +324,7 @@ extension ScheduleView {
     
     // Effectively handles no more than 4 jobs in single calendar cell
     
-    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int, indxPh: IndexPath) -> UILabel {  // UIView
-        let colorChoices = [
-            UIColor.cyan.cgColor, UIColor.magenta.cgColor, UIColor.yellow.cgColor, UIColor.lightGray.cgColor
-        ]
+    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int) -> UILabel {  // UIView
         
 //        let w = CGFloat(cell.frame.width / 4)
 //        let h = CGFloat(oneDt.endDate.timeIntervalSince1970 - oneDt.installDate.timeIntervalSince1970) / 10000
@@ -342,28 +347,6 @@ extension ScheduleView {
         label.textAlignment = .justified
         label.font = UIFont.systemFont(ofSize: 7)
         label.accessibilityIdentifier = "jobTab"
-        
-        var prevIndex = IndexPath(index: indxPh.item)
-        prevIndex.item = Int(indxPh.item - 1)
-        
-        let lastCell = calendarView.dequeueReusableJTAppleCell(withReuseIdentifier: "customCalendarCell", for: prevIndex)
-        var tabColor = colorChoices[i]
-        
-        for oneVw in lastCell.subviews {
-//            if oneVw.accessibilityIdentifier == "jobTab" {
-            print("oneVw.accessibilityIdentifier: \(oneVw.accessibilityIdentifier)")
-            
-                guard let jbTab = oneVw as? UILabel,
-                    let unwrappedColor: CGColor = jbTab.backgroundColor?.cgColor else { continue }
-                
-                if jbTab.text == poNumTx {
-                    tabColor = unwrappedColor
-                }
-            
-//            }
-        }
-        
-        label.layer.backgroundColor = tabColor
 
 //        return jobVw
         return label
