@@ -458,8 +458,8 @@
                                 </subviews>
                             </stackView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="lpg-pI-w0l" customClass="JTAppleCalendarView" customModule="JTAppleCalendar">
-                                <rect key="frame" x="0.0" y="140" width="320" height="213"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <rect key="frame" x="0.0" y="140" width="320" height="255.5"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="1" minimumInteritemSpacing="1" id="fbs-Eq-NYW">
                                     <size key="itemSize" width="60" height="299"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -484,7 +484,7 @@
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                     </subviews>
-                                                    <color key="backgroundColor" red="0.33688480030000001" green="0.43494580100000002" blue="0.58839930709999999" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                    <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <constraints>
                                                         <constraint firstAttribute="trailing" secondItem="EDG-UW-LuA" secondAttribute="trailing" id="3J3-5s-CcA"/>
@@ -500,7 +500,7 @@
                                                 </label>
                                             </subviews>
                                         </view>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstItem="s9R-8T-K3z" firstAttribute="top" secondItem="NbU-pl-Hz1" secondAttribute="top" id="6yU-VT-Tn5"/>
                                             <constraint firstAttribute="trailing" secondItem="vek-gz-LhA" secondAttribute="trailing" id="GMk-Rw-R2l"/>
@@ -590,18 +590,18 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="35" id="4j5-b7-o2M"/>
                                 </constraints>
-                                <state key="normal" title="back" image="back"/>
+                                <state key="normal" title="back"/>
                                 <connections>
                                     <action selector="dismissVC:" destination="gwV-lw-m8q" eventType="touchUpInside" id="bVw-qe-XV2"/>
                                 </connections>
                             </button>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="SdX-qA-5FG">
-                                <rect key="frame" x="141.5" y="228" width="37" height="37"/>
+                                <rect key="frame" x="141.5" y="249.5" width="37" height="37"/>
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="2xY-AT-WN8">
-                                <rect key="frame" x="0.0" y="361" width="320" height="207"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <rect key="frame" x="0.0" y="403.5" width="320" height="164.5"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="jobInfoCell" id="8go-9J-gr4" customClass="JobCell" customModule="FieldApp" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="320" height="44"/>
@@ -613,16 +613,18 @@
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="idl-5J-K4F">
                                                     <rect key="frame" x="15" y="11" width="290" height="22"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <constraints>
                                                 <constraint firstAttribute="bottomMargin" secondItem="idl-5J-K4F" secondAttribute="bottom" id="U87-Zu-7SG"/>
                                                 <constraint firstItem="idl-5J-K4F" firstAttribute="leading" secondItem="Maj-WO-VbJ" secondAttribute="leadingMargin" id="lg2-j3-xDB"/>
                                                 <constraint firstItem="idl-5J-K4F" firstAttribute="top" secondItem="Maj-WO-VbJ" secondAttribute="topMargin" id="rWU-Li-BRs"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstItem="idl-5J-K4F" firstAttribute="trailing" secondItem="8go-9J-gr4" secondAttribute="trailingMargin" id="hdw-WG-pm9"/>
                                         </constraints>
@@ -633,7 +635,7 @@
                                 </prototypes>
                             </tableView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="top" secondItem="ou1-D3-FEU" secondAttribute="bottom" constant="7.5" id="2Ad-Ak-tlX"/>
                             <constraint firstItem="R4m-DZ-Sz8" firstAttribute="leading" secondItem="ou1-D3-FEU" secondAttribute="trailing" constant="-293" id="7Fi-Cw-2bM"/>
@@ -646,7 +648,7 @@
                             <constraint firstAttribute="trailing" secondItem="ou1-D3-FEU" secondAttribute="trailing" constant="11" id="JTp-Sq-3PY"/>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leading" id="JqA-Yf-CNG"/>
                             <constraint firstItem="2xY-AT-WN8" firstAttribute="top" secondItem="lpg-pI-w0l" secondAttribute="bottom" constant="8" id="QG3-fC-EBR"/>
-                            <constraint firstItem="lpg-pI-w0l" firstAttribute="height" secondItem="ap4-qu-bc6" secondAttribute="height" multiplier="0.375" id="Yjk-sy-l6G"/>
+                            <constraint firstItem="lpg-pI-w0l" firstAttribute="height" secondItem="ap4-qu-bc6" secondAttribute="height" multiplier="0.45" id="Yjk-sy-l6G"/>
                             <constraint firstItem="R4m-DZ-Sz8" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leadingMargin" id="Zyc-DT-9MK"/>
                             <constraint firstItem="7HF-L9-dB1" firstAttribute="width" secondItem="ap4-qu-bc6" secondAttribute="width" multiplier="0.15" id="dzh-Cq-Wuy"/>
                             <constraint firstItem="2xY-AT-WN8" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leading" id="hhp-nx-ziQ"/>
@@ -1254,7 +1256,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="back" width="233" height="233"/>
+        <image name="back" width="700" height="700"/>
         <image name="clockIn" width="700" height="700"/>
         <image name="clockOut" width="700" height="700"/>
         <image name="lunch" width="700" height="700"/>

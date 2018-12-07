@@ -36,13 +36,7 @@ class ScheduleView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        calendarView.calendarDelegate = self as? JTAppleCalendarViewDelegate
-        calendarView.calendarDataSource = self as? JTAppleCalendarViewDataSource
-        calendarView.visibleDates { visibleDates in
-            self.loading()
-            self.getCalendarInfo()
-            self.setUpCalendarViews(visibleDates: visibleDates)
-        }
+        initialCalSetup()
         
         jobsTable.delegate = self
         jobsTable.dataSource = self as? UITableViewDataSource
@@ -62,6 +56,20 @@ class ScheduleView: UIViewController {
 
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
     
+    func initialCalSetup() {
+        calendarView.calendarDelegate = self as? JTAppleCalendarViewDelegate
+        calendarView.calendarDataSource = self as? JTAppleCalendarViewDataSource
+        calendarView.isPrefetchingEnabled = true
+        calendarView.minimumInteritemSpacing = 1
+        calendarView.minimumLineSpacing = 1
+        calendarView.scrollDirection = .horizontal
+        calendarView.visibleDates { visibleDates in
+            self.loading()
+            self.getCalendarInfo()
+            self.setMonthYearElements(visibleDates: visibleDates)
+        }
+    }
+    
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
         let calndr = Calendar.current
         
@@ -75,7 +83,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         let parameters = ConfigurationParameters(
             startDate: Date(),
             endDate: endDate,
-            numberOfRows: 2,
+            numberOfRows: 4,
             calendar: calndr,
             generateInDates: .forAllMonths,
             generateOutDates: .tillEndOfRow,
@@ -108,11 +116,11 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didScrollToDateSegmentWith visibleDates: DateSegmentInfo) {
-        setUpCalendarViews(visibleDates: visibleDates)
+        setMonthYearElements(visibleDates: visibleDates)
         
-        for collectionCell in calendar.visibleCells {
-            deselectCell(subViews: collectionCell.subviews)
-        }
+        for collectionCell in calendar.visibleCells {   deselectCell(subViews: collectionCell.subviews) }
+        
+        self.main.addOperation {    self.calendarView.reloadData()  }
     }
 
     func getCalendarInfo() {
@@ -130,12 +138,13 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     }
     
     func dateSelected(validCell: CalendarCell, cellState: CellState) {
-        let borderView = UIView(frame:
-            CGRect(x: 0.0, y: 0.0, width: validCell.frame.width, height: validCell.frame.height)
+        let borderView = UIView(
+            frame: CGRect(x: 0.0, y: 0.0, width: validCell.frame.width, height: validCell.frame.height
+            )
         )
         borderView.accessibilityIdentifier = "borderView"
         borderView.layer.borderWidth = 2
-        borderView.layer.borderColor = UIColor.black.cgColor
+        borderView.layer.borderColor = UIColor.white.cgColor
         
         validCell.addSubview(borderView)
         
@@ -228,12 +237,7 @@ extension ScheduleView {
         }
     }
     
-    func setUpCalendarViews(visibleDates: DateSegmentInfo) {
-        calendarView.isPrefetchingEnabled = true
-        calendarView.minimumInteritemSpacing = 1
-        calendarView.minimumLineSpacing = 1
-        calendarView.scrollDirection = .horizontal
-        
+    func setMonthYearElements(visibleDates: DateSegmentInfo) {
         guard let date = visibleDates.monthDates.first?.date else { return }
         
         formatter.dateFormat = "yyyy"
@@ -273,13 +277,13 @@ extension ScheduleView {
         if cellState.dateBelongsTo == .previousMonthWithinBoundary || cellState.dateBelongsTo == .followingMonthWithinBoundary || cellState.dateBelongsTo != .thisMonth {
             formatter.dateFormat = "MMM"
             cell.dateLabel.text = "\(formatter.string(from: date)) \(cellState.text)"
-            cell.dateLabel.textColor = UIColor.black
+            cell.dateLabel.textColor = UIColor.lightGray
             cell.alpha = .init(0.4)
             
         } else {
             cell.dateLabel.text = cellState.text
-            cell.dateLabel.textColor = UIColor.black
-            cell.backgroundColor = UIColor.white
+            cell.dateLabel.textColor = UIColor.white
+            cell.backgroundColor = UIColor.black
             
             formatter.dateFormat = "yyyy"
             yearLabel.text = formatter.string(from: date)
@@ -290,14 +294,42 @@ extension ScheduleView {
         checkJobsDates(date: cellState.date) { matchingJbs, jobDates in
             print("matchingJobs.count : \(matchingJbs.count)")
             
-            if matchingJbs.count > 0 {
-                cell.highlightView.isHidden = false
-                cell.dateLabel.textColor = UIColor.white
+            if matchingJbs.count > 0 && jobDates.count > 0 {
+                var i = 0
+
+                for oneDt in jobDates {
+                    let jobVw = createJobTab(cell: cell, oneDt: oneDt, i: i)
+                    self.main.addOperation { cell.addSubview(jobVw) }
+                    i += 1
+                }
+            } else {
+                    for subVw in cell.subviews {
+                        if subVw.accessibilityIdentifier == "jobTab" {
+                            subVw.removeFromSuperview()
+                        }
+                    }
             }
-            
         }
         
         return cell
+    }
+    
+    // Effectively handles no more than 4 jobs in single calendar cell
+    
+    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, i: Int) -> UIView {
+        let colorChoices = [
+            UIColor.cyan.cgColor, UIColor.magenta.cgColor, UIColor.yellow.cgColor, UIColor.lightGray.cgColor
+        ]
+        
+        let w = CGFloat(cell.frame.width / 4)
+        let h = CGFloat(oneDt.endDate.timeIntervalSince1970 - oneDt.installDate.timeIntervalSince1970) / 10000
+        let x = CGFloat(Double(w) * Double(i))
+        let frame = CGRect(x: x, y: 0.0, width: w, height: h)
+        let jobVw = UIView(frame: frame)
+        jobVw.layer.backgroundColor = colorChoices[i]
+        jobVw.accessibilityIdentifier = "jobTab"
+        
+        return jobVw
     }
     
 }
@@ -309,7 +341,8 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var z = 0;  z += selectedJobs.count
+        var z = 0
+        z += selectedJobs.count
         return z
     }
 
