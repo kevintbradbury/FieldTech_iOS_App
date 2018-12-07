@@ -297,8 +297,8 @@ extension ScheduleView {
             if matchingJbs.count > 0 && jobDates.count > 0 {
                 var i = 0
 
-                for oneDt in jobDates {
-                    let jobVw = createJobTab(cell: cell, oneDt: oneDt, i: i)
+                for oneJb in matchingJbs {
+                    let jobVw = createJobTab(cell: cell, oneDt: jobDates[i], oneJb: oneJb, i: i, indxPh: indexPath)
                     self.main.addOperation { cell.addSubview(jobVw) }
                     i += 1
                 }
@@ -316,20 +316,57 @@ extension ScheduleView {
     
     // Effectively handles no more than 4 jobs in single calendar cell
     
-    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, i: Int) -> UIView {
+    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int, indxPh: IndexPath) -> UILabel {  // UIView
         let colorChoices = [
             UIColor.cyan.cgColor, UIColor.magenta.cgColor, UIColor.yellow.cgColor, UIColor.lightGray.cgColor
         ]
         
-        let w = CGFloat(cell.frame.width / 4)
-        let h = CGFloat(oneDt.endDate.timeIntervalSince1970 - oneDt.installDate.timeIntervalSince1970) / 10000
-        let x = CGFloat(Double(w) * Double(i))
-        let frame = CGRect(x: x, y: 0.0, width: w, height: h)
-        let jobVw = UIView(frame: frame)
-        jobVw.layer.backgroundColor = colorChoices[i]
-        jobVw.accessibilityIdentifier = "jobTab"
+//        let w = CGFloat(cell.frame.width / 4)
+//        let h = CGFloat(oneDt.endDate.timeIntervalSince1970 - oneDt.installDate.timeIntervalSince1970) / 10000
+//        let x = CGFloat(Double(w) * Double(i))
+//        let y = CGFloat(oneDt.installDate.timeIntervalSince1970 / 100000000)
         
-        return jobVw
+        let w = cell.frame.width - 1
+        let h = CGFloat(cell.frame.height / 8)
+        let x = CGFloat(1.0)
+        let y = CGFloat(Double(cell.frame.height / 2) + Double(i) * Double(h)) - h
+        let frame = CGRect(x: x, y: y, width: w, height: h)
+        let poNumTx = " PO-\(oneJb.poNumber)"
+        
+//        let jobVw = UIView(frame: frame)
+//        jobVw.layer.backgroundColor = colorChoices[i]
+//        jobVw.accessibilityIdentifier = "jobTab"
+        
+        let label = UILabel(frame: frame)
+        label.text = poNumTx
+        label.textAlignment = .justified
+        label.font = UIFont.systemFont(ofSize: 7)
+        label.accessibilityIdentifier = "jobTab"
+        
+        var prevIndex = IndexPath(index: indxPh.item)
+        prevIndex.item = Int(indxPh.item - 1)
+        
+        let lastCell = calendarView.dequeueReusableJTAppleCell(withReuseIdentifier: "customCalendarCell", for: prevIndex)
+        var tabColor = colorChoices[i]
+        
+        for oneVw in lastCell.subviews {
+//            if oneVw.accessibilityIdentifier == "jobTab" {
+            print("oneVw.accessibilityIdentifier: \(oneVw.accessibilityIdentifier)")
+            
+                guard let jbTab = oneVw as? UILabel,
+                    let unwrappedColor: CGColor = jbTab.backgroundColor?.cgColor else { continue }
+                
+                if jbTab.text == poNumTx {
+                    tabColor = unwrappedColor
+                }
+            
+//            }
+        }
+        
+        label.layer.backgroundColor = tabColor
+
+//        return jobVw
+        return label
     }
     
 }
@@ -357,10 +394,8 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
             let b = selectedJobs[indexPath.row].poNumber
             let bb = getTime(date: dt.installDate)
             let cc = getMonthDayYear(date: dt.installDate)
-            let dd = getTime(date: dt.endDate)
-            let ee = getMonthDayYear(date: dt.endDate)
             
-            cell.jobInfoLabel.text = " PO: \(b) \(bb) | \(cc) "
+            cell.jobInfoLabel.text = "\(a) PO-\(b) \n\(bb)"
         }
 
         return cell
