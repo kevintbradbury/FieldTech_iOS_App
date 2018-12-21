@@ -164,17 +164,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func updateToken(token: String, route: String) {
         UserDefaults.standard.set(token, forKey: "token");
         
-        var request = APICalls().setupRequest(route: route, method: "POST")
-        request.addValue(token, forHTTPHeaderField: "token")
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if error != nil {
-                print("fetch to server failed w/ error: \(error!.localizedDescription)"); return
-            } else {
-                print("sent device token successfully")
+        APICalls().setupRequest(route: route, method: "POST") { req in
+            var request = req
+            request.addValue(token, forHTTPHeaderField: "token")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil {
+                    print("fetch to server failed w/ error: \(error!.localizedDescription)"); return
+                } else {
+                    print("sent device token successfully")
+                }
             }
+            task.resume()
         }
-        task.resume()
     }
 }
 
