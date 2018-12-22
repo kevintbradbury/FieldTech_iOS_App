@@ -305,7 +305,7 @@ extension APICalls {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
         getFIRidToken() { firebaseIDtoken in
-            request.addValue("\(firebaseIDtoken)", forHTTPHeaderField: "Authorization")
+            request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")
             cb(request)
         }
     }
