@@ -193,7 +193,7 @@ extension HomeView {
             UserDefaults.standard.set(HomeView.todaysJob.poNumber, forKey: "todaysJobPO")
             UserDefaults.standard.set(HomeView.todaysJob.jobName, forKey: "todaysJobName")
             
-        } else if HomeView.todaysJob.jobName != nil && HomeView.todaysJob.jobLocation?[0] != nil && HomeView.todaysJob.jobLocation?[1] != nil && HomeView.todaysJob.jobLocation?.count == 2 {
+        } else if HomeView.todaysJob.jobName != nil && HomeView.todaysJob.jobLocation?.count == 2 {
             guard let lat = HomeView.todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
             guard let lng = HomeView.todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
             guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {

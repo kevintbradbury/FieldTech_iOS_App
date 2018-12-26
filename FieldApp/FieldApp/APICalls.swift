@@ -19,7 +19,6 @@ import Firebase
 
 class APICalls {
     static let host = "https://mb-server-app-kbradbury.c9users.io/"
-    let notificationCenter = UNUserNotificationCenter.current()
     
     func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob]) -> ()) {
         let route = "employee/" + employeeID + "/jobs"
@@ -143,7 +142,8 @@ class APICalls {
                 data = try jsonEncoder.encode(person)
             } catch {
                 print(error);   return
-            };  req.httpBody = data
+            }
+            req.httpBody = data
             
             let task = session.dataTask(with: req) {data, response, error in
                 if error != nil {
@@ -271,14 +271,18 @@ class APICalls {
     func getToolRentals(employeeID: Int, callback: @escaping (ToolsNImages) -> ()) {
         let route = APICalls.host + "toolRentals/\(employeeID)"
         
-        Alamofire.request(route).responseJSON { response in
-            if let json = response.result.value {
-                print("JSON")
-                let toolsNphotos = FieldActions.fromJSONtoTool(json: json)
-                let sendBackObj = ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1)
-                print("tools & images count: ", toolsNphotos.0.count, toolsNphotos.1.count)
+        getFIRidToken() { idToken in
+            let headers: HTTPHeaders = [ "Authorization" : idToken ]
+            Alamofire.request(route, headers: headers).responseJSON() { response in
                 
-                callback(sendBackObj)
+                if let json = response.result.value {
+                    print("JSON")
+                    let toolsNphotos = FieldActions.fromJSONtoTool(json: json)
+                    let sendBackObj = ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1)
+                    print("tools & images count: ", toolsNphotos.0.count, toolsNphotos.1.count)
+                    
+                    callback(sendBackObj)
+                }
             }
         }
     }
@@ -441,14 +445,14 @@ extension APICalls {
     
     func failedUpload(msg: String) {
         let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
-        self.notificationCenter.add(failedNotifc, withCompletionHandler: { (error) in
+        UNUserNotificationCenter.current().add(failedNotifc, withCompletionHandler: { (error) in
             if error != nil { return }
         })
     }
     
     func successUpload(msg: String)  {
         let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "SUCCESS", message: msg, identifier: "uploadSuccess")
-        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
+        UNUserNotificationCenter.current().add(completeNotif, withCompletionHandler: { (error) in
             if error != nil { return }
         })
     }
