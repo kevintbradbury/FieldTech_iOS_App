@@ -39,7 +39,7 @@ class ScheduleView: UIViewController {
         initialCalSetup()
         
         jobsTable.delegate = self
-        jobsTable.dataSource = self as? UITableViewDataSource
+        jobsTable.dataSource = self
     }
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -57,8 +57,8 @@ class ScheduleView: UIViewController {
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
     
     func initialCalSetup() {
-        calendarView.calendarDelegate = self as? JTAppleCalendarViewDelegate
-        calendarView.calendarDataSource = self as? JTAppleCalendarViewDataSource
+        calendarView.calendarDelegate = self
+        calendarView.calendarDataSource = self
         calendarView.isPrefetchingEnabled = true
         calendarView.minimumInteritemSpacing = 1
         calendarView.minimumLineSpacing = 1
@@ -78,12 +78,12 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         formatter.timeZone = calndr.timeZone
         formatter.locale = calndr.locale
 
-        let msVal = TimeInterval(Date().timeIntervalSince1970 + TimeInterval(60 * 60 * 24 * 14)) // 14 days
+        let msVal = TimeInterval(Date().timeIntervalSince1970 + TimeInterval(60 * 60 * 24 * 14)) // sec * min * hours * 14 days
         let endDate = Date(timeIntervalSince1970: msVal)
         let parameters = ConfigurationParameters(
             startDate: Date(),
             endDate: endDate,
-            numberOfRows: 4,
+            numberOfRows: 5,
             calendar: calndr,
             generateInDates: .forAllMonths,
             generateOutDates: .tillEndOfRow,
@@ -323,13 +323,15 @@ extension ScheduleView {
     }
     
     // Effectively handles no more than 4 jobs in single calendar cell
-    
     func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int) -> UILabel {  // UIView
         
 //        let w = CGFloat(cell.frame.width / 4)
 //        let h = CGFloat(oneDt.endDate.timeIntervalSince1970 - oneDt.installDate.timeIntervalSince1970) / 10000
 //        let x = CGFloat(Double(w) * Double(i))
 //        let y = CGFloat(oneDt.installDate.timeIntervalSince1970 / 100000000)
+//        let jobVw = UIView(frame: frame)
+//        jobVw.layer.backgroundColor = colorChoices[i]
+//        jobVw.accessibilityIdentifier = "jobTab"
         
         let w = cell.frame.width - 1
         let h = CGFloat(cell.frame.height / 8)
@@ -338,17 +340,12 @@ extension ScheduleView {
         let frame = CGRect(x: x, y: y, width: w, height: h)
         let poNumTx = " PO-\(oneJb.poNumber)"
         
-//        let jobVw = UIView(frame: frame)
-//        jobVw.layer.backgroundColor = colorChoices[i]
-//        jobVw.accessibilityIdentifier = "jobTab"
-        
         let label = UILabel(frame: frame)
         label.text = poNumTx
         label.textAlignment = .justified
         label.font = UIFont.systemFont(ofSize: 7)
         label.accessibilityIdentifier = "jobTab"
-
-//        return jobVw
+        
         return label
     }
     

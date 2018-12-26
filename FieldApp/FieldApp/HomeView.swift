@@ -15,13 +15,11 @@ import UserNotificationsUI
 import ImagePicker
 import Macaw
 import FanMenu
-
 //import Alamofire
 //import FirebaseStorage
 //import SwiftyJSON
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
-    
     
     @IBOutlet weak var userLabel: UILabel!
     @IBOutlet weak var labelBkgd: UIView!
@@ -30,7 +28,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var logoView: FanMenu!
     @IBOutlet var bkgdView: MacawView!
     
-    
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
@@ -38,12 +35,10 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         Color.green.val, Color.blue.val, Color.teal.val, Color.red.val,Color.fuchsia.val,
         Color.navy.val, Color.purple.val, Color.yellow.val, 0xFF9742
     ]
-    //        Color.yellow.val, 0xFF9742, Color.teal.val, Color.red.val, Color.fuchsia.val, Color.navy.val, Color.green.val, Color.blue.val, Color.purple.val as [Any]
     let icons = [
         "hotel_req", "tools", "materials", "form", "vacation",
         "safety", "camera", "clock", "schedule"
     ]
-    //        "clock", "schedule", "materials", "share_white", "time_off", "safety", "hotel_req", "tools", "camera"
     
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var main = OperationQueue.main
@@ -81,7 +76,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         super.viewDidAppear(true)
         logoView.close()
     }
-    
 }
 
 extension HomeView {

@@ -97,15 +97,28 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <color key="backgroundColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </view>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JJN-tO-qBs">
-                                <rect key="frame" x="107.5" y="395" width="105" height="105"/>
+                                <rect key="frame" x="120" y="415" width="80" height="80"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="105" id="ibe-PB-YgW"/>
-                                    <constraint firstAttribute="height" constant="105" id="ifG-lF-EEg"/>
+                                    <constraint firstAttribute="width" secondItem="JJN-tO-qBs" secondAttribute="height" multiplier="1:1" id="5FI-Il-LEe"/>
                                 </constraints>
                                 <state key="normal" title="Lunch Break" image="lunch"/>
                                 <connections>
                                     <action selector="lunchBrkPunchOut:" destination="bq0-eu-ofj" eventType="touchUpInside" id="YAd-c5-5TE"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ywa-CS-yNp" userLabel="Profile Btn">
+                                <rect key="frame" x="128" y="35" width="64" height="64"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="ywa-CS-yNp" secondAttribute="height" multiplier="1:1" id="C9J-Jq-vF3"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="profile"/>
+                                <connections>
+                                    <action selector="pressedProfile:" destination="bq0-eu-ofj" eventType="touchUpInside" id="zYc-ua-HH2"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8V0-xo-CLS">
@@ -140,7 +153,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mkf-uE-ifr">
+                            <button opaque="NO" contentMode="scaleAspectFit" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mkf-uE-ifr">
                                 <rect key="frame" x="89" y="243" width="142" height="132"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="142" id="3PG-gP-lU0"/>
@@ -151,7 +164,7 @@
                                     <action selector="goClockOut:" destination="bq0-eu-ofj" eventType="touchUpInside" id="moQ-KB-mZb"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AFE-De-iRq">
+                            <button opaque="NO" contentMode="scaleAspectFit" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AFE-De-iRq">
                                 <rect key="frame" x="90" y="244" width="140" height="130"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="140" id="FXg-4V-d0x"/>
@@ -173,12 +186,8 @@
                                 </connections>
                             </button>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i9j-eu-RJ9">
-                                <rect key="frame" x="16" y="92" width="288" height="85"/>
+                                <rect key="frame" x="16" y="140" width="288" height="85"/>
                             </pickerView>
-                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <color key="backgroundColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                            </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Xgx-TL-7uV">
                                 <rect key="frame" x="141.5" y="290.5" width="37" height="37"/>
                                 <constraints>
@@ -188,7 +197,7 @@
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eoh-Qc-nCh" userLabel="animatedClockView" customClass="MacawView" customModule="Macaw">
-                                <rect key="frame" x="80" y="204" width="160" height="160"/>
+                                <rect key="frame" x="80" y="275" width="160" height="160"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="eoh-Qc-nCh" secondAttribute="height" multiplier="1:1" id="n96-b8-Wr9"/>
@@ -198,8 +207,8 @@
                         <color key="backgroundColor" red="1" green="1" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="height" secondItem="pLG-Ve-Unv" secondAttribute="height" multiplier="0.15" id="1jw-2t-Rbm"/>
+                            <constraint firstItem="ywa-CS-yNp" firstAttribute="top" secondItem="Nct-pa-u5V" secondAttribute="top" id="2ys-vU-gcH"/>
                             <constraint firstItem="eoh-Qc-nCh" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.5" id="3hJ-hW-eqR"/>
-                            <constraint firstItem="AFE-De-iRq" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="67" id="6SV-Ss-bkG"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="top" secondItem="pLG-Ve-Unv" secondAttribute="top" id="7Bq-eW-HJ4"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="8BO-5R-fu3"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="top" secondItem="cgM-Ze-PLd" secondAttribute="bottom" constant="7" id="8Jc-uW-1eI"/>
@@ -208,17 +217,20 @@
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Ckc-PT-RTV"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="F6A-AU-53E"/>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leadingMargin" id="Hmf-5b-tL5"/>
+                            <constraint firstItem="ywa-CS-yNp" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.2" id="I3B-ai-La1"/>
                             <constraint firstAttribute="trailingMargin" secondItem="i9j-eu-RJ9" secondAttribute="trailing" id="Kyk-2l-k46"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
+                            <constraint firstItem="ywa-CS-yNp" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Qt0-76-qJc"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
+                            <constraint firstItem="JJN-tO-qBs" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.25" id="XTB-nN-P5q"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leading" id="bnf-dw-BMy"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-40" id="cj2-Tl-Eli"/>
-                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" id="ggg-Ry-PVd"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" multiplier="1.25" id="ggg-Ry-PVd"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="50" id="hWx-h7-Uem"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" constant="15" id="mzN-h5-frs"/>
-                            <constraint firstItem="cRn-CE-CNR" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="11" id="rtf-gP-5o0"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="top" secondItem="cRn-CE-CNR" secondAttribute="bottom" constant="20" id="tKg-Fx-Q2s"/>
-                            <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="Mkf-uE-ifr" secondAttribute="bottom" constant="20" id="taf-7J-8dh"/>
+                            <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="Mkf-uE-ifr" secondAttribute="bottom" constant="40" id="taf-7J-8dh"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="25" id="u72-vk-TtN"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="25" id="vbu-Bo-RLo"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.15" id="vdi-Nf-zc5"/>
@@ -238,6 +250,7 @@
                         <outlet property="employeeID" destination="cgM-Ze-PLd" id="ang-Xn-Vpj"/>
                         <outlet property="enterIDText" destination="cRn-CE-CNR" id="vT9-eK-YLF"/>
                         <outlet property="lunchBreakBtn" destination="JJN-tO-qBs" id="xhy-im-VUa"/>
+                        <outlet property="profileBtn" destination="ywa-CS-yNp" id="Jrz-im-gZH"/>
                         <outlet property="roleSelection" destination="i9j-eu-RJ9" id="4Dj-zO-hs0"/>
                         <outlet property="sendButton" destination="8V0-xo-CLS" id="Mw3-Qj-lTu"/>
                         <segue destination="dvo-Ab-kYb" kind="presentation" identifier="return" id="PNM-CA-SzQ"/>
@@ -746,7 +759,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zGJ-rD-ZgT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1494.375" y="1330.9859154929577"/>
+            <point key="canvasLocation" x="2363" y="1351"/>
         </scene>
         <!--Change Orders View-->
         <scene sceneID="DcC-iN-Wbk">
@@ -1025,7 +1038,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zXB-rg-r0K" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tapGestureRecognizer id="A5c-Wh-u4d"/>
             </objects>
-            <point key="canvasLocation" x="2362.5" y="1330.9859154929577"/>
+            <point key="canvasLocation" x="3231" y="1351"/>
         </scene>
         <!--Tool Return View-->
         <scene sceneID="ga3-y3-1wd">
@@ -1102,7 +1115,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="V1b-gG-VQj" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3266.25" y="1330.9859154929577"/>
+            <point key="canvasLocation" x="4134" y="1351"/>
         </scene>
         <!--Tool Sign Off View-->
         <scene sceneID="mpt-vx-bk6">
@@ -1243,7 +1256,7 @@
                 <tapGestureRecognizer id="GVa-44-Aop"/>
                 <tapGestureRecognizer id="ecD-oi-7cJ"/>
             </objects>
-            <point key="canvasLocation" x="4216.875" y="1330.9859154929577"/>
+            <point key="canvasLocation" x="5085" y="1351"/>
         </scene>
     </scenes>
     <resources>
@@ -1251,6 +1264,7 @@
         <image name="clockIn" width="700" height="700"/>
         <image name="clockOut" width="700" height="700"/>
         <image name="lunch" width="700" height="700"/>
+        <image name="profile" width="700" height="700"/>
         <image name="signature" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>

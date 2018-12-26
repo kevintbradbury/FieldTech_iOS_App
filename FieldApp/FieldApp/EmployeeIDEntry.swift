@@ -36,6 +36,7 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var lunchBreakBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet var animatedClockView: MacawView!
+    @IBOutlet var profileBtn: UIButton!
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
@@ -50,6 +51,7 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var hadLunch = false
+    var profileUpload: Bool?
     public var role: String?
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
@@ -79,6 +81,11 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
+    @IBAction func pressedProfile(_ sender: Any) {
+        self.present(self.picker, animated: true, completion: nil)
+        profileUpload = true
+    }
+    
 }
 
 
@@ -321,15 +328,14 @@ extension EmployeeIDEntry {
                 self.sendButton.isHidden = true
                 self.enterIDText.isHidden = true
                 self.animatedClockView.isHidden = false
+                self.profileBtn.isHidden = false
                 
                 if punchedIn == true {
                     self.clockIn.isHidden = true
                     self.lunchBreakBtn.isHidden = false
-//                    self.enterIDText.text = "Clock Out"
                 } else if punchedIn == false {
                     self.clockOut.isHidden = true
                     self.lunchBreakBtn.isHidden = true
-//                    self.enterIDText.text = "Clock In"
                 } else {
                     return
                 }
@@ -340,6 +346,7 @@ extension EmployeeIDEntry {
                 self.clockOut.isHidden = true
                 self.lunchBreakBtn.isHidden = true
                 self.animatedClockView.isHidden = true
+                self.profileBtn.isHidden = true
             }
         }
     }
@@ -421,7 +428,8 @@ extension EmployeeIDEntry {
         let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in
             self.clockInClockOut()
         }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil)
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in
+            self.present(self.picker, animated: true, completion: nil)
         }
         let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
             self.performSegue(withIdentifier: "clockTOchange", sender: nil)
@@ -507,10 +515,12 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         let imgs = imageAssets
         print("images to upload: \(imgs.count)")
 
-        if imgs.count < 11 {
+        if profileUpload == true {
+            
+        } else if imgs.count < 11 {
 
-            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+            if let emply =  UserDefaults.standard.string(forKey: "employeeName"),
+                let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
                 inProgress()
                 APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
                     self.checkSuccess(success: success)
