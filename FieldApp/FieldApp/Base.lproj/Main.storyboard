@@ -98,23 +98,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JJN-tO-qBs">
-                                <rect key="frame" x="120" y="415" width="80" height="80"/>
+                                <rect key="frame" x="120" y="409" width="80" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="JJN-tO-qBs" secondAttribute="height" multiplier="1:1" id="5FI-Il-LEe"/>
                                 </constraints>
                                 <state key="normal" title="Lunch Break" image="lunch"/>
                                 <connections>
                                     <action selector="lunchBrkPunchOut:" destination="bq0-eu-ofj" eventType="touchUpInside" id="YAd-c5-5TE"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ywa-CS-yNp" userLabel="Profile Btn">
-                                <rect key="frame" x="128" y="35" width="64" height="64"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="ywa-CS-yNp" secondAttribute="height" multiplier="1:1" id="C9J-Jq-vF3"/>
-                                </constraints>
-                                <state key="normal" title="Button" image="profile"/>
-                                <connections>
-                                    <action selector="pressedProfile:" destination="bq0-eu-ofj" eventType="touchUpInside" id="zYc-ua-HH2"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8V0-xo-CLS">
@@ -171,6 +161,21 @@
                                     <action selector="goClockIn:" destination="bq0-eu-ofj" eventType="touchUpInside" id="iqa-NS-ADN"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageSizeForAccessibilityContentSizeCategory="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ywa-CS-yNp" userLabel="Profile Btn">
+                                <rect key="frame" x="136" y="56" width="48" height="48"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="ywa-CS-yNp" secondAttribute="height" multiplier="1:1" identifier="aspect" id="C9J-Jq-vF3"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="adult-artisan-business-1094767"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <integer key="value" value="25"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="pressedProfile:" destination="bq0-eu-ofj" eventType="touchUpInside" id="zYc-ua-HH2"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nct-pa-u5V">
                                 <rect key="frame" x="256" y="35" width="48" height="35"/>
                                 <constraints>
@@ -182,10 +187,10 @@
                                 </connections>
                             </button>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i9j-eu-RJ9">
-                                <rect key="frame" x="16" y="140" width="288" height="85"/>
+                                <rect key="frame" x="16" y="114" width="288" height="85"/>
                             </pickerView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eoh-Qc-nCh" userLabel="animatedClockView" customClass="MacawView" customModule="Macaw">
-                                <rect key="frame" x="80" y="275" width="160" height="160"/>
+                                <rect key="frame" x="80" y="224" width="160" height="160"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="eoh-Qc-nCh" secondAttribute="height" multiplier="1:1" id="n96-b8-Wr9"/>
@@ -207,7 +212,6 @@
                         <color key="backgroundColor" red="1" green="1" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="height" secondItem="pLG-Ve-Unv" secondAttribute="height" multiplier="0.15" id="1jw-2t-Rbm"/>
-                            <constraint firstItem="ywa-CS-yNp" firstAttribute="top" secondItem="Nct-pa-u5V" secondAttribute="top" id="2ys-vU-gcH"/>
                             <constraint firstItem="eoh-Qc-nCh" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.5" id="3hJ-hW-eqR"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="top" secondItem="pLG-Ve-Unv" secondAttribute="top" id="7Bq-eW-HJ4"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="8BO-5R-fu3"/>
@@ -217,20 +221,22 @@
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Ckc-PT-RTV"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="F6A-AU-53E"/>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leadingMargin" id="Hmf-5b-tL5"/>
-                            <constraint firstItem="ywa-CS-yNp" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.2" id="I3B-ai-La1"/>
+                            <constraint firstItem="ywa-CS-yNp" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.15" id="I3B-ai-La1"/>
+                            <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="eoh-Qc-nCh" secondAttribute="bottom" constant="25" id="I7L-fg-S0E"/>
                             <constraint firstAttribute="trailingMargin" secondItem="i9j-eu-RJ9" secondAttribute="trailing" id="Kyk-2l-k46"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
                             <constraint firstItem="ywa-CS-yNp" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Qt0-76-qJc"/>
+                            <constraint firstItem="i9j-eu-RJ9" firstAttribute="top" secondItem="ywa-CS-yNp" secondAttribute="bottom" constant="10" id="TTO-3K-s3f"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.25" id="XTB-nN-P5q"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leading" id="bnf-dw-BMy"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-40" id="cj2-Tl-Eli"/>
-                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" multiplier="1.25" id="ggg-Ry-PVd"/>
-                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="50" id="hWx-h7-Uem"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="20" id="ggg-Ry-PVd"/>
+                            <constraint firstItem="eoh-Qc-nCh" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="25" id="hWx-h7-Uem"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" constant="15" id="mzN-h5-frs"/>
+                            <constraint firstItem="KXz-M4-q6L" firstAttribute="top" relation="greaterThanOrEqual" secondItem="JJN-tO-qBs" secondAttribute="bottom" constant="20" id="tJJ-4T-UcO"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="top" secondItem="cRn-CE-CNR" secondAttribute="bottom" constant="20" id="tKg-Fx-Q2s"/>
-                            <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="Mkf-uE-ifr" secondAttribute="bottom" constant="40" id="taf-7J-8dh"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="25" id="u72-vk-TtN"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="25" id="vbu-Bo-RLo"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.15" id="vdi-Nf-zc5"/>
@@ -598,7 +604,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="idl-5J-K4F">
-                                                    <rect key="frame" x="15" y="11" width="290" height="22"/>
+                                                    <rect key="frame" x="15" y="11" width="738" height="22"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <nil key="highlightedColor"/>
@@ -1260,11 +1266,11 @@
         </scene>
     </scenes>
     <resources>
+        <image name="adult-artisan-business-1094767" width="6000" height="4000"/>
         <image name="back" width="700" height="700"/>
         <image name="clockIn" width="700" height="700"/>
         <image name="clockOut" width="700" height="700"/>
         <image name="lunch" width="700" height="700"/>
-        <image name="profile" width="700" height="700"/>
         <image name="signature" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>

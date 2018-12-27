@@ -74,6 +74,8 @@ class EmployeeIDEntry: UIViewController {
         
         clockIn.isHidden = true
         clockOut.isHidden = true
+        
+        loadProfilePic()
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -502,6 +504,38 @@ extension EmployeeIDEntry {
         let anmt: Animation = nodeClockHnd.placeVar.animation(angle: 0.0)
         anmt.cycle().stop()
     }
+    
+    func saveLocalPhoto(image: UIImage) {
+        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
+        
+        do {
+            try imageData.write(to: imageUrl)
+            print("saved photo...probably @ URL: \n \(imageUrl)")
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func loadProfilePic() {
+        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+        var image = UIImage()
+        
+        if FileManager.default.fileExists(atPath: imagePath) {
+            guard let imageData = try? Data(contentsOf: imageUrl) else {
+                print("Couldnt convert url to data obj"); return
+            }
+            image = UIImage(data: imageData, scale: UIScreen.main.scale) ?? image
+//            profileBtn.clipsToBounds = true
+            profileBtn.layer.cornerRadius = 27.5
+            profileBtn.setImage(image, for: .normal)
+        
+        } else {
+            print("File not found: \(imagePath)"); return
+        }
+    }
 }
 
 extension EmployeeIDEntry: ImagePickerDelegate {
@@ -521,6 +555,8 @@ extension EmployeeIDEntry: ImagePickerDelegate {
                 APICalls().uploadProfilePhoto(images: imgs, employee: emply) { success in
                     self.checkSuccess(success: success)
                     // Save Photo to bundle here
+                    self.saveLocalPhoto(image: imgs[0])
+                    
                 }; dismiss(animated: true, completion: nil)
                 
             } else if imgs.count < 11 {
