@@ -26,6 +26,20 @@ class UserData {
     var completedWorkPhotos: [UIImage]?
     var locationConfirm: Bool?
     
+    struct UserInfoCodeable: Encodable {
+        let userName: String
+        let employeeID: String
+        let coordinateLat: String
+        let coordinateLong: String
+        let currentRole: String
+    }
+    
+    struct AddressInfo: Codable {
+        let address: String?
+        let city: String?
+        let state: String?
+    }
+    
     struct UserInfo {
         
         let employeeID: Int

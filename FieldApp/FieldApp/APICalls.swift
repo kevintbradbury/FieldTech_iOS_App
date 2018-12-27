@@ -126,7 +126,7 @@ class APICalls {
         
         let route = "checkCoordinates/" + employee
         let session = URLSession.shared;
-        let person = UserInfoCodeable(
+        let person = UserData.UserInfoCodeable(
             userName: employee,
             employeeID: emplyID,
             coordinateLat: location[0],
@@ -189,6 +189,20 @@ class APICalls {
         let headers = ["formType", formType]
         
         alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "changeOrder") { success in
+            callback(success)
+        }
+    }
+    
+    func uploadProfilePhoto(images: [UIImage], employee: String, callback: @escaping (Bool) -> () ) {
+        guard let idNum = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
+        let url = APICalls.host + "employee/\(idNum)/profileUpload"
+        let headers = ["employee", employee]
+        
+        // Hard coded & may never use address info
+        let info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA")
+        let formBody = generateAddressData(addressInfo: info)
+        
+        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { success in
             callback(success)
         }
     }
@@ -353,16 +367,22 @@ extension APICalls {
         return jobsArray
     }
     
-    struct UserInfoCodeable: Encodable {
-        let userName: String
-        let employeeID: String
-        let coordinateLat: String
-        let coordinateLong: String
-        let currentRole: String
-    }
+//    struct UserInfoCodeable: Encodable {
+//        let userName: String
+//        let employeeID: String
+//        let coordinateLat: String
+//        let coordinateLong: String
+//        let currentRole: String
+//    }
     
     func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {
-        let person = UserInfoCodeable(userName: employee.userName, employeeID: String(employee.employeeID), coordinateLat: location[0], coordinateLong: location[1], currentRole: role)
+        let person = UserData.UserInfoCodeable(
+            userName: employee.userName,
+            employeeID: String(employee.employeeID),
+            coordinateLat: location[0],
+            coordinateLong: location[1],
+            currentRole: role
+        )
         var data = Data()
         var combinedString = person.userName + " -- " + person.employeeID  + " |"
         combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.currentRole
@@ -411,6 +431,16 @@ extension APICalls {
         
         do { data = try jsonEncoder.encode(returnObj) }
         catch { print("error converting TOOLRT to DATA", error) };
+        
+        return data
+    }
+    
+    func generateAddressData(addressInfo: UserData.AddressInfo) -> Data {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+        
+        do { data = try jsonEncoder.encode(addressInfo) }
+        catch { print("error converting addressInfo to DATA", error) };
         
         return data
     }

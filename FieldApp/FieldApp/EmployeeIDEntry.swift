@@ -515,24 +515,29 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         let imgs = imageAssets
         print("images to upload: \(imgs.count)")
 
-        if profileUpload == true {
-            
-        } else if imgs.count < 11 {
-
-            if let emply =  UserDefaults.standard.string(forKey: "employeeName"),
-                let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
-                inProgress()
-                APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
+        if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+            if profileUpload == true {
+                
+                APICalls().uploadProfilePhoto(images: imgs, employee: emply) { success in
                     self.checkSuccess(success: success)
-                }
+                    // Save Photo to bundle here
+                }; dismiss(animated: true, completion: nil)
+                
+            } else if imgs.count < 11 {
+                inProgress()
+                
+                if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
+                    APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
+                        self.checkSuccess(success: success)
+                    }
+                } else {
+                    APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
+                        self.checkSuccess(success: success)
+                    }
+                };  dismiss(animated: true, completion: nil)
             } else {
-                inProgress()
-                APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
-                    self.checkSuccess(success: success)
-                }
-            };  dismiss(animated: true, completion: nil)
-        } else {
-            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+                picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+            }
         }
     }
 
