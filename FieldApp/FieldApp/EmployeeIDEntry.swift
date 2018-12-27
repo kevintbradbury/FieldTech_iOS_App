@@ -36,7 +36,6 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var lunchBreakBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet var animatedClockView: MacawView!
-    @IBOutlet var profileBtn: UIButton!
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
@@ -74,8 +73,6 @@ class EmployeeIDEntry: UIViewController {
         
         clockIn.isHidden = true
         clockOut.isHidden = true
-        
-        loadProfilePic()
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -83,10 +80,6 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
-    @IBAction func pressedProfile(_ sender: Any) {
-        self.present(self.picker, animated: true, completion: nil)
-        profileUpload = true
-    }
     
 }
 
@@ -330,7 +323,6 @@ extension EmployeeIDEntry {
                 self.sendButton.isHidden = true
                 self.enterIDText.isHidden = true
                 self.animatedClockView.isHidden = false
-                self.profileBtn.isHidden = false
                 
                 if punchedIn == true {
                     self.clockIn.isHidden = true
@@ -348,7 +340,6 @@ extension EmployeeIDEntry {
                 self.clockOut.isHidden = true
                 self.lunchBreakBtn.isHidden = true
                 self.animatedClockView.isHidden = true
-                self.profileBtn.isHidden = true
             }
         }
     }
@@ -505,37 +496,37 @@ extension EmployeeIDEntry {
         anmt.cycle().stop()
     }
     
-    func saveLocalPhoto(image: UIImage) {
-        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
-        let imageUrl: URL = URL(fileURLWithPath: imagePath)
-        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
-        
-        do {
-            try imageData.write(to: imageUrl)
-            print("saved photo...probably @ URL: \n \(imageUrl)")
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    func loadProfilePic() {
-        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
-        let imageUrl: URL = URL(fileURLWithPath: imagePath)
-        var image = UIImage()
-        
-        if FileManager.default.fileExists(atPath: imagePath) {
-            guard let imageData = try? Data(contentsOf: imageUrl) else {
-                print("Couldnt convert url to data obj"); return
-            }
-            image = UIImage(data: imageData, scale: UIScreen.main.scale) ?? image
-//            profileBtn.clipsToBounds = true
-            profileBtn.layer.cornerRadius = 27.5
-            profileBtn.setImage(image, for: .normal)
-        
-        } else {
-            print("File not found: \(imagePath)"); return
-        }
-    }
+//    func saveLocalPhoto(image: UIImage) {
+//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+//        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
+//
+//        do {
+//            try imageData.write(to: imageUrl)
+//            print("saved photo...probably @ URL: \n \(imageUrl)")
+//        } catch {
+//            print(error.localizedDescription)
+//        }
+//    }
+//
+//    func loadProfilePic() {
+//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+//        var image = UIImage()
+//
+//        if FileManager.default.fileExists(atPath: imagePath) {
+//            guard let imageData = try? Data(contentsOf: imageUrl) else {
+//                print("Couldnt convert url to data obj"); return
+//            }
+//            image = UIImage(data: imageData, scale: UIScreen.main.scale) ?? image
+////            profileBtn.clipsToBounds = true
+//            profileBtn.layer.cornerRadius = 27.5
+//            profileBtn.setImage(image, for: .normal)
+//
+//        } else {
+//            print("File not found: \(imagePath)"); return
+//        }
+//    }
 }
 
 extension EmployeeIDEntry: ImagePickerDelegate {
@@ -550,16 +541,7 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         print("images to upload: \(imgs.count)")
 
         if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-            if profileUpload == true {
-                
-                APICalls().uploadProfilePhoto(images: imgs, employee: emply) { success in
-                    self.checkSuccess(success: success)
-                    // Save Photo to bundle here
-                    self.saveLocalPhoto(image: imgs[0])
-                    
-                }; dismiss(animated: true, completion: nil)
-                
-            } else if imgs.count < 11 {
+            if imgs.count < 11 {
                 inProgress()
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {

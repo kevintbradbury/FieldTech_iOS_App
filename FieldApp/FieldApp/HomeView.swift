@@ -22,11 +22,11 @@ import FanMenu
 class HomeView: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet weak var userLabel: UILabel!
-    @IBOutlet weak var labelBkgd: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet var logoView: FanMenu!
     @IBOutlet var bkgdView: MacawView!
+    @IBOutlet var profileBtn: UIButton!
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
@@ -43,6 +43,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
+    var profileUpload: Bool?
     public static var employeeInfo: UserData.UserInfo?
     public static var todaysJob = Job()
     public static var role: String?
@@ -60,10 +61,14 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         setUpNotifications()
         checkAppDelANDnotif()
         setUpHomeBtn()
+        loadProfilePic()
         
         picker.delegate = self
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
+        
+        self.profileBtn.isHidden = true
+        self.userLabel.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -76,6 +81,12 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         super.viewDidAppear(true)
         logoView.close()
     }
+    
+    @IBAction func pressedProfile(_ sender: Any) {
+        self.present(self.picker, animated: true, completion: nil)
+        profileUpload = true
+    }
+    
 }
 
 extension HomeView {
@@ -102,6 +113,14 @@ extension HomeView {
         
         logoView.onItemWillClick = { button in
             print("button: ", button.id, button.image)
+            
+            if self.profileBtn.isHidden {
+                self.profileBtn.isHidden = false
+                self.userLabel.isHidden = false
+            } else {
+                self.profileBtn.isHidden = true
+                self.userLabel.isHidden = true
+            }
             
             if button.id != "main" { self.chooseSegue(image: button.image) }
         }
@@ -288,16 +307,16 @@ extension HomeView {
     
     func clockedInUI() {
         main.addOperation {
-            self.userLabel.backgroundColor = UIColor.green
-            self.userLabel.textColor = UIColor.black
+//            self.userLabel.backgroundColor = UIColor.green
+//            self.userLabel.textColor = UIColor.black
             self.userLabel.text = "Clocked In"
             self.completedProgress()
         }
     }
     func clockedOutUI() {
         main.addOperation {
-            self.userLabel.backgroundColor = UIColor.red
-            self.userLabel.textColor = UIColor.black
+//            self.userLabel.backgroundColor = UIColor.red
+//            self.userLabel.textColor = UIColor.black
             self.userLabel.text = "Clocked Out"
             self.completedProgress()
         }
@@ -401,6 +420,37 @@ extension HomeView {
         self.present(alert, animated: true, completion: nil)
     }
     
+    func saveLocalPhoto(image: UIImage) {
+        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
+        
+        do {
+            try imageData.write(to: imageUrl)
+            print("saved photo...probably @ URL: \n \(imageUrl)")
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    func loadProfilePic() {
+        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+        var image = UIImage()
+        
+        if FileManager.default.fileExists(atPath: imagePath) {
+            guard let imageData = try? Data(contentsOf: imageUrl) else {
+                print("Couldnt convert url to data obj"); return
+            }
+            image = UIImage(data: imageData, scale: UIScreen.main.nativeScale) ?? image
+            profileBtn.layer.cornerRadius = 27.5
+            profileBtn.setImage(image, for: .normal)
+            profileBtn.contentMode = .scaleAspectFit
+            
+        } else {
+            print("File not found: \(imagePath)"); return
+        }
+    }
 }
 
 extension HomeView: ImagePickerDelegate {
@@ -412,7 +462,14 @@ extension HomeView: ImagePickerDelegate {
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         print("images to upload: \(imageAssets.count)")
         
-        if imageAssets.count < 11 {
+        if profileUpload == true {
+            guard let emply = HomeView.employeeInfo?.userName else { return }
+            APICalls().uploadProfilePhoto(images: images, employee: emply) { success in
+                self.checkSuccess(success: success)
+                self.saveLocalPhoto(image: images[0])
+                
+            }; dismiss(animated: true, completion: nil)
+        } else if imageAssets.count < 11 {
             if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                 let emply =  UserDefaults.standard.string(forKey: "employeeName") {
                 inProgress()
