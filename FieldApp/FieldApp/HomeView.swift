@@ -153,7 +153,7 @@ extension HomeView {
                 w: Double(self.view.frame.width), h: Double(self.view.frame.height / 2)
             ),
             fill: LinearGradient(degree: 90, from: Color.black, to: Color.white),
-            stroke: Stroke(fill: Color.green, width: 1.0)
+            stroke: Stroke(fill: Color.clear, width: 0.0)
         )
         node.contents.append(shp)
         
@@ -163,7 +163,7 @@ extension HomeView {
                 w: Double(self.view.frame.width), h: Double(self.view.frame.height / 2)
             ),
             fill: LinearGradient(degree: 90, from: Color.white, to: Color.black),
-            stroke: Stroke(fill: Color.white, width: 1.0)
+            stroke: Stroke(fill: Color.clear, width: 0.0)
         )
         
         node.contents.append(shpTwo)
@@ -455,7 +455,7 @@ extension HomeView {
         
         do {
             try imageData.write(to: imageUrl)
-            print("saved photo...probably @ URL: \n \(imageUrl)")
+            print("saved photo @ URL: \(imageUrl)")
         } catch {
             print(error.localizedDescription)
         }
@@ -464,16 +464,18 @@ extension HomeView {
     func loadProfilePic() {
         let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
         let imageUrl: URL = URL(fileURLWithPath: imagePath)
-        var image = UIImage()
         
         if FileManager.default.fileExists(atPath: imagePath) {
-            guard let imageData = try? Data(contentsOf: imageUrl) else {
-                print("Couldnt convert url to data obj"); return
+            guard let imageData = try? Data(contentsOf: imageUrl),
+                var image = UIImage(data: imageData, scale: UIScreen.main.scale) else {
+                    print("Couldnt convert url to data obj"); return
             }
-            image = UIImage(data: imageData, scale: UIScreen.main.nativeScale) ?? image
-            profileBtn.layer.cornerRadius = 27.5
+            
+            //            profileBtn.contentMode = .scaleAspectFit
+            profileBtn.layer.cornerRadius = 15  //  27.5
+            profileBtn.layer.borderWidth = 1
+            profileBtn.layer.borderColor = UIColor.white.cgColor
             profileBtn.setImage(image, for: .normal)
-            profileBtn.contentMode = .scaleAspectFit
             
         } else {
             print("File not found: \(imagePath)"); return

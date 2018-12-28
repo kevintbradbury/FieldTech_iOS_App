@@ -568,6 +568,7 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     func setRoles() {
         roleSelection.dataSource = self
         roleSelection.delegate = self
+        roleSelection.setValue(UIColor.white, forKey: "textColor")
         
         if role != nil && role != "" {
             guard let index = dataSource.index(where: { (obj) -> Bool in
@@ -582,7 +583,7 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {    return dataSource.count }
     
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {     return dataSource[row]  }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return dataSource[row]  }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {    role = dataSource[row]  }
     
