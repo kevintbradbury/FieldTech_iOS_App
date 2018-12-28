@@ -45,6 +45,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var jobs: [Job.UserJob] = []
     var profileUpload: Bool?
     public static var employeeInfo: UserData.UserInfo?
+    public static var addressInfo: UserData.AddressInfo?
     public static var todaysJob = Job()
     public static var role: String?
     public var imageAssets: [UIImage] {
@@ -66,9 +67,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         picker.delegate = self
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
-        
-        self.profileBtn.isHidden = true
-        self.userLabel.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -83,13 +81,43 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     }
     
     @IBAction func pressedProfile(_ sender: Any) {
-        self.present(self.picker, animated: true, completion: nil)
-        profileUpload = true
+        profilePress()
     }
     
 }
 
 extension HomeView {
+    
+    func profilePress() {
+        profileUpload = true
+        
+        if HomeView.employeeInfo != nil && HomeView.addressInfo != nil {
+            guard let name = HomeView.employeeInfo?.userName,
+                let address = HomeView.addressInfo?.address,
+                let city = HomeView.addressInfo?.city,
+                let state = HomeView.addressInfo?.state else { return }
+            let msg = "\n\(name)\n\(address)\n\(city), \(state) \n \nWould you like to add/update your profile photo? "
+            let paraStyle = NSMutableParagraphStyle()
+            paraStyle.alignment = NSTextAlignment.left
+            let messageText = NSMutableAttributedString(string: msg, attributes: [
+                NSAttributedStringKey.paragraphStyle : paraStyle,
+                NSAttributedStringKey.font : UIFont.preferredFont(forTextStyle: .body),
+                NSAttributedStringKey.foregroundColor: UIColor.black
+                ])
+            // Include phone number in future
+            
+            let alert = UIAlertController(title: "Employee Info", message: msg, preferredStyle: .alert)
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            let confirm = UIAlertAction(title: "Yes", style: .default) { action in
+                self.present(self.picker, animated: true, completion: nil)
+            }
+            
+            alert.setValue(messageText, forKey: "attributedMessage")
+            alert.addAction(confirm)
+            alert.addAction(cancel)
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
     
     func setUpHomeBtn() {
         let btnRadius = 35.0
@@ -113,14 +141,7 @@ extension HomeView {
         
         logoView.onItemWillClick = { button in
             print("button: ", button.id, button.image)
-            
-            if self.profileBtn.isHidden {
-                self.profileBtn.isHidden = false
-                self.userLabel.isHidden = false
-            } else {
-                self.profileBtn.isHidden = true
-                self.userLabel.isHidden = true
-            }
+            self.hideShowProfile()
             
             if button.id != "main" { self.chooseSegue(image: button.image) }
         }
@@ -147,6 +168,16 @@ extension HomeView {
         
         node.contents.append(shpTwo)
         bkgdView.node = node
+    }
+    
+    func hideShowProfile() {
+        if self.logoView.isOpen {
+            self.profileBtn.isHidden = true
+            self.userLabel.isHidden = true
+        } else {
+            self.profileBtn.isHidden = false
+            self.userLabel.isHidden = false
+        }
     }
     
     func chooseSegue(image: String) {
@@ -244,8 +275,9 @@ extension HomeView {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgress()
                 
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo in
                     HomeView.employeeInfo = user
+                    HomeView.addressInfo = addressInfo
                     self.checkPunchStatus()
                 }
             } else { completedProgress() }
@@ -307,16 +339,12 @@ extension HomeView {
     
     func clockedInUI() {
         main.addOperation {
-//            self.userLabel.backgroundColor = UIColor.green
-//            self.userLabel.textColor = UIColor.black
             self.userLabel.text = "Clocked In"
             self.completedProgress()
         }
     }
     func clockedOutUI() {
         main.addOperation {
-//            self.userLabel.backgroundColor = UIColor.red
-//            self.userLabel.textColor = UIColor.black
             self.userLabel.text = "Clocked Out"
             self.completedProgress()
         }
@@ -462,28 +490,34 @@ extension HomeView: ImagePickerDelegate {
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         print("images to upload: \(imageAssets.count)")
         
-        if profileUpload == true {
-            guard let emply = HomeView.employeeInfo?.userName else { return }
-            APICalls().uploadProfilePhoto(images: images, employee: emply) { success in
-                self.checkSuccess(success: success)
-                self.saveLocalPhoto(image: images[0])
+        if profileUpload == true && imageAssets.count == 1 {
+            
+            picker.dismiss(animated: true) {
+                self.inProgress()
+                guard let emply = HomeView.employeeInfo?.userName else { return }
                 
-            }; dismiss(animated: true, completion: nil)
-        } else if imageAssets.count < 11 {
-            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                inProgress()
-                APICalls().uploadJobImages(images: imageAssets, jobNumber: po, employee: emply) { success in
-                    self.checkSuccess(success: success)
-                }
-            } else {
-                inProgress()
-                APICalls().uploadJobImages(images: imageAssets, jobNumber: "---", employee: "---") { success in
+                APICalls().uploadProfilePhoto(images: images, employee: emply) { success in
+                    self.saveLocalPhoto(image: images[0])
+                    self.loadProfilePic()
+                    self.hideShowProfile()
                     self.checkSuccess(success: success)
                 }
             }
-            
-            dismiss(animated: true, completion: nil)
+        } else if profileUpload != true && imageAssets.count < 11 {
+            picker.dismiss(animated: true) {
+                self.inProgress()
+                
+                if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
+                    let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: po, employee: emply) { success in
+                        self.checkSuccess(success: success)
+                    }
+                } else {
+                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: "---", employee: "---") { success in
+                        self.checkSuccess(success: success)
+                    }
+                }
+            }
         } else {
             picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
         }

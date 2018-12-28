@@ -161,7 +161,7 @@ class APICalls {
         }
     }
     
-    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
         let route = "employee/" + String(employeeId)
         setupRequest(route: route, method: "GET") { request in
             
@@ -176,9 +176,13 @@ class APICalls {
                     }
                     guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
                     guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                        print("json serialization failed")
-                        return
-                    }; callback(user)
+                        print("json serialization failed");     return
+                    };
+                    guard let dictionary = json["addressInfo"] as? NSDictionary else { return }
+                    guard let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                        print("addressInfo failed to parse"); return
+                    }
+                    callback(user, addressInfo)
                 }
             }; task.resume()
         }

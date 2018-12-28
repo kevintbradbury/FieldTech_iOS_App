@@ -38,6 +38,16 @@ class UserData {
         let address: String?
         let city: String?
         let state: String?
+        
+        static func fromJSON(dictionary: NSDictionary) -> AddressInfo? {
+            guard let address = dictionary["address"] as? String,
+             let city = dictionary["city"] as? String,
+             let state = dictionary["state"] as? String else {
+                print("state address failed to parse"); return nil
+            }
+            
+            return AddressInfo(address: address, city: city, state: state)
+        }
     }
     
     struct UserInfo {
@@ -46,31 +56,35 @@ class UserData {
         let userName: String
         var employeeJobs: [Job.UserJob]
         var punchedIn: Bool?
-        
         //                let employeePhone: Int?
         //                let workWeekHours: Int?
         //                let userPoints: Int?
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
-            var clocked = false
+//            var clocked = false
             
-            guard let userId = dictionary["employeeID"] as? Int else { print("employeeID failed to parse"); return nil}
-            guard let jobs = dictionary["employeeJobs"] as? NSArray else { print("employeejobs  failed to parse"); return nil}
-            guard let userName = dictionary["username"] as? String else { print("username  failed to parse"); return nil }
-            guard let clockIn = dictionary["punchedIn"] as? Bool else { print("clockin failed to parse"); return nil }
-            clocked = clockIn
-            
-            for job in jobs {
-                guard let newJob = Job.UserJob.jsonToDictionary(dictionary: job as! NSDictionary) else { return nil }
-                jobsToAdd.append(newJob)
+            guard let userId = dictionary["employeeID"] as? Int,
+             let jobs = dictionary["employeeJobs"] as? NSArray,
+             let userName = dictionary["username"] as? String,
+             let clockIn = dictionary["punchedIn"] as? Bool else {
+                print("User Info failed to parse"); return nil
             }
-            
             //                let userNumber = dictionary["phoneNumber"] as? Int,
             //                let weekHours = dictionary["workWeekHours"] as? Int,
             //                let points = dictionary["userPoints"] as? Int,
+            //                clocked = clockIn
             
-            return UserInfo(employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clocked)
+            
+            for job in jobs {
+                guard let jobDIctionary = job as? NSDictionary,
+                    let newJob = Job.UserJob.jsonToDictionary(dictionary:  jobDIctionary) else { continue }
+                jobsToAdd.append(newJob)
+            }
+            
+            return UserInfo(
+                employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clockIn
+            )
         }
     }
     
@@ -102,7 +116,17 @@ class UserData {
                     return nil
             }
             
-            return TimeCard(weekBeginDate: beginDate, sunday: sunday, monday: monday, tuesday: tuesday, wednesday: wednesday, thursday: thursday, friday: friday, saturday: saturday, totalHours: total)
+            return TimeCard(
+                weekBeginDate: beginDate,
+                sunday: sunday,
+                monday: monday,
+                tuesday: tuesday,
+                wednesday: wednesday,
+                thursday: thursday,
+                friday: friday,
+                saturday: saturday,
+                totalHours: total
+            )
         }
     }
 }

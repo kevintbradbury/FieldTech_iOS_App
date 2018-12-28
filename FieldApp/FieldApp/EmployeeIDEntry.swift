@@ -450,8 +450,9 @@ extension EmployeeIDEntry {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgress()
                 
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
                     HomeView.employeeInfo = user
+                    HomeView.addressInfo = addressInfo
                     HomeView().checkPunchStatus()
                 }
             } else { completedProgress() }
