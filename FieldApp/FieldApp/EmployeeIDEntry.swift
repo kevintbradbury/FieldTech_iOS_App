@@ -56,6 +56,11 @@ class EmployeeIDEntry: UIViewController {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        roleSelection.setValue(UIColor.white, forKey: "textColor")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
@@ -568,7 +573,6 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     func setRoles() {
         roleSelection.dataSource = self
         roleSelection.delegate = self
-        roleSelection.setValue(UIColor.white, forKey: "textColor")
         
         if role != nil && role != "" {
             guard let index = dataSource.index(where: { (obj) -> Bool in
