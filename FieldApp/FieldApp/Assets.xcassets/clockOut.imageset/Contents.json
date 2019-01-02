@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "clockOut.png",
+      "filename" : "clockOut_noHands.png",
       "scale" : "1x"
     },
     {
@@ -11,6 +11,7 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "clockOut.png",
       "scale" : "3x"
     }
   ],

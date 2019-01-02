@@ -10,20 +10,23 @@ import Foundation
 import UIKit
 import CoreLocation
 import Firebase
+import FirebaseAuth
 import UserNotifications
 import UserNotificationsUI
 import CoreAudioKit
 import CoreAudio
 import AVKit
-import Starscream
 import ImagePicker
 import Alamofire
 import EventKit
+import Macaw
+//import Starscream
 
 
 class EmployeeIDEntry: UIViewController {
     
     @IBOutlet weak var backBtn: UIButton!
+    @IBOutlet var roleSelection: UIPickerView!
     @IBOutlet weak var enterIDText: UILabel!
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
@@ -32,12 +35,13 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var lunchBreakBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
+    @IBOutlet var animatedClockView: MacawView!
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
-
+    let dataSource = ["---", "Field", "Shop", "Driver", "Measurements"]
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -46,22 +50,34 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var hadLunch = false
+    var profileUpload: Bool?
+    public var role: String?
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        roleSelection.setValue(UIColor.white, forKey: "textColor")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        picker.delegate = self as! ImagePickerDelegate
+        picker.delegate = self
         
+        setRoles()
         checkAppDelANDnotif()
         UserLocation.instance.locationManager.startUpdatingLocation()
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+        setClockBtn()
         
         let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
         setShadows(btns: btns)
+        
+        clockIn.isHidden = true
+        clockOut.isHidden = true
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -69,6 +85,54 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
+    
+}
+
+
+extension EmployeeIDEntry {
+    
+    func setClockBtn() {
+        
+            let image = Image(
+                src: "clock",
+                w: Int(animatedClockView.frame.width),
+                h: Int(animatedClockView.frame.height),
+                place: Transform.move(
+                    dx: Double(animatedClockView.frame.width / 8),
+                    dy: Double(animatedClockView.frame.height / 8)
+                )
+            )
+            
+            if foundUser?.punchedIn == true {
+                image.src = "clockOut"
+            } else {
+                image.src = "clockIn"
+            }
+            
+            let ruler = Image(
+                src: "clock_longHand",
+                w: Int(image.w / 8),
+                h: Int(image.h / 2),
+                place: Transform.move(
+                    dx: Double(animatedClockView.frame.width / 1.75),
+                    dy: Double(animatedClockView.frame.height / 3)
+                ),
+                tag: ["clock_longHand"]
+            )
+            let grp = Group()
+            grp.contents.append(image)
+            grp.contents.append(ruler)
+            
+            animatedClockView.node = grp
+
+        self.animatedClockView.node.onTouchPressed({ touch in
+            if self.foundUser?.punchedIn == true {
+                self.wrapUpAlert()
+            } else {
+                self.clockInClockOut()
+            }
+        })
+    }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
@@ -88,30 +152,41 @@ class EmployeeIDEntry: UIViewController {
     }
     
     func clockInClockOut() {
-        inProgress()
+//        inProgress()
+        startSpinning()
         
-        if foundUser?.employeeID != nil {
-            guard let unwrappedUser = foundUser else { return }
-            makeAcall(user: unwrappedUser)
+        if role != nil && role != "---" && role != "" {
             
-        } else if employeeID.text != "" {
-            isEmployeeIDNum() { foundUser in
-                self.makeAcall(user: foundUser)
+            if foundUser?.employeeID != nil {
+                guard let unwrappedUser = foundUser else { return }
+                makePunchCall(user: unwrappedUser)
+                
+            } else if employeeID.text != "" {
+                isEmployeeIDNum() { foundUser in
+                    self.makePunchCall(user: foundUser)
+                }
+            } else {
+                incorrectID(success: true)
             }
+        } else {
+//            finishedLoading()
             
-        } else { self.incorrectID(success: true) }
-    }
-    
-    func makeAcall(user: UserData.UserInfo) {
-        guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        
-        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false) { success, currentJob, poNumber, jobLatLong, clockedIn in
-            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn)
+            showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
+            stopSpinning()
         }
     }
     
-    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool) {
+    func makePunchCall(user: UserData.UserInfo) {
+        guard let coordinate = UserLocation.instance.currentCoordinate,
+            let unwrappedRole = role else { return }
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        
+        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err)
+        }
+    }
+    
+    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String) {
         if success == true {
             print("punched in / out: \(String(describing: foundUser?.punchedIn))")
             self.todaysJob.jobName = currentJob
@@ -134,12 +209,25 @@ class EmployeeIDEntry: UIViewController {
                     }
                 }
                 checkLunch()
-                let request = createNotification(intervalInSeconds: fourHours, title: title, message: message, identifier: identifier)
+                
+                let request = createNotification(
+                    intervalInSeconds: fourHours, title: title, message: message, identifier: identifier
+                )
                 notificationCenter.add(request) { (error) in
-                    if error != nil { print("error setting clock notif: "); print(error) } else { print("added reminder at 4 hour mark") }
+                    if error != nil {
+                        print("error setting clock notif: "); print(error)
+                    } else {
+                        print("added reminder at 4 hour mark")
+                    }
                 }
             }
-        } else { incorrectID(success: success) }
+        } else if manualPO == false {
+            showPONumEntryWin()
+        } else if err != "" {
+            showAlert(withTitle: "Error", message: err); finishedLoading()
+        } else {
+            incorrectID(success: success)
+        }
     }
     
     func incorrectID(success: Bool) {
@@ -148,61 +236,89 @@ class EmployeeIDEntry: UIViewController {
             else { return "Your location did not match the job location." }
         }
         
+        finishedLoading()
         self.main.addOperation {
-            self.activityBckgd.isHidden = true
-            self.activityIndicator.hidesWhenStopped = true
-            self.activityIndicator.stopAnimating()
-            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            self.showAlert(withTitle: "Alert", message: actionMsg)
         }
-        
-        showAlert(withTitle: "Alert", message: actionMsg)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let vc = segue.destination as! HomeView
-        
+        let id = segue.identifier
         UserDefaults.standard.set(foundUser?.employeeID, forKey: "employeeID")
         UserDefaults.standard.set(foundUser?.userName, forKey: "employeeName")
         
-        if segue.identifier == "return" {
+        if id == "return" {
             HomeView.employeeInfo?.punchedIn = foundUser?.punchedIn
             HomeView.todaysJob.jobName = todaysJob.jobName
             HomeView.todaysJob.poNumber = todaysJob.poNumber
             HomeView.todaysJob.jobLocation = todaysJob.jobLocation
+            HomeView.role = role
+            
+        } else  if id == "clockTOchange" {
+            let vc = segue.destination as! ChangeOrdersView
+            vc.formTypeVal = "Change Order"
         }
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
         let route = "employee/" + String(employeeId)
-        let request = APICalls().setupRequest(route: route, method: "GET")
-        let session = URLSession.shared;
         
-        let task = session.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
-            } else {
-                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                    print("json serialization failed: \(json)")
-                    self.main.addOperation {self.incorrectID(success: true)}
-                    return
+        APICalls().setupRequest(route: route, method: "GET") { request in
+            let session = URLSession.shared;
+            
+            let task = session.dataTask(with: request) {data, response, error in
+                if error != nil {
+                    print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
+                } else {
+                    guard let verifiedData = data else { print("could not verify data from dataTask"); return }
+                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
+                    guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
+                        print("json serialization failed: \(json)")
+                        self.main.addOperation { self.incorrectID(success: true) }
+                        return
+                    }
+                    callback(user)
                 }
-                callback(user)
+            }
+            task.resume()
+        }
+    }
+    
+    func showPONumEntryWin() {
+        let alert = UIAlertController(title: "Manual PO Entry", message: "No PO found for current time and date, would you like to enter PO number manually?", preferredStyle: .alert)
+        
+        let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
+            self.inProgress()
+            
+            guard let coordinate = UserLocation.instance.currentCoordinate,
+                let uwrappedUsr = self.foundUser,
+                let unwrappedRole = self.role else { return }
+            
+            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+            let poNumber = alert.textFields![0]
+            var poToString = "";
+            
+            if poNumber.text != nil && poNumber.text != "" {
+                poToString = poNumber.text!
+                
+                APICalls().manualSendPO(employee: uwrappedUsr, location: locationArray, role: unwrappedRole, po: poToString) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err)
+                }
             }
         }
-        task.resume()
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive) { action in    self.finishedLoading() }
+        
+        alert.addTextField { textFieldPhoneNumber in
+            textFieldPhoneNumber.placeholder = "PO number"
+            textFieldPhoneNumber.keyboardType = UIKeyboardType.asciiCapableNumberPad
+        }
+        alert.addAction(manualPOentry)
+        alert.addAction(cancel)
+        
+        self.main.addOperation {
+            self.present(alert, animated: true, completion: nil)
+        }
     }
-}
-
-extension EmployeeIDEntry: WebSocketDelegate {
-    func websocketDidConnect(_ socket: WebSocket) { print("web socket connected") }
-    func websocketDidDisconnect(_ socket: WebSocket, error: NSError?) { print("web socket DISconnected") }
-    func websocketDidReceiveData(_ socket: WebSocket, data: Data) { print("recieved binary data from server") }
-    func websocketDidReceiveMessage(_ socket: WebSocket, text: String) { print("web socket received message") }
-}
-
-extension EmployeeIDEntry {
     
     func hideTextfield() {
         if foundUser != nil {
@@ -210,15 +326,15 @@ extension EmployeeIDEntry {
             self.main.addOperation {
                 self.employeeID.isHidden = true
                 self.sendButton.isHidden = true
+                self.enterIDText.isHidden = true
+                self.animatedClockView.isHidden = false
                 
                 if punchedIn == true {
                     self.clockIn.isHidden = true
                     self.lunchBreakBtn.isHidden = false
-                    self.enterIDText.text = "Clock Out"
                 } else if punchedIn == false {
                     self.clockOut.isHidden = true
                     self.lunchBreakBtn.isHidden = true
-                    self.enterIDText.text = "Clock In"
                 } else {
                     return
                 }
@@ -228,6 +344,7 @@ extension EmployeeIDEntry {
                 self.clockIn.isHidden = true
                 self.clockOut.isHidden = true
                 self.lunchBreakBtn.isHidden = true
+                self.animatedClockView.isHidden = true
             }
         }
     }
@@ -241,14 +358,23 @@ extension EmployeeIDEntry {
     }
     
     func completedProgress() {
-        print("updated punch in-out is now: \(String(describing: foundUser?.punchedIn))")
-        
         self.main.addOperation {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
+            self.stopSpinning()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.performSegue(withIdentifier: "return", sender: self)
+        }
+    }
+    
+    func finishedLoading() {
+        self.main.addOperation {
+            self.activityBckgd.isHidden = true
+            self.activityIndicator.hidesWhenStopped = true
+            self.activityIndicator.stopAnimating()
+            self.stopSpinning()
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
 }
@@ -292,22 +418,61 @@ extension EmployeeIDEntry {
     }
     
     func wrapUpAlert() {
-        let actionsheet = UIAlertController(title: "Reminder", message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
-        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: UIAlertActionStyle.default) { (action) -> Void in self.clockInClockOut() }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: UIAlertActionStyle.destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil) }
-        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: UIAlertActionStyle.destructive) { (action) -> Void in
-            self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
+        let actionsheet = UIAlertController(
+            title: "Reminder",
+            message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?",
+            preferredStyle: UIAlertControllerStyle.actionSheet
+        )
+        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in
+            self.clockInClockOut()
+        }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in
+            self.present(self.picker, animated: true, completion: nil)
+        }
+        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
+            self.performSegue(withIdentifier: "clockTOchange", sender: nil)
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
+            self.stopSpinning()
         }
         
         actionsheet.addAction(finishUp)
         actionsheet.addAction(takePhotos)
         actionsheet.addAction(reqMaterials)
+        actionsheet.addAction(cancel)
         
-        self.present(actionsheet, animated: true)
+        self.main.addOperation {
+            self.present(actionsheet, animated: true)
+        }
     }
-}
-
-extension EmployeeIDEntry: ImagePickerDelegate {
+    
+    func checkForUserInfo() {
+        if HomeView.employeeInfo?.employeeID != nil {
+            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
+            HomeView().checkPunchStatus()
+            
+        } else {
+            if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
+                inProgress()
+                
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
+                    HomeView.employeeInfo = user
+                    HomeView.addressInfo = addressInfo
+                    HomeView().checkPunchStatus()
+                }
+            } else { completedProgress() }
+        }
+    }
+    
+    func checkSuccess(success: Bool) {
+        if success == true {
+            completedProgress()
+        } else {
+            completedProgress()
+            showAlert(withTitle: "Upload Failed", message: "Photos failed to upload to Server.")
+        }
+    }
+    
     func checkAppDelANDnotif() {
         let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
         appDelegate.myEmployeeVC = self
@@ -321,119 +486,111 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         }
     }
     
+    func startSpinning() {
+        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
+        
+        let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
+        anm.cycle().play()
+    }
+    
+    func stopSpinning() {
+        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
+        nodeClockHnd.placeVar.onChange { (transfrm) in
+            transfrm
+        }
+        let anmt: Animation = nodeClockHnd.placeVar.animation(angle: 0.0)
+        anmt.cycle().stop()
+    }
+    
+//    func saveLocalPhoto(image: UIImage) {
+//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+//        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
+//
+//        do {
+//            try imageData.write(to: imageUrl)
+//            print("saved photo...probably @ URL: \n \(imageUrl)")
+//        } catch {
+//            print(error.localizedDescription)
+//        }
+//    }
+//
+//    func loadProfilePic() {
+//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+//        var image = UIImage()
+//
+//        if FileManager.default.fileExists(atPath: imagePath) {
+//            guard let imageData = try? Data(contentsOf: imageUrl) else {
+//                print("Couldnt convert url to data obj"); return
+//            }
+//            image = UIImage(data: imageData, scale: UIScreen.main.scale) ?? image
+////            profileBtn.clipsToBounds = true
+//            profileBtn.layer.cornerRadius = 27.5
+//            profileBtn.setImage(image, for: .normal)
+//
+//        } else {
+//            print("File not found: \(imagePath)"); return
+//        }
+//    }
+}
+
+extension EmployeeIDEntry: ImagePickerDelegate {
+    
     func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         print("wrapper did press")
         imagePicker.expandGalleryView()
     }
-    
+
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
-        let images = imageAssets
-        print("images to upload: \(images.count)")
-        
-        if images.count < 11 {
-            
-            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                upload(images: images, jobNumber: po, employee: emply)
-            } else {
-                upload(images: images, jobNumber: "---", employee: "---")
-            }
-            
-            dismiss(animated: true, completion: nil)
-        } else {
-            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
-        }
-    }
-    
-    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
-    }
-    
-    func checkForUserInfo() {
-        if HomeView.employeeInfo?.employeeID != nil {
-            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
-            HomeView().checkPunchStatus()
-            
-        } else {
-            if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
+        let imgs = imageAssets
+        print("images to upload: \(imgs.count)")
+
+        if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+            if imgs.count < 11 {
                 inProgress()
                 
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
-                    HomeView.employeeInfo = user
-                    HomeView().checkPunchStatus()
-                }
-            } else { completedProgress() }
-        }
-    }
-    
-    func uploadPhoto(photo: UIImage, poNumber: String){
-        self.main.addOperation { self.inProgress() }
-        guard let imageData = UIImageJPEGRepresentation(photo, 0.25) else {
-            print("Couldn't get JPEG representation"); return
-        }
-        
-        APICalls().sendPhoto(imageData: imageData, poNumber: poNumber) { responseObj in
-            self.main.addOperation { self.completedProgress() }
-        }
-    }
-    
-    func upload(images: [UIImage], jobNumber: String, employee: String) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        self.inProgress()
-        
-        let url = "https://mb-server-app-kbradbury.c9users.io/job/" + jobNumber + "/upload"
-        let headers: HTTPHeaders = [
-            "Content-type" : "multipart/form-data",
-            "employee": employee
-        ]
-        
-        Alamofire.upload(
-            multipartFormData: { multipartFormData in
-                var i = 0
-                for img in images {
-                    
-                    guard let imageData = UIImageJPEGRepresentation(img, 0.25) else { return }
-                    multipartFormData.append(imageData,
-                                             withName: "\(jobNumber)_\(i)",
-                        fileName: "\(jobNumber)_\(i).jpg",
-                        mimeType: "image/jpeg")
-                    i += 1
-                }
-        },
-            usingThreshold: UInt64.init(),
-            to: url,
-            method: .post,
-            headers: headers,
-            encodingCompletion: { encodingResult in
-                switch encodingResult {
-                    
-                case .success(let upload, _, _):
-                    upload.uploadProgress { progress in
-                        //progressCompletion(Float(progress.fractionCompleted))
+                if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
+                    APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
+                        self.checkSuccess(success: success)
                     }
-                    upload.validate()
-                    upload.responseString { response in
-                        guard response.result.isSuccess else {
-                            print("error while uploading file: \(response.result.error)")
-                            self.showAlert(withTitle: "Failed", message: "Photo(s) upload failed.")
-                            self.completedProgress()
-                            return
-                        }
-                        self.completedProgress()
-                        
-                        let completeNotif = self.createNotification(intervalInSeconds: 1, title: "Upload Complete", message: "Photos uploaded successfully.", identifier: "uploadSuccess")
+                } else {
+                    APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
+                        self.checkSuccess(success: success)
+                    }
+                };  dismiss(animated: true, completion: nil)
+            } else {
+                picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+            }
+        }
+    }
 
-                        self.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
-                            if error != nil { return } else {}
-                        })
-                    }
-                    
-                case .failure(let encodingError):
-                    print(encodingError)
-                }
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {   }
+}
+
+extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
+    
+    func setRoles() {
+        roleSelection.dataSource = self
+        roleSelection.delegate = self
+        
+        if role != nil && role != "" {
+            guard let index = dataSource.index(where: { (obj) -> Bool in
+                obj == role
+            }) else  { return }
+            
+            roleSelection.selectRow(index, inComponent: 0, animated: true)
         }
-        )
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {   return 1    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {    return dataSource.count }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return dataSource[row]  }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {    role = dataSource[row]  }
+    
 }
 
 

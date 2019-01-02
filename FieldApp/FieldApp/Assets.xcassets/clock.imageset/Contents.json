@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "noun_1323229_cc.png",
+      "filename" : "clock_blue.png",
       "scale" : "1x"
     },
     {
@@ -11,6 +11,7 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "noun_1323229_cc.png",
       "scale" : "3x"
     }
   ],
