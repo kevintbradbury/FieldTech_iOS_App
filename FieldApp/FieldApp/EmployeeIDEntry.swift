@@ -19,6 +19,7 @@ import AVKit
 import ImagePicker
 import Alamofire
 import EventKit
+import Macaw
 //import Starscream
 
 
@@ -34,6 +35,7 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var lunchBreakBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
+    @IBOutlet var animatedClockView: MacawView!
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
@@ -48,11 +50,17 @@ class EmployeeIDEntry: UIViewController {
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var hadLunch = false
+    var profileUpload: Bool?
     public var role: String?
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        roleSelection.setValue(UIColor.white, forKey: "textColor")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         picker.delegate = self
@@ -63,9 +71,13 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
+        setClockBtn()
         
         let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
         setShadows(btns: btns)
+        
+        clockIn.isHidden = true
+        clockOut.isHidden = true
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -73,10 +85,54 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
+    
 }
 
 
 extension EmployeeIDEntry {
+    
+    func setClockBtn() {
+        
+            let image = Image(
+                src: "clock",
+                w: Int(animatedClockView.frame.width),
+                h: Int(animatedClockView.frame.height),
+                place: Transform.move(
+                    dx: Double(animatedClockView.frame.width / 8),
+                    dy: Double(animatedClockView.frame.height / 8)
+                )
+            )
+            
+            if foundUser?.punchedIn == true {
+                image.src = "clockOut"
+            } else {
+                image.src = "clockIn"
+            }
+            
+            let ruler = Image(
+                src: "clock_longHand",
+                w: Int(image.w / 8),
+                h: Int(image.h / 2),
+                place: Transform.move(
+                    dx: Double(animatedClockView.frame.width / 1.75),
+                    dy: Double(animatedClockView.frame.height / 3)
+                ),
+                tag: ["clock_longHand"]
+            )
+            let grp = Group()
+            grp.contents.append(image)
+            grp.contents.append(ruler)
+            
+            animatedClockView.node = grp
+
+        self.animatedClockView.node.onTouchPressed({ touch in
+            if self.foundUser?.punchedIn == true {
+                self.wrapUpAlert()
+            } else {
+                self.clockInClockOut()
+            }
+        })
+    }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
@@ -96,26 +152,31 @@ extension EmployeeIDEntry {
     }
     
     func clockInClockOut() {
-        inProgress()
+//        inProgress()
+        startSpinning()
         
         if role != nil && role != "---" && role != "" {
             
             if foundUser?.employeeID != nil {
                 guard let unwrappedUser = foundUser else { return }
-                makeAcall(user: unwrappedUser)
+                makePunchCall(user: unwrappedUser)
                 
             } else if employeeID.text != "" {
                 isEmployeeIDNum() { foundUser in
-                    self.makeAcall(user: foundUser)
+                    self.makePunchCall(user: foundUser)
                 }
-            } else { self.incorrectID(success: true) }
+            } else {
+                incorrectID(success: true)
+            }
         } else {
-            finishedLoading()
-            self.showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
+//            finishedLoading()
+            
+            showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
+            stopSpinning()
         }
     }
     
-    func makeAcall(user: UserData.UserInfo) {
+    func makePunchCall(user: UserData.UserInfo) {
         guard let coordinate = UserLocation.instance.currentCoordinate,
             let unwrappedRole = role else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
@@ -148,17 +209,24 @@ extension EmployeeIDEntry {
                     }
                 }
                 checkLunch()
-                let request = createNotification(intervalInSeconds: fourHours, title: title, message: message, identifier: identifier)
+                
+                let request = createNotification(
+                    intervalInSeconds: fourHours, title: title, message: message, identifier: identifier
+                )
                 notificationCenter.add(request) { (error) in
-                    if error != nil { print("error setting clock notif: "); print(error) } else { print("added reminder at 4 hour mark") }
+                    if error != nil {
+                        print("error setting clock notif: "); print(error)
+                    } else {
+                        print("added reminder at 4 hour mark")
+                    }
                 }
             }
         } else if manualPO == false {
             showPONumEntryWin()
         } else if err != "" {
-            self.showAlert(withTitle: "Error", message: err); finishedLoading()
+            showAlert(withTitle: "Error", message: err); finishedLoading()
         } else {
-            self.incorrectID(success: success)
+            incorrectID(success: success)
         }
     }
     
@@ -169,7 +237,9 @@ extension EmployeeIDEntry {
         }
         
         finishedLoading()
-        showAlert(withTitle: "Alert", message: actionMsg)
+        self.main.addOperation {
+            self.showAlert(withTitle: "Alert", message: actionMsg)
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -192,24 +262,26 @@ extension EmployeeIDEntry {
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
         let route = "employee/" + String(employeeId)
-        let request = APICalls().setupRequest(route: route, method: "GET")
-        let session = URLSession.shared;
         
-        let task = session.dataTask(with: request) {data, response, error in
-            if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
-            } else {
-                guard let verifiedData = data else { print("could not verify data from dataTask"); return }
-                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                    print("json serialization failed: \(json)")
-                    self.main.addOperation {self.incorrectID(success: true)}
-                    return
+        APICalls().setupRequest(route: route, method: "GET") { request in
+            let session = URLSession.shared;
+            
+            let task = session.dataTask(with: request) {data, response, error in
+                if error != nil {
+                    print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
+                } else {
+                    guard let verifiedData = data else { print("could not verify data from dataTask"); return }
+                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
+                    guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
+                        print("json serialization failed: \(json)")
+                        self.main.addOperation { self.incorrectID(success: true) }
+                        return
+                    }
+                    callback(user)
                 }
-                callback(user)
             }
+            task.resume()
         }
-        task.resume()
     }
     
     func showPONumEntryWin() {
@@ -243,7 +315,9 @@ extension EmployeeIDEntry {
         alert.addAction(manualPOentry)
         alert.addAction(cancel)
         
-        self.present(alert, animated: true, completion: nil)
+        self.main.addOperation {
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     func hideTextfield() {
@@ -252,15 +326,15 @@ extension EmployeeIDEntry {
             self.main.addOperation {
                 self.employeeID.isHidden = true
                 self.sendButton.isHidden = true
+                self.enterIDText.isHidden = true
+                self.animatedClockView.isHidden = false
                 
                 if punchedIn == true {
                     self.clockIn.isHidden = true
                     self.lunchBreakBtn.isHidden = false
-                    self.enterIDText.text = "Clock Out"
                 } else if punchedIn == false {
                     self.clockOut.isHidden = true
                     self.lunchBreakBtn.isHidden = true
-                    self.enterIDText.text = "Clock In"
                 } else {
                     return
                 }
@@ -270,6 +344,7 @@ extension EmployeeIDEntry {
                 self.clockIn.isHidden = true
                 self.clockOut.isHidden = true
                 self.lunchBreakBtn.isHidden = true
+                self.animatedClockView.isHidden = true
             }
         }
     }
@@ -287,6 +362,7 @@ extension EmployeeIDEntry {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
+            self.stopSpinning()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.performSegue(withIdentifier: "return", sender: self)
         }
@@ -297,6 +373,7 @@ extension EmployeeIDEntry {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
+            self.stopSpinning()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
@@ -341,21 +418,32 @@ extension EmployeeIDEntry {
     }
     
     func wrapUpAlert() {
-        let actionsheet = UIAlertController(title: "Reminder", message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?", preferredStyle: UIAlertControllerStyle.actionSheet)
-        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in self.clockInClockOut() }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in self.present(self.picker, animated: true, completion: nil) }
+        let actionsheet = UIAlertController(
+            title: "Reminder",
+            message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?",
+            preferredStyle: UIAlertControllerStyle.actionSheet
+        )
+        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in
+            self.clockInClockOut()
+        }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in
+            self.present(self.picker, animated: true, completion: nil)
+        }
         let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
-//            self.showAlert(withTitle: "Sorry", message: "Materials Requests are still under construction")
             self.performSegue(withIdentifier: "clockTOchange", sender: nil)
         }
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
+            self.stopSpinning()
+        }
         
         actionsheet.addAction(finishUp)
         actionsheet.addAction(takePhotos)
         actionsheet.addAction(reqMaterials)
         actionsheet.addAction(cancel)
         
-        self.present(actionsheet, animated: true)
+        self.main.addOperation {
+            self.present(actionsheet, animated: true)
+        }
     }
     
     func checkForUserInfo() {
@@ -367,8 +455,9 @@ extension EmployeeIDEntry {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgress()
                 
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user in
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
                     HomeView.employeeInfo = user
+                    HomeView.addressInfo = addressInfo
                     HomeView().checkPunchStatus()
                 }
             } else { completedProgress() }
@@ -397,6 +486,53 @@ extension EmployeeIDEntry {
         }
     }
     
+    func startSpinning() {
+        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
+        
+        let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
+        anm.cycle().play()
+    }
+    
+    func stopSpinning() {
+        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
+        nodeClockHnd.placeVar.onChange { (transfrm) in
+            transfrm
+        }
+        let anmt: Animation = nodeClockHnd.placeVar.animation(angle: 0.0)
+        anmt.cycle().stop()
+    }
+    
+//    func saveLocalPhoto(image: UIImage) {
+//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+//        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
+//
+//        do {
+//            try imageData.write(to: imageUrl)
+//            print("saved photo...probably @ URL: \n \(imageUrl)")
+//        } catch {
+//            print(error.localizedDescription)
+//        }
+//    }
+//
+//    func loadProfilePic() {
+//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
+//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
+//        var image = UIImage()
+//
+//        if FileManager.default.fileExists(atPath: imagePath) {
+//            guard let imageData = try? Data(contentsOf: imageUrl) else {
+//                print("Couldnt convert url to data obj"); return
+//            }
+//            image = UIImage(data: imageData, scale: UIScreen.main.scale) ?? image
+////            profileBtn.clipsToBounds = true
+//            profileBtn.layer.cornerRadius = 27.5
+//            profileBtn.setImage(image, for: .normal)
+//
+//        } else {
+//            print("File not found: \(imagePath)"); return
+//        }
+//    }
 }
 
 extension EmployeeIDEntry: ImagePickerDelegate {
@@ -410,22 +546,22 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         let imgs = imageAssets
         print("images to upload: \(imgs.count)")
 
-        if imgs.count < 11 {
-
-            if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-                let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+        if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+            if imgs.count < 11 {
                 inProgress()
-                APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
-                    self.checkSuccess(success: success)
-                }
+                
+                if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
+                    APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
+                        self.checkSuccess(success: success)
+                    }
+                } else {
+                    APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
+                        self.checkSuccess(success: success)
+                    }
+                };  dismiss(animated: true, completion: nil)
             } else {
-                inProgress()
-                APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
-                    self.checkSuccess(success: success)
-                }
-            };  dismiss(animated: true, completion: nil)
-        } else {
-            picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+                picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+            }
         }
     }
 
@@ -451,7 +587,7 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {    return dataSource.count }
     
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {     return dataSource[row]  }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return dataSource[row]  }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {    role = dataSource[row]  }
     

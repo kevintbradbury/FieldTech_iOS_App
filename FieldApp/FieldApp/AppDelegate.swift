@@ -33,8 +33,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         UserLocation.instance.initialize()
         registerForPushNotif()
-
         didEnterBackground = false
+        
         print("app didFinishLaunching w/ options")
         
         return true
@@ -42,15 +42,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data){
-        print("did register for remote notifications")
         
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
-        let tokenChars = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
-        checkToken(token: tokenChars)
+        UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(
+            options: authOptions,
+            completionHandler: {_, _ in
+                print("user notification center authorized")
+                // handle completion here
+        })
+        let token = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
+        
+        checkToken(token: token)
+        print("did register for remote notifications")
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("FAILED to register for remote notifications, with error: \(error)")
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        print(notification)
+        
+        if Auth.auth().canHandleNotification(notification) {
+            completionHandler(.noData); return
+        }
         
         if let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
@@ -66,11 +84,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     else { completionHandler(.newData); print("coordinate check succeeded") }
                 }
             }
-        } else if Auth.auth().canHandleNotification(notification) {
-            completionHandler(UIBackgroundFetchResult.noData); return
-        } else {
-            print("Received notification:", notification)
         }
+    }
+    
+    func application(_ application: UIApplication, open url: URL,
+                     options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
+        if Auth.auth().canHandle(url) {
+            return true
+        }
+        // URL not auth related, developer should handle it.
+        
+        return false
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
@@ -118,13 +142,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         return
                     }
                 }
-            } else { print("notification not granted: ", granted, error) }
+            } else {
+                fatalError("notification not granted: \(granted), \(error)")
+            }
         }
-        
     }
     
     func checkToken(token: String) {
-        guard let id = UserDefaults.standard.string(forKey: "employeeID") else { print("no saved id"); return }
+        guard let id = UserDefaults.standard.string(forKey: "employeeID") else {
+            print("no saved id"); return
+        }
         let route = "employee/token/" + id
         
         if let existingToken = UserDefaults.standard.string(forKey: "token") {
@@ -137,14 +164,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func updateToken(token: String, route: String) {
         UserDefaults.standard.set(token, forKey: "token");
         
-        var request = APICalls().setupRequest(route: route, method: "POST")
-        request.addValue(token, forHTTPHeaderField: "token")
-        
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if error != nil { print("fetch to server failed w/ error: \(error)"); return }
-            else { print("sent device token successfully") }
+        APICalls().setupRequest(route: route, method: "POST") { req in
+            var request = req
+            request.addValue(token, forHTTPHeaderField: "token")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil {
+                    print("fetch to server failed w/ error: \(error!.localizedDescription)"); return
+                } else {
+                    print("sent device token successfully")
+                }
+            }
+            task.resume()
         }
-        task.resume()
     }
 }
 

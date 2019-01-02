@@ -83,9 +83,7 @@ extension UserLocation {
     func calculateRegion(for location: CLLocationCoordinate2D) -> MKCoordinateRegion {
         let latitude = location.latitude
         let longitude = location.longitude
-        let dist = CLLocationDistance(0.5)
-//        let latDelta = dist
-//        let longDelta = dist
+        let dist = CLLocationDistance(400)
         let span = MKCoordinateSpan(latitudeDelta: dist, longitudeDelta: dist)
         let location = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         let region = MKCoordinateRegion(center: location, span: span)
@@ -97,8 +95,10 @@ extension UserLocation {
         if CLLocationManager.authorizationStatus() != .authorizedAlways {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
-            let radius = CLLocationDistance(402) // radius: 402
-            guard let region = CLCircularRegion(center: location, radius: radius, identifier: "range") as? CLCircularRegion else { return } // radius 1/4 mile ~= 402 meters
+            let radius = CLLocationDistance(402)    // radius 1/4 mile ~= 402 meters
+            guard let region = CLCircularRegion(center: location, radius: radius, identifier: "range") as? CLCircularRegion else {
+                return
+            }
             print("region to start monitoring: \(region)")
             locationManager.startMonitoring(for: region)
             
@@ -147,7 +147,7 @@ extension UserLocation {
             if clockedIn == false && success == true {
                 UserLocation.instance.stopMonitoring()
                 HomeView.employeeInfo = nil
-                NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : UserData.UserInfo])
+                NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : userInfo])
             }
         }
     }

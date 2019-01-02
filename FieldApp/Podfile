@@ -17,6 +17,9 @@ pod 'JTAppleCalendar', '~> 7.0'
 pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
 pod 'ImagePicker'
 pod "EPSignature"
+pod "Macaw"
+pod "FanMenu"
+pod "SwiftGifOrigin"
 
 
   target 'FieldAppTests' do

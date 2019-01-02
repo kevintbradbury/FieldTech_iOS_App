@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "clockIn.png",
+      "filename" : "clockIn_noHands.png",
       "scale" : "1x"
     },
     {
@@ -11,6 +11,7 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "clockIn.png",
       "scale" : "3x"
     }
   ],

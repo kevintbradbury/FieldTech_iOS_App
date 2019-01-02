@@ -8,15 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		0618A7C7216579AB00A05EEE /* ToolSignOffView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */; };
+		0618A7C92169280C00A05EEE /* MacawButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0618A7C82169280C00A05EEE /* MacawButtonView.swift */; };
 		062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A11FFC572100F1E193 /* CalendarCell.swift */; };
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
 		062A32D5215C09A0001B6703 /* ToolReturnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D4215C09A0001B6703 /* ToolReturnView.swift */; };
 		062A32D6215C0A15001B6703 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8EF521F71826200E86DD6 /* Main.storyboard */; };
 		062A32D8215C0C5C001B6703 /* ToolRentalReturnCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D7215C0C5C001B6703 /* ToolRentalReturnCell.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
-		06775987213DDABD001F8802 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06775986213DDABD001F8802 /* GoogleService-Info.plist */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
+		06D0C19821ADF26500330BFA /* JobCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D0C19721ADF26400330BFA /* JobCell.swift */; };
+		06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */; };
 		06FADEBD2150351D00021943 /* StoresMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066223362150322800B9C8E2 /* StoresMapView.swift */; };
 		0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */; };
 		0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF4E1F71826200E86DD6 /* AppDelegate.swift */; };
@@ -53,6 +55,7 @@
 
 /* Begin PBXFileReference section */
 		0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolSignOffView.swift; sourceTree = "<group>"; };
+		0618A7C82169280C00A05EEE /* MacawButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacawButtonView.swift; sourceTree = "<group>"; };
 		062005A11FFC572100F1E193 /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
 		062A32D4215C09A0001B6703 /* ToolReturnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolReturnView.swift; sourceTree = "<group>"; };
@@ -60,9 +63,10 @@
 		066223362150322800B9C8E2 /* StoresMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMapView.swift; sourceTree = "<group>"; };
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		06775986213DDABD001F8802 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		06775988213DDE1C001F8802 /* ChangeOrders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeOrders.swift; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
+		06D0C19721ADF26400330BFA /* JobCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobCell.swift; sourceTree = "<group>"; };
+		06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
 		0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0AC8EF4B1F71826200E86DD6 /* FieldApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FieldApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -124,7 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				067365AB2139A0EE00F1F8A8 /* Info.plist */,
-				06775986213DDABD001F8802 /* GoogleService-Info.plist */,
+				06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -165,8 +169,10 @@
 				06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */,
 				0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */,
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
+				06D0C19721ADF26400330BFA /* JobCell.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
+				0618A7C82169280C00A05EEE /* MacawButtonView.swift */,
 				062005A51FFC642900F1E193 /* ScheduleView.swift */,
 				066223362150322800B9C8E2 /* StoresMapView.swift */,
 				062A32D4215C09A0001B6703 /* ToolReturnView.swift */,
@@ -292,8 +298,8 @@
 				TargetAttributes = {
 					0AC8EF4A1F71826200E86DD6 = {
 						CreatedOnToolsVersion = 8.3.3;
-						DevelopmentTeam = 3TAADZBCK9;
-						ProvisioningStyle = Automatic;
+						DevelopmentTeam = 9B58YSTSJ6;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -343,8 +349,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AC8EF591F71826200E86DD6 /* LaunchScreen.storyboard in Resources */,
+				06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */,
 				0AC8EF561F71826200E86DD6 /* Assets.xcassets in Resources */,
-				06775987213DDABD001F8802 /* GoogleService-Info.plist in Resources */,
 				062A32D6215C0A15001B6703 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -375,12 +381,16 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-FieldApp/Pods-FieldApp-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/EPSignature/EPSignature.framework",
+				"${BUILT_PRODUCTS_DIR}/FanMenu/FanMenu.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/ImagePicker/ImagePicker.framework",
 				"${BUILT_PRODUCTS_DIR}/JTAppleCalendar/JTAppleCalendar.framework",
+				"${BUILT_PRODUCTS_DIR}/Macaw/Macaw.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/SWXMLHash/SWXMLHash.framework",
 				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftGifOrigin/SwiftGifOrigin.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
@@ -389,12 +399,16 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EPSignature.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FanMenu.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ImagePicker.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JTAppleCalendar.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Macaw.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SWXMLHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftGifOrigin.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
@@ -466,6 +480,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */,
+				06D0C19821ADF26500330BFA /* JobCell.swift in Sources */,
 				0AC8EF831F71E69400E86DD6 /* APICalls.swift in Sources */,
 				0AB8AE7E1F7ABE5800E1ACFC /* HomeView.swift in Sources */,
 				0AC8EF511F71826200E86DD6 /* LoginViewController.swift in Sources */,
@@ -480,6 +495,7 @@
 				062A32D8215C0C5C001B6703 /* ToolRentalReturnCell.swift in Sources */,
 				0AC8EF7D1F71842F00E86DD6 /* LocationManager.swift in Sources */,
 				06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */,
+				0618A7C92169280C00A05EEE /* MacawButtonView.swift in Sources */,
 				062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -590,6 +606,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -640,6 +657,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 4.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -651,15 +669,17 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = FieldApp/FieldApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3TAADZBCK9;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.MillworkBros.FieldApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
+				PROVISIONING_PROFILE_SPECIFIER = "Testing Development Profile";
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -670,15 +690,17 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = FieldApp/FieldApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 3TAADZBCK9;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.MillworkBros.FieldApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 3.0;
+				PROVISIONING_PROFILE_SPECIFIER = "Testing Development Profile";
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};

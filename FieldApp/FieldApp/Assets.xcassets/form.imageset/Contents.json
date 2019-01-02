@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "noun_form_77764.png",
+      "filename" : "form_white.png",
       "scale" : "1x"
     },
     {
@@ -11,6 +11,7 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "noun_form_77764.png",
       "scale" : "3x"
     }
   ],

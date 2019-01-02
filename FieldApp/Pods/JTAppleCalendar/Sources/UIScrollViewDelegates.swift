@@ -76,7 +76,7 @@ extension JTAppleCalendarView: UIScrollViewDelegate {
         didEndScollCount += 1
         
         if directionVelocity == 0.0 {
-            decelerationRate = CGFloat(directionVelocity)
+            decelerationRate = UIScrollView.DecelerationRate(rawValue: CGFloat(directionVelocity))
                 //.fast
         }
         
@@ -202,7 +202,7 @@ extension JTAppleCalendarView: UIScrollViewDelegate {
                         }
                     } else if calendarViewLayout.thereAreHeaders,
                         let attrib = calendarLayout.layoutAttributesForSupplementaryView(ofKind:
-                            UICollectionElementKindSectionHeader, at: attribPath) { // JT101 this was changed
+                            UICollectionView.elementKindSectionHeader, at: attribPath) { // JT101 this was changed
                         // change the final value to the end of the header
                         if isScrollingForward() {
                             calculatedOffSet = attrib.frame.origin.y + attrib.frame.size.height
@@ -230,7 +230,7 @@ extension JTAppleCalendarView: UIScrollViewDelegate {
         calendarDelegate?.calendar(self, willScrollToDateSegmentWith: dateSegmentInfo)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            self.decelerationRate = UIScrollViewDecelerationRateNormal
+            self.decelerationRate = UIScrollView.DecelerationRate.normal
         }
         
         DispatchQueue.main.async {

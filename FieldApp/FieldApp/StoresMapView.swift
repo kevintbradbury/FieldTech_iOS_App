@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import MapKit
 
-class StoresMapView: UIViewController,  MKMapViewDelegate{
+class StoresMapView: UIViewController {
 
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var backButton: UIButton!
@@ -35,22 +35,30 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
     }
     
     func intitMap() {
-        showLoading()
+//        showLoading()
         
         guard let currentLoc = UserLocation.instance.currentCoordinate else { return }
-        guard let region = UserLocation.instance.currentRegion else { return }
+        let span = MKCoordinateSpan(
+            latitudeDelta: CLLocationDegrees(0.25), longitudeDelta: CLLocationDegrees(0.25)
+        )
+        let reg = MKCoordinateRegion(center: currentLoc, span:  span)
         
-        mapView.setRegion(region, animated: true)
+        mapView.setRegion(reg, animated: true)
         mapView.setCenter(currentLoc, animated: true)
         mapView.showsUserLocation = true
         mapView.delegate = self
     }
     
     func findHWStores() {
-        let req = MKLocalSearchRequest()
-        req.naturalLanguageQuery = "hardware store"
-        req.region = mapView.region
+        showLoading()
+
+        if let annotations: [MKAnnotation] = mapView.annotations {
+            mapView.removeAnnotations(annotations)
+        }
         
+        let req = MKLocalSearchRequest()
+        req.naturalLanguageQuery = "hardware stores"
+        req.region = mapView.region
         let search = MKLocalSearch.init(request: req)
         
         search.start { (res, error) in
@@ -60,22 +68,59 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
                 
             } else {
                 print("request was good")
-                guard let allMapItems = res?.mapItems else { return }
+                guard let searchResults = res?.mapItems else { return }
                 
-                for mapItem in allMapItems {
-                    let annotation = CustomAnnotation(
-                        title: mapItem.name!,
-                        coordinate: mapItem.placemark.coordinate,
-                        info: "customAnt"
-                    )
+                for mapItem in searchResults {
+                    guard let resultString: String = mapItem.name else { return }
                     
-                    self.mapView.addAnnotation(annotation)
+                    self.checkResults(resultString: resultString) { result in
+                                let annotation = CustomAnnotation(
+                                    title: mapItem.name!, coordinate: mapItem.placemark.coordinate, info: "customAnt"
+                                )
+                                self.mapView.addAnnotation(annotation)
+                    }
                 }
                 self.stopLoading()
             }
-            
         }
     }
+    
+    func checkResults(resultString: String, cb: (String) -> ()) {
+        var result = ""
+        
+        if resultString == "Lowe's" { cb(resultString) }
+        
+        for char in resultString {
+            if char == " " {
+                
+                if result == "The" { continue }
+                else {
+                    for store in FieldActions.SuppliesRequest().hardwareLocations {
+                        if result == store { cb(result) }
+                        else { continue }
+                    }
+                }
+            } else { result += String(char) }
+        }
+    }
+    
+    func showLoading() {
+        main.addOperation {
+            self.activityIndicator.startAnimating()
+            self.loadingBkgd.isHidden = false
+        }
+    }
+    
+    func stopLoading() {
+        main.addOperation {
+            self.activityIndicator.stopAnimating()
+            self.loadingBkgd.isHidden = true
+        }
+    }
+    
+}
+
+extension StoresMapView: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
@@ -106,6 +151,10 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
         ScheduleView.openMapsWithDirections(to: annotation.coordinate, destination: destination)
     }
     
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        findHWStores()
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if segue.identifier ==  "suppliesReq" {
@@ -113,20 +162,6 @@ class StoresMapView: UIViewController,  MKMapViewDelegate{
     
             vc.formTypeVal = "Supplies Request"
             vc.todaysJob = todaysJob
-        }
-    }
-    
-    func showLoading() {
-        main.addOperation {
-            self.activityIndicator.startAnimating()
-            self.loadingBkgd.isHidden = false
-        }
-    }
-    
-    func stopLoading() {
-        main.addOperation {
-            self.activityIndicator.stopAnimating()
-            self.loadingBkgd.isHidden = true
         }
     }
 }

@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "noun_plywood_1590168.png",
+      "filename" : "supplies.png",
       "scale" : "1x"
     },
     {
@@ -11,6 +11,7 @@
     },
     {
       "idiom" : "universal",
+      "filename" : "noun_plywood_1590168.png",
       "scale" : "3x"
     }
   ],

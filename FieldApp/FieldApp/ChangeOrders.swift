@@ -48,6 +48,8 @@ class ChangeOrdersView: UIViewController {
         picker.delegate = self
         datePickerFields.calendar = Calendar.current
         datePickerFields.timeZone = Calendar.current.timeZone
+        datePickerFields.setValue(UIColor.white, forKey: "textColor")
+        
         setViews()
     }
     
