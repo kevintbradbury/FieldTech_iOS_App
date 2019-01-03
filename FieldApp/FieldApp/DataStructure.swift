@@ -353,15 +353,14 @@ class FieldActions {
     
 }
 
-struct TimeOffReq: Codable  {
+struct TimeOffReq: Encodable  {
     let username: String
-    let employeeID: String
+    let employeeID: Int
     let department: String
     let shiftHours: String
     let start: Double
     let  end: Double
     let returningDate: Double
-    let signaturePath: String
     let signedDate: Double
 }
 

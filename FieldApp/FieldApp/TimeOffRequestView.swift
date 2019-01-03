@@ -23,6 +23,7 @@ class TimeOffRequestView: UIViewController {
     @IBOutlet var signatureImg: UIImageView!
     @IBOutlet var sendBtn: UIButton!
     @IBOutlet var backBtn: UIButton!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     
     var employeeInfo: UserData.UserInfo?
     
@@ -30,6 +31,9 @@ class TimeOffRequestView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setDismissableKeyboard(vc: self)
+        activityIndicator.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.layer.cornerRadius = 15
         
         if employeeInfo?.userName != nil {
             userNameLbl.text = employeeInfo?.userName
@@ -51,35 +55,40 @@ class TimeOffRequestView: UIViewController {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
         
-        guard let username = employeeInfo?.userName,
+        guard let usrnm = employeeInfo?.userName,
             let id = employeeInfo?.employeeID,
-            let deprtmt = departmentField.text,
-            let shiftHours = shiftHrsField.text,
+            let dprtmt = departmentField.text,
+            let shftHrs = shiftHrsField.text,
             let start = startDtPicker.date.timeIntervalSince1970 as? Double,
             let end = endDtPicker.date.timeIntervalSince1970 as? Double,
             let returnDtText = returnDtField.text,
             let signature = signatureImg.image,
-            let currentDt =  dateFormatter.string(from: Date()) as? String,
+            let crrntDt =  Date().timeIntervalSince1970 as? Double,
             let returnDate = dateFormatter.date(from: returnDtText),
             let returnSecs = returnDate.timeIntervalSince1970 as? Double else {
                 showAlert(withTitle: "Incomplete Form", message: "Please complete the entire form before submitting.")
                 return
         }
         
-        
-        showAlert(
-            withTitle: "get Time off vals",
-            message: "\(username), \(id), \(deprtmt), \(shiftHours), \n\(returnDate), \n\(start), \n\(end)"
+//        showAlert(withTitle: "get Time off vals", message: "\(usrnm), \(id), \(dprtmt), \(shftHrs), \n\(returnDate), \n\(start), \n\(end)")
+        activityIndicator.startAnimating()
+        let tmOffForm = TimeOffReq(
+            username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,
+            start: start, end: end, returningDate: returnSecs, signedDate: crrntDt
         )
         
-        
-//        let tmOffForm = TimeOffReq
+        APICalls().sendTimeOffReq(timeOffForm: tmOffForm, images: [signature]) { success in
+            
+            self.activityIndicator.stopAnimating()
+            
+        }
     }
     
 }
 
 extension TimeOffRequestView: EPSignatureDelegate {
     func epSignature(_: EPSignatureViewController, didSign signatureImage: UIImage, boundingRect: CGRect) {
+        self.signatureBtn.isHidden = true
         self.signatureImg.image = signatureImage
     }
     

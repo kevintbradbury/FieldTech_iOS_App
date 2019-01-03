@@ -229,6 +229,20 @@ class APICalls {
         }
     }
     
+    func sendTimeOffReq(timeOffForm: TimeOffReq, images: [UIImage], cb: @escaping (Bool)->() ) {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+        let url = "\(APICalls.host)employee/\(timeOffForm.employeeID)/timeOffReq"
+        let headers = ["timeOffReq", "true"]
+        
+        do { data = try jsonEncoder.encode(timeOffForm) }
+        catch { print(error.localizedDescription) };
+        
+        alamoUpload(url: url, headers: headers, formBody: data, images: images, uploadType: "timeOffRequest") { success in
+            cb(success)
+        }
+    }
+    
     func alamoUpload(url: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping (Bool) -> ()) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         var headers: HTTPHeaders = [
@@ -370,14 +384,6 @@ extension APICalls {
         }
         return jobsArray
     }
-    
-//    struct UserInfoCodeable: Encodable {
-//        let userName: String
-//        let employeeID: String
-//        let coordinateLat: String
-//        let coordinateLong: String
-//        let currentRole: String
-//    }
     
     func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {
         let person = UserData.UserInfoCodeable(
