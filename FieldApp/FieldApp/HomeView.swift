@@ -190,6 +190,8 @@ extension HomeView {
             performSegue(withIdentifier: "map", sender: nil)
         case "form":
             performSegue(withIdentifier: "changeOrder", sender: nil)
+        case "vacation":
+            performSegue(withIdentifier: "timeOff", sender: nil)
         case "tools":
             showRentOrReturnWin()
         case "camera":
@@ -389,6 +391,10 @@ extension HomeView {
             let vc = segue.destination as! StoresMapView
             let jbName = HomeView.todaysJob.jobName
             vc.todaysJob = jbName ?? ""
+        } else if idtn == "timeOff" {
+            let vc = segue.destination as! TimeOffRequestView
+            guard let emplyInformation = HomeView.employeeInfo else { return }
+            vc.employeeInfo = emplyInformation
         }
     }
     

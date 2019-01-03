@@ -34,8 +34,16 @@ class ToolSignOffView: UIViewController {
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
-    @IBAction func returnerTap(_ sender: Any) { presentSignature(role: "returner") }
-    @IBAction func receiverTap(_ sender: Any) { presentSignature(role: "receiver") }
+    @IBAction func returnerTap(_ sender: Any) {
+        signatureRole = "returner"
+        self.presentSignature(vc: self, subTitle: String("Tool \(signatureRole) sign your initials here."), title: "Initial here")
+        //        presentSignature(role: "returner")
+    }
+    @IBAction func receiverTap(_ sender: Any) {
+        signatureRole = "receiver"
+        self.presentSignature(vc: self, subTitle: String("Tool \(signatureRole) sign your initials here."), title: "Initial here")
+        //        presentSignature(role: "receiver")
+    }
     @IBAction func submitReturn(_ sender: Any) { sendSignatures() }
     
     deinit {
@@ -51,40 +59,8 @@ extension ToolSignOffView {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, YYYY"
         dateLabel.text = dateFormatter.string(from: Date())
-        
-        view.frame.origin.y = 0
-        
-        self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil
-        )
-    }
-    
-    func presentSignature(role: String) {
-        signatureRole = role
-        
-        let signatureVC = EPSignatureViewController(signatureDelegate: self, showsDate: true)
-        signatureVC.subtitleText = String("Tool \(role) sign your initials here.")
-        signatureVC.title = "Initial Here"
-        
-        let nav = UINavigationController(rootViewController: signatureVC)
-        present(nav, animated: true, completion: nil)
-    }
-    
-    @objc func keyboardWillChange(notification: Notification) {
-        guard let keyboardRect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
-        
-        if notification.name == Notification.Name.UIKeyboardWillShow || notification.name == Notification.Name.UIKeyboardWillChangeFrame {
-            view.frame.origin.y = -(keyboardRect.height - 75)
-        } else {
-            view.frame.origin.y = 0
-        }
+
+        self.setDismissableKeyboard(vc: self)
     }
     
     func sendSignatures() {
@@ -118,6 +94,8 @@ extension ToolSignOffView: EPSignatureDelegate {
         }
     }
     
-    func epSignature(_: EPSignatureViewController, didCancel error: NSError) {}
+    func epSignature(_: EPSignatureViewController, didCancel error: NSError) {
+    }
     
 }
+

@@ -353,6 +353,18 @@ class FieldActions {
     
 }
 
+struct TimeOffReq: Codable  {
+    let username: String
+    let employeeID: String
+    let department: String
+    let shiftHours: String
+    let start: Double
+    let  end: Double
+    let returningDate: Double
+    let signaturePath: String
+    let signedDate: Double
+}
+
 struct GeoKey {
     static let latitude = "latitude"
     static let longitude = "longitude"

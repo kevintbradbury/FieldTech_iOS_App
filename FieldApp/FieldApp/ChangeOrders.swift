@@ -114,7 +114,7 @@ class ChangeOrdersView: UIViewController {
         }
     }
     
-    @objc func keyboardWillChange(notification: Notification) {
+    @objc override func keyboardWillChange(notification: Notification) {
         guard let keyboardRect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
         
         if notification.name == Notification.Name.UIKeyboardWillShow || notification.name == Notification.Name.UIKeyboardWillChangeFrame {

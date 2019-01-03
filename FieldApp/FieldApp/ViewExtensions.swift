@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import UserNotifications
 import UserNotificationsUI
+import EPSignature
 
 extension UIViewController {
     func setShadows(btns: [UIButton]) {
@@ -41,6 +42,52 @@ extension UIViewController {
         
         return request
     }
+    
+    func presentSignature(vc: UIViewController, subTitle: String, title: String) {
+        guard let delegate = vc as? EPSignatureDelegate else { return }
+        let signatureVC = EPSignatureViewController(signatureDelegate: delegate, showsDate: true)
+        
+        signatureVC.subtitleText = subTitle
+        signatureVC.title = title
+        
+        let nav = UINavigationController(rootViewController: signatureVC)
+        OperationQueue.main.addOperation {
+            vc.present(nav, animated: true, completion: nil)
+        }
+    }
+    
+    @objc func keyboardWillChange(notification: Notification) {
+        guard let keyboardRect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        if notification.name == Notification.Name.UIKeyboardWillShow || notification.name ==
+            Notification.Name.UIKeyboardWillChangeFrame {
+            OperationQueue.main.addOperation {
+                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))   //   75)
+            }
+        } else {
+            OperationQueue.main.addOperation {
+                self.view.frame.origin.y = 0
+            }
+        }
+    }
+    
+    func setDismissableKeyboard(vc: UIViewController) {
+        OperationQueue.main.addOperation {
+            vc.view.frame.origin.y = 0
+            
+            vc.view.addGestureRecognizer(UITapGestureRecognizer(target: vc.view, action: #selector(UIView.endEditing(_:))))
+            NotificationCenter.default.addObserver(
+                vc, selector: #selector(vc.keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                vc, selector: #selector(vc.keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                vc, selector: #selector(vc.keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil
+            )
+        }
+    }
+    
 }
 
 class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
