@@ -35,7 +35,6 @@ class ScheduleView: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         initialCalSetup()
         
         jobsTable.delegate = self

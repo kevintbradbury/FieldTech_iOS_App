@@ -187,7 +187,8 @@ extension HomeView {
         case "schedule":
             performSegue(withIdentifier: "schedule", sender: nil)
         case "materials":
-            performSegue(withIdentifier: "map", sender: nil)
+            showSRFormOrMap()
+//            performSegue(withIdentifier: "map", sender: nil)
         case "form":
             performSegue(withIdentifier: "changeOrder", sender: nil)
         case "vacation":
@@ -359,42 +360,45 @@ extension HomeView {
         logoView.close()
         let idtn = segue.identifier
         
-        if idtn == "schedule" {
+        switch idtn {
+        case "schedule":
             let vc = segue.destination as! ScheduleView
             vc.employee = HomeView.employeeInfo
-            
-        } else if idtn == "clock_in" {
+        case "clock_in":
             let vc = segue.destination as! EmployeeIDEntry
             vc.foundUser = HomeView.employeeInfo
             guard let unwrap = HomeView.role else { return }
             vc.role = unwrap
-            
-        } else if idtn == "changeOrder" {
+        case "changeOrder":
             let vc = segue.destination as! ChangeOrdersView
             let jbName = HomeView.todaysJob.jobName
             vc.todaysJob = jbName ?? ""
             vc.formTypeVal = "Change Order"
-            
-        } else if idtn == "toolRental" {
+        case "suppliesReq":
+            let vc = segue.destination as! ChangeOrdersView
+            let jbName = HomeView.todaysJob.jobName
+            vc.todaysJob = jbName ?? ""
+            vc.formTypeVal = "Supplies Request"
+        case "toolRental":
             let vc = segue.destination as! ChangeOrdersView
             let jbName = HomeView.todaysJob.jobName
             vc.todaysJob = jbName ?? ""
             vc.formTypeVal = "Tool Rental"
-            
-        } else if idtn == "toolReturn" {
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        case "toolReturn":
             let vc = segue.destination as! ToolReturnView
             guard let id = HomeView.employeeInfo?.employeeID as? Int else { return }
             vc.employeeID = id
-            
-        } else if idtn == "map" {
+        case "map":
             let vc = segue.destination as! StoresMapView
             let jbName = HomeView.todaysJob.jobName
             vc.todaysJob = jbName ?? ""
-        } else if idtn == "timeOff" {
+        case "timeOff":
             let vc = segue.destination as! TimeOffRequestView
             guard let emplyInformation = HomeView.employeeInfo else { return }
             vc.employeeInfo = emplyInformation
+            
+        default:
+            showAlert(withTitle: "Sorry", message: "That's not a shortcut we recognize.")
         }
     }
     
@@ -486,6 +490,23 @@ extension HomeView {
         } else {
             print("File not found: \(imagePath)"); return
         }
+    }
+    
+    func showSRFormOrMap() {
+        let alert = UIAlertController(title: "Field Supplies", message: "Where do you need to get your supplies?", preferredStyle: .actionSheet)
+        let shopReq = UIAlertAction(title: "Request from Shop", style: .default) { action in
+            self.performSegue(withIdentifier: "suppliesReq", sender: nil)
+        }
+        let goToMap = UIAlertAction(title: "Pick up from Store", style: .default) { action in
+            self.performSegue(withIdentifier: "map", sender: nil)
+        }
+        let cancel = UIAlertAction(title: "cancel", style: .cancel)
+        
+        alert.addAction(shopReq)
+        alert.addAction(goToMap)
+        alert.addAction(cancel)
+        
+        self.present(alert, animated: true, completion: nil)
     }
 }
 

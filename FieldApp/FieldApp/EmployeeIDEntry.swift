@@ -58,7 +58,6 @@ class EmployeeIDEntry: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        roleSelection.setValue(UIColor.white, forKey: "textColor")
     }
     
     override func viewDidLoad() {

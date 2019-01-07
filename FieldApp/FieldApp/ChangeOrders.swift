@@ -87,6 +87,11 @@ class ChangeOrdersView: UIViewController {
         setJobName()
         
         if formTypeVal == tool_rental { viewForToolRental() }
+        else if self.formTypeVal == "Change Order" {
+            view.backgroundColor = UIColor.red
+        } else if self.formTypeVal == "Supplies Request" {
+            view.backgroundColor = UIColor.cyan
+        }
     }
     
     func setGestures() {
@@ -206,6 +211,7 @@ class ChangeOrdersView: UIViewController {
     }
     
     func viewForToolRental() {
+        view.backgroundColor = UIColor.blue
         locationLabel.text = "Tool Type"
         materialLabel.text = "Brand"
         descripLabel.text = "Location"

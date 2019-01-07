@@ -42,7 +42,9 @@ class TimeOffRequestView: UIViewController {
     
     @IBAction func goBack(_ sender: Any) { self.dismiss(animated: true, completion: nil) }
     @IBAction func sendTimeOffForm(_ sender: Any) { getTimeOffVals() }
-    @IBAction func showSignatureView(_ sender: Any) { self.presentSignature(vc: self, subTitle: "Sign your name here", title: "Signature") }
+    @IBAction func showSignatureView(_ sender: Any) {
+        self.presentSignature(vc: self, subTitle: "Sign your name here", title: "Signature")
+    }
     
     
     deinit {
