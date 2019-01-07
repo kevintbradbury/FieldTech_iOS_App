@@ -134,6 +134,28 @@ class StoresMapView: UIViewController {
         }
     }
     
+    func makePhoneCall(phoneStr: String) {
+        var phoneNumber = ""
+        
+        for char in phoneStr {
+            if char == "(" || char == ")" || char == "-" || char == " " { continue }
+            else { phoneNumber += "\(char)" }
+        }
+        let phone = phoneNumber.replacingOccurrences(of: "+1", with: "")
+        let int = phone.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        
+        if let url = URL(string: "tel://\(int)"), UIApplication.shared.canOpenURL(url) {
+            
+            if #available(iOS 10, *) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            } else {
+                UIApplication.shared.openURL(url)
+            }
+        } else {
+            print("Couldnt open phone number |\(int)|")
+        }
+    }
+    
 }
 
 extension StoresMapView: MKMapViewDelegate {
@@ -163,23 +185,16 @@ extension StoresMapView: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         guard let annotation = view.annotation,
             let destination = annotation.title as? String,
-            let phone = annotation.subtitle as? String else { return }
-
+            let phoneStr = annotation.subtitle as? String else { return }
         
-        let alert = UIAlertController(title: "Select", message: "Driving directions or Call \(destination)?", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Select", message: " Driving directions or \n Call \(destination)?", preferredStyle: .alert)
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
+        let call = UIAlertAction(title: "Call", style: .default) { action in
+            self.makePhoneCall(phoneStr: phoneStr)
+        }
         let drive = UIAlertAction(title: "Driving Directions", style: .default) { action in
             ScheduleView.openMapsWithDirections(to: annotation.coordinate, destination: destination)
         }
-        let call = UIAlertAction(title: "Call", style: .default) { action in
-            if let url = URL(string: "tel://\(phone)"), UIApplication.shared.canOpenURL(url) {
-                if #available(iOS 10, *) {
-                    UIApplication.shared.open(url)
-                } else {
-                    UIApplication.shared.openURL(url)
-                }
-            } else { print("Couldnt open phone number \(phone)") }
-        }
-        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         
         alert.addAction(drive)
         alert.addAction(call)
