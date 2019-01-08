@@ -11,6 +11,8 @@ import UIKit
 import UserNotifications
 import UserNotificationsUI
 import EPSignature
+import MapKit
+
 
 extension UIViewController {
     func setShadows(btns: [UIButton]) {
@@ -61,8 +63,9 @@ extension UIViewController {
         
         if notification.name == Notification.Name.UIKeyboardWillShow || notification.name ==
             Notification.Name.UIKeyboardWillChangeFrame {
+            
             OperationQueue.main.addOperation {
-                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))   //   75)
+                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 1.5))   //   75)
             }
         } else {
             OperationQueue.main.addOperation {
@@ -75,7 +78,9 @@ extension UIViewController {
         OperationQueue.main.addOperation {
             vc.view.frame.origin.y = 0
             
-            vc.view.addGestureRecognizer(UITapGestureRecognizer(target: vc.view, action: #selector(UIView.endEditing(_:))))
+            vc.view.addGestureRecognizer(
+                UITapGestureRecognizer(target: vc.view, action: #selector(UIView.endEditing(_:)))
+            )
             NotificationCenter.default.addObserver(
                 vc, selector: #selector(vc.keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil
             )
@@ -88,6 +93,13 @@ extension UIViewController {
         }
     }
     
+    func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
+        let options = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
+        let placemark = MKPlacemark(coordinate: coordinate, addressDictionary: nil)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = name
+        mapItem.openInMaps(launchOptions: options)
+    }
 }
 
 class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {

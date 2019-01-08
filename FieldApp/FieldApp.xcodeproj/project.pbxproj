@@ -15,6 +15,8 @@
 		062A32D5215C09A0001B6703 /* ToolReturnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D4215C09A0001B6703 /* ToolReturnView.swift */; };
 		062A32D6215C0A15001B6703 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8EF521F71826200E86DD6 /* Main.storyboard */; };
 		062A32D8215C0C5C001B6703 /* ToolRentalReturnCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D7215C0C5C001B6703 /* ToolRentalReturnCell.swift */; };
+		065E63D721E4266D0063A572 /* SuppliesRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63D621E4266D0063A572 /* SuppliesRequestView.swift */; };
+		065E63D921E426800063A572 /* SuppliesRequestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63D821E426800063A572 /* SuppliesRequestCell.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
@@ -62,6 +64,8 @@
 		0623249A21DD81C1000025E3 /* TimeOffRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeOffRequestView.swift; sourceTree = "<group>"; };
 		062A32D4215C09A0001B6703 /* ToolReturnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolReturnView.swift; sourceTree = "<group>"; };
 		062A32D7215C0C5C001B6703 /* ToolRentalReturnCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolRentalReturnCell.swift; sourceTree = "<group>"; };
+		065E63D621E4266D0063A572 /* SuppliesRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuppliesRequestView.swift; sourceTree = "<group>"; };
+		065E63D821E426800063A572 /* SuppliesRequestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuppliesRequestCell.swift; sourceTree = "<group>"; };
 		066223362150322800B9C8E2 /* StoresMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMapView.swift; sourceTree = "<group>"; };
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -178,6 +182,8 @@
 				0618A7C82169280C00A05EEE /* MacawButtonView.swift */,
 				062005A51FFC642900F1E193 /* ScheduleView.swift */,
 				066223362150322800B9C8E2 /* StoresMapView.swift */,
+				065E63D621E4266D0063A572 /* SuppliesRequestView.swift */,
+				065E63D821E426800063A572 /* SuppliesRequestCell.swift */,
 				062A32D4215C09A0001B6703 /* ToolReturnView.swift */,
 				062A32D7215C0C5C001B6703 /* ToolRentalReturnCell.swift */,
 				0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */,
@@ -495,12 +501,14 @@
 				06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */,
 				062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */,
 				0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */,
+				065E63D721E4266D0063A572 /* SuppliesRequestView.swift in Sources */,
 				062A32D8215C0C5C001B6703 /* ToolRentalReturnCell.swift in Sources */,
 				0AC8EF7D1F71842F00E86DD6 /* LocationManager.swift in Sources */,
 				0623249B21DD81C1000025E3 /* TimeOffRequestView.swift in Sources */,
 				06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */,
 				0618A7C92169280C00A05EEE /* MacawButtonView.swift in Sources */,
 				062005A21FFC572100F1E193 /* CalendarCell.swift in Sources */,
+				065E63D921E426800063A572 /* SuppliesRequestCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -259,24 +259,34 @@ class ContactInfo {
 
 class FieldActions {
     
-    let poFolder = URL(string: "P O Server Folder")
-    var requestedUser: String?
-    var poNumber: Int?
-    var date: Date?
+    var formType: String?
     var jobName: String?
-    var neededBy: String?
+    var poNumber: String?
+    var requestedBy: String?
+    var location: String? // Address?
+    var material: String?
+    var colorSpec: String?
+    var quantity: Double?
+    var neededBy: Double? // Seconds from 1970
     var description: String?
+    let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
+    let maxDistance = 5  // Miles?
     
-    struct SuppliesRequest {
-        let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
-        let maxDistance = 5  // Miles?
-        let material: Array = ["material1", "material2", "etc."]
-        var chosenLocation: String?
-        var receiptPhoto = UIImage()
-        var arrived: Bool?
-        var materialQuantity: Int?
-        var receiptUploaded: Bool?
-        var fieldSuppliesDestinationFolder = URL(string: "Supplies Server Folder")
+    struct MaterialQuantityColor: Encodable {
+        let quantity: Double
+        let material: String
+        let color:  String
+    }
+    
+    struct SuppliesRequest: Encodable {
+        var formType: String?
+        var jobName: String?
+        var poNumber: String?
+        var requestedBy: String?
+        var location: String?
+        var neededBy: Double? // Seconds from 1970
+        var description: String?
+        var suppliesCollection: [MaterialQuantityColor]
     }
     
     struct ToolRental: Encodable {
@@ -292,6 +302,19 @@ class FieldActions {
         var location: String?
         
         let reminderPeriods = [24, 48, 72, 96]
+    }
+    
+    struct  ChangeOrders: Encodable {
+        var formType: String?
+        var jobName: String?
+        var poNumber: String?
+        var requestedBy: String?
+        var location: String? // Address?
+        var material: String?
+        var colorSpec: String?
+        var quantity: Double?
+        var neededBy: Double? // Seconds from 1970
+        var description: String?
     }
     
     static func fromJSONtoTool(json: Any) -> ([FieldActions.ToolRental], [UIImage]) {
@@ -330,25 +353,6 @@ class FieldActions {
         }
         
         return (boxOtools, toolImages)
-    }
-    
-    struct  ChangeOrders: Encodable {
-        var formType: String?
-        var jobName: String?
-        var poNumber: String?
-        var requestedBy: String?
-        var location: String? // Address?
-        var material: String?
-        var colorSpec: String?
-        var quantity: Double?
-        var neededBy: Double? // Seconds from 1970
-        var description: String?
-    }
-    
-    class PhotoUpload {
-        
-        var projectPhotos: [UIImage]?
-        let presetEmail = "supervisor@millworkbrothers.com"
     }
     
 }

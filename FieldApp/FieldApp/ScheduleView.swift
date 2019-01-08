@@ -46,7 +46,7 @@ class ScheduleView: UIViewController {
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
-                ScheduleView.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
+                    self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
             }
         }
     }
@@ -188,14 +188,6 @@ extension ScheduleView {
         poNumberLbl.text = ""
         installDateLbl.text = ""
         directionsBtn.isHidden = true
-    }
-    
-    static func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
-        let options = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
-        let placemark = MKPlacemark(coordinate: coordinate, addressDictionary: nil)
-        let mapItem = MKMapItem(placemark: placemark)
-        mapItem.name = name
-        mapItem.openInMaps(launchOptions: options)
     }
     
     func checkJobsDates(date: Date, callback: ([Job.UserJob], [Job.UserJob.JobDates], [Int]) -> ()) {
@@ -385,7 +377,7 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         
         let alert = UIAlertController(title: "Directions", message: "Get driving Directions?", preferredStyle: .actionSheet)
         let yes = UIAlertAction(title: "Yes", style: .default) { (action) in
-            ScheduleView.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
+            self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         

@@ -80,7 +80,7 @@ class StoresMapView: UIViewController {
                 
                 if result == "The " { continue }
                 else {
-                    for store in FieldActions.SuppliesRequest().hardwareLocations {
+                    for store in FieldActions().hardwareLocations {
                         if result == store { cb(result) }
                         else { continue }
                     }
@@ -193,7 +193,7 @@ extension StoresMapView: MKMapViewDelegate {
             self.makePhoneCall(phoneStr: phoneStr)
         }
         let drive = UIAlertAction(title: "Driving Directions", style: .default) { action in
-            ScheduleView.openMapsWithDirections(to: annotation.coordinate, destination: destination)
+            self.openMapsWithDirections(to: annotation.coordinate, destination: destination)
         }
         
         alert.addAction(drive)
