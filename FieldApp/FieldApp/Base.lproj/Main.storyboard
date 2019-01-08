@@ -713,8 +713,8 @@
                                     <action selector="sendTimeOffForm:" destination="mhc-pH-T1g" eventType="touchUpInside" id="SmS-QT-ZPr"/>
                                 </connections>
                             </button>
-                            <datePicker contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="30" translatesAutoresizingMaskIntoConstraints="NO" id="mks-1l-8as">
-                                <rect key="frame" x="15" y="191" width="288" height="74"/>
+                            <datePicker contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="30" translatesAutoresizingMaskIntoConstraints="NO" id="mks-1l-8as">
+                                <rect key="frame" x="15" y="190.5" width="288" height="74"/>
                                 <date key="date" timeIntervalSinceReferenceDate="568164036.33545697">
                                     <!--2019-01-02 23:20:36 +0000-->
                                 </date>
@@ -726,7 +726,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="To" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3e5-YL-3bQ">
-                                <rect key="frame" x="43" y="191" width="19" height="21"/>
+                                <rect key="frame" x="43" y="176" width="19" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="highlightedColor"/>
@@ -745,9 +745,8 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </activityIndicatorView>
-                            <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Department" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nPO-1d-0Hw">
+                            <textField opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Department" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nPO-1d-0Hw">
                                 <rect key="frame" x="41" y="273" width="235" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
@@ -785,6 +784,7 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.0" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
+                            <constraint firstItem="mks-1l-8as" firstAttribute="height" secondItem="Ecv-d0-1Lf" secondAttribute="height" id="3pT-46-Aiv"/>
                             <constraint firstItem="Yx2-d3-CmP" firstAttribute="height" secondItem="TMo-Ea-xo1" secondAttribute="height" id="9Gg-lB-6En"/>
                             <constraint firstItem="Yx2-d3-CmP" firstAttribute="top" secondItem="TMo-Ea-xo1" secondAttribute="bottom" constant="20" id="OXb-K6-Trg"/>
                             <constraint firstItem="TMo-Ea-xo1" firstAttribute="leading" secondItem="lWr-el-EUR" secondAttribute="leading" constant="16" id="Qwc-FK-8y9"/>
@@ -792,16 +792,19 @@
                             <constraint firstItem="Ecv-d0-1Lf" firstAttribute="trailing" secondItem="lWr-el-EUR" secondAttribute="trailingMargin" id="Sdc-t6-zFh"/>
                             <constraint firstItem="V7Y-3g-XLs" firstAttribute="leading" secondItem="lWr-el-EUR" secondAttribute="centerX" constant="10" id="U3n-4o-4a0"/>
                             <constraint firstItem="V7Y-3g-XLs" firstAttribute="width" secondItem="lWr-el-EUR" secondAttribute="width" multiplier="0.33" id="UeV-ya-XMo"/>
+                            <constraint firstAttribute="trailing" secondItem="mks-1l-8as" secondAttribute="trailing" constant="17" id="WsV-DC-Zr4"/>
                             <constraint firstItem="oAY-qi-NHZ" firstAttribute="centerY" secondItem="lWr-el-EUR" secondAttribute="centerY" constant="-100" id="YK0-Is-P71"/>
                             <constraint firstItem="TMo-Ea-xo1" firstAttribute="width" secondItem="lWr-el-EUR" secondAttribute="width" multiplier="0.2" id="Yjl-g6-9Bc"/>
                             <constraint firstItem="Ecv-d0-1Lf" firstAttribute="leading" secondItem="lWr-el-EUR" secondAttribute="leadingMargin" id="bKM-sw-0jp"/>
                             <constraint firstItem="TMo-Ea-xo1" firstAttribute="height" secondItem="lWr-el-EUR" secondAttribute="height" multiplier="0.05" id="eEa-Ig-Rbg"/>
                             <constraint firstItem="TMo-Ea-xo1" firstAttribute="top" secondItem="7Mn-KD-0A7" secondAttribute="bottom" id="er6-37-H3Q"/>
                             <constraint firstItem="Yx2-d3-CmP" firstAttribute="width" secondItem="lWr-el-EUR" secondAttribute="width" multiplier="0.33" id="iGC-2b-FjA"/>
+                            <constraint firstItem="mks-1l-8as" firstAttribute="leading" secondItem="lWr-el-EUR" secondAttribute="leading" constant="15" id="j48-rx-kXe"/>
+                            <constraint firstItem="Ecv-d0-1Lf" firstAttribute="height" secondItem="lWr-el-EUR" secondAttribute="height" multiplier="0.13" id="kFA-TX-uVT"/>
                             <constraint firstItem="Yx2-d3-CmP" firstAttribute="trailing" secondItem="lWr-el-EUR" secondAttribute="centerX" constant="-10" id="mfJ-MK-kI6"/>
                             <constraint firstItem="oAY-qi-NHZ" firstAttribute="centerX" secondItem="lWr-el-EUR" secondAttribute="centerX" id="pAj-T9-kFy"/>
-                            <constraint firstItem="mks-1l-8as" firstAttribute="top" secondItem="Ecv-d0-1Lf" secondAttribute="bottom" constant="10" id="s60-z0-SgB"/>
                             <constraint firstItem="V7Y-3g-XLs" firstAttribute="top" secondItem="TMo-Ea-xo1" secondAttribute="bottom" constant="24.5" id="wfT-t7-yQg"/>
+                            <constraint firstItem="nPO-1d-0Hw" firstAttribute="top" secondItem="mks-1l-8as" secondAttribute="bottom" constant="8" id="yCn-Ve-S6L"/>
                         </constraints>
                     </view>
                     <connections>
@@ -821,7 +824,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4vx-Hm-52i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1491" y="1493"/>
+            <point key="canvasLocation" x="1490.625" y="1492.605633802817"/>
         </scene>
         <!--Supplies Request View-->
         <scene sceneID="XDD-6d-nbN">
@@ -858,7 +861,7 @@
                                                     <rect key="frame" x="15" y="49" width="74" height="30"/>
                                                     <nil key="textColor"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits"/>
+                                                    <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
                                                 </textField>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="color/spec" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="pbL-TW-e62" userLabel="color">
                                                     <rect key="frame" x="102" y="49" width="181.5" height="30"/>
@@ -1285,6 +1288,7 @@
                         <outlet property="materialLabel" destination="e5P-pk-b1y" id="oBm-qR-MEN"/>
                         <outlet property="materialText" destination="pU9-37-eDs" id="atJ-nI-8h6"/>
                         <outlet property="poNumberLabel" destination="GxC-4W-yr2" id="qx9-1Q-NQ3"/>
+                        <outlet property="quantityLabel" destination="Hqh-Jh-jER" id="xXy-nP-9kF"/>
                         <outlet property="quantityText" destination="UPG-TD-ZUj" id="FMk-Oe-9ru"/>
                         <outlet property="requestedByLabel" destination="9zP-vL-D0z" id="lLW-lO-Vas"/>
                         <outlet property="sendButton" destination="7qt-3s-mtG" id="Z6u-dB-rfF"/>

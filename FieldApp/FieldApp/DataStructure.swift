@@ -273,9 +273,9 @@ class FieldActions {
     let maxDistance = 5  // Miles?
     
     struct MaterialQuantityColor: Encodable {
-        let quantity: Double
-        let material: String
-        let color:  String
+        var quantity: Double
+        var material: String
+        var color:  String
     }
     
     struct SuppliesRequest: Encodable {

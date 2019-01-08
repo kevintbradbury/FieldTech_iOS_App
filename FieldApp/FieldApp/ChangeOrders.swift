@@ -21,6 +21,7 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet var locationLabel: UILabel!
     @IBOutlet var materialLabel: UILabel!
     @IBOutlet var colorSpecLabel: UILabel!
+    @IBOutlet var quantityLabel: UILabel!
     @IBOutlet var descripLabel: UILabel!
     @IBOutlet weak var locationText: UITextField!
     @IBOutlet weak var materialText: UITextField!
@@ -36,11 +37,15 @@ class ChangeOrdersView: UIViewController {
     let employeeName = UserDefaults.standard.string(forKey: "employeeName")
     let picker = ImagePickerController()
     let tool_rental = "Tool Rental"
+    let change_order = "Change Order"
+    let supplies_request = "Supplies Request"
     
     public var formTypeVal = ""
     public var todaysJob: String?
     var changeOrder: FieldActions.ChangeOrders?
     var toolRentalForm: FieldActions.ToolRental?
+    var suppliesRequestForm: FieldActions.SuppliesRequest?
+    var materialsCollection: [FieldActions.MaterialQuantityColor] = []
     var imageAssets: [UIImage] { return AssetManager.resolveAssets(picker.stack.assets) }
     
     override func viewDidLoad() {
@@ -67,12 +72,9 @@ class ChangeOrdersView: UIViewController {
 
         getTextVals() { co in
             
-            if self.formTypeVal == self.tool_rental {
-                self.generateToolForm(co: co)
-                
-            } else {
-                self.changeOrder = co
-            }
+            if self.formTypeVal == self.tool_rental { self.generateToolForm(co: co) }
+            else if self.formTypeVal == self.change_order { self.changeOrder = co }
+            else if self.formTypeVal == self.supplies_request { self.generateSuppliesReqForm(co: co) }
             
             self.present(self.picker, animated: true)
         }
@@ -83,28 +85,16 @@ class ChangeOrdersView: UIViewController {
         requestedByLabel.text = employeeName
         poNumberLabel.text = todaysJobPO
         
-        setGestures()
         setJobName()
+        self.setDismissableKeyboard(vc: self)
         
-        if formTypeVal == tool_rental { viewForToolRental() }
-        else if self.formTypeVal == "Change Order" {
-            view.backgroundColor = UIColor.red
-        } else if self.formTypeVal == "Supplies Request" {
-            view.backgroundColor = UIColor.cyan
+        if formTypeVal == tool_rental {
+            viewForToolRental()
+        } else if self.formTypeVal == change_order {
+            view.backgroundColor = #colorLiteral(red: 0.9219594598, green: 0.1295425594, blue: 0.2093265057, alpha: 1)
+        } else if self.formTypeVal == supplies_request {
+            viewForSuppliesReq()
         }
-    }
-    
-    func setGestures() {
-        self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(keyboardWillChange(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil
-        )
     }
     
     func setJobName() {
@@ -119,23 +109,10 @@ class ChangeOrdersView: UIViewController {
         }
     }
     
-    @objc override func keyboardWillChange(notification: Notification) {
-        guard let keyboardRect = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
-        
-        if notification.name == Notification.Name.UIKeyboardWillShow || notification.name == Notification.Name.UIKeyboardWillChangeFrame {
-            view.frame.origin.y = -(keyboardRect.height - 125)
-        } else {
-            view.frame.origin.y = 0
-        }
-    }
-    
     func getTextVals(callback: @escaping (FieldActions.ChangeOrders) -> ()) {
         guard let employee = employeeName,
             let po = todaysJobPO,
             let location = locationText.text,
-            let material = materialText.text,
-            let colorspec = colorSpecText.text,
-            let quantity: Double = Double(quantityText.text!),
             let secsFrom1970: Double = datePickerFields.date.timeIntervalSince1970,
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
@@ -147,21 +124,33 @@ class ChangeOrdersView: UIViewController {
             poNumber: po,
             requestedBy: employee,
             location: location,
-            material: material,
-            colorSpec: colorspec,
-            quantity: quantity,
+            material: "",
+            colorSpec: "",
+            quantity: 0.0,
             neededBy: secsFrom1970,
             description: descrip
         )
+        if formTypeVal == change_order || formTypeVal == tool_rental {
+            guard let material = materialText.text,
+                let colorspec = colorSpecText.text,
+                let quantity: Double = Double(quantityText.text!) else {
+                    showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
+                    return
+            }
+            
+            changeOrderObj.material = material
+            changeOrderObj.colorSpec = colorspec
+            changeOrderObj.quantity = quantity
+        }
         
         if let job = todaysJob as? String {
             changeOrderObj.jobName = job
             callback(changeOrderObj)
             
-        } else if let theJobs = HomeView.employeeInfo?.employeeJobs {
+        } else if let employeeJobs = HomeView.employeeInfo?.employeeJobs {
             var job = ""
             
-            for oneJob in theJobs {
+            for oneJob in employeeJobs {
                 if oneJob.poNumber == todaysJobPO {
                     guard let jbName = oneJob.jobName as? String else { return }
                     UserDefaults.standard.set(jbName, forKey: "todaysJobName")
@@ -172,11 +161,13 @@ class ChangeOrdersView: UIViewController {
             changeOrderObj.jobName = job
             callback(changeOrderObj)
             
-        } else { callback(changeOrderObj) }
+        } else {
+            callback(changeOrderObj)
+        }
     }
     
     func generateToolForm(co: FieldActions.ChangeOrders) {
-        var rentForm = FieldActions.ToolRental(
+        let rentForm = FieldActions.ToolRental(
             formType: co.formType,
             jobName: co.jobName,
             poNumber: co.poNumber,
@@ -190,6 +181,20 @@ class ChangeOrdersView: UIViewController {
         )
         
         toolRentalForm = rentForm
+    }
+    
+    func generateSuppliesReqForm(co: FieldActions.ChangeOrders) {
+        let srForm = FieldActions.SuppliesRequest(
+            formType: formTypeVal,
+            jobName: todaysJob,
+            poNumber: todaysJobPO,
+            requestedBy: co.requestedBy,
+            location: co.location,
+            neededBy: co.neededBy,
+            description: co.description,
+            suppliesCollection: materialsCollection
+        )
+        suppliesRequestForm = srForm
     }
     
     func getDate(dateText: String) -> Date {
@@ -219,12 +224,21 @@ class ChangeOrdersView: UIViewController {
         colorSpecText.placeholder = "Number of Days"
         colorSpecText.keyboardType = .numberPad
     }
+    
+    func viewForSuppliesReq() {
+        view.backgroundColor = #colorLiteral(red: 0, green: 0.776924789, blue: 0.5073772073, alpha: 1)
+        materialText.isHidden = true
+        materialLabel.isHidden = true
+        colorSpecLabel.isHidden = true
+        colorSpecText.isHidden = true
+        quantityLabel.isHidden = true
+        quantityText.isHidden = true
+    }
 }
 
 extension ChangeOrdersView: ImagePickerDelegate {
     
     func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
-        print("wrapper did press")
         imagePicker.expandGalleryView()
     }
     
@@ -256,23 +270,25 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
     func checkFormType(images: [UIImage], po: String, employee: String) {
-
+        var data = Data()
+        
         if formTypeVal == tool_rental {
             guard let tlRent = toolRentalForm else { return }
-            let formBody = APICalls().generateTOOLstring(toolForm: tlRent)
+            data = APICalls().generateTOOLstring(toolForm: tlRent)
             
-            APICalls().sendChangeOrderReq(images: images, formType: "Tool Rental", formBody: formBody, po: po) { response in
-                // handle response here
-            }
-            
-        } else {
+        } else if formTypeVal == change_order {
             guard let co = changeOrder else { return }
-            let formBody = APICalls().generateCOstring(co: co)
+            data = APICalls().generateCOstring(co: co)
             
-            APICalls().sendChangeOrderReq(images: images, formType: co.formType!, formBody: formBody, po: po) { response in
-                // handle response here
-            }
+        } else  if formTypeVal == supplies_request {
+            guard let srForm = suppliesRequestForm else { return }
+            data = APICalls().generateSRFstring(srForm: srForm)
         }
+        
+        APICalls().sendChangeOrderReq(images: images, formType: formTypeVal, formBody: data, po: po) { response in
+            
+        }
+        
     }
     
 }

@@ -374,11 +374,10 @@ extension HomeView {
             let jbName = HomeView.todaysJob.jobName
             vc.todaysJob = jbName ?? ""
             vc.formTypeVal = "Change Order"
-//        case "suppliesReq":
-//            let vc = segue.destination as! ChangeOrdersView
-//            let jbName = HomeView.todaysJob.jobName
-//            vc.todaysJob = jbName ?? ""
-//            vc.formTypeVal = "Supplies Request"
+        case "suppliesReq":
+            let vc = segue.destination as! SuppliesRequestView
+            vc.todaysJob = HomeView.todaysJob
+            vc.employeeInfo = HomeView.employeeInfo
         case "toolRental":
             let vc = segue.destination as! ChangeOrdersView
             let jbName = HomeView.todaysJob.jobName

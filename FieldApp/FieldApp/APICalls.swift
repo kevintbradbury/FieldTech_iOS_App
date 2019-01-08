@@ -426,6 +426,16 @@ extension APICalls {
         
         return data
     }
+
+    func generateSRFstring(srForm: FieldActions.SuppliesRequest) -> Data {
+        var data = Data()
+        let jsonEncoder = JSONEncoder()
+        
+        do { data = try jsonEncoder.encode(srForm) }
+        catch { print("error converting TOOLRT to DATA", error) };
+        
+        return data
+    }
     
     func generateToolReturnData(toolForm: FieldActions.ToolRental, signedDate: String, printedNames: [String]) -> Data {
         var data = Data()
