@@ -163,8 +163,8 @@ class APICalls {
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
         let route = "employee/" + String(employeeId)
+        
         setupRequest(route: route, method: "GET") { request in
-            
             let session = URLSession.shared;
             
             let task = session.dataTask(with: request) { data, response, error in
@@ -188,63 +188,18 @@ class APICalls {
         }
     }
     
-    func sendChangeOrderReq(images: [UIImage], formType: String, formBody: Data, po: String, callback: @escaping (Bool) -> () ) {
-        let url = APICalls.host + "changeOrder/" + po
-        let headers = ["formType", formType]
-        
-        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "changeOrder") { success in
-            callback(success)
-        }
-    }
-    
-    func uploadProfilePhoto(images: [UIImage], employee: String, callback: @escaping (Bool) -> () ) {
-        guard let idNum = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
-        let url = APICalls.host + "employee/\(idNum)/profileUpload"
-        let headers = ["employee", employee]
-        
-        // Hard coded & may never use address info
-        let info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA")
-        let formBody = generateAddressData(addressInfo: info)
-        
-        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { success in
-            callback(success)
-        }
-    }
-    
     func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
-        let url = APICalls.host + "job/\(jobNumber)/upload"
+        let route = "job/\(jobNumber)/upload"
         let headers = ["employee", employee]
         
-        alamoUpload(url: url, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { success in
+        alamoUpload(route: route, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { success in
             callback(success)
         }
     }
     
-    func submitSignature(images: [UIImage], formType: String, formBody: Data, employeeID: String, returnDate: String, callback: @escaping (Bool) -> () ) {
-        let url = APICalls.host + "toolReturn/\(employeeID)"
-        let headers = ["formType", formType]
-        
-        alamoUpload(url: url, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { success in
-            callback(success)
-        }
-    }
-    
-    func sendTimeOffReq(timeOffForm: TimeOffReq, images: [UIImage], cb: @escaping (Bool)->() ) {
-        var data = Data()
-        let jsonEncoder = JSONEncoder()
-        let url = "\(APICalls.host)employee/\(timeOffForm.employeeID)/timeOffReq"
-        let headers = ["timeOffReq", "true"]
-        
-        do { data = try jsonEncoder.encode(timeOffForm) }
-        catch { print(error.localizedDescription) };
-        
-        alamoUpload(url: url, headers: headers, formBody: data, images: images, uploadType: "timeOffRequest") { success in
-            cb(success)
-        }
-    }
-    
-    func alamoUpload(url: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping (Bool) -> ()) {
+    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping (Bool) -> ()) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        let url = "\(APICalls.host)\(route)"
         var headers: HTTPHeaders = [
             "Content-type" : "multipart/form-data",
             headers[0] : headers[1]
@@ -279,15 +234,15 @@ class APICalls {
                         upload.responseString { response in
                             guard response.result.isSuccess else {
                                 print("error while uploading file: \(response.result.error)");
-                                self.failedUpload(msg: "\(uploadType) failed to upload.")
+                                APICalls.failedUpload(msg: "\(uploadType) failed to upload.")
                                 callback(false); return
                             }
-                            self.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
+                            APICalls.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
                         }
                         
                     case .failure(let encodingError):
                         print(encodingError);
-                        self.failedUpload(msg: "\(uploadType) failed to upload.")
+                        APICalls.failedUpload(msg: "\(uploadType) failed to upload.")
                         callback(false)
                     }
             }
@@ -485,21 +440,23 @@ extension APICalls {
                 
                 do {
                     try eventstore.save(event, span: .thisEvent, commit: true)
-                } catch { (error)
-                    if error != nil { print("looks like we couldn't setup that alarm"); print(error) }
+                } catch { error
+                    if error != nil {
+                        print("Error: \(error) \n Couldn't setup that alarm or event: \(event.description)")
+                    }
                 }
             }
         }
     }
     
-    func failedUpload(msg: String) {
+    static func failedUpload(msg: String) {
         let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
         UNUserNotificationCenter.current().add(failedNotifc, withCompletionHandler: { (error) in
             if error != nil { return }
         })
     }
     
-    func successUpload(msg: String)  {
+    static func successUpload(msg: String)  {
         let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "SUCCESS", message: msg, identifier: "uploadSuccess")
         UNUserNotificationCenter.current().add(completeNotif, withCompletionHandler: { (error) in
             if error != nil { return }

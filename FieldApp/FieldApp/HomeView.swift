@@ -301,15 +301,13 @@ extension HomeView {
 extension HomeView {
     
     func failedUpload() {
-        OperationQueue.main.addOperation {
+        let msg = "Photo(s) failed to upload to server."
+        
+        main.addOperation {
             if (UIApplication.shared.applicationState == .active && self.isViewLoaded && (self.view.window != nil)) {
-                self.showAlert(withTitle: "Upload Failed", message: "Photo failed to upload.")
-                
+                self.showAlert(withTitle: "Upload Failed", message: msg)
             } else {
-                let failedNotif = self.createNotification(intervalInSeconds: 0, title: "FAILED", message: "Photo(s) failed to upload to server.", identifier: "uploadFail")
-                self.notificationCenter.add(failedNotif, withCompletionHandler: { (error) in
-                    if error != nil { return }
-                })
+                APICalls.failedUpload(msg: msg)
             }
         }
     }
@@ -445,7 +443,7 @@ extension HomeView {
         let rental = UIAlertAction(title: "Rental", style: .default) { action in
             self.performSegue(withIdentifier: "toolRental", sender: nil)
         }
-        let returnTool = UIAlertAction(title: "Return", style: .destructive) { action in
+        let returnTool = UIAlertAction(title: "Return", style: .default) { action in
             self.performSegue(withIdentifier: "toolReturn", sender: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
@@ -492,14 +490,14 @@ extension HomeView {
     }
     
     func showSRFormOrMap() {
-        let alert = UIAlertController(title: "Field Supplies", message: "Where do you need to get your supplies?", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Field Supplies", message: "Where to get your supplies?", preferredStyle: .alert)
         let shopReq = UIAlertAction(title: "Request from Shop", style: .default) { action in
             self.performSegue(withIdentifier: "suppliesReq", sender: nil)
         }
         let goToMap = UIAlertAction(title: "Pick up from Store", style: .default) { action in
             self.performSegue(withIdentifier: "map", sender: nil)
         }
-        let cancel = UIAlertAction(title: "cancel", style: .cancel)
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         
         alert.addAction(shopReq)
         alert.addAction(goToMap)
@@ -522,14 +520,20 @@ extension HomeView: ImagePickerDelegate {
             
             picker.dismiss(animated: true) {
                 self.inProgress()
-                guard let emply = HomeView.employeeInfo?.userName else { return }
+                guard let emply = HomeView.employeeInfo?.userName,
+                    let idNum = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
+                let route = "employee/\(idNum)/profileUpload"
+                let headers = ["employee", emply]
+                let info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA")
+                let formBody = APICalls().generateAddressData(addressInfo: info)
                 
-                APICalls().uploadProfilePhoto(images: images, employee: emply) { success in
+                APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { success in
                     self.saveLocalPhoto(image: images[0])
                     self.loadProfilePic()
                     self.hideShowProfile()
                     self.checkSuccess(success: success)
                 }
+                
             }
         } else if profileUpload != true && imageAssets.count < 11 {
             picker.dismiss(animated: true) {
@@ -553,6 +557,7 @@ extension HomeView: ImagePickerDelegate {
     
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
     }
+    
 }
 
 extension Notification.Name {

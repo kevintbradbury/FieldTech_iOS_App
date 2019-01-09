@@ -78,8 +78,10 @@ extension ToolSignOffView {
             let employeeID = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
         
         let formBody = APICalls().generateToolReturnData(toolForm: rental, signedDate: dt, printedNames: printedNames)
+        let route = "toolReturn/\(employeeID)"
+        let headers = ["formType", "Tool Return"]
         
-        APICalls().submitSignature(images: images, formType: "Tool Return", formBody: formBody, employeeID: employeeID, returnDate: dt) { success in
+        APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { success in
             // handle response here
         }
     }

@@ -151,7 +151,6 @@ extension EmployeeIDEntry {
     }
     
     func clockInClockOut() {
-//        inProgress()
         startSpinning()
         
         if role != nil && role != "---" && role != "" {
@@ -168,7 +167,6 @@ extension EmployeeIDEntry {
                 incorrectID(success: true)
             }
         } else {
-//            finishedLoading()
             
             showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
             stopSpinning()
@@ -284,7 +282,11 @@ extension EmployeeIDEntry {
     }
     
     func showPONumEntryWin() {
-        let alert = UIAlertController(title: "Manual PO Entry", message: "No PO found for current time and date, would you like to enter PO number manually?", preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "Manual PO Entry",
+            message: "No PO found for this time/date, enter PO number manually?",
+            preferredStyle: .alert
+        )
         
         let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
             self.inProgress()
@@ -382,7 +384,11 @@ extension EmployeeIDEntry {
     
     func goOnLunch(breakLength: Double) {
         let timeInSeconds = Double(breakLength * 60)
-        let request = createNotification(intervalInSeconds: timeInSeconds, title: "Break Over", message: "Sorry, break time is over.", identifier: "breakOver")
+        let request = createNotification(
+            intervalInSeconds: timeInSeconds,
+            title: "Break Over",
+            message: "Sorry, break time is over.",
+            identifier: "breakOver")
         
         notificationCenter.add(request, withCompletionHandler: { (error) in
             if error != nil { print("there was an error: "); print(error) } else {
@@ -404,10 +410,10 @@ extension EmployeeIDEntry {
     }
     
     func chooseBreakLength() {
-        let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: UIAlertControllerStyle.actionSheet)
+        let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: .alert)
         let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 30) }
         let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 60) }
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in print("chose Cancel") }
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { (action) -> Void in print("chose Cancel") }
         
         actionsheet.addAction(chooseThirty)
         actionsheet.addAction(chooseSixty)
@@ -420,24 +426,24 @@ extension EmployeeIDEntry {
         let actionsheet = UIAlertController(
             title: "Reminder",
             message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?",
-            preferredStyle: UIAlertControllerStyle.actionSheet
+            preferredStyle: .alert
         )
-        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in
+        let clockInNOut = UIAlertAction(title: "OK, Clock Me Out", style: .destructive) { (action) -> Void in
             self.clockInClockOut()
         }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in
-            self.present(self.picker, animated: true, completion: nil)
-        }
-        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
+        let reqMaterials = UIAlertAction(title: "WAIT, go request materials", style: .default) { (action) -> Void in
             self.performSegue(withIdentifier: "clockTOchange", sender: nil)
+        }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .default) { (action) -> Void in
+            self.present(self.picker, animated: true, completion: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
             self.stopSpinning()
         }
         
-        actionsheet.addAction(finishUp)
-        actionsheet.addAction(takePhotos)
+        actionsheet.addAction(clockInNOut)
         actionsheet.addAction(reqMaterials)
+        actionsheet.addAction(takePhotos)
         actionsheet.addAction(cancel)
         
         self.main.addOperation {
@@ -501,37 +507,6 @@ extension EmployeeIDEntry {
         anmt.cycle().stop()
     }
     
-//    func saveLocalPhoto(image: UIImage) {
-//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
-//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
-//        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
-//
-//        do {
-//            try imageData.write(to: imageUrl)
-//            print("saved photo...probably @ URL: \n \(imageUrl)")
-//        } catch {
-//            print(error.localizedDescription)
-//        }
-//    }
-//
-//    func loadProfilePic() {
-//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
-//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
-//        var image = UIImage()
-//
-//        if FileManager.default.fileExists(atPath: imagePath) {
-//            guard let imageData = try? Data(contentsOf: imageUrl) else {
-//                print("Couldnt convert url to data obj"); return
-//            }
-//            image = UIImage(data: imageData, scale: UIScreen.main.scale) ?? image
-////            profileBtn.clipsToBounds = true
-//            profileBtn.layer.cornerRadius = 27.5
-//            profileBtn.setImage(image, for: .normal)
-//
-//        } else {
-//            print("File not found: \(imagePath)"); return
-//        }
-//    }
 }
 
 extension EmployeeIDEntry: ImagePickerDelegate {
@@ -583,12 +558,9 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {   return 1    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {    return dataSource.count }
-    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { return dataSource.count }
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return dataSource[row]  }
-    
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {    role = dataSource[row]  }
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) { role = dataSource[row]  }
     
 }
 

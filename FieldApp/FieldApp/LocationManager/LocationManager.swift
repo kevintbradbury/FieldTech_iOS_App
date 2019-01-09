@@ -72,9 +72,11 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) { print("monitoring failed for region w/ identifier: "); print(region?.identifier) }
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with followign error: "); print(error) }
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with following error: \(error)") }
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        print("monitoring failed for region w/ identifier: \(region?.identifier)")
+    }
     
 }
 

@@ -70,14 +70,15 @@ class ChangeOrdersView: UIViewController {
     @IBAction func uploadCO(_ sender: Any) {
         view.frame.origin.y = 0
 
-        getTextVals() { co in
-            
-            if self.formTypeVal == self.tool_rental { self.generateToolForm(co: co) }
-            else if self.formTypeVal == self.change_order { self.changeOrder = co }
-            else if self.formTypeVal == self.supplies_request { self.generateSuppliesReqForm(co: co) }
-            
-            self.present(self.picker, animated: true)
-        }
+            self.getTextVals() { co in
+                
+                if self.formTypeVal == self.tool_rental { self.generateToolForm(co: co) }
+                else if self.formTypeVal == self.change_order { self.changeOrder = co }
+                else if self.formTypeVal == self.supplies_request { self.generateSuppliesReqForm(co: co) }
+                
+                self.present(self.picker, animated: true)
+            }
+
     }
     
     func setViews() {
@@ -100,9 +101,9 @@ class ChangeOrdersView: UIViewController {
     func setJobName() {
         let jobName = UserDefaults.standard.string(forKey: "todaysJobName")
         
-        if todaysJob != "" && todaysJob != nil {
+        if todaysJob != nil && todaysJob != "" {
             jobNameLabel.text = todaysJob
-        } else if jobName != nil {
+        } else if jobName != nil && jobName != "" {
             jobNameLabel.text = jobName
         } else {
             jobNameLabel.text = "---"
@@ -143,27 +144,33 @@ class ChangeOrdersView: UIViewController {
             changeOrderObj.quantity = quantity
         }
         
-        if let job = todaysJob as? String {
-            changeOrderObj.jobName = job
+        if todaysJob != nil && todaysJob != "" {
+            changeOrderObj.jobName = todaysJob
             callback(changeOrderObj)
             
-        } else if let employeeJobs = HomeView.employeeInfo?.employeeJobs {
-            var job = ""
-            
-            for oneJob in employeeJobs {
-                if oneJob.poNumber == todaysJobPO {
-                    guard let jbName = oneJob.jobName as? String else { return }
-                    UserDefaults.standard.set(jbName, forKey: "todaysJobName")
-                    HomeView.todaysJob.jobName = jbName
-                    job = jbName
-                }
-            }
-            changeOrderObj.jobName = job
+        } else if UserDefaults.standard.string(forKey: "todaysJobName") != "" {
+            changeOrderObj.jobName = UserDefaults.standard.string(forKey: "todaysJobName")
             callback(changeOrderObj)
             
         } else {
-            callback(changeOrderObj)
+            dismiss(animated: true, completion: nil)
+            showAlert(withTitle: "Error", message: "Couldn't find a Job name for this form.")
         }
+//        else if let employeeJobs = HomeView.employeeInfo?.employeeJobs {
+//            for oneJob in employeeJobs {
+//                if oneJob.poNumber == todaysJobPO {
+//                    guard let jbName = oneJob.jobName as? String else { return }
+//                    UserDefaults.standard.set(jbName, forKey: "todaysJobName")
+//                    HomeView.todaysJob.jobName = jbName
+//                    todaysJob = jbName
+//                }
+//            }
+//            if todaysJob != nil && todaysJob != "" {
+//                changeOrderObj.jobName = todaysJob
+//                callback(changeOrderObj)
+//            }
+//        }
+        
     }
     
     func generateToolForm(co: FieldActions.ChangeOrders) {
@@ -246,7 +253,19 @@ extension ChangeOrdersView: ImagePickerDelegate {
         let images = imageAssets
         
         if images.count < 2 {
-            sendCO(images: images)
+            dismiss(animated: true, completion: nil)
+            
+            let alert = UIAlertController(
+                title: "Confirm", message: "Are you sure you would like to send the \(formTypeVal)?", preferredStyle: UIAlertControllerStyle.alert
+            )
+            let yes = UIAlertAction(title: "YES", style: .default, handler: { action in
+                self.sendCO(images: images)
+            } )
+            
+            alert.addAction(yes)
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+            
         } else {
             picker.showAlert(withTitle: "Single Photo", message: "You can only select 1 photo for change orders.")
         }
@@ -266,10 +285,10 @@ extension ChangeOrdersView: ImagePickerDelegate {
         } else {
             showAlert(withTitle: "Error", message: "An employee name is required for COs, Tool Rentals, & Supplies Reqs.")
         };
-        dismiss(animated: true, completion: nil)
     }
     
     func checkFormType(images: [UIImage], po: String, employee: String) {
+        let route = "changeOrder/\(po)"
         var data = Data()
         
         if formTypeVal == tool_rental {
@@ -285,10 +304,12 @@ extension ChangeOrdersView: ImagePickerDelegate {
             data = APICalls().generateSRFstring(srForm: srForm)
         }
         
-        APICalls().sendChangeOrderReq(images: images, formType: formTypeVal, formBody: data, po: po) { response in
-            
+        APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { success in
+            if success {
+                let msg = "\(self.formTypeVal) was uploaded successfully."
+                APICalls.successUpload(msg: msg)
+            }
         }
-        
     }
     
 }

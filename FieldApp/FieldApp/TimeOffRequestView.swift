@@ -72,17 +72,21 @@ class TimeOffRequestView: UIViewController {
                 return
         }
         
-//        showAlert(withTitle: "get Time off vals", message: "\(usrnm), \(id), \(dprtmt), \(shftHrs), \n\(returnDate), \n\(start), \n\(end)")
         activityIndicator.startAnimating()
         let tmOffForm = TimeOffReq(
             username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,
             start: start, end: end, returningDate: returnSecs, signedDate: crrntDt
         )
+        let jsonEncoder = JSONEncoder()
+        let route = "employee/\(tmOffForm.employeeID)/timeOffReq"
+        let headers = ["timeOffReq", "true"]
+        var data = Data()
         
-        APICalls().sendTimeOffReq(timeOffForm: tmOffForm, images: [signature]) { success in
-            
+        do { data = try jsonEncoder.encode(tmOffForm) }
+        catch { print(error.localizedDescription) };
+        
+        APICalls().alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { success in
             self.activityIndicator.stopAnimating()
-            
         }
     }
     
