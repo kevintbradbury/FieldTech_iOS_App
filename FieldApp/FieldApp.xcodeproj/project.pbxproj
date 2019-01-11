@@ -690,7 +690,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Testing Development Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "Development Profile";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -711,7 +711,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Testing Development Profile";
+				PROVISIONING_PROFILE_SPECIFIER = "Development Profile";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;

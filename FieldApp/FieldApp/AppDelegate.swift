@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data){
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
@@ -64,26 +64,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print(notification)
         
         if Auth.auth().canHandleNotification(notification) {
-            completionHandler(.noData); return
+            print("didReceiveRemoteNotification: FireBase notification")
+            completionHandler(.noData);     return
         }
         
-        if let aps = notification[AnyHashable("aps")] as? NSDictionary,
+        print(notification)
+        
+        guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
-            let action = alert["action"] as? String {
-            print("received notification: with action -  \(action)")
+            let action = alert[AnyHashable("action")] as? String else {
+                print("didReceiveRemoteNotification: failed parsing: aps/alert/action")
+                completionHandler(.newData);    return
+        }
+        
+        if action == "gps Update" {
+            guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
             
-            if action == "gps Update" {
-                guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                
-                APICalls().justCheckCoordinates(location: locationArray) { success in
-                    if success != true { completionHandler(.failed) }
-                    else { completionHandler(.newData); print("coordinate check succeeded") }
-                }
+            APICalls().justCheckCoordinates(location: locationArray) { success in
+                if success != true { completionHandler(.failed) }
+                else { completionHandler(.newData); print("didReceiveRemoteNotification: coordinate check succeeded") }
             }
+//        } else if category = "vehicleCheckList"{
+            
+        } else {
+            print("didReceiveRemoteNotification: action: \(action)");   completionHandler(.newData)
         }
     }
     
@@ -130,6 +137,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         print("app will terminate")
     }
+
     
     func registerForPushNotif() {
         notificationCenter.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
@@ -142,9 +150,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         return
                     }
                 }
-            } else {
-                fatalError("notification not granted: \(granted), \(error)")
-            }
+            } else { fatalError("notification not granted: \(granted), \(error)") }
         }
     }
     
@@ -152,11 +158,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let id = UserDefaults.standard.string(forKey: "employeeID") else {
             print("no saved id"); return
         }
-        let route = "employee/token/" + id
+        let route = "employee/token/\(id)"
         
         if let existingToken = UserDefaults.standard.string(forKey: "token") {
             if existingToken == token {
-                return
+                print("token matches"); return
             } else { updateToken(token: token, route: route) }
         } else { updateToken(token: token, route: route) }
     }
@@ -174,10 +180,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 } else {
                     print("sent device token successfully")
                 }
-            }
-            task.resume()
+            }; task.resume()
         }
     }
 }
 
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        print(notification)
+        completionHandler(.alert)
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            let catg = response.notification.request.content.categoryIdentifier
+            
+            switch catg {
+            case "vehicleCheckList":
+                print(catg)
+                
+            default:
+                print(catg)
+                center.removeAllDeliveredNotifications()
+            }
+        }
 
+    }
+}
