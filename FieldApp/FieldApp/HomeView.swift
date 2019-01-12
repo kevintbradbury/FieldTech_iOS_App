@@ -78,6 +78,10 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         logoView.close()
+        
+        //
+        performSegue(withIdentifier: "vehicleCkList", sender: nil)
+        //
     }
     
     @IBAction func pressedProfile(_ sender: Any) {

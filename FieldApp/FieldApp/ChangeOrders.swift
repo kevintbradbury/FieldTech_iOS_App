@@ -45,7 +45,7 @@ class ChangeOrdersView: UIViewController {
     var changeOrder: FieldActions.ChangeOrders?
     var toolRentalForm: FieldActions.ToolRental?
     var suppliesRequestForm: FieldActions.SuppliesRequest?
-    var materialsCollection: [FieldActions.MaterialQuantityColor] = []
+    var materialsCollection: [FieldActions.SuppliesRequest.MaterialQuantityColor] = []
     var imageAssets: [UIImage] { return AssetManager.resolveAssets(picker.stack.assets) }
     
     override func viewDidLoad() {

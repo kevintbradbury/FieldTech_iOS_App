@@ -272,11 +272,7 @@ class FieldActions {
     let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
     let maxDistance = 5  // Miles?
     
-    struct MaterialQuantityColor: Encodable {
-        var quantity: Double
-        var material: String
-        var color:  String
-    }
+
     
     struct SuppliesRequest: Encodable {
         var formType: String?
@@ -287,6 +283,12 @@ class FieldActions {
         var neededBy: Double? // Seconds from 1970
         var description: String?
         var suppliesCollection: [MaterialQuantityColor]
+        
+        struct MaterialQuantityColor: Encodable {
+            var quantity: Double
+            var material: String
+            var color:  String
+        }
     }
     
     struct ToolRental: Encodable {
@@ -315,6 +317,41 @@ class FieldActions {
         var quantity: Double?
         var neededBy: Double? // Seconds from 1970
         var description: String?
+    }
+    
+    
+    struct VehicleChecklist: Encodable {
+        var username: String
+        var department: String
+        var licensePlate: String
+        var date: Double
+        var outsideInspection: OutsideInspection
+        var startupInspection: StartupInspection
+        var issuesReport: String
+        
+        struct OutsideInspection: Encodable {
+            var windows: Bool
+            var tiresNnuts: Bool
+            var engine: Bool
+            var litesNsignals: Bool
+            var mirrors: Bool
+            var windshieldNwipres: Bool
+            var dents: Bool
+            var exteriorComments: String
+        }
+        
+        struct StartupInspection: Encodable {
+            var engine: Bool
+            var gauges: Bool
+            var wipers: Bool
+            var horn: Bool
+            var brakes: Bool
+            var seatbelt: Bool
+            var insuranceNregist: Bool
+            var firstAidKit: Bool
+            var clean: Bool
+            var startupComments: String
+        }
     }
     
     static func fromJSONtoTool(json: Any) -> ([FieldActions.ToolRental], [UIImage]) {
@@ -364,7 +401,6 @@ struct TimeOffReq: Encodable  {
     let shiftHours: String
     let start: Double
     let  end: Double
-    let returningDate: Double
     let signedDate: Double
 }
 

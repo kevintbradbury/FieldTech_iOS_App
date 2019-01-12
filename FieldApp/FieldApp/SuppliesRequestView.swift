@@ -18,7 +18,7 @@ class SuppliesRequestView: UIViewController {
     
     var todaysJob: Job?
     var employeeInfo: UserData.UserInfo?
-    var materialsCollection: [FieldActions.MaterialQuantityColor] = []
+    var materialsCollection: [FieldActions.SuppliesRequest.MaterialQuantityColor] = []
     
     
     override func viewDidLoad() {
@@ -33,7 +33,7 @@ class SuppliesRequestView: UIViewController {
     }
     
     @IBAction func addMaterialsCell(_ sender: Any) {
-        let emptyMaterial = FieldActions.MaterialQuantityColor(quantity: Double(), material: String(), color: String())
+        let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: Double(), material: String(), color: String())
         
         materialsCollection.append(emptyMaterial)
         
@@ -64,7 +64,8 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
         }
         let existingIndx = materialsCollection.indices.contains(indexPath.row)
         
-        if existingIndx == true, let material: FieldActions.MaterialQuantityColor = materialsCollection[indexPath.row] {
+        if existingIndx == true,
+            let material: FieldActions.SuppliesRequest.MaterialQuantityColor = materialsCollection[indexPath.row] {
             cell.colorField.text = material.color
             cell.materialFIeld.text = material.material
             if material.quantity > 0 {
@@ -99,7 +100,7 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
             let quantity = cell.quantityField.text else { return }
             let dbl: Double = Double(quantity) ?? 0
             
-            materialsCollection[indxPt.row] = FieldActions.MaterialQuantityColor(quantity: dbl, material: material, color: color)
+            materialsCollection[indxPt.row] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color)
         }
     }
 }
@@ -118,9 +119,9 @@ extension SuppliesRequestView {
             let existingIndx = materialsCollection.indices.contains(z)
             
             if existingIndx == true {
-                materialsCollection[z] = FieldActions.MaterialQuantityColor(quantity: dbl, material: material, color: color)
+                materialsCollection[z] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color)
             } else {
-                materialsCollection.append(FieldActions.MaterialQuantityColor(quantity: dbl, material: material, color: color))
+                materialsCollection.append(FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color))
             }
             z += 1
         }

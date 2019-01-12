@@ -65,7 +65,7 @@ extension UIViewController {
             Notification.Name.UIKeyboardWillChangeFrame {
             
             OperationQueue.main.addOperation {
-                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 1.5))   //   75)
+                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))   //   75)
             }
         } else {
             OperationQueue.main.addOperation {
@@ -100,6 +100,7 @@ extension UIViewController {
         mapItem.name = name
         mapItem.openInMaps(launchOptions: options)
     }
+    
 }
 
 class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
