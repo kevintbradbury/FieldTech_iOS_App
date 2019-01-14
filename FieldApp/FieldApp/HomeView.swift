@@ -44,6 +44,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
     var profileUpload: Bool?
+    var vehicleCkListNotif: Bool?
+    var scheduleReadyNotif: Bool?
     public static var employeeInfo: UserData.UserInfo?
     public static var addressInfo: UserData.AddressInfo?
     public static var todaysJob = Job()
@@ -78,10 +80,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         logoView.close()
-        
-        //
-        performSegue(withIdentifier: "vehicleCkList", sender: nil)
-        //
     }
     
     @IBAction func pressedProfile(_ sender: Any) {
@@ -192,7 +190,6 @@ extension HomeView {
             performSegue(withIdentifier: "schedule", sender: nil)
         case "materials":
             showSRFormOrMap()
-//            performSegue(withIdentifier: "map", sender: nil)
         case "form":
             performSegue(withIdentifier: "changeOrder", sender: nil)
         case "vacation":
@@ -210,8 +207,9 @@ extension HomeView {
             //        case "hotel_req":
             
         default:
-            showAlert(withTitle: "Under Contruction",
-                      message: "Sorry this part is still under construction.")
+            showAlert(
+                withTitle: "Under Contruction", message: "Sorry this part is still under construction."
+            )
         }
     }
     
@@ -222,7 +220,7 @@ extension HomeView {
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
                 if notifications != nil {
-                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
+                    for singleNote in notifications { print("request in notif center: ", singleNote.request) }
                 }
             }
         }
@@ -429,11 +427,17 @@ extension HomeView {
         let stopAction = UNNotificationAction(identifier: "STOP_ACTION", title: "Stop", options: [.destructive, .foreground])
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         let alarmCategory = UNNotificationCategory(identifier: "alarm.category", actions: [stopAction], intentIdentifiers: [], options: [])
+        
         notificationCenter.setNotificationCategories([alarmCategory])
         notificationCenter.requestAuthorization(options: options) { (granted, error) in
             if !granted { print("there was an error or the user did not authorize alerts: ", error) }
         }
-        notificationCenter.getNotificationSettings { (settings) in if settings.authorizationStatus != .authorized { print("user did not authorize alerts") } }
+        notificationCenter.getNotificationSettings { (settings) in
+            if settings.authorizationStatus != .authorized { print("user did not authorize alerts") }
+        }
+        
+        if vehicleCkListNotif == true { performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+        else if scheduleReadyNotif == true { performSegue(withIdentifier: "schedule", sender: nil) }
     }
     
     func checkSuccess(success: Bool) {

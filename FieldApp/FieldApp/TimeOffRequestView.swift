@@ -32,7 +32,6 @@ class TimeOffRequestView: UIViewController {
         self.setDismissableKeyboard(vc: self)
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
-        activityIndicator.layer.cornerRadius = 15
         
         if employeeInfo?.userName != nil {
             userNameLbl.text = employeeInfo?.userName

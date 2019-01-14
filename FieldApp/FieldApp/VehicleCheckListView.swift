@@ -38,6 +38,7 @@ class VehicleCheckListView: UITableViewController {
     @IBOutlet var startupComments: UITextField!
     
     @IBOutlet var maintenanceIssuesTxtField: UITextView!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     
     let dateFormatter = DateFormatter()
     var currentDate = Date()
@@ -47,6 +48,8 @@ class VehicleCheckListView: UITableViewController {
         super.viewDidLoad()
         dateFormatter.dateFormat = "MMM d, yyyy"
         dateLbl.text = dateFormatter.string(from: currentDate)
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.isHidden = true
         
         self.view.addGestureRecognizer(
             UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
@@ -117,6 +120,8 @@ class VehicleCheckListView: UITableViewController {
     }
     
     func sendForm() {
+        activityIndicator.startAnimating()
+        
         guard let signatureImg = signatureBtn.currentImage,
             let employeeID = UserDefaults.standard.string(forKey: "employeeID") else { return }
         let vehicleFm = getForm()
@@ -132,7 +137,7 @@ class VehicleCheckListView: UITableViewController {
         APICalls().alamoUpload(
             route: route, headers: ["vehiclechecklist", "true" ], formBody: data, images: [signatureImg], uploadType: "vehicleCheckList"
         ) { success in
-            
+            self.activityIndicator.stopAnimating()
         }
     }
 }

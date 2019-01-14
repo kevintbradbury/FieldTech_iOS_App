@@ -40,8 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
-    func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
@@ -87,10 +86,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if success != true { completionHandler(.failed) }
                 else { completionHandler(.newData); print("didReceiveRemoteNotification: coordinate check succeeded") }
             }
-//        } else if category = "vehicleCheckList"{
-            
         } else {
-            print("didReceiveRemoteNotification: action: \(action)");   completionHandler(.newData)
+            print("didReceiveRemoteNotification: action: \(alert)");   completionHandler(.newData)
         }
     }
     
@@ -186,7 +183,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         print(notification)
         completionHandler(.alert)
@@ -196,16 +193,23 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             let catg = response.notification.request.content.categoryIdentifier
+            let state = UIApplication.shared.applicationState
+            
+            print("UNUserNotificationCenter didReceive response: \(response.notification.request.content)")
+            
+            guard let vc = self.myViewController else { return }
             
             switch catg {
             case "vehicleCheckList":
-                print(catg)
-                
+                if state == UIApplicationState.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+                else { vc.vehicleCkListNotif = true }
+
             default:
-                print(catg)
                 center.removeAllDeliveredNotifications()
             }
+            
+            completionHandler()
         }
-
     }
+    
 }

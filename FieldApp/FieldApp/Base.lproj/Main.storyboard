@@ -718,6 +718,11 @@
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits"/>
                                                 </textField>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="D0i-Nr-Pz3">
+                                                    <rect key="frame" x="142" y="3" width="37" height="37"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                </activityIndicatorView>
                                             </subviews>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -1206,6 +1211,7 @@
                     <nil key="simulatedTopBarMetrics"/>
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="activityIndicator" destination="D0i-Nr-Pz3" id="jWp-uo-8m1"/>
                         <outlet property="dateLbl" destination="tGh-1v-iKk" id="UEn-Jk-Uy4"/>
                         <outlet property="departmentField" destination="BZW-Yf-LOX" id="DPV-PP-Oxi"/>
                         <outlet property="extCommentsField" destination="Pgp-z1-t77" id="c76-AS-0NZ"/>
@@ -1315,8 +1321,8 @@
                                     <action selector="showSignatureView:" destination="mhc-pH-T1g" eventType="touchUpInside" id="uCm-Y8-JrL"/>
                                 </connections>
                             </button>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="oAY-qi-NHZ">
-                                <rect key="frame" x="141.5" y="265.5" width="37" height="37"/>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="oAY-qi-NHZ">
+                                <rect key="frame" x="141.5" y="264.5" width="37" height="37"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </activityIndicatorView>
@@ -1758,6 +1764,11 @@
                                     <action selector="uploadCO:" destination="bP6-Xq-Etq" eventType="touchUpInside" id="ONM-TH-PZE"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="0BG-05-d2O">
+                                <rect key="frame" x="142" y="296" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <gestureRecognizers/>
@@ -1831,6 +1842,7 @@
                         </connections>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="0BG-05-d2O" id="RQW-Ag-KKm"/>
                         <outlet property="backButton" destination="NCx-ke-Sq2" id="Xdg-Ak-AXi"/>
                         <outlet property="colorSpecLabel" destination="2nV-0w-DpW" id="F69-aI-apS"/>
                         <outlet property="colorSpecText" destination="ezT-RE-vhe" id="uLu-dV-eA9"/>
@@ -2028,6 +2040,11 @@
                                     <action selector="receiverTap:" destination="ace-3O-hgX" eventType="touchUpInside" id="DrJ-Sd-cMV"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="xFh-eo-gpd">
+                                <rect key="frame" x="142" y="249" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -2068,6 +2085,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="xFh-eo-gpd" id="bYa-Os-wuR"/>
                         <outlet property="backBtn" destination="7aF-Qv-IoM" id="nnd-eE-MQF"/>
                         <outlet property="dateLabel" destination="hLM-oB-6zm" id="5y4-Rr-GzQ"/>
                         <outlet property="printNameReceiverField" destination="SHj-Jh-e23" id="GaZ-IC-quf"/>
@@ -2094,7 +2112,8 @@
         <image name="signature" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="pr2-xA-kxu"/>
+        <segue reference="pAu-Wh-4fN"/>
+        <segue reference="up3-NZ-nvU"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

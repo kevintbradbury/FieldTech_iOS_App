@@ -31,6 +31,7 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet weak var descripText: UITextView!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     
     let employeeID = UserDefaults.standard.string(forKey: "employeeID")
     let todaysJobPO = UserDefaults.standard.string(forKey: "todaysJobPO")
@@ -85,6 +86,8 @@ class ChangeOrdersView: UIViewController {
         formType.text = formTypeVal
         requestedByLabel.text = employeeName
         poNumberLabel.text = todaysJobPO
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.isHidden = true
         
         setJobName()
         self.setDismissableKeyboard(vc: self)
@@ -275,6 +278,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
     func sendCO(images: [UIImage]) {
+        activityIndicator.startAnimating()
         
         if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
             let emply =  UserDefaults.standard.string(forKey: "employeeName") {
@@ -282,7 +286,9 @@ extension ChangeOrdersView: ImagePickerDelegate {
             checkFormType(images: images, po: po, employee: emply)
         } else if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             checkFormType(images: images, po: "---", employee: emply)
+        
         } else {
+            activityIndicator.stopAnimating()
             showAlert(withTitle: "Error", message: "An employee name is required for COs, Tool Rentals, & Supplies Reqs.")
         };
     }
@@ -305,9 +311,10 @@ extension ChangeOrdersView: ImagePickerDelegate {
         }
         
         APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { success in
+            self.activityIndicator.stopAnimating()
+            
             if success {
-                let msg = "\(self.formTypeVal) was uploaded successfully."
-                APICalls.successUpload(msg: msg)
+                APICalls.successUpload(msg: "\(self.formTypeVal) was uploaded successfully.")
             }
         }
     }

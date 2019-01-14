@@ -23,6 +23,7 @@ class ToolSignOffView: UIViewController {
     @IBOutlet var receiverSignatureView: UIImageView!
     @IBOutlet var printNameReceiverField: UITextField!
     @IBOutlet var sendButton: UIButton!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
     
     public var toolToReturn: FieldActions.ToolRental?
     var signatureRole = ""
@@ -37,12 +38,10 @@ class ToolSignOffView: UIViewController {
     @IBAction func returnerTap(_ sender: Any) {
         signatureRole = "returner"
         self.presentSignature(vc: self, subTitle: String("Tool \(signatureRole) sign your initials here."), title: "Initial here")
-        //        presentSignature(role: "returner")
     }
     @IBAction func receiverTap(_ sender: Any) {
         signatureRole = "receiver"
         self.presentSignature(vc: self, subTitle: String("Tool \(signatureRole) sign your initials here."), title: "Initial here")
-        //        presentSignature(role: "receiver")
     }
     @IBAction func submitReturn(_ sender: Any) { sendSignatures() }
     
@@ -59,7 +58,10 @@ extension ToolSignOffView {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, YYYY"
         dateLabel.text = dateFormatter.string(from: Date())
-
+        
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.isHidden = true
+        
         self.setDismissableKeyboard(vc: self)
     }
     
@@ -75,14 +77,17 @@ extension ToolSignOffView {
             let receiverNm = printNameReceiverField.text,
             let printedNames = [returnerNm, receiverNm] as? [String],
             let rental = toolToReturn as? FieldActions.ToolRental,
-            let employeeID = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
-        
+            let employeeID = UserDefaults.standard.string(forKey: "employeeID") as? String else {
+                showAlert(withTitle: "Incomplete", message: "Fill out all fields before submitting.")
+                return
+        }
+        activityIndicator.startAnimating()
         let formBody = APICalls().generateToolReturnData(toolForm: rental, signedDate: dt, printedNames: printedNames)
         let route = "toolReturn/\(employeeID)"
         let headers = ["formType", "Tool Return"]
         
         APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { success in
-            // handle response here
+            self.activityIndicator.stopAnimating()
         }
     }
 }
