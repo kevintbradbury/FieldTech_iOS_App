@@ -189,10 +189,10 @@
 				062A32D4215C09A0001B6703 /* ToolReturnView.swift */,
 				062A32D7215C0C5C001B6703 /* ToolRentalReturnCell.swift */,
 				0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */,
+				065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */,
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
-				065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";

@@ -316,15 +316,7 @@ extension ScheduleView {
     }
     
     // Effectively handles no more than 4 jobs in single calendar cell
-    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int) -> UILabel {  // UIView
-        
-//        let w = CGFloat(cell.frame.width / 4)
-//        let h = CGFloat(oneDt.endDate.timeIntervalSince1970 - oneDt.installDate.timeIntervalSince1970) / 10000
-//        let x = CGFloat(Double(w) * Double(i))
-//        let y = CGFloat(oneDt.installDate.timeIntervalSince1970 / 100000000)
-//        let jobVw = UIView(frame: frame)
-//        jobVw.layer.backgroundColor = colorChoices[i]
-//        jobVw.accessibilityIdentifier = "jobTab"
+    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int) -> UILabel {
         
         let w = cell.frame.width - 1
         let h = CGFloat(cell.frame.height / 8)
@@ -362,13 +354,14 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         }
 
         if selectedJobs.count > 0 {
+            let jb = selectedJobs[indexPath.row]
             let dt = selectedDates[indexPath.row]
-            let a = selectedJobs[indexPath.row].jobName
-            let b = selectedJobs[indexPath.row].poNumber
-            let bb = getTime(date: dt.installDate)
-            let cc = getMonthDayYear(date: dt.installDate)
+            let jobName = jb.jobName
+            let po = jb.poNumber
+            let startTm = getTime(date: dt.installDate)
+            let address = "\(jb.jobAddress), \(jb.jobCity), \(jb.jobState)"
             
-            cell.jobInfoLabel.text = "\(a) PO-\(b) \n\(bb)"
+            cell.jobInfoLabel.text = "\(jobName) \(startTm) \n\(address)"
         }
 
         return cell
@@ -377,11 +370,11 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let matchingJob = selectedJobs[indexPath.row]
         
-        let alert = UIAlertController(title: "Directions", message: "Get driving Directions?", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Directions", message: "Get directions to PO: \(matchingJob.poNumber) \n\(matchingJob.jobName)?", preferredStyle: .actionSheet)
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         let yes = UIAlertAction(title: "Yes", style: .default) { (action) in
             self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
         }
-        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         
         alert.addAction(yes)
         alert.addAction(cancel)

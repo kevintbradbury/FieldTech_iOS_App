@@ -179,7 +179,6 @@ class Job: Codable {
                 if let addressAsString = dictionary["jobAddress"] as? String,
                     let cityAsString = dictionary["jobCity"] as? String,
                     let stateAsString = dictionary["jobState"] as? String {
-//                    print("job address from server: \(addressAsString)")
                     
                     address = addressAsString
                     city = cityAsString
@@ -200,7 +199,9 @@ class Job: Codable {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
             dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
             
-            guard let dateString = dateFormatter.date(from: string) else { fatalError("failed to cast string to type: date") }
+            guard let dateString = dateFormatter.date(from: string) else {
+                fatalError("failed to cast string to type: date")
+            }
             
             return dateString
         }
