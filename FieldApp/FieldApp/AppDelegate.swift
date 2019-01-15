@@ -202,7 +202,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             switch catg {
             case "vehicleCheckList":
                 if state == UIApplicationState.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
-                else { vc.vehicleCkListNotif = true }
+                else { HomeView.vehicleCkListNotif = true }
+            case "scheduleReady":
+                if state == UIApplicationState.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
+                else { HomeView.scheduleReadyNotif = true }
 
             default:
                 center.removeAllDeliveredNotifications()

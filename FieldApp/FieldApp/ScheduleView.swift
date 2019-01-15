@@ -56,6 +56,8 @@ class ScheduleView: UIViewController {
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
     
     func initialCalSetup() {
+        HomeView.scheduleReadyNotif = false
+        
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
         calendarView.isPrefetchingEnabled = true

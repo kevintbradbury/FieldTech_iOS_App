@@ -44,8 +44,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
     var profileUpload: Bool?
-    var vehicleCkListNotif: Bool?
-    var scheduleReadyNotif: Bool?
+    public static var vehicleCkListNotif: Bool?
+    public static var scheduleReadyNotif: Bool?
     public static var employeeInfo: UserData.UserInfo?
     public static var addressInfo: UserData.AddressInfo?
     public static var todaysJob = Job()
@@ -338,6 +338,9 @@ extension HomeView {
             self.activityIndicator.stopAnimating()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
+        
+        if HomeView.vehicleCkListNotif == true { self.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+        else if HomeView.scheduleReadyNotif == true { self.performSegue(withIdentifier: "schedule", sender: nil) }
     }
     
     func clockedInUI() {
@@ -435,9 +438,6 @@ extension HomeView {
         notificationCenter.getNotificationSettings { (settings) in
             if settings.authorizationStatus != .authorized { print("user did not authorize alerts") }
         }
-        
-        if vehicleCkListNotif == true { performSegue(withIdentifier: "vehicleCkList", sender: nil) }
-        else if scheduleReadyNotif == true { performSegue(withIdentifier: "schedule", sender: nil) }
     }
     
     func checkSuccess(success: Bool) {
