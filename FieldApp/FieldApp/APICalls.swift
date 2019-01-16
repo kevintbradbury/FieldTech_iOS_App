@@ -20,7 +20,7 @@ import Firebase
 class APICalls {
     static let host = "https://mb-server-app-kbradbury.c9users.io/"
     
-    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob]) -> ()) {
+    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob], [TimeOffReq]) -> ()) {
         let route = "employee/" + employeeID + "/jobs"
         
         setupRequest(route: route, method: "GET") { request in
@@ -28,15 +28,22 @@ class APICalls {
             
             let task = session.dataTask(with: request) { data, response, error in
                 if error != nil {
-                    print("failed to fetch JSON")
-                    return
+                    print("failed to fetch JSON"); return
                 }
                 guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
+                    print("could not verify data from dataTask"); return
                 }
-                let jobs: [Job.UserJob] = self.parseJobs(from: verifiedData)
-                callback(jobs)
+                
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary,
+                    let jobs = json["employeeJobs"] as? NSArray,
+                    let tORS = json["timeOffReqs"] as? NSArray else {
+                        print("couldn't parse json objects as an Array"); return
+                }
+                
+                let employeeJobs: [Job.UserJob] = self.parseJobs(from: jobs)
+                let timeOffReqs: [TimeOffReq] = self.parseTORS(from: tORS)
+                
+                callback(employeeJobs, timeOffReqs)
             }
             task.resume()
         }
@@ -321,14 +328,12 @@ extension APICalls {
         task.resume()
     }
     
-    func parseJobs(from data: Data) -> [Job.UserJob] {
+    func parseJobs(from array: NSArray) -> [Job.UserJob] {
         var jobsArray: [Job.UserJob] = []
         
-        guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {
-            print("couldn't parse json objects as an Array"); return jobsArray
-        }
+//        guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {return jobsArray}
         
-        for jobJson in json {
+        for jobJson in array {
             if let jobDictionary = jobJson as? [String : Any]  {
                 if let job = Job.UserJob.jsonToDictionary(dictionary: jobDictionary as NSDictionary) {
                     jobsArray.append(job)
@@ -338,6 +343,23 @@ extension APICalls {
             }
         }
         return jobsArray
+    }
+    
+    func parseTORS(from array: NSArray) -> [TimeOffReq] {
+        var timeOffReqs: [TimeOffReq] = []
+        
+        for tmOffReq in array {
+            
+            if let jobDictionary = tmOffReq as? NSDictionary {
+                if let req = TimeOffReq.parseJson(dictionary: jobDictionary) as? TimeOffReq {
+                    timeOffReqs.append(req)
+                }
+            } else {
+                print("couldn't cast index json to type Dictionary"); return timeOffReqs
+            }
+        }
+        
+        return timeOffReqs
     }
     
     func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {

@@ -29,6 +29,7 @@ class ScheduleView: UIViewController {
     let formatter = DateFormatter()
     let main = OperationQueue.main
     var employee: UserData.UserInfo?
+    var timeOreqs: [TimeOffReq] = []
     var jobsArray: [Job.UserJob] = []
     var selectedJobs: [Job.UserJob] = []
     var selectedDates: [Job.UserJob.JobDates] = []
@@ -128,12 +129,13 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         if let unwrappedEmployee = self.employee {
             let idToString = String(unwrappedEmployee.employeeID)
             
-            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
+            APICalls().fetchJobInfo(employeeID: idToString) { (jobs, timeOffReqs) in
                 self.jobsArray = jobs
                 self.jobsArray.sort { ($0.jobName < $1.jobName) }
+                self.timeOreqs = timeOffReqs
+                self.timeOreqs.sort { ($0.start < $1.start) }
+                
                 self.stopLoading()
-
-                print("jobs count: \(self.jobsArray.count)")
             }
         }
     }
@@ -227,6 +229,24 @@ extension ScheduleView {
         }
     }
     
+    func checkForTOR(date: Date, cb: (TimeOffReq) -> () ) {
+        if timeOreqs.count > 0 {
+            
+            for day in timeOreqs {
+                let st = Date(timeIntervalSince1970: day.start)
+                let end = Date(timeIntervalSince1970: day.end)
+                let dtMDY = getMonthDayYear(date: date)
+                let stMDY = getMonthDayYear(date: st)
+                
+                if st < date && date < end {
+                    cb(day)
+                } else if dtMDY == stMDY {
+                    cb(day)
+                }
+            }
+        }
+    }
+    
     func checkForJob(name: String, callback: (Job.UserJob) -> ()) {
         for job in jobsArray {
             if name == job.jobName {
@@ -291,7 +311,6 @@ extension ScheduleView {
         }
         
         checkJobsDates(date: cellState.date) { matchingJbs, jobDates, colorInts in
-            print("matchingJobs.count : \(matchingJbs.count)")
             
             if matchingJbs.count > 0 && jobDates.count > 0 {
                 let colorChoices = [UIColor.cyan, UIColor.magenta, UIColor.yellow, UIColor.lightGray]
@@ -310,6 +329,10 @@ extension ScheduleView {
                         }
                     }
             }
+        }
+        
+        checkForTOR(date: cellState.date) { tmOffReq in
+            cell.backgroundColor = UIColor.white
         }
         
         return cell
