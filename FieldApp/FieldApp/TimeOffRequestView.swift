@@ -53,24 +53,23 @@ class TimeOffRequestView: UIViewController {
     
     func getTimeOffVals() {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         
         guard let usrnm = employeeInfo?.userName,
             let id = employeeInfo?.employeeID,
             let dprtmt = departmentField.text,
             let shftHrs = shiftHrsField.text,
-            let start = startDtPicker.date.timeIntervalSince1970 as? Double,
-            let end = endDtPicker.date.timeIntervalSince1970 as? Double,
+            let start = dateFormatter.string(from: startDtPicker.date) as? String,
+            let end = dateFormatter.string(from: endDtPicker.date) as? String,
             let signature = signatureImg.image,
-            let crrntDt =  Date().timeIntervalSince1970 as? Double else {
+            let crrntDt =  dateFormatter.string(from: Date() ) as? String else {
                 showAlert(withTitle: "Incomplete Form", message: "Please complete the entire form before submitting.")
                 return
         }
         
         activityIndicator.startAnimating()
         let tmOffForm = TimeOffReq(
-            username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,
-            start: start, end: end, signedDate: crrntDt
+            username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs, start: start, end: end, signedDate: crrntDt
         )
         let jsonEncoder = JSONEncoder()
         let route = "employee/\(tmOffForm.employeeID)/timeOffReq"

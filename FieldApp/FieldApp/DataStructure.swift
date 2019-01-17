@@ -384,10 +384,10 @@ class FieldActions {
                     let neededBy = dictionary["neededBy"] as? String,
                     let quantity = dictionary["quantity"] as? Int,
                     let location = dictionary["location"] as? String,
-//                    let returnDate = dictionary["returnDate"] as? String,
                     let photoStr = dictionary["photo"] as? String,
                     let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
                     let image = UIImage(data: photoDecoded)
+//                    let returnDate = dictionary["returnDate"] as? String,
 //                    let neededDate = Job.UserJob.stringToDate(string: neededBy) as? Date,
 //                    let needDouble = neededDate.timeIntervalSince1970 as? Double
                 {
@@ -411,12 +411,15 @@ struct TimeOffReq: Encodable  {
     let employeeID: Int
     let department: String
     let shiftHours: String
-    let start: Double
-    let end: Double
-    let signedDate: Double
+    
+    let start: String
+    
+    let end: String
+    
+    let signedDate: String
     
     static func parseJson(dictionary: NSDictionary) -> TimeOffReq {
-        var timeOffReq = TimeOffReq(username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0)
+        var timeOffReq = TimeOffReq(username: "", employeeID: 0, department: "", shiftHours: "", start: "", end: "", signedDate: "")
         
         guard let username = dictionary["username"] as? String,
             let employeeID = dictionary["employeeID"] as? String,
@@ -424,28 +427,28 @@ struct TimeOffReq: Encodable  {
             let shiftHours = dictionary["shiftHours"] as? String,
             let start = dictionary["start"] as? String,
             let end = dictionary["end"] as? String,
-            let signed = dictionary["signedDate"] as? String else {
+            let signedDate = dictionary["signedDate"] as? String else {
                 print("unable to parse timeOffReq"); return timeOffReq
         }
 //        print(start, end, signed)
         
-        let adjStr = start.components(separatedBy: "T")
-        let adjEnd = end.components(separatedBy: "T")
-        let adjSign = signed.components(separatedBy: "T")
-        print(adjStr, adjEnd, adjSign)
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd" // 'T'HH:mm:ssZZZZZ
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        
-        guard let startDt = dateFormatter.date(from: adjStr[0]),
-            let endDt = dateFormatter.date(from: adjEnd[0]),
-            let signedDt = dateFormatter.date(from: adjSign[0]) else {
-                print("unable to set DTs from strings"); return timeOffReq
-        }
+//        let adjStr = start.components(separatedBy: "T")
+//        let adjEnd = end.components(separatedBy: "T")
+//        let adjSign = signed.components(separatedBy: "T")
+//        print(adjStr, adjEnd, adjSign)
+//
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "yyyy-MM-dd" // 'T'HH:mm:ssZZZZZ
+//        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+//
+//        guard let startDt = dateFormatter.date(from: adjStr[0]),
+//            let endDt = dateFormatter.date(from: adjEnd[0]),
+//            let signedDt = dateFormatter.date(from: adjSign[0]) else {
+//                print("unable to set DTs from strings"); return timeOffReq
+//        }
         
         return TimeOffReq(
-            username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours, start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970, signedDate: signedDt.timeIntervalSince1970
+            username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours, start: start, end: end, signedDate: signedDate
         )
     }
 }

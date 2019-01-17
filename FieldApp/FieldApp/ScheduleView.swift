@@ -229,13 +229,22 @@ extension ScheduleView {
         }
     }
     
+//    2019-01-16T16:52:04.000Z
+    
     func checkForTOR(date: Date, cb: (TimeOffReq) -> () ) {
+        
         if timeOreqs.count > 0 {
+            let dtMDY = getMonthDayYear(date: date)
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
             
             for day in timeOreqs {
-                let st = Date(timeIntervalSince1970: day.start)
-                let end = Date(timeIntervalSince1970: day.end)
-                let dtMDY = getMonthDayYear(date: date)
+                guard let strArray = day.start.components(separatedBy: ".") as? [String],
+                    let endArray = day.end.components(separatedBy: ".") as? [String],
+                    let st = formatter.date(from: strArray[0]),
+                    let end = formatter.date(from: endArray[0]) else {
+                        print("Unable to convert start & end date"); return
+                }
                 let stMDY = getMonthDayYear(date: st)
                 
                 if st < date && date < end {
