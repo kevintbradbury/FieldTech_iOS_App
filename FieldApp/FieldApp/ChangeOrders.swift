@@ -114,13 +114,10 @@ class ChangeOrdersView: UIViewController {
     }
     
     func getTextVals(callback: @escaping (FieldActions.ChangeOrders) -> ()) {
-        let formatter = DateFormatter()
-        formatter.dateFormat  = "yyyy-MM-dd'T'HH:mm:ssZ"
-        
         guard let employee = employeeName,
             let po = todaysJobPO,
             let location = locationText.text,
-            let date: String = formatter.string(from: datePickerFields.date),
+            let secsFrom1970: Double = datePickerFields.date.timeIntervalSince1970,
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
                 return
@@ -134,7 +131,7 @@ class ChangeOrdersView: UIViewController {
             material: "",
             colorSpec: "",
             quantity: 0.0,
-            neededBy: date,
+            neededBy: secsFrom1970,
             description: descrip
         )
         if formTypeVal == change_order || formTypeVal == tool_rental {

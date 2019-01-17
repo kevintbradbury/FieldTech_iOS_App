@@ -179,6 +179,7 @@ class Job: Codable {
                 if let addressAsString = dictionary["jobAddress"] as? String,
                     let cityAsString = dictionary["jobCity"] as? String,
                     let stateAsString = dictionary["jobState"] as? String {
+//                    print("job address from server: \(addressAsString)")
                     
                     address = addressAsString
                     city = cityAsString
@@ -199,9 +200,7 @@ class Job: Codable {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
             dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
             
-            guard let dateString = dateFormatter.date(from: string) else {
-                fatalError("failed to cast string to type: date")
-            }
+            guard let dateString = dateFormatter.date(from: string) else { fatalError("failed to cast string to type: date") }
             
             return dateString
         }
@@ -268,9 +267,7 @@ class FieldActions {
     var material: String?
     var colorSpec: String?
     var quantity: Double?
-    
-    var neededBy: String? // Seconds from 1970
-    
+    var neededBy: Double? // Seconds from 1970
     var description: String?
     let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
     let maxDistance = 5  // Miles?
@@ -283,9 +280,7 @@ class FieldActions {
         var poNumber: String?
         var requestedBy: String?
         var location: String?
-        
-        var neededBy: String? // Seconds from 1970
-        
+        var neededBy: Double? // Seconds from 1970
         var description: String?
         var suppliesCollection: [MaterialQuantityColor]
         
@@ -305,9 +300,7 @@ class FieldActions {
         var brand: String?
         var duration: Int? // Number of Days
         var quantity: Double?
-        
-        var neededBy: String? // Seconds from 1970
-        
+        var neededBy: Double? // Seconds from 1970
         var location: String?
         
         let reminderPeriods = [24, 48, 72, 96]
@@ -322,9 +315,7 @@ class FieldActions {
         var material: String?
         var colorSpec: String?
         var quantity: Double?
-        
-        var neededBy: String? // Seconds from 1970
-        
+        var neededBy: Double? // Seconds from 1970
         var description: String?
     }
     
@@ -333,9 +324,7 @@ class FieldActions {
         var username: String
         var department: String
         var licensePlate: String
-        
-        var date: String
-        
+        var date: Double
         var outsideInspection: OutsideInspection
         var startupInspection: StartupInspection
         var issuesReport: String
@@ -384,16 +373,15 @@ class FieldActions {
                     let neededBy = dictionary["neededBy"] as? String,
                     let quantity = dictionary["quantity"] as? Int,
                     let location = dictionary["location"] as? String,
+                    let returnDate = dictionary["returnDate"] as? String,
                     let photoStr = dictionary["photo"] as? String,
                     let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
-                    let image = UIImage(data: photoDecoded)
-//                    let returnDate = dictionary["returnDate"] as? String,
-//                    let neededDate = Job.UserJob.stringToDate(string: neededBy) as? Date,
-//                    let needDouble = neededDate.timeIntervalSince1970 as? Double
-                {
+                    let image = UIImage(data: photoDecoded),
+                    let neededDate = Job.UserJob.stringToDate(string: neededBy) as? Date,
+                    let needDouble = neededDate.timeIntervalSince1970 as? Double {
                     
                     let toolToAdd = FieldActions.ToolRental(
-                        formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: neededBy, location: location
+                        formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: needDouble, location: location
                     )
                     boxOtools.append(toolToAdd)
                     toolImages.append(image)
@@ -411,15 +399,12 @@ struct TimeOffReq: Encodable  {
     let employeeID: Int
     let department: String
     let shiftHours: String
-    
-    let start: String
-    
-    let end: String
-    
-    let signedDate: String
+    let start: Double
+    let end: Double
+    let signedDate: Double
     
     static func parseJson(dictionary: NSDictionary) -> TimeOffReq {
-        var timeOffReq = TimeOffReq(username: "", employeeID: 0, department: "", shiftHours: "", start: "", end: "", signedDate: "")
+        var timeOffReq = TimeOffReq(username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0)
         
         guard let username = dictionary["username"] as? String,
             let employeeID = dictionary["employeeID"] as? String,
@@ -427,28 +412,28 @@ struct TimeOffReq: Encodable  {
             let shiftHours = dictionary["shiftHours"] as? String,
             let start = dictionary["start"] as? String,
             let end = dictionary["end"] as? String,
-            let signedDate = dictionary["signedDate"] as? String else {
+            let signed = dictionary["signedDate"] as? String else {
                 print("unable to parse timeOffReq"); return timeOffReq
         }
-//        print(start, end, signed)
+        //        print(start, end, signed)
         
-//        let adjStr = start.components(separatedBy: "T")
-//        let adjEnd = end.components(separatedBy: "T")
-//        let adjSign = signed.components(separatedBy: "T")
-//        print(adjStr, adjEnd, adjSign)
-//
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "yyyy-MM-dd" // 'T'HH:mm:ssZZZZZ
-//        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-//
-//        guard let startDt = dateFormatter.date(from: adjStr[0]),
-//            let endDt = dateFormatter.date(from: adjEnd[0]),
-//            let signedDt = dateFormatter.date(from: adjSign[0]) else {
-//                print("unable to set DTs from strings"); return timeOffReq
-//        }
+        let adjStr = start.components(separatedBy: "T")
+        let adjEnd = end.components(separatedBy: "T")
+        let adjSign = signed.components(separatedBy: "T")
+        print(adjStr, adjEnd, adjSign)
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd" // 'T'HH:mm:ssZZZZZ
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        
+        guard let startDt = dateFormatter.date(from: adjStr[0]),
+            let endDt = dateFormatter.date(from: adjEnd[0]),
+            let signedDt = dateFormatter.date(from: adjSign[0]) else {
+                print("unable to set DTs from strings"); return timeOffReq
+        }
         
         return TimeOffReq(
-            username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours, start: start, end: end, signedDate: signedDate
+            username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours, start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970, signedDate: signedDt.timeIntervalSince1970
         )
     }
 }

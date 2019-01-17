@@ -25,14 +25,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FieldApp/ScheduleView.swift"
-            timestampString = "569353530.858042"
+            filePath = "FieldApp/DataStructure.swift"
+            timestampString = "569459276.3422689"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "137"
-            endingLineNumber = "137"
-            landmarkName = "getCalendarInfo()"
-            landmarkType = "7">
+            startingLineNumber = "457"
+            endingLineNumber = "457"
+            landmarkName = "GeoKey"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

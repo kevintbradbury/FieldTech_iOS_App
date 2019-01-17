@@ -136,6 +136,8 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
                 self.timeOreqs.sort { ($0.start < $1.start) }
                 
                 self.stopLoading()
+
+                print("jobs count: \(self.jobsArray.count)")
             }
         }
     }
@@ -229,8 +231,6 @@ extension ScheduleView {
         }
     }
     
-//    2019-01-16T16:52:04.000Z
-    
     func checkForTOR(date: Date, cb: (TimeOffReq) -> () ) {
         
         if timeOreqs.count > 0 {
@@ -239,12 +239,8 @@ extension ScheduleView {
             formatter.locale = Locale(identifier: "en_US_POSIX")
             
             for day in timeOreqs {
-                guard let strArray = day.start.components(separatedBy: ".") as? [String],
-                    let endArray = day.end.components(separatedBy: ".") as? [String],
-                    let st = formatter.date(from: strArray[0]),
-                    let end = formatter.date(from: endArray[0]) else {
-                        print("Unable to convert start & end date"); return
-                }
+                let st = Date(timeIntervalSince1970: day.start)
+                let end = Date(timeIntervalSince1970: day.end)
                 let stMDY = getMonthDayYear(date: st)
                 
                 if st < date && date < end {
@@ -320,6 +316,7 @@ extension ScheduleView {
         }
         
         checkJobsDates(date: cellState.date) { matchingJbs, jobDates, colorInts in
+            print("matchingJobs.count : \(matchingJbs.count)")
             
             if matchingJbs.count > 0 && jobDates.count > 0 {
                 let colorChoices = [UIColor.cyan, UIColor.magenta, UIColor.yellow, UIColor.lightGray]
@@ -342,13 +339,14 @@ extension ScheduleView {
         
         checkForTOR(date: cellState.date) { tmOffReq in
             cell.backgroundColor = UIColor.white
+            cell.dateLabel.textColor = UIColor.black
         }
         
         return cell
     }
     
     // Effectively handles no more than 4 jobs in single calendar cell
-    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int) -> UILabel {
+    func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int) -> UILabel {  // UIView
         
         let w = cell.frame.width - 1
         let h = CGFloat(cell.frame.height / 8)
@@ -388,6 +386,10 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         if selectedJobs.count > 0 {
             let jb = selectedJobs[indexPath.row]
             let dt = selectedDates[indexPath.row]
+            let a = selectedJobs[indexPath.row].jobName
+            let b = selectedJobs[indexPath.row].poNumber
+            let bb = getTime(date: dt.installDate)
+            let cc = getMonthDayYear(date: dt.installDate)
             let jobName = jb.jobName
             let po = jb.poNumber
             let startTm = getTime(date: dt.installDate)
@@ -403,10 +405,10 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         let matchingJob = selectedJobs[indexPath.row]
         
         let alert = UIAlertController(title: "Directions", message: "Get directions to PO: \(matchingJob.poNumber) \n\(matchingJob.jobName)?", preferredStyle: .actionSheet)
-        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         let yes = UIAlertAction(title: "Yes", style: .default) { (action) in
             self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
         }
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         
         alert.addAction(yes)
         alert.addAction(cancel)

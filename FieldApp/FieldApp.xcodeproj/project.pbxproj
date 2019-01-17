@@ -177,7 +177,6 @@
 				06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */,
 				0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */,
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
-				0623249A21DD81C1000025E3 /* TimeOffRequestView.swift */,
 				06D0C19721ADF26400330BFA /* JobCell.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
@@ -186,13 +185,14 @@
 				066223362150322800B9C8E2 /* StoresMapView.swift */,
 				065E63D621E4266D0063A572 /* SuppliesRequestView.swift */,
 				065E63D821E426800063A572 /* SuppliesRequestCell.swift */,
+				0623249A21DD81C1000025E3 /* TimeOffRequestView.swift */,
 				062A32D4215C09A0001B6703 /* ToolReturnView.swift */,
 				062A32D7215C0C5C001B6703 /* ToolRentalReturnCell.swift */,
 				0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */,
-				065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */,
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
+				065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";

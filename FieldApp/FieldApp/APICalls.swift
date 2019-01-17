@@ -28,12 +28,13 @@ class APICalls {
             
             let task = session.dataTask(with: request) { data, response, error in
                 if error != nil {
-                    print("failed to fetch JSON"); return
+                    print("failed to fetch JSON")
+                    return
                 }
                 guard let verifiedData = data else {
-                    print("could not verify data from dataTask"); return
+                    print("could not verify data from dataTask")
+                    return
                 }
-                
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary,
                     let jobs = json["employeeJobs"] as? NSArray,
                     let tORS = json["timeOffReqs"] as? NSArray else {
@@ -330,8 +331,6 @@ extension APICalls {
     
     func parseJobs(from array: NSArray) -> [Job.UserJob] {
         var jobsArray: [Job.UserJob] = []
-        
-//        guard let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSArray else {return jobsArray}
         
         for jobJson in array {
             if let jobDictionary = jobJson as? [String : Any]  {

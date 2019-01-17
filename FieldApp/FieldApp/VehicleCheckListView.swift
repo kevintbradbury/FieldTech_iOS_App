@@ -68,9 +68,6 @@ class VehicleCheckListView: UITableViewController {
     
     func getForm() -> FieldActions.VehicleChecklist {
         var vehicleForm: FieldActions.VehicleChecklist?
-        let dtFormatter = DateFormatter()
-        dtFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        let dt = dtFormatter.string(from: Date())
         
         if let name = nameField.text as? String,
             let department = departmentField.text as? String,
@@ -97,12 +94,12 @@ class VehicleCheckListView: UITableViewController {
             
             let outsideInspect = FieldActions.VehicleChecklist.OutsideInspection(windows: extWindows, tiresNnuts: extTire, engine: extEngine, litesNsignals: extSignals, mirrors: extMirr, windshieldNwipres: extWindshd, dents: extDents, exteriorComments: extCommts)
             let startupInspect = FieldActions.VehicleChecklist.StartupInspection(engine: startEngine, gauges: startGauge, wipers: startWiper, horn: startHorn, brakes: startBrake, seatbelt: startSeatbt, insuranceNregist: startInsurance, firstAidKit: startFirstAid, clean: startClean, startupComments: startCommts)
-            vehicleForm = FieldActions.VehicleChecklist(username: name, department: department, licensePlate: licenseNumber, date: dt, outsideInspection: outsideInspect, startupInspection: startupInspect, issuesReport: issuesCmmts)
+            vehicleForm = FieldActions.VehicleChecklist(username: name, department: department, licensePlate: licenseNumber, date: currentDate.timeIntervalSince1970, outsideInspection: outsideInspect, startupInspection: startupInspect, issuesReport: issuesCmmts)
             
         }
         guard let uwrappedForm =  vehicleForm as? FieldActions.VehicleChecklist else {
             return FieldActions.VehicleChecklist(
-                username: "",department: "",licensePlate: "",date: dt,
+                username: "",department: "",licensePlate: "",date: Date().timeIntervalSince1970,
                 outsideInspection: FieldActions.VehicleChecklist.OutsideInspection(windows: false,tiresNnuts: false,engine: false,litesNsignals: false,mirrors: false,windshieldNwipres: false,dents: false,exteriorComments: ""),
                 startupInspection: FieldActions.VehicleChecklist.StartupInspection(engine: false, gauges: false, wipers: false, horn: false, brakes: false, seatbelt: false, insuranceNregist: false, firstAidKit: false, clean: false, startupComments: ""),
                 issuesReport: "")
