@@ -182,13 +182,13 @@ class APICalls {
                     guard let verifiedData = data as? Data else {
                         print("couldn't verify data from server"); return
                     }
-                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
-                    guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                        print("json serialization failed");     return
-                    };
-                    guard let dictionary = json["addressInfo"] as? NSDictionary else { return }
-                    guard let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
-                        print("addressInfo failed to parse"); return
+                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
+                        print("json serialization failed"); return
+                    }
+                    guard let user = UserData.UserInfo.fromJSON(dictionary: json),
+                        let dictionary = json["addressInfo"] as? NSDictionary,
+                        let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                            print("failed to parse UserData"); return
                     }
                     callback(user, addressInfo)
                 }
@@ -240,12 +240,23 @@ class APICalls {
                         }
                         upload.validate()
                         upload.responseString { response in
+                            
                             guard response.result.isSuccess else {
-                                print("error while uploading file: \(response.result.error)");
-                                APICalls.failedUpload(msg: "\(uploadType) failed to upload.")
+                                guard let err = response.result.error as? String else { return }
+                                print("error while uploading file: \(err)");
+                                APICalls.failedUpload(msg: "\(uploadType) failed to upload. Error: \(err)")
                                 callback(false); return
                             }
-                            APICalls.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
+                            guard let msg = response.result.value,
+                                let data: Data = msg.data(using: String.Encoding.utf16, allowLossyConversion: true),
+                                let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
+                                    APICalls.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
+                                    return
+                            }
+                            
+                            self.handleResponseMsgOrErr(json: json, uploadType: uploadType) { success in
+                                callback(success)
+                            }
                         }
                         
                     case .failure(let encodingError):
@@ -482,6 +493,17 @@ extension APICalls {
         UNUserNotificationCenter.current().add(completeNotif, withCompletionHandler: { (error) in
             if error != nil { return }
         })
+    }
+    
+    func handleResponseMsgOrErr(json: NSDictionary, uploadType: String, callback: (Bool) -> () ) {
+        if let err = json["error"] as? String {
+            print(err)
+            APICalls.failedUpload(msg: "An Error occured with \(uploadType), error: \(err)"); callback(true)
+        } else if let msg = json["msg"] as? String {
+            APICalls.successUpload(msg: "\(uploadType) uploaded successfully. \(msg)"); callback(true)
+        } else {
+            APICalls.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
+        }
     }
     
 }
