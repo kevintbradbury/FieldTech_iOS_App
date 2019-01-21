@@ -101,6 +101,11 @@ extension UIViewController {
         mapItem.openInMaps(launchOptions: options)
     }
     
+    func handleResponseType(responseType: [String: String]) {
+        if responseType["success"] == "true" { return }
+        else if let msg = responseType["msg"] { self.showAlert(withTitle: "Upload Status", message: msg) }
+        else if let error = responseType["error"] { self.showAlert(withTitle: "Error", message: error) }
+    }
 }
 
 class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {

@@ -469,13 +469,9 @@ extension EmployeeIDEntry {
         }
     }
     
-    func checkSuccess(success: Bool) {
-        if success == true {
-            completedProgress()
-        } else {
-            completedProgress()
-            showAlert(withTitle: "Upload Failed", message: "Photos failed to upload to Server.")
-        }
+    func checkSuccess(responseType: [String: String]) {
+        completedProgress()
+        self.handleResponseType(responseType: responseType)
     }
     
     func checkAppDelANDnotif() {
@@ -525,12 +521,12 @@ extension EmployeeIDEntry: ImagePickerDelegate {
                 inProgress()
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
-                    APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
-                        self.checkSuccess(success: success)
+                    APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { responseType in
+                        self.checkSuccess(responseType: responseType)
                     }
                 } else {
-                    APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
-                        self.checkSuccess(success: success)
+                    APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { responseType in
+                        self.checkSuccess(responseType: responseType)
                     }
                 };  dismiss(animated: true, completion: nil)
             } else {

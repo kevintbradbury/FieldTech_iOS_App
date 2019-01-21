@@ -392,7 +392,51 @@ class FieldActions {
         return (boxOtools, toolImages)
     }
     
+    static func getDateFromISOString(isoDate: String) -> Date {
+        let adjStr = isoDate.components(separatedBy: "T")
+        let dateFormatter = DateFormatter()
+        
+        dateFormatter.dateFormat = "yyyy-MM-dd" // 'T'HH:mm:ssZZZZZ
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        
+        guard let actualDate = dateFormatter.date(from: adjStr[0]) else {
+                print("unable to change ISOstring to Date"); return Date()
+        }
+        return actualDate
+    }
 }
+
+struct Holiday: Decodable {
+    let date: String
+    let start: Date
+    let end: Date
+    let name: String
+    let type: String
+    
+    static func parseJson(dictionary: NSDictionary) -> Holiday {
+        let hldy = Holiday(date: "", start: Date(), end: Date(), name: "", type: "")
+        
+        guard let date = dictionary["date"] as? String,
+        let start = dictionary["start"] as? String,
+        let end = dictionary["end"] as? String,
+        let name = dictionary["name"] as? String,
+        let type = dictionary["type"] as? String else {
+            print("unable to parse Holiday dictionary: \n\(dictionary)")
+            return hldy
+        }
+        
+        return Holiday(
+            date: date, start: FieldActions.getDateFromISOString(isoDate: start), end: FieldActions.getDateFromISOString(isoDate: end), name: name, type: type
+        )
+    }
+}
+
+//  { date: '2016-12-26 00:00:00',
+//    start: Mon Dec 26 2016 00:00:00 GMT-0600 (CST),
+//    end: Tue Dec 27 2016 00:00:00 GMT-0600 (CST),
+//    substitute: true,
+//    name: 'Christmas Day (substitute day)',
+//    type: 'public' }
 
 struct TimeOffReq: Encodable  {
     let username: String
@@ -415,28 +459,21 @@ struct TimeOffReq: Encodable  {
             let signed = dictionary["signedDate"] as? String else {
                 print("unable to parse timeOffReq"); return timeOffReq
         }
-        //        print(start, end, signed)
         
-        let adjStr = start.components(separatedBy: "T")
-        let adjEnd = end.components(separatedBy: "T")
-        let adjSign = signed.components(separatedBy: "T")
-        print(adjStr, adjEnd, adjSign)
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd" // 'T'HH:mm:ssZZZZZ
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        
-        guard let startDt = dateFormatter.date(from: adjStr[0]),
-            let endDt = dateFormatter.date(from: adjEnd[0]),
-            let signedDt = dateFormatter.date(from: adjSign[0]) else {
+        guard let startDt = FieldActions.getDateFromISOString(isoDate: start) as? Date,
+            let endDt = FieldActions.getDateFromISOString(isoDate: end) as? Date,
+            let signedDt = FieldActions.getDateFromISOString(isoDate: signed) as? Date else {
                 print("unable to set DTs from strings"); return timeOffReq
         }
         
         return TimeOffReq(
-            username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours, start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970, signedDate: signedDt.timeIntervalSince1970
+            username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours,
+            start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970, signedDate: signedDt.timeIntervalSince1970
         )
     }
 }
+
+
 
 struct GeoKey {
     static let latitude = "latitude"

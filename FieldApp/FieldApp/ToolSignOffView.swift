@@ -86,8 +86,9 @@ extension ToolSignOffView {
         let route = "toolReturn/\(employeeID)"
         let headers = ["formType", "Tool Return"]
         
-        APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { success in
+        APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
             self.activityIndicator.stopAnimating()
+            self.handleResponseType(responseType: responseType)
         }
     }
 }

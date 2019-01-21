@@ -26,13 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/DataStructure.swift"
-            timestampString = "569469169.729473"
+            timestampString = "569807269.785477"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "457"
-            endingLineNumber = "457"
-            landmarkName = "EventType"
-            landmarkType = "13">
+            startingLineNumber = "494"
+            endingLineNumber = "494">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -41,13 +39,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "569469169.729578"
+            filePath = "FieldApp/ScheduleView.swift"
+            timestampString = "569807269.7855361"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "243"
-            endingLineNumber = "243"
-            landmarkName = "alamoUpload(route:headers:formBody:images:uploadType:callback:)"
+            startingLineNumber = "289"
+            endingLineNumber = "289"
+            landmarkName = "setHldyLabel(cell:holidy:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

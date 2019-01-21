@@ -29,6 +29,7 @@ class ScheduleView: UIViewController {
     let formatter = DateFormatter()
     let main = OperationQueue.main
     var employee: UserData.UserInfo?
+    var holidays: [Holiday] = []
     var timeOreqs: [TimeOffReq] = []
     var jobsArray: [Job.UserJob] = []
     var selectedJobs: [Job.UserJob] = []
@@ -129,12 +130,11 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         if let unwrappedEmployee = self.employee {
             let idToString = String(unwrappedEmployee.employeeID)
             
-            APICalls().fetchJobInfo(employeeID: idToString) { (jobs, timeOffReqs) in
+            APICalls().fetchJobInfo(employeeID: idToString) { (jobs, timeOffReqs, holidayss) in
                 self.jobsArray = jobs
                 self.jobsArray.sort { ($0.jobName < $1.jobName) }
                 self.timeOreqs = timeOffReqs
-                self.timeOreqs.sort { ($0.start < $1.start) }
-                
+                self.holidays = holidayss
                 self.stopLoading()
 
                 print("jobs count: \(self.jobsArray.count)")
@@ -252,6 +252,62 @@ extension ScheduleView {
         }
     }
     
+    func checkForHoliday(date: Date, cell: CalendarCell, cb: (Holiday) -> () ) {
+        for subVw in cell.subviews {
+            if subVw.accessibilityIdentifier == "holidayLabel" {
+                subVw.removeFromSuperview()
+            }
+        }
+        
+        if holidays.count > 0 {
+            let dtMDY = getMonthDayYear(date: date)
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            
+            for day in holidays {
+                let st = day.start
+                let end = day.end
+                let stMDY = getMonthDayYear(date: st)
+                
+                if st < date && date < end {
+                    cb(day)
+                } else if dtMDY == stMDY {
+                    cb(day)
+                }
+            }
+        }
+    }
+    
+    func setHldyLabel(cell: CalendarCell, holidy: Holiday) {
+        
+        let splitName = holidy.name.components(separatedBy: " ")
+        var holidayName = ""
+        var fontSize = 8
+        var numberOfLines = (splitName.count + 1)
+        
+        for char in splitName {
+            
+            if char.count > 7 {
+                fontSize -= 1
+                holidayName += "\(char)\n"
+            } else {
+                holidayName += "\(char)\n"
+            }
+        }
+        
+        let frame = CGRect(x: 0, y: 0, width: cell.frame.width, height: cell.frame.height)
+        let label = UILabel(frame: frame)
+        label.numberOfLines = numberOfLines
+        label.backgroundColor = UIColor.blue
+        label.textColor = UIColor.white
+        label.text = holidayName
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: CGFloat(fontSize))
+        label.accessibilityIdentifier = "holidayLabel"
+        
+        self.main.addOperation { cell.addSubview(label) }
+    }
+    
     func checkForJob(name: String, callback: (Job.UserJob) -> ()) {
         for job in jobsArray {
             if name == job.jobName {
@@ -340,6 +396,10 @@ extension ScheduleView {
         checkForTOR(date: cellState.date) { tmOffReq in
             cell.backgroundColor = UIColor.white
             cell.dateLabel.textColor = UIColor.black
+        }
+        
+        checkForHoliday(date: cellState.date, cell: cell) { holidy in
+            self.setHldyLabel(cell: cell, holidy: holidy)
         }
         
         return cell

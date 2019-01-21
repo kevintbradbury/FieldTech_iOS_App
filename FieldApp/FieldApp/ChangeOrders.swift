@@ -310,12 +310,9 @@ extension ChangeOrdersView: ImagePickerDelegate {
             data = APICalls().generateSRFstring(srForm: srForm)
         }
         
-        APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { success in
+        APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
             self.activityIndicator.stopAnimating()
-            
-            if success {
-                APICalls.successUpload(msg: "\(self.formTypeVal) was uploaded successfully.")
-            }
+            self.handleResponseType(responseType: responseType)
         }
     }
     

@@ -20,7 +20,7 @@ import Firebase
 class APICalls {
     static let host = "https://mb-server-app-kbradbury.c9users.io/"
     
-    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob], [TimeOffReq]) -> ()) {
+    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob], [TimeOffReq], [Holiday]) -> ()) {
         let route = "employee/" + employeeID + "/jobs"
         
         setupRequest(route: route, method: "GET") { request in
@@ -37,14 +37,16 @@ class APICalls {
                 }
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary,
                     let jobs = json["employeeJobs"] as? NSArray,
-                    let tORS = json["timeOffReqs"] as? NSArray else {
+                    let tORS = json["timeOffReqs"] as? NSArray,
+                    let hldys = json["holidays"] as? NSArray else {
                         print("couldn't parse json objects as an Array"); return
                 }
                 
                 let employeeJobs: [Job.UserJob] = self.parseJobs(from: jobs)
                 let timeOffReqs: [TimeOffReq] = self.parseTORS(from: tORS)
+                let holidays: [Holiday] = self.parseHolidays(from: hldys)
                 
-                callback(employeeJobs, timeOffReqs)
+                callback(employeeJobs, timeOffReqs, holidays)
             }
             task.resume()
         }
@@ -196,16 +198,16 @@ class APICalls {
         }
     }
     
-    func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping (Bool) -> () ) {
+    func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping ([String : String]) -> () ) {
         let route = "job/\(jobNumber)/upload"
         let headers = ["employee", employee]
         
-        alamoUpload(route: route, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { success in
-            callback(success)
+        alamoUpload(route: route, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { responseType in
+            callback(responseType)
         }
     }
     
-    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping (Bool) -> ()) {
+    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping ([String: String]) -> ()) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         let url = "\(APICalls.host)\(route)"
         var headers: HTTPHeaders = [
@@ -245,24 +247,24 @@ class APICalls {
                                 guard let err = response.result.error as? String else { return }
                                 print("error while uploading file: \(err)");
                                 APICalls.failedUpload(msg: "\(uploadType) failed to upload. Error: \(err)")
-                                callback(false); return
+                                callback(["error" : err]); return
                             }
                             guard let msg = response.result.value,
                                 let data: Data = msg.data(using: String.Encoding.utf16, allowLossyConversion: true),
                                 let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
-                                    APICalls.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
-                                    return
+                                    APICalls.successUpload(msg: "\(uploadType) uploaded successfully.");
+                                    callback(["success": "true"]); return
                             }
                             
-                            self.handleResponseMsgOrErr(json: json, uploadType: uploadType) { success in
-                                callback(success)
+                            self.handleResponseMsgOrErr(json: json, uploadType: uploadType) { responseType in
+                                callback(responseType)
                             }
                         }
                         
                     case .failure(let encodingError):
                         print(encodingError);
                         APICalls.failedUpload(msg: "\(uploadType) failed to upload.")
-                        callback(false)
+                        callback(["error": encodingError.localizedDescription])
                     }
             }
             );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -370,6 +372,23 @@ extension APICalls {
         }
         
         return timeOffReqs
+    }
+    
+    func parseHolidays(from array: NSArray) -> [Holiday] {
+        var holidays: [Holiday] = []
+        
+        for oneHoliday in array {
+            
+            if let holidayDictionary = oneHoliday as? NSDictionary {
+                if let hldy = Holiday.parseJson(dictionary: holidayDictionary) as? Holiday {
+                    holidays.append(hldy)
+                }
+            } else {
+                print("couldn't cast index json to type Dictionary"); return holidays
+            }
+        }
+        
+        return holidays
     }
     
     func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {
@@ -495,14 +514,20 @@ extension APICalls {
         })
     }
     
-    func handleResponseMsgOrErr(json: NSDictionary, uploadType: String, callback: (Bool) -> () ) {
+    func handleResponseMsgOrErr(json: NSDictionary, uploadType: String, callback: ([String: String]) -> () ) {
+        let state = UIApplication.shared.applicationState
+        
         if let err = json["error"] as? String {
             print(err)
-            APICalls.failedUpload(msg: "An Error occured with \(uploadType), error: \(err)"); callback(true)
+            
+            APICalls.failedUpload(msg: "An Error occured with \(uploadType), error: \(err)");
+            callback(["error": err])
         } else if let msg = json["msg"] as? String {
-            APICalls.successUpload(msg: "\(uploadType) uploaded successfully. \(msg)"); callback(true)
+            APICalls.successUpload(msg: "\(uploadType) uploaded successfully. \(msg)");
+            callback(["msg": msg])
         } else {
-            APICalls.successUpload(msg: "\(uploadType) uploaded successfully."); callback(true)
+            APICalls.successUpload(msg: "\(uploadType) uploaded successfully.");
+            callback(["success": "true"])
         }
     }
     

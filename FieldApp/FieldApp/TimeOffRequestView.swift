@@ -80,8 +80,9 @@ class TimeOffRequestView: UIViewController {
         do { data = try jsonEncoder.encode(tmOffForm) }
         catch { print(error.localizedDescription) };
         
-        APICalls().alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { success in
+        APICalls().alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { responseType in
             self.activityIndicator.stopAnimating()
+            self.handleResponseType(responseType: responseType)
         }
     }
     

@@ -302,8 +302,8 @@ extension HomeView {
 
 extension HomeView {
     
-    func failedUpload() {
-        let msg = "Photo(s) failed to upload to server."
+    func failedUpload(error: String) {
+        let msg = "Photo(s) failed to upload to server with error: \n\(error)"
         
         main.addOperation {
             if (UIApplication.shared.applicationState == .active && self.isViewLoaded && (self.view.window != nil)) {
@@ -440,9 +440,10 @@ extension HomeView {
         }
     }
     
-    func checkSuccess(success: Bool) {
-        if success == true { completedProgress() }
-        else { failedUpload() }
+    func checkSuccess(responseType: [String: String]) {
+        if responseType["success"] == "true" { completedProgress() }
+        else if let msg = responseType["msg"] { showAlert(withTitle: "Error", message: msg) }
+        else if let error = responseType["error"] { failedUpload(error: error) }
     }
     
     func showRentOrReturnWin() {
@@ -535,11 +536,11 @@ extension HomeView: ImagePickerDelegate {
                 let info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA")
                 let formBody = APICalls().generateAddressData(addressInfo: info)
                 
-                APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { success in
+                APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { responseType in
                     self.saveLocalPhoto(image: images[0])
                     self.loadProfilePic()
                     self.hideShowProfile()
-                    self.checkSuccess(success: success)
+                    self.checkSuccess(responseType: responseType)
                 }
                 
             }
@@ -549,12 +550,12 @@ extension HomeView: ImagePickerDelegate {
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                     let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: po, employee: emply) { success in
-                        self.checkSuccess(success: success)
+                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: po, employee: emply) { responseType in
+                        self.checkSuccess(responseType: responseType)
                     }
                 } else {
-                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: "---", employee: "---") { success in
-                        self.checkSuccess(success: success)
+                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: "---", employee: "---") { responseType in
+                        self.checkSuccess(responseType: responseType)
                     }
                 }
             }
