@@ -137,3 +137,15 @@ extension SuppliesRequestView {
     }
     
 }
+
+
+// -------
+
+
+class SuppliesRequestCell: UITableViewCell {
+    
+    @IBOutlet var materialFIeld: UITextField!
+    @IBOutlet var quantityField: UITextField!
+    @IBOutlet var colorField: UITextField!
+    
+}

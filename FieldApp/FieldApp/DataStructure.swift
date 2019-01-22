@@ -446,9 +446,12 @@ struct TimeOffReq: Encodable  {
     let start: Double
     let end: Double
     let signedDate: Double
+    let approved: Bool?
     
     static func parseJson(dictionary: NSDictionary) -> TimeOffReq {
-        var timeOffReq = TimeOffReq(username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0)
+        var timeOffReq = TimeOffReq(
+            username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0, approved: false
+        )
         
         guard let username = dictionary["username"] as? String,
             let employeeID = dictionary["employeeID"] as? String,
@@ -456,7 +459,8 @@ struct TimeOffReq: Encodable  {
             let shiftHours = dictionary["shiftHours"] as? String,
             let start = dictionary["start"] as? String,
             let end = dictionary["end"] as? String,
-            let signed = dictionary["signedDate"] as? String else {
+            let signed = dictionary["signedDate"] as? String,
+            let approved = dictionary["approved"] as? Bool else {
                 print("unable to parse timeOffReq"); return timeOffReq
         }
         
@@ -468,7 +472,7 @@ struct TimeOffReq: Encodable  {
         
         return TimeOffReq(
             username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours,
-            start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970, signedDate: signedDt.timeIntervalSince1970
+            start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970, signedDate: signedDt.timeIntervalSince1970, approved: approved
         )
     }
 }

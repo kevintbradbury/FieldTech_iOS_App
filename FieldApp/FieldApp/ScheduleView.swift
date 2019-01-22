@@ -239,6 +239,8 @@ extension ScheduleView {
             formatter.locale = Locale(identifier: "en_US_POSIX")
             
             for day in timeOreqs {
+                if day.approved != true { continue }
+                
                 let st = Date(timeIntervalSince1970: day.start)
                 let end = Date(timeIntervalSince1970: day.end)
                 let stMDY = getMonthDayYear(date: st)
@@ -424,13 +426,17 @@ extension ScheduleView {
         return label
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "torList" {
+            guard let vc = segue.destination as? TORLogView else { return }
+            vc.timeOffReqs = timeOreqs
+        }
+    }
 }
 
 extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
+    func numberOfSections(in tableView: UITableView) -> Int { return 1 }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var z = 0
@@ -476,4 +482,23 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         self.main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
 
+}
+
+
+// ----------------
+
+
+class CalendarCell: JTAppleCell {
+    
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var highlightView: UIView!
+    @IBOutlet weak var jobName: UILabel!
+    
+}
+
+
+class JobCell: UITableViewCell {
+    
+    @IBOutlet var jobInfoLabel: UILabel!
+    
 }

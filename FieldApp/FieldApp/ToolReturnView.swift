@@ -126,4 +126,11 @@ extension ToolReturnView {
 }
 
 
+// -------------
 
+
+class ToolRentalReturnCell: UITableViewCell {
+    @IBOutlet var toolImg: UIImageView!
+    @IBOutlet var toolInfoLabel: UILabel!
+    
+}

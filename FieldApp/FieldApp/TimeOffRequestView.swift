@@ -70,7 +70,7 @@ class TimeOffRequestView: UIViewController {
         activityIndicator.startAnimating()
         let tmOffForm = TimeOffReq(
             username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,
-            start: start, end: end, signedDate: crrntDt
+            start: start, end: end, signedDate: crrntDt, approved: nil
         )
         let jsonEncoder = JSONEncoder()
         let route = "employee/\(tmOffForm.employeeID)/timeOffReq"
