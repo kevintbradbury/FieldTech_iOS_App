@@ -61,7 +61,7 @@ open class EPSignatureView: UIView {
     
     @objc func longPressed(_ gesture: UILongPressGestureRecognizer) {
         let touchPoint = gesture.location(in: self)
-        let endAngle = CGFloat(2.0 * M_PI)
+        let endAngle = CGFloat(2.0 * Double.pi)
         bezierPath.move(to: touchPoint)
         bezierPath.addArc(withCenter: touchPoint, radius: 2, startAngle: 0, endAngle: endAngle, clockwise: true)
         setNeedsDisplay()

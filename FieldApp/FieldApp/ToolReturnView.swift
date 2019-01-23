@@ -46,10 +46,7 @@ extension ToolReturnView {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var rentalCount = 1
         
-        if let unwrap = rentals as? [FieldActions.ToolRental],
-            let count = unwrap.count as? Int {
-            rentalCount = count
-        }
+        if rentals.count > 0 { rentalCount = rentals.count }
         
         return rentalCount
     }

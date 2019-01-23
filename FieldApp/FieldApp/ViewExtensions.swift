@@ -106,6 +106,18 @@ extension UIViewController {
         else if let msg = responseType["msg"] { self.showAlert(withTitle: "Upload Status", message: msg) }
         else if let error = responseType["error"] { self.showAlert(withTitle: "Error", message: error) }
     }
+    
+    func inProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView) {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            activityBckgd.isHidden = false
+            activityIndicator.startAnimating()
+    }
+    
+    func completeProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        activityBckgd.isHidden = true
+        activityIndicator.stopAnimating()
+    }
 }
 
 class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {

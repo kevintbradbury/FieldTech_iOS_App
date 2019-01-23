@@ -32,6 +32,7 @@ class ChangeOrdersView: UIViewController {
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var activityBckgrd: UIView!
     
     let employeeID = UserDefaults.standard.string(forKey: "employeeID")
     let todaysJobPO = UserDefaults.standard.string(forKey: "todaysJobPO")
@@ -88,6 +89,7 @@ class ChangeOrdersView: UIViewController {
         poNumberLabel.text = todaysJobPO
         activityIndicator.hidesWhenStopped = true
         activityIndicator.isHidden = true
+        activityBckgrd.isHidden = true
         
         setJobName()
         self.setDismissableKeyboard(vc: self)
@@ -114,10 +116,10 @@ class ChangeOrdersView: UIViewController {
     }
     
     func getTextVals(callback: @escaping (FieldActions.ChangeOrders) -> ()) {
+        let secsFrom1970 = datePickerFields.date.timeIntervalSince1970
         guard let employee = employeeName,
             let po = todaysJobPO,
             let location = locationText.text,
-            let secsFrom1970: Double = datePickerFields.date.timeIntervalSince1970,
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
                 return
@@ -227,6 +229,8 @@ class ChangeOrdersView: UIViewController {
     
     func viewForToolRental() {
         view.backgroundColor = UIColor.blue
+        backButton.setTitleColor(UIColor.white, for: UIControlState.normal)
+        
         locationLabel.text = "Tool Type"
         materialLabel.text = "Brand"
         descripLabel.text = "Location"
@@ -278,7 +282,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
     func sendCO(images: [UIImage]) {
-        activityIndicator.startAnimating()
+        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
         
         if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
             let emply =  UserDefaults.standard.string(forKey: "employeeName") {
@@ -288,7 +292,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
             checkFormType(images: images, po: "---", employee: emply)
         
         } else {
-            activityIndicator.stopAnimating()
+            completeProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
             showAlert(withTitle: "Error", message: "An employee name is required for COs, Tool Rentals, & Supplies Reqs.")
         };
     }
@@ -311,7 +315,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
         }
         
         APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
-            self.activityIndicator.stopAnimating()
+            self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType)
         }
     }

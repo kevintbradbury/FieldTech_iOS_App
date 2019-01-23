@@ -64,10 +64,12 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
         }
         let existingIndx = materialsCollection.indices.contains(indexPath.row)
         
-        if existingIndx == true,
-            let material: FieldActions.SuppliesRequest.MaterialQuantityColor = materialsCollection[indexPath.row] {
+        if existingIndx == true {
+            let material = materialsCollection[indexPath.row]
+            
             cell.colorField.text = material.color
             cell.materialFIeld.text = material.material
+            
             if material.quantity > 0 {
                 cell.quantityField.text = "\(material.quantity)"
             }

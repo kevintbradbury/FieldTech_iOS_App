@@ -92,17 +92,24 @@ class VehicleCheckListView: UITableViewController {
             let startCommts = startupComments.text,
             let issuesCmmts = maintenanceIssuesTxtField.text {
             
-            let outsideInspect = FieldActions.VehicleChecklist.OutsideInspection(windows: extWindows, tiresNnuts: extTire, engine: extEngine, litesNsignals: extSignals, mirrors: extMirr, windshieldNwipres: extWindshd, dents: extDents, exteriorComments: extCommts)
-            let startupInspect = FieldActions.VehicleChecklist.StartupInspection(engine: startEngine, gauges: startGauge, wipers: startWiper, horn: startHorn, brakes: startBrake, seatbelt: startSeatbt, insuranceNregist: startInsurance, firstAidKit: startFirstAid, clean: startClean, startupComments: startCommts)
-            vehicleForm = FieldActions.VehicleChecklist(username: name, department: department, licensePlate: licenseNumber, date: currentDate.timeIntervalSince1970, outsideInspection: outsideInspect, startupInspection: startupInspect, issuesReport: issuesCmmts)
+            let outsideInspect = FieldActions.VehicleChecklist.OutsideInspection(
+                windows: extWindows, tiresNnuts: extTire, engine: extEngine, litesNsignals: extSignals, mirrors: extMirr, windshieldNwipres: extWindshd, dents: extDents, exteriorComments: extCommts
+            )
+            let startupInspect = FieldActions.VehicleChecklist.StartupInspection(
+                engine: startEngine, gauges: startGauge, wipers: startWiper, horn: startHorn, brakes: startBrake, seatbelt: startSeatbt, insuranceNregist: startInsurance, firstAidKit: startFirstAid, clean: startClean, startupComments: startCommts
+            )
+            vehicleForm = FieldActions.VehicleChecklist(
+                username: name, department: department, licensePlate: licenseNumber, date: currentDate.timeIntervalSince1970, outsideInspection: outsideInspect, startupInspection: startupInspect, issuesReport: issuesCmmts
+            )
             
         }
-        guard let uwrappedForm =  vehicleForm as? FieldActions.VehicleChecklist else {
+        guard let uwrappedForm =  vehicleForm else {
             return FieldActions.VehicleChecklist(
-                username: "",department: "",licensePlate: "",date: Date().timeIntervalSince1970,
-                outsideInspection: FieldActions.VehicleChecklist.OutsideInspection(windows: false,tiresNnuts: false,engine: false,litesNsignals: false,mirrors: false,windshieldNwipres: false,dents: false,exteriorComments: ""),
+                username: "", department: "", licensePlate: "", date: Date().timeIntervalSince1970,
+                outsideInspection: FieldActions.VehicleChecklist.OutsideInspection(windows: false, tiresNnuts: false, engine: false, litesNsignals: false, mirrors: false, windshieldNwipres: false, dents: false, exteriorComments: ""),
                 startupInspection: FieldActions.VehicleChecklist.StartupInspection(engine: false, gauges: false, wipers: false, horn: false, brakes: false, seatbelt: false, insuranceNregist: false, firstAidKit: false, clean: false, startupComments: ""),
-                issuesReport: "")
+                issuesReport: ""
+            )
         }
         
         return uwrappedForm

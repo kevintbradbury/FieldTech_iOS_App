@@ -240,12 +240,18 @@ extension EmployeeIDEntry {
             )
             
             notificationCenter.add(tenMinBreakRmdr) { (error) in
-                if error != nil { print("error setting clock notif: \(error)") }
-                else { print("added reminder at 2 hour mark") }
+                if error != nil {
+                    print("error setting clock notif: \(String(describing: error))")
+                } else {
+                    print("added reminder at 2 hour mark")
+                }
             }
             notificationCenter.add(clckOutRmndr) { (error) in
-                if error != nil { print("error setting clock notif: "); print(error) }
-                else { print("added reminder at 4 hour mark") }
+                if error != nil {
+                    print("error setting clock notif: \(String(describing: error))")
+                } else {
+                    print("added reminder at 4 hour mark")
+                }
             }
         }
     }
@@ -494,8 +500,8 @@ extension EmployeeIDEntry {
         
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
-                if notifications != nil {
-                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
+                for singleNote in notifications {
+                    print("request in notif center: \(singleNote.request.identifier)" )
                 }
             }
         }

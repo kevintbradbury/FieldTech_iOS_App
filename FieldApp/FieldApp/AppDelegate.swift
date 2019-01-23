@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
-        UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+        UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().requestAuthorization(
             options: authOptions,
@@ -147,7 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         return
                     }
                 }
-            } else { fatalError("notification not granted: \(granted), \(error)") }
+            } else { fatalError("notification not granted: \(granted), \(String(describing: error))") }
         }
     }
     

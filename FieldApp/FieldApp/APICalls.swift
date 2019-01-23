@@ -62,7 +62,7 @@ class APICalls {
             var request = req
             request.httpBody = data
             request.addValue(auto, forHTTPHeaderField: "autoClockOut")
-            print(request.allHTTPHeaderFields)
+            print(request.allHTTPHeaderFields as Any)
             
             let task = session.dataTask(with: request) {data, response, error in
                 if error != nil {
@@ -179,9 +179,9 @@ class APICalls {
             
             let task = session.dataTask(with: request) { data, response, error in
                 
-                if error != nil { print(error); return }
+                if error != nil { print(error as Any); return }
                 else {
-                    guard let verifiedData = data as? Data else {
+                    guard let verifiedData = data else {
                         print("couldn't verify data from server"); return
                     }
                     guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
@@ -246,13 +246,13 @@ class APICalls {
                             guard response.result.isSuccess else {
                                 guard let err = response.result.error as? String else { return }
                                 print("error while uploading file: \(err)");
-                                APICalls.failedUpload(msg: "\(uploadType) failed to upload. Error: \(err)")
+                                APICalls.succeedOrFailUpload(msg: "Error occured: \(err) with upload: ", uploadType: uploadType, success: false)
                                 callback(["error" : err]); return
                             }
                             guard let msg = response.result.value,
                                 let data: Data = msg.data(using: String.Encoding.utf16, allowLossyConversion: true),
                                 let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
-                                    APICalls.successUpload(msg: "\(uploadType) uploaded successfully.");
+                                    APICalls.succeedOrFailUpload(msg: " uploaded successfully.", uploadType: uploadType, success: true);
                                     callback(["success": "true"]); return
                             }
                             
@@ -263,7 +263,7 @@ class APICalls {
                         
                     case .failure(let encodingError):
                         print(encodingError);
-                        APICalls.failedUpload(msg: "\(uploadType) failed to upload.")
+                        APICalls.succeedOrFailUpload(msg: "Failed to upload: ", uploadType: uploadType, success: false)
                         callback(["error": encodingError.localizedDescription])
                     }
             }
@@ -331,7 +331,7 @@ extension APICalls {
                 callback(false, Data())
                 return
             } else {
-                guard let verifiedData = data as? Data else {
+                guard let verifiedData = data else {
                     print("could not verify data from dataTask")
                     callback(false, Data())
                     return
@@ -380,9 +380,8 @@ extension APICalls {
         for oneHoliday in array {
             
             if let holidayDictionary = oneHoliday as? NSDictionary {
-                if let hldy = Holiday.parseJson(dictionary: holidayDictionary) as? Holiday {
-                    holidays.append(hldy)
-                }
+                let hldy = Holiday.parseJson(dictionary: holidayDictionary)
+                holidays.append(hldy)
             } else {
                 print("couldn't cast index json to type Dictionary"); return holidays
             }
@@ -491,24 +490,45 @@ extension APICalls {
                 
                 do {
                     try eventstore.save(event, span: .thisEvent, commit: true)
-                } catch { error
-                    if error != nil {
-                        print("Error: \(error) \n Couldn't setup that alarm or event: \(event.description)")
-                    }
+                } catch {
+                    print("Error: \(error) \n Couldn't setup that alarm or event: \(event.description)")
                 }
             }
         }
     }
     
-    static func failedUpload(msg: String) {
-        let failedNotifc = UIViewController().createNotification(intervalInSeconds: 1, title: "FAILED", message: msg, identifier: "failedUpload")
-        UNUserNotificationCenter.current().add(failedNotifc, withCompletionHandler: { (error) in
-            if error != nil { return }
-        })
+    func changePunctuation(uploadType: String) -> String {
+        switch uploadType {
+        case "toolReturn":
+            return "Tool Return"
+        case "profilePhoto":
+            return "Profile Photo"
+        case "timeOffRequest":
+            return "Time Off Request"
+        case "vehicleCheckList":
+            return "Vehicle Checklist"
+        case "changeOrder":
+            return "Form"
+            
+        default:
+            return uploadType
+        }
     }
     
-    static func successUpload(msg: String)  {
-        let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: "SUCCESS", message: msg, identifier: "uploadSuccess")
+    static func succeedOrFailUpload(msg: String, uploadType: String, success: Bool)  {
+        var title = "FAILED"
+        var adjMsg = ""
+        
+        if success == true {
+            title = "SUCCESS"
+            adjMsg += APICalls().changePunctuation(uploadType: uploadType)
+            adjMsg += msg
+        } else {
+            adjMsg += msg
+            adjMsg += APICalls().changePunctuation(uploadType: uploadType)
+        }
+        
+        let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: title, message: adjMsg, identifier: "uploadSuccess")
         UNUserNotificationCenter.current().add(completeNotif, withCompletionHandler: { (error) in
             if error != nil { return }
         })
@@ -520,13 +540,13 @@ extension APICalls {
         if let err = json["error"] as? String {
             print(err)
             
-            APICalls.failedUpload(msg: "An Error occured with \(uploadType), error: \(err)");
+            APICalls.succeedOrFailUpload(msg: "An Error occured: \(err) with upload: ", uploadType: uploadType, success: false);
             callback(["error": err])
         } else if let msg = json["msg"] as? String {
-            APICalls.successUpload(msg: "\(uploadType) uploaded successfully. \(msg)");
+            APICalls.succeedOrFailUpload(msg: " uploaded successfully. \(msg)", uploadType: uploadType, success: true);
             callback(["msg": msg])
         } else {
-            APICalls.successUpload(msg: "\(uploadType) uploaded successfully.");
+            APICalls.succeedOrFailUpload(msg:  " uploaded successfully.", uploadType: uploadType, success: true);
             callback(["success": "true"])
         }
     }

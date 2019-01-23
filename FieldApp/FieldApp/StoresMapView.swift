@@ -50,7 +50,8 @@ class StoresMapView: UIViewController {
     func findHWStores() {
         showLoading()
 
-        if let annotations: [MKAnnotation] = mapView.annotations {
+        if mapView.annotations.count > 0 {
+            let annotations: [MKAnnotation] = mapView.annotations
             mapView.removeAnnotations(annotations)
         }
         

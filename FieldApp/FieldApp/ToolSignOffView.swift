@@ -24,6 +24,7 @@ class ToolSignOffView: UIViewController {
     @IBOutlet var printNameReceiverField: UITextField!
     @IBOutlet var sendButton: UIButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var activityBckgd: UIView!
     
     public var toolToReturn: FieldActions.ToolRental?
     var signatureRole = ""
@@ -31,7 +32,7 @@ class ToolSignOffView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setGesturesAndViews()
-        print("toolToReturn: ", toolToReturn)
+        print("toolToReturn: \(String(describing: toolToReturn))")
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -61,6 +62,7 @@ extension ToolSignOffView {
         
         activityIndicator.hidesWhenStopped = true
         activityIndicator.isHidden = true
+        activityBckgd.isHidden = true
         
         self.setDismissableKeyboard(vc: self)
     }
@@ -69,25 +71,25 @@ extension ToolSignOffView {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy, h:mm a"
         
-        guard let dt =  dateFormatter.string(from: Date()) as? String,
-            let returnerSig = returnerSIgnatureView.image,
+        guard let returnerSig = returnerSIgnatureView.image,
             let receiverSig = receiverSignatureView.image,
-            let images = [returnerSig, receiverSig] as? [UIImage],
             let returnerNm = printNameRenterField.text,
             let receiverNm = printNameReceiverField.text,
-            let printedNames = [returnerNm, receiverNm] as? [String],
-            let rental = toolToReturn as? FieldActions.ToolRental,
-            let employeeID = UserDefaults.standard.string(forKey: "employeeID") as? String else {
-                showAlert(withTitle: "Incomplete", message: "Fill out all fields before submitting.")
-                return
+            let rental = toolToReturn,
+            let employeeID = UserDefaults.standard.string(forKey: "employeeID") else {
+                showAlert(withTitle: "Incomplete", message: "Fill out all fields before submitting."); return
         }
-        activityIndicator.startAnimating()
+        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
+        
+        let dt =  dateFormatter.string(from: Date())
+        let images = [returnerSig, receiverSig]
+        let printedNames = [returnerNm, receiverNm]
         let formBody = APICalls().generateToolReturnData(toolForm: rental, signedDate: dt, printedNames: printedNames)
         let route = "toolReturn/\(employeeID)"
         let headers = ["formType", "Tool Return"]
         
         APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
-            self.activityIndicator.stopAnimating()
+            self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType)
         }
     }

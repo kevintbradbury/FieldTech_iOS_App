@@ -104,7 +104,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     }
     
     func calendar(_ calendar: JTAppleCalendarView, willDisplay cell: JTAppleCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
-        let tableCell = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
+        _ = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
@@ -285,7 +285,6 @@ extension ScheduleView {
         let splitName = holidy.name.components(separatedBy: " ")
         var holidayName = ""
         var fontSize = 8
-        var numberOfLines = (splitName.count + 1)
         
         for char in splitName {
             
@@ -299,7 +298,7 @@ extension ScheduleView {
         
         let frame = CGRect(x: 0, y: 0, width: cell.frame.width, height: cell.frame.height)
         let label = UILabel(frame: frame)
-        label.numberOfLines = numberOfLines
+        label.numberOfLines = (splitName.count + 1)
         label.backgroundColor = UIColor.blue
         label.textColor = UIColor.white
         label.text = holidayName

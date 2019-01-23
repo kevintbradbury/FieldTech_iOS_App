@@ -98,6 +98,7 @@ extension HomeView {
                 let address = HomeView.addressInfo?.address,
                 let city = HomeView.addressInfo?.city,
                 let state = HomeView.addressInfo?.state else { return }
+            
             let msg = "\n\(name)\n\(address)\n\(city), \(state) \n \nWould you like to add/update your profile photo? "
             let paraStyle = NSMutableParagraphStyle()
             paraStyle.alignment = NSTextAlignment.left
@@ -216,9 +217,7 @@ extension HomeView {
         
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
-                if notifications != nil {
-                    for singleNote in notifications { print("request in notif center: ", singleNote.request) }
-                }
+                for singleNote in notifications { print("request in notif center: ", singleNote.request) }
             }
         }
         
@@ -275,7 +274,7 @@ extension HomeView {
             
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
-                inProgress()
+                self.inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
                 
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo in
                     HomeView.employeeInfo = user
@@ -306,7 +305,7 @@ extension HomeView {
             if (UIApplication.shared.applicationState == .active && self.isViewLoaded && (self.view.window != nil)) {
                 self.showAlert(withTitle: "Upload Failed", message: msg)
             } else {
-                APICalls.failedUpload(msg: msg)
+                APICalls.succeedOrFailUpload(msg: msg, uploadType: "photoUpload", success: false)
             }
         }
     }
@@ -320,21 +319,8 @@ extension HomeView {
         else { print("YES <-- User is in proximity to Job location \n") }
     }
     
-    func inProgress() {
-        main.addOperation {
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            self.activityBckgd.isHidden = false
-            self.activityIndicator.startAnimating()
-        }
-    }
-    
     func completedProgress() {
-        main.addOperation {
-            self.activityBckgd.isHidden = true
-            self.activityIndicator.hidesWhenStopped = true
-            self.activityIndicator.stopAnimating()
-            UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        }
+        completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
         
         if HomeView.vehicleCkListNotif == true { self.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
         else if HomeView.scheduleReadyNotif == true { self.performSegue(withIdentifier: "schedule", sender: nil) }
@@ -526,7 +512,7 @@ extension HomeView: ImagePickerDelegate {
         if profileUpload == true && imageAssets.count == 1 {
             
             picker.dismiss(animated: true) {
-                self.inProgress()
+                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
                 guard let emply = HomeView.employeeInfo?.userName,
                     let idNum = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
                 let route = "employee/\(idNum)/profileUpload"
@@ -539,12 +525,13 @@ extension HomeView: ImagePickerDelegate {
                     self.loadProfilePic()
                     self.hideShowProfile()
                     self.checkSuccess(responseType: responseType)
+                    self.profileUpload = nil
                 }
-                
             }
-        } else if profileUpload != true && imageAssets.count < 11 {
+        } else if imageAssets.count < 11 {
             picker.dismiss(animated: true) {
-                self.inProgress()
+                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                     let emply =  UserDefaults.standard.string(forKey: "employeeName") {

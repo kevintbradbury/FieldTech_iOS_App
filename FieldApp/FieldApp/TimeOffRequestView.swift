@@ -23,6 +23,7 @@ class TimeOffRequestView: UIViewController {
     @IBOutlet var sendBtn: UIButton!
     @IBOutlet var backBtn: UIButton!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var activityBckgrd: UIView!
     
     var employeeInfo: UserData.UserInfo?
     
@@ -32,6 +33,7 @@ class TimeOffRequestView: UIViewController {
         self.setDismissableKeyboard(vc: self)
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
+        activityBckgrd.isHidden = true
         
         if employeeInfo?.userName != nil {
             userNameLbl.text = employeeInfo?.userName
@@ -67,7 +69,9 @@ class TimeOffRequestView: UIViewController {
                 return
         }
         
-        activityIndicator.startAnimating()
+//        activityIndicator.startAnimating()
+        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
+        
         let tmOffForm = TimeOffReq(
             username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,
             start: start, end: end, signedDate: crrntDt, approved: nil
@@ -81,7 +85,8 @@ class TimeOffRequestView: UIViewController {
         catch { print(error.localizedDescription) };
         
         APICalls().alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { responseType in
-            self.activityIndicator.stopAnimating()
+//            self.activityIndicator.stopAnimating()
+            self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType)
         }
     }
