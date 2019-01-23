@@ -130,7 +130,8 @@ class FanMenuScene {
         if let uiImage = UIImage(named: button.image) {
             menuIcon = Image(
                 src: button.image,
-                w: Int(fanMenu.radius * 3), h: Int(fanMenu.radius * 3),
+                w: Int(fanMenu.radius * 3),
+                h: Int(fanMenu.radius * 3),
                 place: Transform.move(
                     dx: -Double(fanMenu.radius * 1.5), dy: -Double(fanMenu.radius * 1.5)
                 ),

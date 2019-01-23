@@ -269,12 +269,9 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Clocked Out" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zhP-4P-kVW">
-                                <rect key="frame" x="16" y="513.5" width="105.5" height="25"/>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Clocked Out" textAlignment="justified" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zhP-4P-kVW">
+                                <rect key="frame" x="16" y="494" width="160" height="64"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="25" id="ZUS-wO-ty4"/>
-                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -311,6 +308,7 @@
                             <constraint firstItem="GtL-7M-Qdh" firstAttribute="height" secondItem="FRb-fi-I8j" secondAttribute="height" id="DbE-hb-Z10"/>
                             <constraint firstItem="vaz-4K-nny" firstAttribute="centerY" secondItem="FRb-fi-I8j" secondAttribute="centerY" id="Grb-Oq-9qV"/>
                             <constraint firstAttribute="trailing" secondItem="aJW-NP-9cu" secondAttribute="trailing" id="IGx-Hx-YgJ"/>
+                            <constraint firstItem="zhP-4P-kVW" firstAttribute="height" secondItem="AaE-g1-Wkg" secondAttribute="height" id="Jiu-H8-vRV"/>
                             <constraint firstItem="aJW-NP-9cu" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="leading" id="M0t-bh-2mj"/>
                             <constraint firstAttribute="trailing" secondItem="CZR-Uv-g6q" secondAttribute="trailing" id="MtT-6d-zqL"/>
                             <constraint firstItem="zhP-4P-kVW" firstAttribute="leading" secondItem="FRb-fi-I8j" secondAttribute="leadingMargin" id="RD2-2r-XbH"/>
@@ -323,7 +321,7 @@
                             <constraint firstItem="Emo-Ae-v6f" firstAttribute="top" secondItem="aJW-NP-9cu" secondAttribute="bottom" id="pcZ-6e-dxz"/>
                             <constraint firstItem="aJW-NP-9cu" firstAttribute="top" secondItem="FRb-fi-I8j" secondAttribute="top" id="sCh-xq-kVf"/>
                             <constraint firstItem="vaz-4K-nny" firstAttribute="centerX" secondItem="FRb-fi-I8j" secondAttribute="centerX" id="thl-S8-g9d"/>
-                            <constraint firstItem="zhP-4P-kVW" firstAttribute="width" secondItem="FRb-fi-I8j" secondAttribute="width" multiplier="0.33" id="ziY-l8-Xuh"/>
+                            <constraint firstItem="zhP-4P-kVW" firstAttribute="width" secondItem="FRb-fi-I8j" secondAttribute="width" multiplier="0.5" id="ziY-l8-Xuh"/>
                         </constraints>
                     </view>
                     <connections>
@@ -2192,6 +2190,7 @@
         <image name="signature" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="pAu-Wh-4fN"/>
         <segue reference="up3-NZ-nvU"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>

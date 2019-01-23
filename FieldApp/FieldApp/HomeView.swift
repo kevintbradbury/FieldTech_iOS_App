@@ -31,9 +31,9 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
-    let colors: [Int] = [
-        Color.green.val, Color.blue.val, Color.teal.val, Color.red.val,Color.fuchsia.val,
-        Color.navy.val, Color.purple.val, Color.yellow.val, 0xFF9742
+    let colors: [Color] = [
+        Color.green, Color.blue, Color.teal, Color.red,Color.fuchsia,
+        Color.navy, Color.purple, Color.yellow, Color(val: 0xFF9742)
     ]
     let icons = [
         "hotel_req", "tools", "materials", "form", "vacation",
@@ -135,9 +135,7 @@ extension HomeView {
         
         logoView.items = colors.enumerated().map { (index, item) in
             FanMenuButton(
-                id: String(index),
-                image: String(icons[index]),
-                color: Color(val: item)
+                id: String(index), image: String(icons[index]), color: item
             )
         }
         
@@ -202,7 +200,6 @@ extension HomeView {
                 withTitle: "Reminder",
                 message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. "
             )
-            //        case "time_off":
             //        case "safety":
             //        case "hotel_req":
             
@@ -344,14 +341,16 @@ extension HomeView {
     }
     
     func clockedInUI() {
+        guard let info = HomeView.employeeInfo as? UserData.UserInfo else { return }
         main.addOperation {
-            self.userLabel.text = "Clocked In"
+            self.userLabel.text = "\(info.userName) \nID#: \(info.employeeID) \nClocked IN"
             self.completedProgress()
         }
     }
     func clockedOutUI() {
+        guard let info = HomeView.employeeInfo as? UserData.UserInfo else { return }
         main.addOperation {
-            self.userLabel.text = "Clocked Out"
+            self.userLabel.text = "\(info.userName) \nID#: \(info.employeeID) \nClocked OUT"
             self.completedProgress()
         }
     }
@@ -487,7 +486,6 @@ extension HomeView {
                     print("Couldnt convert url to data obj"); return
             }
             
-            //            profileBtn.contentMode = .scaleAspectFit
             profileBtn.layer.cornerRadius = 15  //  27.5
             profileBtn.layer.borderWidth = 1
             profileBtn.layer.borderColor = UIColor.white.cgColor

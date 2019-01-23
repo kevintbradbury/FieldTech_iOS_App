@@ -41,7 +41,7 @@ class EmployeeIDEntry: UIViewController {
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
-    let dataSource = ["---", "Field", "Shop", "Driver", "Measurements"]
+    let dataSource = ["---", "Field", "Shop", "Drive Time", "Measurements"]
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -190,34 +190,10 @@ extension EmployeeIDEntry {
             self.todaysJob.poNumber = poNumber
             self.todaysJob.jobLocation = jobLatLong
             self.foundUser?.punchedIn = clockedIn
-            self.completedProgress()
             
-            if clockedIn == true {
-                let fourHours = Double((4 * 60) * 60)
-                var title = "Reminder", message = "Message", identifier = "identifier"
-                
-                func checkLunch() {
-                    hadLunch = UserDefaults.standard.bool(forKey: "hadLunch")
-                    if hadLunch == true {
-                        title = "Clock Out Reminder"; message = "Time to wrap up for the day."; identifier = "clockOut";
-                        hadLunch = false; UserDefaults.standard.set(nil, forKey: "hadLunch")
-                    } else {
-                        title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
-                    }
-                }
-                checkLunch()
-                
-                let request = createNotification(
-                    intervalInSeconds: fourHours, title: title, message: message, identifier: identifier
-                )
-                notificationCenter.add(request) { (error) in
-                    if error != nil {
-                        print("error setting clock notif: "); print(error)
-                    } else {
-                        print("added reminder at 4 hour mark")
-                    }
-                }
-            }
+            self.completedProgress()
+            self.setClockInNotifcs(clockedIn: clockedIn)
+            
         } else if manualPO == false {
             showPONumEntryWin()
         } else if err != "" {
@@ -236,6 +212,41 @@ extension EmployeeIDEntry {
         finishedLoading()
         self.main.addOperation {
             self.showAlert(withTitle: "Alert", message: actionMsg)
+        }
+    }
+    
+    func setClockInNotifcs(clockedIn: Bool) {
+        
+        if clockedIn == true {
+            let twoHours = Double((2 * 60) * 60)
+            let fourHours = Double((4 * 60) * 60)
+            var title = "", message = "", identifier = ""
+            hadLunch = UserDefaults.standard.bool(forKey: "hadLunch")
+            
+            if hadLunch == true {
+                hadLunch = false;
+                UserDefaults.standard.set(nil, forKey: "hadLunch")
+                title = "Clock Out Reminder"; message = "Time to wrap up for the day."; identifier = "clockOut";
+            } else {
+                title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
+            }
+            
+            let tenMinBreakRmdr = createNotification(
+                intervalInSeconds: twoHours, title: "10 Minute Break",
+                message: "Don't forget to take a short 10 minute break.", identifier: "tenMinBrk"
+            )
+            let clckOutRmndr = createNotification(
+                intervalInSeconds: fourHours, title: title, message: message, identifier: identifier
+            )
+            
+            notificationCenter.add(tenMinBreakRmdr) { (error) in
+                if error != nil { print("error setting clock notif: \(error)") }
+                else { print("added reminder at 2 hour mark") }
+            }
+            notificationCenter.add(clckOutRmndr) { (error) in
+                if error != nil { print("error setting clock notif: "); print(error) }
+                else { print("added reminder at 4 hour mark") }
+            }
         }
     }
     
@@ -258,12 +269,12 @@ extension EmployeeIDEntry {
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
-        let route = "employee/" + String(employeeId)
+        let route = "employee/\(String(employeeId))"
         
         APICalls().setupRequest(route: route, method: "GET") { request in
             let session = URLSession.shared;
             
-            let task = session.dataTask(with: request) {data, response, error in
+            let task = session.dataTask(with: request) { (data, response, error) in
                 if error != nil {
                     print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
                 } else {
@@ -273,11 +284,9 @@ extension EmployeeIDEntry {
                         print("json serialization failed: \(json)")
                         self.main.addOperation { self.incorrectID(success: true) }
                         return
-                    }
-                    callback(user)
+                    }; callback(user)
                 }
-            }
-            task.resume()
+            }; task.resume()
         }
     }
     
@@ -383,37 +392,42 @@ extension EmployeeIDEntry {
 extension EmployeeIDEntry {
     
     func goOnLunch(breakLength: Double) {
-        let timeInSeconds = Double(breakLength * 60)
-        let request = createNotification(
-            intervalInSeconds: timeInSeconds,
-            title: "Break Over",
-            message: "Sorry, break time is over.",
-            identifier: "breakOver")
         
-        notificationCenter.add(request, withCompletionHandler: { (error) in
-            if error != nil { print("there was an error: "); print(error) } else {
-                let fiveMinInSec = Double(5 * 60)
-                let tenMinBefore = Double((breakLength * 60) - fiveMinInSec)
-                let earlyrequest = self.createNotification(intervalInSeconds: tenMinBefore, title: "Break Almost Done", message: "Break is almost over, start wrapping up.", identifier: "breakAlmostOver")
-                
-                self.notificationCenter.add(earlyrequest, withCompletionHandler: { (error) in
-                    if error != nil {
-                        print("looks like there was an error: "); print(error)
-                    } else {
-                        UserDefaults.standard.set(true, forKey: "hadLunch")
-                        self.hadLunch = true
-                        self.clockInClockOut()
-                    }
-                })
+        let tenMinBefore = Double( (breakLength * 60) - Double(5 * 60) )
+        let breakTmInSeconds = Double(breakLength * 60)
+        let earlyrequest = createNotification(
+            intervalInSeconds: tenMinBefore, title: "Break Almost Done",
+            message: "Break is almost over, start wrapping up.", identifier: "breakAlmostOver"
+        )
+        let request = createNotification(
+            intervalInSeconds: breakTmInSeconds, title: "Break Over",
+            message: "Sorry, break time is over.", identifier: "breakOver"
+        )
+        
+        notificationCenter.add(earlyrequest) { (error) in
+            if error != nil {
+                print("There was an error: \(error?.localizedDescription)")
             }
-        })
+        }
+        
+        notificationCenter.add(request) { (error) in
+            if error != nil {
+                print("There was an error: \(error?.localizedDescription)")
+            } else {
+                UserDefaults.standard.set(true, forKey: "hadLunch")
+                self.hadLunch = true
+                self.clockInClockOut()
+            }
+        }
     }
     
     func chooseBreakLength() {
         let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: .alert)
-        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 30) }
-        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 60) }
         let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { (action) -> Void in print("chose Cancel") }
+        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 30)
+        }
+        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 60)
+        }
         
         actionsheet.addAction(chooseThirty)
         actionsheet.addAction(chooseSixty)
@@ -555,8 +569,10 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {   return 1    }
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { return dataSource.count }
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return dataSource[row]  }
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) { role = dataSource[row]  }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return dataSource[row]
+    }
     
 }
 
