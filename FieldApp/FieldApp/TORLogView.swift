@@ -20,6 +20,7 @@ class TORLogView: UITableViewController {
         super.viewDidLoad()
         
         formatter.dateFormat = "MMM dd, yyyy"
+        tableView.allowsSelection = false
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -48,10 +49,11 @@ class TORLogView: UITableViewController {
     }
     
     func changeToYesNo(approved: Bool?) -> String {
-        guard let aprv = approved else { return "nil" }
+        guard let aprv = approved else { return "(TBD)" }
         
         if aprv == true { return "yes" }
-        else { return "no" }
+        else if aprv == false { return "no" }
+        else { return "(TBD)" }
     }
 }
 

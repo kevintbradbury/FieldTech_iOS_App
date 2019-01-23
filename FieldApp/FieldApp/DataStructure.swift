@@ -450,8 +450,10 @@ struct TimeOffReq: Encodable  {
     
     static func parseJson(dictionary: NSDictionary) -> TimeOffReq {
         var timeOffReq = TimeOffReq(
-            username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0, approved: false
+            username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0, approved: nil
         )
+        var approved: Bool?
+        print("TOR: approved: \(dictionary["approved"])")
         
         guard let username = dictionary["username"] as? String,
             let employeeID = dictionary["employeeID"] as? String,
@@ -459,9 +461,12 @@ struct TimeOffReq: Encodable  {
             let shiftHours = dictionary["shiftHours"] as? String,
             let start = dictionary["start"] as? String,
             let end = dictionary["end"] as? String,
-            let signed = dictionary["signedDate"] as? String,
-            let approved = dictionary["approved"] as? Bool else {
+            let signed = dictionary["signedDate"] as? String else {
                 print("unable to parse timeOffReq"); return timeOffReq
+        }
+        
+        if dictionary["approved"] != nil {
+            approved = dictionary["approved"] as? Bool
         }
         
         guard let startDt = FieldActions.getDateFromISOString(isoDate: start) as? Date,
