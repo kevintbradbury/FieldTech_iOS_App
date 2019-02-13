@@ -181,15 +181,14 @@ class APICalls {
                 
                 if error != nil { print(error as Any); return }
                 else {
-                    guard let verifiedData = data else {
-                        print("couldn't verify data from server"); return
-                    }
+                    guard let verifiedData = data else { print("couldn't verify data from server"); return }
                     guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
                         print("json serialization failed"); return
                     }
                     guard let user = UserData.UserInfo.fromJSON(dictionary: json),
                         let dictionary = json["addressInfo"] as? NSDictionary,
                         let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                            
                             print("failed to parse UserData"); return
                     }
                     callback(user, addressInfo)
@@ -290,6 +289,8 @@ class APICalls {
                     print("tools & images count: ", toolsNphotos.0.count, toolsNphotos.1.count)
                     
                     callback(sendBackObj)
+                } else {
+                    print("Error parsing Tools json: \(String(describing: response.error))")
                 }
             }
         }

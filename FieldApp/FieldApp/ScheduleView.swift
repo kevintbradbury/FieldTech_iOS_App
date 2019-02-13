@@ -184,6 +184,7 @@ extension ScheduleView {
     
     func stopLoading() {
         self.main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.calendarView.reloadData()
             self.activityIndicator.stopAnimating()
         }

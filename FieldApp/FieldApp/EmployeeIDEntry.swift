@@ -282,15 +282,16 @@ extension EmployeeIDEntry {
             
             let task = session.dataTask(with: request) { (data, response, error) in
                 if error != nil {
-                    print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
+                    print("failed to fetch JSON from database \n \(String(describing: error)) \n \(String(describing: response))"); return
                 } else {
                     guard let verifiedData = data else { print("could not verify data from dataTask"); return }
-                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
+                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { print("failed to parse JSON"); return }
                     guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                        print("json serialization failed: \(json)")
+                        print("json to UserInfo failed: \(json)")
                         self.main.addOperation { self.incorrectID(success: true) }
                         return
-                    }; callback(user)
+                    }
+                    callback(user)
                 }
             }; task.resume()
         }

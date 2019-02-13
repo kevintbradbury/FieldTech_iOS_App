@@ -102,21 +102,28 @@ extension UIViewController {
     }
     
     func handleResponseType(responseType: [String: String]) {
-        if responseType["success"] == "true" { return }
-        else if let msg = responseType["msg"] { self.showAlert(withTitle: "Upload Status", message: msg) }
-        else if let error = responseType["error"] { self.showAlert(withTitle: "Error", message: error) }
+        OperationQueue.main.addOperation {
+            if responseType["success"] == "true" { return }
+            else if let msg = responseType["msg"] { self.showAlert(withTitle: "Upload Status", message: msg) }
+            else if let error = responseType["error"] { self.showAlert(withTitle: "Error", message: error) }
+            else { print(responseType) }
+        }
     }
     
     func inProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView) {
+        OperationQueue.main.addOperation {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             activityBckgd.isHidden = false
             activityIndicator.startAnimating()
+        }
     }
     
     func completeProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        activityBckgd.isHidden = true
-        activityIndicator.stopAnimating()
+        OperationQueue.main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            activityBckgd.isHidden = true
+            activityIndicator.stopAnimating()
+        }
     }
 }
 

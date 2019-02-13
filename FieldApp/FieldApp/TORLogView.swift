@@ -21,6 +21,10 @@ class TORLogView: UITableViewController {
         
         formatter.dateFormat = "MMM dd, yyyy"
         tableView.allowsSelection = false
+        
+        if timeOffReqs?.count == 0 {
+            showAlert(withTitle: "No Requests", message: "No time off requests.")
+        }
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }

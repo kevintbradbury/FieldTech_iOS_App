@@ -276,7 +276,7 @@ extension HomeView {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 self.inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
                 
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo in
+                fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo in
                     HomeView.employeeInfo = user
                     HomeView.addressInfo = addressInfo
                     self.checkPunchStatus()
@@ -297,6 +297,37 @@ extension HomeView {
 }
 
 extension HomeView {
+    
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
+        let route = "employee/" + String(employeeId)
+        
+        APICalls().setupRequest(route: route, method: "GET") { request in
+            let session = URLSession.shared;
+            let task = session.dataTask(with: request) { data, response, error in
+                
+                if error != nil { print(error as Any); return }
+                else {
+                    guard let verifiedData = data else {
+                        print("couldn't verify data from server"); return
+                    }
+                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
+                        print("json serialization failed"); return
+                    }
+                    guard let user = UserData.UserInfo.fromJSON(dictionary: json),
+                        let dictionary = json["addressInfo"] as? NSDictionary,
+                        let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                            print("failed to parse UserData from json\(json)");
+                            self.completedProgress()
+                            
+                            guard let resMsg = json as? [String:String] else { return }
+                            self.handleResponseType(responseType: resMsg)
+                            return
+                    }
+                    callback(user, addressInfo)
+                }
+            }; task.resume()
+        }
+    }
     
     func failedUpload(error: String) {
         let msg = "Photo(s) failed to upload to server with error: \n\(error)"

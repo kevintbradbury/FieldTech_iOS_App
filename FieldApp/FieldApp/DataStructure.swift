@@ -62,13 +62,16 @@ class UserData {
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
+            var clocked = false
 //            var clocked = false
             
             guard let userId = dictionary["employeeID"] as? Int,
              let jobs = dictionary["employeeJobs"] as? NSArray,
-             let userName = dictionary["username"] as? String,
-             let clockIn = dictionary["punchedIn"] as? Bool else {
+             let userName = dictionary["username"] as? String else {
                 print("User Info failed to parse"); return nil
+            }
+            if let clockInOut = dictionary["punchedIn"] as? Bool {
+                clocked = clockInOut
             }
             //                let userNumber = dictionary["phoneNumber"] as? Int,
             //                let weekHours = dictionary["workWeekHours"] as? Int,
@@ -83,7 +86,7 @@ class UserData {
             }
             
             return UserInfo(
-                employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clockIn
+                employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clocked
             )
         }
     }
@@ -168,8 +171,13 @@ class Job: Codable {
             let dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
             
             if let location = dictionary["jobLocation"] as? [Double] {
-                lat = CLLocationDegrees(location[0])
-                long = CLLocationDegrees(location[1])
+                if location.count > 1 {
+                    lat = CLLocationDegrees(location[0])
+                    long = CLLocationDegrees(location[1])
+                } else {
+                    lat = CLLocationDegrees(0.0)
+                    long = CLLocationDegrees(0.0)
+                }
                 coordinates = CLLocationCoordinate2D()
                 coordinates.latitude = lat
                 coordinates.longitude = long
