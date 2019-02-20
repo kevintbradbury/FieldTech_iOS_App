@@ -439,13 +439,6 @@ struct Holiday: Decodable {
     }
 }
 
-//  { date: '2016-12-26 00:00:00',
-//    start: Mon Dec 26 2016 00:00:00 GMT-0600 (CST),
-//    end: Tue Dec 27 2016 00:00:00 GMT-0600 (CST),
-//    substitute: true,
-//    name: 'Christmas Day (substitute day)',
-//    type: 'public' }
-
 struct TimeOffReq: Encodable  {
     let username: String
     let employeeID: Int
@@ -491,20 +484,36 @@ struct TimeOffReq: Encodable  {
 }
 
 
+struct SafetyQuestion: Encodable {
+    var question: String
+    var options: answerOptions
+    var answer: String
 
-struct GeoKey {
-    static let latitude = "latitude"
-    static let longitude = "longitude"
-    static let radius = "radius"
-    static let identifier = "identifier"
-    static let note = "note"
-    static let eventType = "eventType"
+    struct answerOptions: Encodable { var a: String; var b: String; var c: String; var d: String }
+    
+    static func jsonToSQ(dictionary: NSDictionary) -> SafetyQuestion {
+        
+        guard let question = dictionary["question"] as? String,
+            let answerOptions = dictionary["options"] as? NSDictionary,
+            let a = answerOptions["a"] as? String,
+            let b = answerOptions["b"] as? String,
+            let c = answerOptions["c"] as? String,
+            let d = answerOptions["d"] as? String,
+            let options = SafetyQuestion.answerOptions(a: a, b: b, c: c, d: d) as? answerOptions,
+            let answer = dictionary["answer"] as? String else {
+                print("failed to parse safetyQuestion")
+                return SafetyQuestion(
+                    question: "",
+                    options: SafetyQuestion.answerOptions(a: "", b: "", c: "", d: ""),
+                    answer: ""
+                )
+        }
+        
+        return SafetyQuestion(question: question, options: options, answer: answer)
+    }
 }
 
-enum EventType: String {
-    case onEntry = "On Entry"
-    case onExit = "On Exit"
-}
+
 
 
 

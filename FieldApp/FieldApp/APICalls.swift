@@ -24,9 +24,8 @@ class APICalls {
         let route = "employee/" + employeeID + "/jobs"
         
         setupRequest(route: route, method: "GET") { request in
-            let session = URLSession.shared;
             
-            let task = session.dataTask(with: request) { data, response, error in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if error != nil {
                     print("failed to fetch JSON")
                     return
@@ -52,10 +51,10 @@ class APICalls {
         }
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()){
+    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()) {
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location, role: role)
-        let session = URLSession.shared;
+//        let session = URLSession.shared;
         var auto: String { if autoClockOut == true { return "true" } else { return "" } }
         
         setupRequest(route: route, method: "POST") { req in
@@ -64,7 +63,7 @@ class APICalls {
             request.addValue(auto, forHTTPHeaderField: "autoClockOut")
             print(request.allHTTPHeaderFields as Any)
             
-            let task = session.dataTask(with: request) {data, response, error in
+            let task = URLSession.shared.dataTask(with: request) {data, response, error in
                 if error != nil {
                     print("failed to fetch JSON from database \n \(String(describing: response))");
                     return
@@ -93,16 +92,16 @@ class APICalls {
         }
     }
     
-    func manualSendPO(employee: UserData.UserInfo, location: [String], role: String, po: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()){
+    func manualSendPO(employee: UserData.UserInfo, location: [String], role: String, po: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()) {
         let route = "employee/" + String(describing: employee.employeeID) + "/override/" + po
         let data = convertToJSON(employee: employee, location: location, role: role)
-        let session = URLSession.shared;
+//        let session = URLSession.shared;
         
         setupRequest(route: route, method: "POST") { request in
             var req = request
             req.httpBody = data
             
-            let task = session.dataTask(with: req) {data, response, error in
+            let task = URLSession.shared.dataTask(with: req) {data, response, error in
                 if error != nil {
                     print("failed to fetch JSON from database \n \(String(describing: response))");
                     return
@@ -130,12 +129,11 @@ class APICalls {
         }
     }
     
-    func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()){
+    func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()) {
         guard let employee = UserDefaults.standard.string(forKey: "employeeName") else { return }
         guard let emplyID = UserDefaults.standard.string(forKey: "employeeID") else { return }
         
         let route = "checkCoordinates/" + employee
-        let session = URLSession.shared;
         let person = UserData.UserInfoCodeable(
             userName: employee,
             employeeID: emplyID,
@@ -155,7 +153,7 @@ class APICalls {
             }
             req.httpBody = data
             
-            let task = session.dataTask(with: req) {data, response, error in
+            let task = URLSession.shared.dataTask(with: req) {data, response, error in
                 if error != nil {
                     print("failed to fetch JSON from database \n \(String(describing: response))"); return
                 } else {
@@ -175,9 +173,8 @@ class APICalls {
         let route = "employee/" + String(employeeId)
         
         setupRequest(route: route, method: "GET") { request in
-            let session = URLSession.shared;
             
-            let task = session.dataTask(with: request) { data, response, error in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 
                 if error != nil { print(error as Any); return }
                 else {
@@ -194,6 +191,30 @@ class APICalls {
                     callback(user, addressInfo)
                 }
             }; task.resume()
+        }
+    }
+    
+    func getSafetyQs(cb: @escaping ([SafetyQuestion]) -> () ) {
+        let route = "safetyQuestions/mobile"
+        
+        setupRequest(route: route, method: "GET") { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil { print(error); return }
+                
+                guard let verfData = data as? Data,
+                    let json = (try? JSONSerialization.jsonObject(with: verfData, options: []) as? NSArray) else {
+                        print("failed to serialize JSON from SafetyQ req")
+                        return }
+                var allSafetyQuestions = [SafetyQuestion]()
+                
+                for question in json ?? [] {
+                    guard  let dictionary = question as? NSDictionary,
+                    let q = SafetyQuestion.jsonToSQ(dictionary: dictionary) as? SafetyQuestion else { return }
+                    allSafetyQuestions.append(q)
+                }
+                cb(allSafetyQuestions)
+            }
+            task.resume()
         }
     }
     
@@ -316,6 +337,8 @@ extension APICalls {
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        let session = URLSession.shared;
         
         getFIRidToken() { firebaseIDtoken in
             request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")

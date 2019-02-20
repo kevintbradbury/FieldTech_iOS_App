@@ -69,6 +69,10 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         picker.delegate = self
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
+        
+        APICalls().getSafetyQs() { safetyQs in
+            print("safetyQs.count: \(safetyQs.count)")
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -302,8 +306,7 @@ extension HomeView {
         let route = "employee/" + String(employeeId)
         
         APICalls().setupRequest(route: route, method: "GET") { request in
-            let session = URLSession.shared;
-            let task = session.dataTask(with: request) { data, response, error in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 
                 if error != nil { print(error as Any); return }
                 else {

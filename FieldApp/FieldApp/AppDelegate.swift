@@ -156,12 +156,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("no saved id"); return
         }
         let route = "employee/token/\(id)"
+        updateToken(token: token, route: route)
         
-        if let existingToken = UserDefaults.standard.string(forKey: "token") {
-            if existingToken == token {
-                print("token matches"); return
-            } else { updateToken(token: token, route: route) }
-        } else { updateToken(token: token, route: route) }
+//        if let existingToken = UserDefaults.standard.string(forKey: "token") {
+//            if existingToken == token {
+//                print("token matches"); return
+//            } else { updateToken(token: token, route: route) }
+//        } else { updateToken(token: token, route: route) }
     }
     
     func updateToken(token: String, route: String) {
