@@ -44,12 +44,14 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
     var profileUpload: Bool?
+    var questsAlerts: [UIAlertController] = []
     public static var vehicleCkListNotif: Bool?
     public static var scheduleReadyNotif: Bool?
     public static var employeeInfo: UserData.UserInfo?
     public static var addressInfo: UserData.AddressInfo?
     public static var todaysJob = Job()
     public static var role: String?
+    public static var safetyQs: [SafetyQuestion] = []
     public var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
@@ -69,10 +71,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         picker.delegate = self
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
-        
-        APICalls().getSafetyQs() { safetyQs in
-            print("safetyQs.count: \(safetyQs.count)")
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -83,6 +81,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
+        checkForSafetyQs()
         logoView.close()
     }
     
@@ -93,6 +92,78 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 }
 
 extension HomeView {
+    
+    func checkForSafetyQs() {
+        if HomeView.safetyQs.count > 0 {
+            
+            for (index, value) in HomeView.safetyQs.enumerated() {
+                let questionPopup = UIAlertController(title: "Safety Question", message: value.question, preferredStyle: UIAlertControllerStyle.alert)
+                
+                let a = UIAlertAction(title: value.options.a, style: UIAlertActionStyle.default) { action in
+                    questionPopup.dismiss(animated: true, completion: nil)
+                    self.handleSafetyQuesAnswer(selected: value.options.a, answer: value.answer, options: value.options, i: (index + 1) )
+                };
+                let b = UIAlertAction(title: value.options.b, style: UIAlertActionStyle.default) { action in
+                    questionPopup.dismiss(animated: true, completion: nil)
+                    self.handleSafetyQuesAnswer(selected: value.options.b, answer: value.answer, options: value.options, i: (index + 1))
+                };
+                let c = UIAlertAction(title: value.options.c, style: UIAlertActionStyle.default) { action in
+                    questionPopup.dismiss(animated: true, completion: nil)
+                    self.handleSafetyQuesAnswer(selected: value.options.c, answer: value.answer, options: value.options, i: (index + 1))
+                };
+                let d = UIAlertAction(title: value.options.d, style: UIAlertActionStyle.default) { action in
+                    questionPopup.dismiss(animated: true, completion: nil)
+                    self.handleSafetyQuesAnswer(selected: value.options.d, answer: value.answer, options: value.options, i: (index + 1))
+                };
+                
+                questionPopup.addAction(a)
+                questionPopup.addAction(b)
+                questionPopup.addAction(c)
+                questionPopup.addAction(d)
+                
+                questsAlerts.append(questionPopup)
+            }
+            
+            main.addOperation {
+                self.present(self.questsAlerts[0], animated: true, completion: nil)
+            }
+        }
+    }
+    
+    func handleSafetyQuesAnswer(selected: String, answer: String, options: SafetyQuestion.answerOptions, i: Int) {
+        
+        func makeAlert(correct: String, msg: String) {
+            let alert = UIAlertController(title: correct, message: msg, preferredStyle: .alert)
+            let action = UIAlertAction(title: "OK", style: .cancel) { action in
+                if i >= self.questsAlerts.count {
+                    return
+                } else if self.questsAlerts[i] != nil {
+                    self.present(self.questsAlerts[i], animated: true, completion: nil)
+                }
+            }
+            
+            alert.addAction(action)
+            main.addOperation { self.present(alert, animated: true, completion: nil) }
+        }
+        
+        var fullAnswer = ""
+        
+        switch answer {
+        case "a": fullAnswer = options.a;
+        case "b": fullAnswer = options.b;
+        case "c": fullAnswer = options.c;
+        case "d": fullAnswer = options.d;
+            
+        default: return;
+        }
+        
+        if selected == answer {
+            makeAlert(correct: "Correct", msg: "Answer: \(answer) \(fullAnswer)")
+        } else {
+            makeAlert(correct: "Incorrect", msg: "Answer: \(answer) \(fullAnswer)")
+        }
+    }
+    
     
     func profilePress() {
         profileUpload = true
@@ -565,7 +636,7 @@ extension HomeView: ImagePickerDelegate {
         } else if imageAssets.count < 11 {
             picker.dismiss(animated: true) {
                 self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
-
+                
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                     let emply =  UserDefaults.standard.string(forKey: "employeeName") {

@@ -45,6 +45,7 @@ class EmployeeIDEntry: UIViewController {
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
+    var safetyQs: [SafetyQuestion] = []
     var todaysJob = Job()
     var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
@@ -191,7 +192,6 @@ extension EmployeeIDEntry {
             self.todaysJob.jobLocation = jobLatLong
             self.foundUser?.punchedIn = clockedIn
             
-            self.completedProgress()
             self.setClockInNotifcs(clockedIn: clockedIn)
             
         } else if manualPO == false {
@@ -253,6 +253,14 @@ extension EmployeeIDEntry {
                     print("added reminder at 4 hour mark")
                 }
             }
+            
+            APICalls().getSafetyQs() { safetyQuestions in
+                self.safetyQs = safetyQuestions
+                print("safetyQs.count: \(self.safetyQs.count)")
+                self.completedProgress()
+            }
+        } else {
+            self.completedProgress()
         }
     }
     
@@ -267,6 +275,7 @@ extension EmployeeIDEntry {
             HomeView.todaysJob.poNumber = todaysJob.poNumber
             HomeView.todaysJob.jobLocation = todaysJob.jobLocation
             HomeView.role = role
+            HomeView.safetyQs = safetyQs
             
         } else  if id == "clockTOchange" {
             let vc = segue.destination as! ChangeOrdersView
