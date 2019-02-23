@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/DataStructure.swift"
-            timestampString = "572572475.892467"
+            timestampString = "572575664.586839"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "468"
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/APICalls.swift"
-            timestampString = "572316044.5314569"
+            timestampString = "572575664.586902"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "178"
-            endingLineNumber = "178"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
             landmarkName = "fetchEmployee(employeeId:callback:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/APICalls.swift"
-            timestampString = "572316044.531759"
+            timestampString = "572575664.586942"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "183"
+            endingLineNumber = "183"
             landmarkName = "fetchEmployee(employeeId:callback:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,28 +74,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/HomeView.swift"
-            timestampString = "572572475.892545"
+            timestampString = "572575664.5869811"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "96"
-            endingLineNumber = "96"
-            landmarkName = "checkForSafetyQs()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/EmployeeIDEntry.swift"
-            timestampString = "572572475.892898"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "259"
-            endingLineNumber = "259"
-            landmarkName = "setClockInNotifcs(clockedIn:)"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
+            landmarkName = "handleSafetyQuesAnswer(selected:answer:options:i:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

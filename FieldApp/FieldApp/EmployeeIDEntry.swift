@@ -256,7 +256,6 @@ extension EmployeeIDEntry {
             
             APICalls().getSafetyQs() { safetyQuestions in
                 self.safetyQs = safetyQuestions
-                print("safetyQs.count: \(self.safetyQs.count)")
                 self.completedProgress()
             }
         } else {

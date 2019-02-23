@@ -54,7 +54,6 @@ class APICalls {
     func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()) {
         let route = "employee/" + String(describing: employee.employeeID)
         let data = convertToJSON(employee: employee, location: location, role: role)
-//        let session = URLSession.shared;
         var auto: String { if autoClockOut == true { return "true" } else { return "" } }
         
         setupRequest(route: route, method: "POST") { req in
@@ -213,6 +212,24 @@ class APICalls {
                     allSafetyQuestions.append(q)
                 }
                 cb(allSafetyQuestions)
+            }
+            task.resume()
+        }
+    }
+    
+    func addPoints(employee: String, pts: Int) {
+        let route = "addPoints/\(employee)/\(pts)"
+        
+        setupRequest(route: route, method: "GET") { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil {
+                    print(error); return
+                }
+                
+                guard let verfData = data as? Data else {
+                    print("Couldnt verf data")
+                    return
+                }
             }
             task.resume()
         }

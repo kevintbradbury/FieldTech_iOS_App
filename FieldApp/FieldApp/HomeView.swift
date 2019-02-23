@@ -101,19 +101,19 @@ extension HomeView {
                 
                 let a = UIAlertAction(title: value.options.a, style: UIAlertActionStyle.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: value.options.a, answer: value.answer, options: value.options, i: (index + 1) )
+                    self.handleSafetyQuesAnswer(selected: "a", answer: value.answer, options: value.options, i: (index + 1) )
                 };
                 let b = UIAlertAction(title: value.options.b, style: UIAlertActionStyle.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: value.options.b, answer: value.answer, options: value.options, i: (index + 1))
+                    self.handleSafetyQuesAnswer(selected: "b", answer: value.answer, options: value.options, i: (index + 1))
                 };
                 let c = UIAlertAction(title: value.options.c, style: UIAlertActionStyle.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: value.options.c, answer: value.answer, options: value.options, i: (index + 1))
+                    self.handleSafetyQuesAnswer(selected: "c", answer: value.answer, options: value.options, i: (index + 1))
                 };
                 let d = UIAlertAction(title: value.options.d, style: UIAlertActionStyle.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: value.options.d, answer: value.answer, options: value.options, i: (index + 1))
+                    self.handleSafetyQuesAnswer(selected: "d", answer: value.answer, options: value.options, i: (index + 1))
                 };
                 
                 questionPopup.addAction(a)
@@ -149,16 +149,23 @@ extension HomeView {
         var fullAnswer = ""
         
         switch answer {
-        case "a": fullAnswer = options.a;
-        case "b": fullAnswer = options.b;
-        case "c": fullAnswer = options.c;
-        case "d": fullAnswer = options.d;
+        case "a":
+            fullAnswer = options.a;
+        case "b":
+            fullAnswer = options.b;
+        case "c":
+            fullAnswer = options.c;
+        case "d":
+            fullAnswer = options.d;
             
         default: return;
         }
         
         if selected == answer {
             makeAlert(correct: "Correct", msg: "Answer: \(answer) \(fullAnswer)")
+            // add pts here
+            guard let user = HomeView.employeeInfo?.userName as? String else { return }
+            APICalls().addPoints(employee: user, pts: 2)
         } else {
             makeAlert(correct: "Incorrect", msg: "Answer: \(answer) \(fullAnswer)")
         }
