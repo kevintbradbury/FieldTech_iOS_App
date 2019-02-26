@@ -32,7 +32,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
     let colors: [Color] = [
-        Color.green, Color.blue, Color.teal, Color.red,Color.fuchsia,
+        Color.green, Color.blue, Color.teal, Color.red, Color.fuchsia,
         Color.navy, Color.purple, Color.yellow, Color(val: 0xFF9742)
     ]
     let icons = [
@@ -136,6 +136,7 @@ extension HomeView {
             let alert = UIAlertController(title: correct, message: msg, preferredStyle: .alert)
             let action = UIAlertAction(title: "OK", style: .cancel) { action in
                 if i >= self.questsAlerts.count {
+                    HomeView.safetyQs = []
                     return
                 } else if self.questsAlerts[i] != nil {
                     self.present(self.questsAlerts[i], animated: true, completion: nil)

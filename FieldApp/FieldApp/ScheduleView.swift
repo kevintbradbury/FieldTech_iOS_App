@@ -45,13 +45,8 @@ class ScheduleView: UIViewController {
         jobsTable.dataSource = self
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        confirmRegOrMoreHrs()
-    }
-    
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
-    
+    @IBAction func accptMoreHrsBtn(_ sender: Any) { confirmRegOrMoreHrs() }
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
@@ -180,25 +175,19 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 extension ScheduleView {
     
     func confirmRegOrMoreHrs() {
-        guard let rdy = ScheduleView.scheduleRdy else { return }
-        
-        if rdy == true {
-            let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours or just regular hours?", preferredStyle: .alert)
-            
-            let reg = UIAlertAction(title: "Regular", style: .cancel)
-            let moreHrs = UIAlertAction(title: "MORE", style: .default) { action in
-//                guard let user = self.employee?.userName as? String else { return }
-//                guard let user = UserDefaults.standard.string(forKey: "employeeName") else { return }
-                guard let user = HomeView.employeeInfo?.userName else { return }
-                APICalls().acceptMoreHrs(employee: user)
-            }
-            readyAlert.addAction(reg)
-            readyAlert.addAction(moreHrs)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-                self.present(readyAlert, animated: true, completion: nil)
-            }
+        let readyAlert = UIAlertController(title: "Confirm", message: "You are available for more hours?", preferredStyle: .alert)
+        let no = UIAlertAction(title: "No", style: .cancel)
+        let yes = UIAlertAction(title: "Yes", style: .default) { action in
+            guard let user = HomeView.employeeInfo?.userName else { return }
+            APICalls().acceptMoreHrs(employee: user)
         }
+        
+        readyAlert.addAction(no)
+        readyAlert.addAction(yes)
+        
+        self.present(readyAlert, animated: true, completion: nil)
+        //            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+        //            }
     }
     
     func loading() {
@@ -215,7 +204,6 @@ extension ScheduleView {
             self.calendarView.reloadData()
             self.activityIndicator.stopAnimating()
         }
-        confirmRegOrMoreHrs()
     }
     
     func clearJobInfo() {

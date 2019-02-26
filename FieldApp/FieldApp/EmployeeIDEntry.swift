@@ -225,41 +225,55 @@ extension EmployeeIDEntry {
             
             if hadLunch == true {
                 hadLunch = false;
-                UserDefaults.standard.set(nil, forKey: "hadLunch")
+                UserDefaults.standard.set(false, forKey: "hadLunch")
                 title = "Clock Out Reminder"; message = "Time to wrap up for the day."; identifier = "clockOut";
+                self.completedProgress()
+                
             } else {
                 title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
-            }
-            
-            let tenMinBreakRmdr = createNotification(
-                intervalInSeconds: twoHours, title: "10 Minute Break",
-                message: "Don't forget to take a short 10 minute break.", identifier: "tenMinBrk"
-            )
-            let clckOutRmndr = createNotification(
-                intervalInSeconds: fourHours, title: title, message: message, identifier: identifier
-            )
-            
-            notificationCenter.add(tenMinBreakRmdr) { (error) in
-                if error != nil {
-                    print("error setting clock notif: \(String(describing: error))")
-                } else {
-                    print("added reminder at 2 hour mark")
+                APICalls().getSafetyQs() { safetyQuestions in
+                    self.safetyQs = safetyQuestions
+                    self.completedProgress()
                 }
             }
-            notificationCenter.add(clckOutRmndr) { (error) in
-                if error != nil {
-                    print("error setting clock notif: \(String(describing: error))")
-                } else {
-                    print("added reminder at 4 hour mark")
-                }
-            }
+            setBreakNotifcs(twoHrs: twoHours, fourHrs: fourHours, title: title, msg: message, idf: identifier)
             
-            APICalls().getSafetyQs() { safetyQuestions in
-                self.safetyQs = safetyQuestions
+        } else {
+            
+            if self.hadLunch == false {
+                UserDefaults.standard.set(true, forKey: "hadLunch")
+                APICalls().getSafetyQs() { safetyQuestions in
+                    self.safetyQs = safetyQuestions
+                    self.completedProgress()
+                }
+            } else {
                 self.completedProgress()
             }
-        } else {
-            self.completedProgress()
+        }
+    }
+    
+    func setBreakNotifcs(twoHrs: Double, fourHrs: Double, title: String, msg: String, idf: String) {
+        let tenMinBreakRmdr = createNotification(
+            intervalInSeconds: twoHrs, title: "10 Minute Break",
+            message: "Don't forget to take a short 10 minute break.", identifier: "tenMinBrk"
+        )
+        let clckOutRmndr = createNotification(
+            intervalInSeconds: fourHrs, title: title, message: msg, identifier: idf
+        )
+        
+        notificationCenter.add(tenMinBreakRmdr) { (error) in
+            if error != nil {
+                print("error setting clock notif: \(String(describing: error))")
+            } else {
+                print("added reminder at 2 hour mark")
+            }
+        }
+        notificationCenter.add(clckOutRmndr) { (error) in
+            if error != nil {
+                print("error setting clock notif: \(String(describing: error))")
+            } else {
+                print("added reminder at 4 hour mark")
+            }
         }
     }
     

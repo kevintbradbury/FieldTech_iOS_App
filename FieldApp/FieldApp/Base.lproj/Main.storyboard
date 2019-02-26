@@ -572,7 +572,7 @@
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="2xY-AT-WN8">
-                                <rect key="frame" x="0.0" y="374.5" width="320" height="193.5"/>
+                                <rect key="frame" x="0.0" y="389" width="320" height="179"/>
                                 <color key="backgroundColor" red="0.93325293060000003" green="0.47563588490000003" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <color key="separatorColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -629,11 +629,23 @@
                                     <segue destination="3nV-hF-x08" kind="presentation" identifier="torList" id="UVE-WM-Nmd"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fwg-pt-EWZ">
+                                <rect key="frame" x="16" y="371.5" width="288" height="12.5"/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Accept More Hours">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="accptMoreHrsBtn:" destination="gwV-lw-m8q" eventType="touchUpInside" id="bKF-DT-tFb"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.93325293064117432" green="0.47563588492486214" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="top" secondItem="ou1-D3-FEU" secondAttribute="bottom" constant="7.5" id="2Ad-Ak-tlX"/>
                             <constraint firstItem="7HF-L9-dB1" firstAttribute="top" secondItem="Wu5-U3-x0k" secondAttribute="bottom" id="7rI-K9-aCw"/>
+                            <constraint firstItem="2xY-AT-WN8" firstAttribute="height" secondItem="lpg-pI-w0l" secondAttribute="height" multiplier="0.7" id="9H3-nX-ok6"/>
                             <constraint firstItem="FMG-NN-aoy" firstAttribute="width" secondItem="7HF-L9-dB1" secondAttribute="width" id="BAS-sY-LCc"/>
                             <constraint firstAttribute="trailing" secondItem="g1v-fe-i20" secondAttribute="trailing" constant="10" id="BLY-iL-XP4"/>
                             <constraint firstAttribute="trailing" secondItem="FMG-NN-aoy" secondAttribute="trailing" constant="16" id="E8V-FR-6ca"/>
@@ -642,7 +654,8 @@
                             <constraint firstItem="MM8-Xt-HQz" firstAttribute="width" secondItem="gQ2-2s-BTt" secondAttribute="width" multiplier="0.75" id="IZe-Bx-aW1"/>
                             <constraint firstAttribute="trailing" secondItem="ou1-D3-FEU" secondAttribute="trailing" constant="11" id="JTp-Sq-3PY"/>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leading" id="JqA-Yf-CNG"/>
-                            <constraint firstItem="2xY-AT-WN8" firstAttribute="top" secondItem="lpg-pI-w0l" secondAttribute="bottom" constant="8" id="QG3-fC-EBR"/>
+                            <constraint firstItem="2xY-AT-WN8" firstAttribute="top" secondItem="fwg-pt-EWZ" secondAttribute="bottom" constant="5" id="K7g-i6-BHw"/>
+                            <constraint firstItem="fwg-pt-EWZ" firstAttribute="leading" secondItem="ap4-qu-bc6" secondAttribute="leadingMargin" id="LO7-Am-9iH"/>
                             <constraint firstItem="FMG-NN-aoy" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="MM8-Xt-HQz" secondAttribute="trailing" constant="16" id="RqX-bI-5tL"/>
                             <constraint firstItem="MM8-Xt-HQz" firstAttribute="leading" secondItem="gQ2-2s-BTt" secondAttribute="trailing" constant="10" id="SUs-so-vbW"/>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="height" secondItem="ap4-qu-bc6" secondAttribute="height" multiplier="0.45" id="Yjk-sy-l6G"/>
@@ -664,6 +677,8 @@
                             <constraint firstItem="gV3-Ic-bNq" firstAttribute="top" secondItem="2xY-AT-WN8" secondAttribute="bottom" id="tPD-x3-cDK"/>
                             <constraint firstItem="ou1-D3-FEU" firstAttribute="top" secondItem="gQ2-2s-BTt" secondAttribute="bottom" constant="40" id="u3m-iI-vSV"/>
                             <constraint firstItem="gQ2-2s-BTt" firstAttribute="width" secondItem="ap4-qu-bc6" secondAttribute="width" multiplier="0.25" id="ugA-Z1-RRN"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="fwg-pt-EWZ" secondAttribute="trailing" id="uoh-3F-eIZ"/>
+                            <constraint firstItem="fwg-pt-EWZ" firstAttribute="top" secondItem="lpg-pI-w0l" secondAttribute="bottom" constant="5" id="wt9-kO-QSl"/>
                             <constraint firstItem="lpg-pI-w0l" firstAttribute="trailing" secondItem="ap4-qu-bc6" secondAttribute="trailing" id="x9v-TB-DDd"/>
                         </constraints>
                     </view>
@@ -683,7 +698,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hbt-N8-hG1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3133" y="-732"/>
+            <point key="canvasLocation" x="3131.25" y="-732.04225352112678"/>
         </scene>
         <!--Log View-->
         <scene sceneID="M1T-TI-hUl">
