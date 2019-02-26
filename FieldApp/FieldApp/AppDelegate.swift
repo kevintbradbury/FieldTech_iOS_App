@@ -196,7 +196,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             let catg = response.notification.request.content.categoryIdentifier
             let state = UIApplication.shared.applicationState
             
-            print("UNUserNotificationCenter didReceive response: \(response.notification.request.content)")
+            print("UNUserNotificationCenter didReceive category: \(response.notification.request.content.categoryIdentifier)")
             
             guard let vc = self.myViewController else { return }
             
@@ -204,9 +204,15 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             case "vehicleCheckList":
                 if state == UIApplicationState.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
                 else { HomeView.vehicleCkListNotif = true }
+            
             case "scheduleReady":
-                if state == UIApplicationState.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
-                else { HomeView.scheduleReadyNotif = true }
+                ScheduleView.scheduleRdy = true
+                
+                if state == UIApplicationState.active {
+                    vc.performSegue(withIdentifier: "schedule", sender: nil)
+                } else {
+                    HomeView.scheduleReadyNotif = true
+                }
 
             default:
                 center.removeAllDeliveredNotifications()

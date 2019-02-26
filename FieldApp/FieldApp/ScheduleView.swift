@@ -34,6 +34,8 @@ class ScheduleView: UIViewController {
     var jobsArray: [Job.UserJob] = []
     var selectedJobs: [Job.UserJob] = []
     var selectedDates: [Job.UserJob.JobDates] = []
+    public static var scheduleRdy: Bool?
+//        UserDefaults.standard.bool(forKey: "scheduleReady")
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,6 +43,11 @@ class ScheduleView: UIViewController {
         
         jobsTable.delegate = self
         jobsTable.dataSource = self
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        confirmRegOrMoreHrs()
     }
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -136,8 +143,6 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
                 self.timeOreqs = timeOffReqs
                 self.holidays = holidayss
                 self.stopLoading()
-
-                print("jobs count: \(self.jobsArray.count)")
             }
         }
     }
@@ -174,6 +179,28 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 
 extension ScheduleView {
     
+    func confirmRegOrMoreHrs() {
+        guard let rdy = ScheduleView.scheduleRdy else { return }
+        
+        if rdy == true {
+            let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours or just regular hours?", preferredStyle: .alert)
+            
+            let reg = UIAlertAction(title: "Regular", style: .cancel)
+            let moreHrs = UIAlertAction(title: "MORE", style: .default) { action in
+//                guard let user = self.employee?.userName as? String else { return }
+//                guard let user = UserDefaults.standard.string(forKey: "employeeName") else { return }
+                guard let user = HomeView.employeeInfo?.userName else { return }
+                APICalls().acceptMoreHrs(employee: user)
+            }
+            readyAlert.addAction(reg)
+            readyAlert.addAction(moreHrs)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+                self.present(readyAlert, animated: true, completion: nil)
+            }
+        }
+    }
+    
     func loading() {
         self.main.addOperation {
             self.clearJobInfo()
@@ -188,6 +215,7 @@ extension ScheduleView {
             self.calendarView.reloadData()
             self.activityIndicator.stopAnimating()
         }
+        confirmRegOrMoreHrs()
     }
     
     func clearJobInfo() {
@@ -374,7 +402,6 @@ extension ScheduleView {
         }
         
         checkJobsDates(date: cellState.date) { matchingJbs, jobDates, colorInts in
-            print("matchingJobs.count : \(matchingJbs.count)")
             
             if matchingJbs.count > 0 && jobDates.count > 0 {
                 let colorChoices = [UIColor.cyan, UIColor.magenta, UIColor.yellow, UIColor.lightGray]

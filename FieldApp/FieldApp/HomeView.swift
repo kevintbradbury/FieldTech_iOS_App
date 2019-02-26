@@ -435,7 +435,9 @@ extension HomeView {
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
         
         if HomeView.vehicleCkListNotif == true { self.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
-        else if HomeView.scheduleReadyNotif == true { self.performSegue(withIdentifier: "schedule", sender: nil) }
+        else if HomeView.scheduleReadyNotif == true {
+            self.performSegue(withIdentifier: "schedule", sender: nil)
+        }
     }
     
     func clockedInUI() {
@@ -458,9 +460,8 @@ extension HomeView {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         logoView.close()
-        let idtn = segue.identifier
         
-        switch idtn {
+        switch segue.identifier {
         case "schedule":
             let vc = segue.destination as! ScheduleView
             vc.employee = HomeView.employeeInfo

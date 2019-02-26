@@ -235,6 +235,21 @@ class APICalls {
         }
     }
     
+    func acceptMoreHrs(employee: String) {
+        let route = "acceptMoreHours/\(employee)"
+        
+        setupRequest(route: route, method: "POST") { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, err in
+                if err != nil {
+                    print(err); return
+                }
+                
+                
+            }
+            task.resume()
+        }
+    }
+    
     func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping ([String : String]) -> () ) {
         let route = "job/\(jobNumber)/upload"
         let headers = ["employee", employee]

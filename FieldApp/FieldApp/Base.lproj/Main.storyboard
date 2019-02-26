@@ -247,7 +247,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LGY-O2-z5N" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1493" y="-959"/>
+            <point key="canvasLocation" x="2312" y="-733"/>
         </scene>
         <!--Home View-->
         <scene sceneID="kAf-eN-8VW">
@@ -683,7 +683,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hbt-N8-hG1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2311.875" y="-959.15492957746483"/>
+            <point key="canvasLocation" x="3133" y="-732"/>
         </scene>
         <!--Log View-->
         <scene sceneID="M1T-TI-hUl">
@@ -750,7 +750,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cTM-FO-5QH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3180" y="-959"/>
+            <point key="canvasLocation" x="4001" y="-732"/>
         </scene>
         <!--Vehicle Check List View-->
         <scene sceneID="ciu-Zp-8UP">
@@ -1349,7 +1349,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="V3Y-GE-s3f" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="682.5" y="1491.5492957746478"/>
+            <point key="canvasLocation" x="2312" y="1597"/>
         </scene>
         <!--Time Off Request View-->
         <scene sceneID="mXC-Rh-KYW">
@@ -1517,7 +1517,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4vx-Hm-52i" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1490.625" y="1492.605633802817"/>
+            <point key="canvasLocation" x="3120" y="1598"/>
         </scene>
         <!--Supplies Request View-->
         <scene sceneID="XDD-6d-nbN">
@@ -2006,7 +2006,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zXB-rg-r0K" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tapGestureRecognizer id="A5c-Wh-u4d"/>
             </objects>
-            <point key="canvasLocation" x="2311.875" y="1491.5492957746478"/>
+            <point key="canvasLocation" x="3941" y="1597"/>
         </scene>
         <!--Tool Return View-->
         <scene sceneID="ga3-y3-1wd">
