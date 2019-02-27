@@ -175,7 +175,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 extension ScheduleView {
     
     func confirmRegOrMoreHrs() {
-        let readyAlert = UIAlertController(title: "Confirm", message: "You are available for more hours?", preferredStyle: .alert)
+        let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .alert)
         let no = UIAlertAction(title: "No", style: .cancel)
         let yes = UIAlertAction(title: "Yes", style: .default) { action in
             guard let user = HomeView.employeeInfo?.userName else { return }
