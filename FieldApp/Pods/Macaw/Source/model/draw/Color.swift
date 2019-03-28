@@ -52,18 +52,27 @@ open class Color: Fill, Equatable {
   }
   
   // GENERATED
-  open class func rgbt(r: Int, g: Int, b: Int, t: Int) -> Color {
-    return Color( val: ( ( ( ( ( t & 0xff ) << 24 ) | ( ( r & 0xff ) << 16 ) ) | ( ( g & 0xff ) << 8 ) ) | ( b & 0xff ) ) )
-  }
+//  open class func rgbt(r: Int, g: Int, b: Int, t: Int) -> Color {
+//    return Color(
+//        val: ((
+//                (
+//                    (   ( t & 0xff ) << 24  ) | (   ( r & 0xff ) << 16)
+//                ) | (
+//                    ( g & 0xff ) << 8
+//                )
+//            ) | ( b & 0xff )
+//        ))
+//  }
   
   // GENERATED
   open class func rgba(r: Int, g: Int, b: Int, a: Double) -> Color {
-    return rgbt( r: r, g: g, b: b, t: Int( ( ( 1 - a ) * 255 ) ) )
+    return rgba( r: r, g: g, b: b, a: a )
+//    return rgbt( r: r, g: g, b: b, t: Int( ( ( 1 - a ) * 255 ) ) )
   }
   
   // GENERATED
   open class func rgb(r: Int, g: Int, b: Int) -> Color {
-    return rgbt( r: r, g: g, b: b, t: 0 )
+    return rgb( r: r, g: g, b: b)
   }
   
   public static func ==(lhs: Color, rhs: Color) -> Bool {

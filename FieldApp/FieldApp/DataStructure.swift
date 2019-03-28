@@ -151,24 +151,29 @@ class Job: Codable {
         let jobCity: String
         let jobState: String
         let projCoord: String
+        let fieldLead: String
+        let supervisor: String
+        let assignedEmployees: [String]
         
         struct JobDates {
-            let installDate: Date
-            let endDate: Date
+            let installDate: Date, endDate: Date
         }
-
-//        let employeeJobHours: String?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
             guard let purchaseOrderNumber = dictionary["poNumber"] as? String else { print("couldnt parse poNumber"); return nil }
             guard let jobName = dictionary["name"] as? String else { print("couldnt parse storeName"); return nil }
             
+            guard let fieldLd = dictionary["fieldLead"] as? String else { print("coulnt parse fieldLead"); return nil }
+            guard let supervir = dictionary["supervisor"] as? String else { print("couldnt parse supervisor"); return nil }
+            guard let assignedEmploys = dictionary["assignedEmployees"] as? [String] else { print("couldnt parse assignedEmployees"); return nil }
+            
             var lat = CLLocationDegrees()
             var long = CLLocationDegrees()
             var coordinates = CLLocationCoordinate2D()
-            var address = "", city = "", state = "", coordinator = ""
+            var address = "", city = "", state = "", coordinator = "", fieldLead = "", supervisor = "", assignedEmployees = [""]
             let dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
+            if let projC = dictionary["projCoord"] as? String { coordinator = projC }
             
             if let location = dictionary["jobLocation"] as? [Double] {
                 if location.count > 1 {
@@ -193,14 +198,14 @@ class Job: Codable {
                     city = cityAsString
                     state = stateAsString
                     
-                    if let projC = dictionary["projCoord"] as? String { coordinator = projC }
                 }
             }
             
-            //                let budgetHours = dictionary["jobBudgetHours"] as? String,
-            //                let employeeHours = dictionary["employeeJobHours"] as? String
-            
-            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, jobLocation: coordinates, jobAddress: address, jobCity: city, jobState: state, projCoord: coordinator)
+            return UserJob(
+                poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, 
+                jobLocation: coordinates, jobAddress: address, jobCity: city, jobState: state, 
+                projCoord: coordinator, fieldLead: fieldLd, supervisor: supervir, assignedEmployees: assignedEmploys
+                )
         }
         
         static func stringToDate(string: String) -> Date {
