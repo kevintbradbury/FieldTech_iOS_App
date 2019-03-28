@@ -187,7 +187,7 @@ class Job: Codable {
                 coordinates.latitude = lat
                 coordinates.longitude = long
                 
-                print(dictionary["jobAddress"])
+                print(dictionary["jobAddress"] ?? "")
                 
                 if let addressAsString = dictionary["jobAddress"] as? String,
                     let cityAsString = dictionary["jobCity"] as? String,
@@ -222,11 +222,11 @@ class Job: Codable {
             var dates = [JobDates]()
             
             func handleJustDates() -> [JobDates] {
-                var endString = ""
+                var _ = ""
                 guard let start = dictionary["installDate"] as? String else { return dates }
                 guard let end = dictionary["endDate"] as? String else {
                     
-                    var complete = stringToDate(string: start) + (86400)  // if no endDate, make end 24hrs * 60min * 60sec after start
+                    let complete = stringToDate(string: start) + (86400)  // if no endDate, make end 24hrs * 60min * 60sec after start
                     let dtObj = JobDates(installDate: stringToDate(string: start), endDate: complete)
                     dates.append(dtObj)
                     
@@ -255,19 +255,6 @@ class Job: Codable {
             return dates
         }
     }
-}
-
-class ContactInfo {
-    
-    let departmentEmail = "admin@millworkbrothers.com"
-    let faxNumber: Int64 = 5628021113
-    let textNumbers: [String:Int64] = [
-        "Pete" : 123,
-        "Natalie" : 123,
-        "Jesus" : 123,
-        "Office" : 5625842155
-    ]
-    
 }
 
 class FieldActions {
@@ -386,12 +373,12 @@ class FieldActions {
                     let neededBy = dictionary["neededBy"] as? String,
                     let quantity = dictionary["quantity"] as? Int,
                     let location = dictionary["location"] as? String,
-                    let returnDate = dictionary["returnDate"] as? String,
+                    let _ = dictionary["returnDate"] as? String,
                     let photoStr = dictionary["photo"] as? String,
                     let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
-                    let image = UIImage(data: photoDecoded),
-                    let neededDate = Job.UserJob.stringToDate(string: neededBy) as? Date,
-                    let needDouble = neededDate.timeIntervalSince1970 as? Double {
+                    let image = UIImage(data: photoDecoded) {
+                        let neededDate = Job.UserJob.stringToDate(string: neededBy)
+                        let needDouble = neededDate.timeIntervalSince1970
                     
                     let toolToAdd = FieldActions.ToolRental(
                         formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: needDouble, location: location
@@ -455,11 +442,11 @@ struct TimeOffReq: Encodable  {
     let approved: Bool?
     
     static func parseJson(dictionary: NSDictionary) -> TimeOffReq {
-        var timeOffReq = TimeOffReq(
+        let timeOffReq = TimeOffReq(
             username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0, approved: nil
         )
         var approved: Bool?
-        print("TOR: approved: \(dictionary["approved"])")
+        print("TOR: approved: \(String(describing: dictionary["approved"]))")
         
         guard let username = dictionary["username"] as? String,
             let employeeID = dictionary["employeeID"] as? String,
@@ -475,11 +462,9 @@ struct TimeOffReq: Encodable  {
             approved = dictionary["approved"] as? Bool
         }
         
-        guard let startDt = FieldActions.getDateFromISOString(isoDate: start) as? Date,
-            let endDt = FieldActions.getDateFromISOString(isoDate: end) as? Date,
-            let signedDt = FieldActions.getDateFromISOString(isoDate: signed) as? Date else {
-                print("unable to set DTs from strings"); return timeOffReq
-        }
+        let startDt = FieldActions.getDateFromISOString(isoDate: start)
+        let endDt = FieldActions.getDateFromISOString(isoDate: end)
+        let signedDt = FieldActions.getDateFromISOString(isoDate: signed)
         
         return TimeOffReq(
             username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours,
@@ -504,15 +489,13 @@ struct SafetyQuestion: Encodable {
             let b = answerOptions["b"] as? String,
             let c = answerOptions["c"] as? String,
             let d = answerOptions["d"] as? String,
-            let options = SafetyQuestion.answerOptions(a: a, b: b, c: c, d: d) as? answerOptions,
             let answer = dictionary["answer"] as? String else {
                 print("failed to parse safetyQuestion")
                 return SafetyQuestion(
-                    question: "",
-                    options: SafetyQuestion.answerOptions(a: "", b: "", c: "", d: ""),
-                    answer: ""
+                    question: "", options: SafetyQuestion.answerOptions(a: "", b: "", c: "", d: ""), answer: ""
                 )
         }
+        let options = SafetyQuestion.answerOptions(a: a, b: b, c: c, d: d)
         
         return SafetyQuestion(question: question, options: options, answer: answer)
     }

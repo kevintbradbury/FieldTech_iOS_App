@@ -434,13 +434,13 @@ extension EmployeeIDEntry {
         
         notificationCenter.add(earlyrequest) { (error) in
             if error != nil {
-                print("There was an error: \(error?.localizedDescription)")
+                print("There was an error: \(errorString(describing: ?.localizedDescription))")
             }
         }
         
         notificationCenter.add(request) { (error) in
             if error != nil {
-                print("There was an error: \(error?.localizedDescription)")
+                print("There was an error: \(errorString(describing: ?.localizedDescription))")
             } else {
                 UserDefaults.standard.set(true, forKey: "hadLunch")
                 self.hadLunch = true
@@ -495,7 +495,7 @@ extension EmployeeIDEntry {
     
     func checkForUserInfo() {
         if HomeView.employeeInfo?.employeeID != nil {
-            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
+            print("punched in -- \(String(describing: HomeView.employeeInfo!.punchedIn))")
             HomeView().checkPunchStatus()
             
         } else {
@@ -538,8 +538,8 @@ extension EmployeeIDEntry {
     
     func stopSpinning() {
         guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
-        nodeClockHnd.placeVar.onChange { (transfrm) in
-            transfrm
+        nodeClockHnd.placeVar.onChange { transfrm in
+            //            transfrm
         }
         let anmt: Animation = nodeClockHnd.placeVar.animation(angle: 0.0)
         anmt.cycle().stop()

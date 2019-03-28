@@ -198,17 +198,17 @@ class APICalls {
         
         setupRequest(route: route, method: "GET") { request in
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if error != nil { print(error); return }
+                if error != nil { print(error ?? "err"); return }
                 
-                guard let verfData = data as? Data,
+                guard let verfData = data,
                     let json = (try? JSONSerialization.jsonObject(with: verfData, options: []) as? NSArray) else {
                         print("failed to serialize JSON from SafetyQ req")
                         return }
                 var allSafetyQuestions = [SafetyQuestion]()
                 
                 for question in json ?? [] {
-                    guard  let dictionary = question as? NSDictionary,
-                    let q = SafetyQuestion.jsonToSQ(dictionary: dictionary) as? SafetyQuestion else { return }
+                    guard  let dictionary = question as? NSDictionary else { return }
+                    let q = SafetyQuestion.jsonToSQ(dictionary: dictionary)
                     allSafetyQuestions.append(q)
                 }
                 cb(allSafetyQuestions)
@@ -223,10 +223,10 @@ class APICalls {
         setupRequest(route: route, method: "GET") { request in
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if error != nil {
-                    print(error); return
+                    print(error ?? "err"); return
                 }
                 
-                guard let verfData = data as? Data else {
+                guard let verfData = data else {
                     print("Couldnt verf data")
                     return
                 }
@@ -241,7 +241,7 @@ class APICalls {
         setupRequest(route: route, method: "POST") { request in
             let task = URLSession.shared.dataTask(with: request) { data, response, err in
                 if err != nil {
-                    print(err); return
+                    print(err ?? "err"); return
                 }
                 
                 
@@ -370,7 +370,7 @@ extension APICalls {
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
-        let session = URLSession.shared;
+        _ = URLSession.shared;
         
         getFIRidToken() { firebaseIDtoken in
             request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")
@@ -419,9 +419,9 @@ extension APICalls {
         for tmOffReq in array {
             
             if let jobDictionary = tmOffReq as? NSDictionary {
-                if let req = TimeOffReq.parseJson(dictionary: jobDictionary) as? TimeOffReq {
-                    timeOffReqs.append(req)
-                }
+                let req = TimeOffReq.parseJson(dictionary: jobDictionary)
+                timeOffReqs.append(req)
+                
             } else {
                 print("couldn't cast index json to type Dictionary"); return timeOffReqs
             }
@@ -531,7 +531,7 @@ extension APICalls {
     
     //Doesn't set an alarm but does add an event to calendar, which may be useful for adding jobs to internal calendar
     func setAnAlarm(jobName: String, jobStart: Date, jobEnd: Date) {
-        var calendar: EKCalendar?
+        var _: EKCalendar?
         let eventstore = EKEventStore()
         
         eventstore.requestAccess(to: EKEntityType.event){ (granted, error ) -> Void in
@@ -591,7 +591,7 @@ extension APICalls {
     }
     
     func handleResponseMsgOrErr(json: NSDictionary, uploadType: String, callback: ([String: String]) -> () ) {
-        let state = UIApplication.shared.applicationState
+        _ = UIApplication.shared.applicationState
         
         if let err = json["error"] as? String {
             print(err)

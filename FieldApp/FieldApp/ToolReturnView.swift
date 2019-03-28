@@ -78,10 +78,10 @@ extension ToolReturnView {
         let index = Int(indexPath.item)
         let toolRntl = rentals[index]
         
-        if let img = images[index] as? UIImage,
-            let toolName = toolRntl.toolType,
-            let brand = toolRntl.brand,
-            let jobNm = toolRntl.jobName,
+        if let _ = images[index] as? UIImage,
+            let _ = toolRntl.toolType,
+            let _ = toolRntl.brand,
+            let _ = toolRntl.jobName,
             let rentDt = toolRntl.neededBy,
             let secs = rentDt as? TimeInterval {
             

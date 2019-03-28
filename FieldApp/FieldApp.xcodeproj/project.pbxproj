@@ -328,7 +328,7 @@
 			};
 			buildConfigurationList = 0AC8EF461F71826200E86DD6 /* Build configuration list for PBXProject "FieldApp" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,

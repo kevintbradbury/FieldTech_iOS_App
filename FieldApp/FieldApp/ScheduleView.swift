@@ -329,8 +329,7 @@ extension ScheduleView {
     func checkForJob(name: String, callback: (Job.UserJob) -> ()) {
         for job in jobsArray {
             if name == job.jobName {
-                guard let matchingJob = job as? Job.UserJob else { return }
-                callback(matchingJob)
+                callback(job)
             }
         }
     }
@@ -467,12 +466,12 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         if selectedJobs.count > 0 {
             let jb = selectedJobs[indexPath.row]
             let dt = selectedDates[indexPath.row]
-            let a = selectedJobs[indexPath.row].jobName
-            let b = selectedJobs[indexPath.row].poNumber
-            let bb = getTime(date: dt.installDate)
-            let cc = getMonthDayYear(date: dt.installDate)
+            _ = selectedJobs[indexPath.row].jobName
+            _ = selectedJobs[indexPath.row].poNumber
+            _ = getTime(date: dt.installDate)
+            _ = getMonthDayYear(date: dt.installDate)
             let jobName = jb.jobName
-            let po = jb.poNumber
+            _ = jb.poNumber
             let startTm = getTime(date: dt.installDate)
             let address = "\(jb.jobAddress), \(jb.jobCity), \(jb.jobState)"
             

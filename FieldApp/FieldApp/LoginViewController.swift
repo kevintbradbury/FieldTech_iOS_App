@@ -50,7 +50,7 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
     @IBAction func loginPressed(_ sender: Any) {
         activityIndicator.startAnimating()
 
-        guard let phoneNum = phoneNumberField.text as? String else {
+        guard let phoneNum = phoneNumberField.text else {
             showAlert(withTitle: "Error", message: "No number given or formatting issue."); return
         }
         authPhoneNumber(phoneNumber: phoneNum)
@@ -95,7 +95,7 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
                     let credential = PhoneAuthProvider.provider().credential(withVerificationID: authVerificationID, verificationCode: verificationCodeToString)
 
                     //Add Firebase sign in here
-                    Auth.auth().signIn(with: credential) { (user, error) in
+                    Auth.auth().signInAndRetrieveData(with: credential) { (user, error) in
                         if let error = error {
                             print("received the following error from credentials --> \(error) \n")
                         }

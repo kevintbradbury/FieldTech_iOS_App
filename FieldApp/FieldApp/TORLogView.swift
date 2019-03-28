@@ -38,7 +38,7 @@ class TORLogView: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let safeAry = timeOffReqs,
-            var cell = tableView.dequeueReusableCell(withIdentifier: "torLogCell", for: indexPath) as? TORLogTableCell else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "torLogCell", for: indexPath) as? TORLogTableCell else {
                 return TORLogTableCell()
         }
         let tOR = safeAry[indexPath.row]

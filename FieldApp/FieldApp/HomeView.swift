@@ -165,7 +165,7 @@ extension HomeView {
         if selected == answer {
             makeAlert(correct: "Correct", msg: "Answer: \(answer) \(fullAnswer)")
             // add pts here
-            guard let user = HomeView.employeeInfo?.userName as? String else { return }
+            guard let user = HomeView.employeeInfo?.userName else { return }
             APICalls().addPoints(employee: user, pts: 2)
         } else {
             makeAlert(correct: "Incorrect", msg: "Answer: \(answer) \(fullAnswer)")
@@ -322,11 +322,11 @@ extension HomeView {
             UserDefaults.standard.set(HomeView.todaysJob.jobName, forKey: "todaysJobName")
             
         } else if HomeView.todaysJob.jobName != nil && HomeView.todaysJob.jobLocation?.count == 2 {
-            guard let lat = HomeView.todaysJob.jobLocation?[0] as? CLLocationDegrees else { return }
-            guard let lng = HomeView.todaysJob.jobLocation?[1] as? CLLocationDegrees else { return }
-            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
-                print("failed to set job coordinates for monitoring"); return
+            guard let lat = HomeView.todaysJob.jobLocation?[0],
+                let lng = HomeView.todaysJob.jobLocation?[1] else {
+                    print("failed to set job coordinates for monitoring"); return
             }
+            let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng)
             UserLocation.instance.startMonitoring(location: coordindates)
             
             UserDefaults.standard.set(HomeView.todaysJob.poNumber, forKey: "todaysJobPO")
@@ -334,15 +334,15 @@ extension HomeView {
             UserDefaults.standard.set(HomeView.todaysJob.jobLocation, forKey: "todaysJobLatLong")
             
         } else if let latLong = UserDefaults.standard.array(forKey: "todaysJobLatLong") {
-            guard let lat = latLong[0] as? CLLocationDegrees else { return }
-            guard let lng = latLong[1] as? CLLocationDegrees else { return }
-            guard let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng) as? CLLocationCoordinate2D else {
+            guard let lat = latLong[0] as? CLLocationDegrees,
+                let lng = latLong[1] as? CLLocationDegrees else {
                 print("failed to set job coordinates for monitoring"); return
             }
+            let coordindates = CLLocationCoordinate2D(latitude: lat, longitude: lng)
             UserLocation.instance.startMonitoring(location: coordindates)
             
         } else { //No job loc available
-            guard let coordinates = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else {
+            guard let coordinates = UserLocation.instance.currentCoordinate else {
                 print("job coordinates failed AND user coordinates failed for monitoring"); return
             }
             UserLocation.instance.startMonitoring(location: coordinates)
@@ -352,7 +352,7 @@ extension HomeView {
     @objc func checkForUserInfo() {
         
         if HomeView.employeeInfo?.employeeID != nil {
-            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
+            print("punched in -- \(String(describing: HomeView.employeeInfo!.punchedIn))")
             checkPunchStatus()
             
         } else {
@@ -442,14 +442,14 @@ extension HomeView {
     }
     
     func clockedInUI() {
-        guard let info = HomeView.employeeInfo as? UserData.UserInfo else { return }
+        guard let info = HomeView.employeeInfo else { return }
         main.addOperation {
             self.userLabel.text = "\(info.userName) \nID#: \(info.employeeID) \nClocked IN"
             self.completedProgress()
         }
     }
     func clockedOutUI() {
-        guard let info = HomeView.employeeInfo as? UserData.UserInfo else { return }
+        guard let info = HomeView.employeeInfo else { return }
         main.addOperation {
             self.userLabel.text = "\(info.userName) \nID#: \(info.employeeID) \nClocked OUT"
             self.completedProgress()
@@ -487,7 +487,7 @@ extension HomeView {
             vc.formTypeVal = "Tool Rental"
         case "toolReturn":
             let vc = segue.destination as! ToolReturnView
-            guard let id = HomeView.employeeInfo?.employeeID as? Int else { return }
+            guard let id = HomeView.employeeInfo?.employeeID else { return }
             vc.employeeID = id
         case "map":
             let vc = segue.destination as! StoresMapView
@@ -532,7 +532,7 @@ extension HomeView {
         
         notificationCenter.setNotificationCategories([alarmCategory])
         notificationCenter.requestAuthorization(options: options) { (granted, error) in
-            if !granted { print("there was an error or the user did not authorize alerts: ", error) }
+            if !granted { print("there was an error or the user did not authorize alerts: ", error ?? "notificationCenter: err") }
         }
         notificationCenter.getNotificationSettings { (settings) in
             if settings.authorizationStatus != .authorized { print("user did not authorize alerts") }
@@ -582,7 +582,7 @@ extension HomeView {
         
         if FileManager.default.fileExists(atPath: imagePath) {
             guard let imageData = try? Data(contentsOf: imageUrl),
-                var image = UIImage(data: imageData, scale: UIScreen.main.scale) else {
+                let image = UIImage(data: imageData, scale: UIScreen.main.scale) else {
                     print("Couldnt convert url to data obj"); return
             }
             
@@ -628,7 +628,7 @@ extension HomeView: ImagePickerDelegate {
             picker.dismiss(animated: true) {
                 self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
                 guard let emply = HomeView.employeeInfo?.userName,
-                    let idNum = UserDefaults.standard.string(forKey: "employeeID") as? String else { return }
+                    let idNum = UserDefaults.standard.string(forKey: "employeeID") else { return }
                 let route = "employee/\(idNum)/profileUpload"
                 let headers = ["employee", emply]
                 let info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA")

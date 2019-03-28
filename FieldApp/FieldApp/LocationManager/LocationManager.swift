@@ -75,7 +75,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with following error: \(error)") }
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
-        print("monitoring failed for region w/ identifier: \(region?.identifier)")
+        print("monitoring failed for region w/ identifier: \(String(describing: region?.identifier))")
     }
     
 }
@@ -98,9 +98,7 @@ extension UserLocation {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
             let radius = CLLocationDistance(402)    // radius 1/4 mile ~= 402 meters
-            guard let region = CLCircularRegion(center: location, radius: radius, identifier: "range") as? CLCircularRegion else {
-                return
-            }
+            let region = CLCircularRegion(center: location, radius: radius, identifier: "range")
             print("region to start monitoring: \(region)")
             locationManager.startMonitoring(for: region)
             
@@ -121,11 +119,11 @@ extension UserLocation {
     
     func handleGeoFenceEvent(forRegion region: CLRegion) {
         print("region EXIT event triggered \(region)")
-        guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
-        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") as? String else { print("failed on employeeName"); return }
+        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName"),
+            let coordinate = UserLocation.instance.currentCoordinate else { print("failed on employeeName or coordinate"); return }
+        let employeeID = UserDefaults.standard.integer(forKey: "employeeID")
         let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
         let autoClockOut = true
-        guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
         // get role here

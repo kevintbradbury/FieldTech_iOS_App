@@ -69,38 +69,39 @@ class VehicleCheckListView: UITableViewController {
     func getForm() -> FieldActions.VehicleChecklist {
         var vehicleForm: FieldActions.VehicleChecklist?
         
-        if let name = nameField.text as? String,
-            let department = departmentField.text as? String,
-            let licenseNumber = licensePlateField.text as? String,
-            let extWindows = extWindowsSwitch.isOn as? Bool,
-            let extTire = extTireSwitch.isOn as? Bool,
-            let extEngine = extEngineSwitch.isOn as? Bool,
-            let extSignals = extSignalsSwitch.isOn as? Bool,
-            let extMirr = extMirrors.isOn as? Bool,
-            let extWindshd = extWindshieldSwitch.isOn as? Bool,
-            let extDents = extDentSwitch.isOn as? Bool,
-            let extCommts = extCommentsField.text as? String,
-            let startEngine = startupEngineSwitch.isOn as? Bool,
-            let startGauge = startupGaugeSwitch.isOn as? Bool,
-            let startWiper = startupWipersSWitch.isOn as? Bool,
-            let startHorn = startupHornSwitch.isOn as? Bool,
-            let startBrake = startupBrakesSwitch.isOn as? Bool,
-            let startSeatbt = startupSeatbeltsSwitch.isOn as? Bool,
-            let startInsurance = startupInsuranceSwitch.isOn as? Bool,
-            let startFirstAid = startupFirstAidKitSwitch.isOn as? Bool,
-            let startClean = startupCleanSwitch.isOn as? Bool,
+        if let name = nameField.text,
+            let department = departmentField.text,
+            let licenseNumber = licensePlateField.text,
+            let extCommts = extCommentsField.text,
             let startCommts = startupComments.text,
             let issuesCmmts = maintenanceIssuesTxtField.text {
             
-            let outsideInspect = FieldActions.VehicleChecklist.OutsideInspection(
-                windows: extWindows, tiresNnuts: extTire, engine: extEngine, litesNsignals: extSignals, mirrors: extMirr, windshieldNwipres: extWindshd, dents: extDents, exteriorComments: extCommts
-            )
-            let startupInspect = FieldActions.VehicleChecklist.StartupInspection(
-                engine: startEngine, gauges: startGauge, wipers: startWiper, horn: startHorn, brakes: startBrake, seatbelt: startSeatbt, insuranceNregist: startInsurance, firstAidKit: startFirstAid, clean: startClean, startupComments: startCommts
-            )
-            vehicleForm = FieldActions.VehicleChecklist(
-                username: name, department: department, licensePlate: licenseNumber, date: currentDate.timeIntervalSince1970, outsideInspection: outsideInspect, startupInspection: startupInspect, issuesReport: issuesCmmts
-            )
+                let extWindows = extWindowsSwitch.isOn
+                let extTire = extTireSwitch.isOn
+                let extEngine = extEngineSwitch.isOn
+                let extSignals = extSignalsSwitch.isOn
+                let extMirr = extMirrors.isOn
+                let extWindshd = extWindshieldSwitch.isOn
+                let extDents = extDentSwitch.isOn
+                let startEngine = startupEngineSwitch.isOn
+                let startGauge = startupGaugeSwitch.isOn
+                let startWiper = startupWipersSWitch.isOn
+                let startHorn = startupHornSwitch.isOn
+                let startBrake = startupBrakesSwitch.isOn
+                let startSeatbt = startupSeatbeltsSwitch.isOn
+                let startInsurance = startupInsuranceSwitch.isOn
+                let startFirstAid = startupFirstAidKitSwitch.isOn
+                let startClean = startupCleanSwitch.isOn
+            
+                let outsideInspect = FieldActions.VehicleChecklist.OutsideInspection(
+                    windows: extWindows, tiresNnuts: extTire, engine: extEngine, litesNsignals: extSignals, mirrors: extMirr, windshieldNwipres: extWindshd, dents: extDents, exteriorComments: extCommts
+                )
+                let startupInspect = FieldActions.VehicleChecklist.StartupInspection(
+                    engine: startEngine, gauges: startGauge, wipers: startWiper, horn: startHorn, brakes: startBrake, seatbelt: startSeatbt, insuranceNregist: startInsurance, firstAidKit: startFirstAid, clean: startClean, startupComments: startCommts
+                )
+                vehicleForm = FieldActions.VehicleChecklist(
+                    username: name, department: department, licensePlate: licenseNumber, date: currentDate.timeIntervalSince1970, outsideInspection: outsideInspect, startupInspection: startupInspect, issuesReport: issuesCmmts
+                )
             
         }
         guard let uwrappedForm =  vehicleForm else {
