@@ -690,8 +690,8 @@ extension HomeView: ImagePickerDelegate {
                 APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { responseType in
                     self.saveLocalPhoto(image: images[0])
                     self.loadProfilePic()
-                    self.hideShowProfile()
                     self.checkSuccess(responseType: responseType)
+                    HomeView.hideShowProfile()
                     self.profileUpload = nil
                 }
             }
