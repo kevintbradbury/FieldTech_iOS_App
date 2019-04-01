@@ -34,7 +34,7 @@
 		0AC8EF831F71E69400E86DD6 /* APICalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF821F71E69400E86DD6 /* APICalls.swift */; };
 		2F4D7BF475FD4EE1F885BF52 /* Pods_FieldAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7181653153D0F18EBA34A99C /* Pods_FieldAppUITests.framework */; };
 		5CC99E1036DD650DF02B24A3 /* Pods_FieldAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E5FF5170009DCF06A1F5DCB /* Pods_FieldAppTests.framework */; };
-		6ACBCB87FBCD97C26FE570A8 /* Pods_FieldApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F19D11D58E9D802CF19CB069 /* Pods_FieldApp.framework */; };
+		AF4CDCFB76E60B8495FB2312 /* Pods_FieldApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F19D11D58E9D802CF19CB069 /* Pods_FieldApp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,7 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6ACBCB87FBCD97C26FE570A8 /* Pods_FieldApp.framework in Frameworks */,
+				AF4CDCFB76E60B8495FB2312 /* Pods_FieldApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

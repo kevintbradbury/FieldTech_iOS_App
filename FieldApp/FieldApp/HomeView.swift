@@ -49,10 +49,12 @@ class HomeFan: MacawView {
         let h = scrnBounds.height
         let w = scrnBounds.width
         
-        let fanMenu = FanMenu(frame: CGRect(x: 0, y: 0, width: w, height: h))
         let btnRadius = 35.0
         let menuRadius = Double(4 * btnRadius)
         let dbPi = 2 * Double.pi
+        let fanMenu = FanMenu(
+            frame: CGRect(x: (w / 2), y: (h / 2), width: (w / 2), height: (h / 2))
+        )
         fanMenu.menuRadius = menuRadius
         fanMenu.duration = 0.1
         fanMenu.interval = (0, dbPi)
@@ -79,7 +81,7 @@ class HomeFan: MacawView {
         
         fanMenu.onItemWillClick = { button in
             print("button: ", button.id, button.image)
-            HomeView.hideShowProfile()
+//            HomeView.hideShowProfile()
             
             if button.id != "main" { HomeView().chooseSegue(image: button.image) }
         }
@@ -95,7 +97,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var activityBckgd: UIView!
     @IBOutlet var profileBtn: UIButton!
-    @IBOutlet var logoView: FanMenu!
+    @IBOutlet var logoView: HomeFan!
     @IBOutlet var bkgdView: HomeBkgd!
 
 
@@ -307,15 +309,15 @@ extension HomeView {
 
     }
 
-    public static func hideShowProfile() {
-        if HomeView().logoView.isOpen {
-            HomeView().profileBtn.isHidden = true
-            HomeView().userLabel.isHidden = true
-        } else {
-            HomeView().profileBtn.isHidden = false
-            HomeView().userLabel.isHidden = false
-        }
-    }
+//    func hideShowProfile() {
+//        if logoView.isOpen {
+//            profileBtn.isHidden = true
+//            userLabel.isHidden = true
+//        } else {
+//            profileBtn.isHidden = false
+//            userLabel.isHidden = false
+//        }
+//    }
 
     func chooseSegue(image: String) {
         switch image {
@@ -691,7 +693,7 @@ extension HomeView: ImagePickerDelegate {
                     self.saveLocalPhoto(image: images[0])
                     self.loadProfilePic()
                     self.checkSuccess(responseType: responseType)
-                    HomeView.hideShowProfile()
+//                    HomeView.hideShowProfile()
                     self.profileUpload = nil
                 }
             }
