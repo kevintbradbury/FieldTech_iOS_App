@@ -60,7 +60,7 @@ class ScheduleView: UIViewController {
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
     
     func initialCalSetup() {
-        HomeView.scheduleReadyNotif = false
+//        HomeView.scheduleReadyNotif = false
         
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
@@ -178,8 +178,9 @@ extension ScheduleView {
         let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .alert)
         let no = UIAlertAction(title: "No", style: .cancel)
         let yes = UIAlertAction(title: "Yes", style: .default) { action in
-            guard let user = HomeView.employeeInfo?.userName else { return }
-            APICalls().acceptMoreHrs(employee: user)
+
+            //            guard let user = HomeView.employeeInfo?.userName else { return }
+            //            APICalls().acceptMoreHrs(employee: user)
         }
         
         readyAlert.addAction(no)

@@ -146,7 +146,7 @@ extension UserLocation {
             
             if clockedIn == false && success == true {
                 UserLocation.instance.stopMonitoring()
-                HomeView.employeeInfo = nil
+//                HomeView.employeeInfo = nil
                 NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : userInfo])
             }
         }

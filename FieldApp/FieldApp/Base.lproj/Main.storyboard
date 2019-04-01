@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -74,11 +74,11 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="activityIndicator" destination="thp-EB-7Zt" id="VEP-2d-jRC"/>
-                        <outlet property="enterPhoneLabel" destination="6PB-Fd-8DA" id="2MR-Md-fub"/>
-                        <outlet property="loginButton" destination="hYX-Jp-BxB" id="tZD-V0-vsL"/>
-                        <outlet property="phoneNumberField" destination="du7-NU-Br5" id="1zG-Bz-sov"/>
-                        <segue destination="dvo-Ab-kYb" kind="show" identifier="home" id="zXA-Vu-bEX"/>
+                        <outlet property="activityIndicator" destination="thp-EB-7Zt" id="DZ2-kg-XB0"/>
+                        <outlet property="enterPhoneLabel" destination="6PB-Fd-8DA" id="cw3-T7-KLh"/>
+                        <outlet property="loginButton" destination="hYX-Jp-BxB" id="qUq-wA-w5w"/>
+                        <outlet property="phoneNumberField" destination="du7-NU-Br5" id="JZ5-ZX-eni"/>
+                        <segue destination="dvo-Ab-kYb" kind="show" identifier="home" id="Ki3-Zx-Nfq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -133,7 +133,6 @@
                                 <rect key="frame" x="90" y="188" width="140" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="140" id="3BL-r7-jIu"/>
-                                    <constraint firstAttribute="height" constant="21" id="zW1-rN-Kqp"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="highlightedColor"/>
@@ -261,11 +260,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CZR-Uv-g6q" userLabel="top BKGD View" customClass="MacawView" customModule="Macaw">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CZR-Uv-g6q" userLabel="top BKGD View" customClass="HomeBkgd" customModule="FieldApp" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="GtL-7M-Qdh" customClass="FanMenu" customModule="FanMenu">
+                            <view contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="GtL-7M-Qdh" customClass="HomeFan" customModule="FieldApp" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
@@ -283,7 +282,7 @@
                                 </constraints>
                                 <state key="normal" title="Button" image="profile_white"/>
                                 <connections>
-                                    <action selector="pressedProfile:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="rzX-xl-A2l"/>
+                                    <action selector="pressdProfBtn:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="4nl-6x-gAW"/>
                                 </connections>
                             </button>
                             <view hidden="YES" opaque="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJW-NP-9cu">
@@ -324,13 +323,14 @@
                             <constraint firstItem="zhP-4P-kVW" firstAttribute="width" secondItem="FRb-fi-I8j" secondAttribute="width" multiplier="0.5" id="ziY-l8-Xuh"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="JG6-M7-Stf"/>
                     <connections>
-                        <outlet property="activityBckgd" destination="aJW-NP-9cu" id="JTr-gE-429"/>
-                        <outlet property="activityIndicator" destination="vaz-4K-nny" id="eSg-k9-dwA"/>
-                        <outlet property="bkgdView" destination="CZR-Uv-g6q" id="5RD-Uy-n0a"/>
-                        <outlet property="logoView" destination="GtL-7M-Qdh" id="CbI-vV-mmP"/>
-                        <outlet property="profileBtn" destination="AaE-g1-Wkg" id="pML-J4-9PA"/>
-                        <outlet property="userLabel" destination="zhP-4P-kVW" id="ouC-NF-shE"/>
+                        <outlet property="activityBckgd" destination="aJW-NP-9cu" id="6Ff-zu-jQM"/>
+                        <outlet property="activityIndicator" destination="vaz-4K-nny" id="ENn-j4-6BR"/>
+                        <outlet property="bkgdView" destination="CZR-Uv-g6q" id="MOq-vb-g7C"/>
+                        <outlet property="logoView" destination="GtL-7M-Qdh" id="7rb-UH-FM3"/>
+                        <outlet property="profileBtn" destination="AaE-g1-Wkg" id="Trt-Uv-iv0"/>
+                        <outlet property="userLabel" destination="zhP-4P-kVW" id="Diw-rr-MhJ"/>
                         <segue destination="bq0-eu-ofj" kind="show" identifier="clock_in" id="pAu-Wh-4fN"/>
                         <segue destination="bP6-Xq-Etq" kind="presentation" identifier="toolRental" id="up3-NZ-nvU"/>
                         <segue destination="eJE-bM-7rH" kind="presentation" identifier="toolReturn" id="u3U-Aq-Q9z"/>
@@ -1643,6 +1643,7 @@
                             <constraint firstItem="duo-0b-9ZB" firstAttribute="top" secondItem="0Qv-nQ-AaU" secondAttribute="bottom" constant="8" id="cxN-Kb-A6T"/>
                             <constraint firstItem="q2V-2y-vD7" firstAttribute="centerX" secondItem="dbO-hi-QSp" secondAttribute="centerX" id="gcY-Sa-yQ4"/>
                             <constraint firstItem="d4g-ot-PnT" firstAttribute="top" secondItem="q2V-2y-vD7" secondAttribute="bottom" constant="24" id="nHP-dp-ccH"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="0Qv-nQ-AaU" secondAttribute="trailing" constant="250" id="okC-1X-MdR"/>
                             <constraint firstItem="duo-0b-9ZB" firstAttribute="leading" secondItem="dbO-hi-QSp" secondAttribute="leadingMargin" id="p5u-fP-lXu"/>
                             <constraint firstItem="CPY-Ax-T4u" firstAttribute="top" secondItem="d4g-ot-PnT" secondAttribute="bottom" constant="20" id="swA-Ao-IqG"/>
                             <constraint firstItem="d4g-ot-PnT" firstAttribute="width" secondItem="dbO-hi-QSp" secondAttribute="width" multiplier="0.9" id="wYr-Of-eem"/>
@@ -2278,7 +2279,7 @@
         <image name="signature" width="700" height="700"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="iSq-Lv-Ec5"/>
-        <segue reference="PNM-CA-SzQ"/>
+        <segue reference="ZaQ-ls-SCW"/>
+        <segue reference="Ki3-Zx-Nfq"/>
     </inferredMetricsTieBreakers>
 </document>

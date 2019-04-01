@@ -20,7 +20,7 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
     @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
     
-    var authId: String?
+    var authId = UserDefaults.standard.string(forKey: "authVerificationID")
     
     
     override func viewDidLoad() {
@@ -28,25 +28,25 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
         activityIndicator.hidesWhenStopped = true
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
         Auth.auth().languageCode = "en"
-        
-        Auth.auth().addStateDidChangeListener() { (auth, user) in
+
+        Auth.auth().addStateDidChangeListener() { auth, user in
             if user != nil {
                 self.activityIndicator.stopAnimating()
-                self.performSegue(withIdentifier: "home", sender: self)
+                self.performSegue(withIdentifier: "home", sender: nil)
             }
         }
-        
+
         if Auth.auth().currentUser == nil { activityIndicator.stopAnimating() }
     }
-    
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+
     @IBAction func loginPressed(_ sender: Any) {
         activityIndicator.startAnimating()
 
@@ -56,10 +56,11 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
         authPhoneNumber(phoneNumber: phoneNum)
     }
     
+    
     func authPhoneNumber(phoneNumber: String) {
         let adjustedNum = String("+1\(phoneNumber)")
         print("phoneNumber", adjustedNum)
-        
+
         PhoneAuthProvider.provider()
             .verifyPhoneNumber(adjustedNum, uiDelegate: nil) { (verificationID, error) in
             DispatchQueue.main.async {
@@ -78,7 +79,7 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
             }
         }
     }
-    
+
     func showVerfWin() {
         let alert = UIAlertController(title: "Verification", message: "Enter verification code received via SMS", preferredStyle: .alert)
 
@@ -115,15 +116,6 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
         self.present(alert, animated: true, completion: nil)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let vc = segue.destination as! HomeView
-        
-        if segue.identifier == "home" {
-            vc.firAuthId = authId
-        }
-    }
-    
-
 }
 
 

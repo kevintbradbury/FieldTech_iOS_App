@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0601ED22224ED8650013BD72 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8EF521F71826200E86DD6 /* Main.storyboard */; };
 		0618A7C7216579AB00A05EEE /* ToolSignOffView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */; };
 		0618A7C92169280C00A05EEE /* MacawButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0618A7C82169280C00A05EEE /* MacawButtonView.swift */; };
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
 		0623249B21DD81C1000025E3 /* TimeOffRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0623249A21DD81C1000025E3 /* TimeOffRequestView.swift */; };
 		062A32D5215C09A0001B6703 /* ToolReturnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D4215C09A0001B6703 /* ToolReturnView.swift */; };
-		062A32D6215C0A15001B6703 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AC8EF521F71826200E86DD6 /* Main.storyboard */; };
 		065E63D721E4266D0063A572 /* SuppliesRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63D621E4266D0063A572 /* SuppliesRequestView.swift */; };
 		065E63DB21E82B5B0063A572 /* VehicleCheckListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
@@ -55,6 +55,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0601ED20224ED84F0013BD72 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolSignOffView.swift; sourceTree = "<group>"; };
 		0618A7C82169280C00A05EEE /* MacawButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacawButtonView.swift; sourceTree = "<group>"; };
 		062005A51FFC642900F1E193 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
@@ -354,7 +355,7 @@
 				0AC8EF591F71826200E86DD6 /* LaunchScreen.storyboard in Resources */,
 				06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */,
 				0AC8EF561F71826200E86DD6 /* Assets.xcassets in Resources */,
-				062A32D6215C0A15001B6703 /* Main.storyboard in Resources */,
+				0601ED22224ED8650013BD72 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,7 +382,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-FieldApp/Pods-FieldApp-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-FieldApp/Pods-FieldApp-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/EPSignature/EPSignature.framework",
 				"${BUILT_PRODUCTS_DIR}/FanMenu/FanMenu.framework",
@@ -392,7 +393,6 @@
 				"${BUILT_PRODUCTS_DIR}/Macaw/Macaw.framework",
 				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/SWXMLHash/SWXMLHash.framework",
-				"${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftGifOrigin/SwiftGifOrigin.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
@@ -410,7 +410,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Macaw.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SWXMLHash.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Starscream.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftGifOrigin.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
@@ -418,7 +417,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FieldApp/Pods-FieldApp-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FieldApp/Pods-FieldApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		79B9E339BE6C7F85C898DA1D /* [CP] Check Pods Manifest.lock */ = {
@@ -540,6 +539,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				0AC8EF531F71826200E86DD6 /* Base */,
+				0601ED20224ED84F0013BD72 /* en */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -719,7 +719,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FieldApp.app/FieldApp";
 			};
 			name = Debug;
@@ -735,7 +735,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FieldApp.app/FieldApp";
 			};
 			name = Release;
@@ -750,7 +750,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TEST_TARGET_NAME = FieldApp;
 			};
 			name = Debug;
@@ -765,7 +765,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				TEST_TARGET_NAME = FieldApp;
 			};
 			name = Release;

@@ -283,12 +283,12 @@ extension EmployeeIDEntry {
         UserDefaults.standard.set(foundUser?.userName, forKey: "employeeName")
         
         if id == "return" {
-            HomeView.employeeInfo?.punchedIn = foundUser?.punchedIn
-            HomeView.todaysJob.jobName = todaysJob.jobName
-            HomeView.todaysJob.poNumber = todaysJob.poNumber
-            HomeView.todaysJob.jobLocation = todaysJob.jobLocation
-            HomeView.role = role
-            HomeView.safetyQs = safetyQs
+//            HomeView.employeeInfo?.punchedIn = foundUser?.punchedIn
+//            HomeView.todaysJob.jobName = todaysJob.jobName
+//            HomeView.todaysJob.poNumber = todaysJob.poNumber
+//            HomeView.todaysJob.jobLocation = todaysJob.jobLocation
+//            HomeView.role = role
+//            HomeView.safetyQs = safetyQs
             
         } else  if id == "clockTOchange" {
             let vc = segue.destination as! ChangeOrdersView
@@ -434,13 +434,13 @@ extension EmployeeIDEntry {
         
         notificationCenter.add(earlyrequest) { (error) in
             if error != nil {
-                print("There was an error: \(errorString(describing: ?.localizedDescription))")
+                print("There was an error: \(error?.localizedDescription))")
             }
         }
         
         notificationCenter.add(request) { (error) in
             if error != nil {
-                print("There was an error: \(errorString(describing: ?.localizedDescription))")
+                print("There was an error: \(error?.localizedDescription))")
             } else {
                 UserDefaults.standard.set(true, forKey: "hadLunch")
                 self.hadLunch = true
@@ -494,21 +494,21 @@ extension EmployeeIDEntry {
     }
     
     func checkForUserInfo() {
-        if HomeView.employeeInfo?.employeeID != nil {
-            print("punched in -- \(String(describing: HomeView.employeeInfo!.punchedIn))")
-            HomeView().checkPunchStatus()
-            
-        } else {
-            if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
-                inProgress()
-                
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
-                    HomeView.employeeInfo = user
-                    HomeView.addressInfo = addressInfo
-                    HomeView().checkPunchStatus()
-                }
-            } else { completedProgress() }
-        }
+//        if HomeView.employeeInfo?.employeeID != nil {
+//            print("punched in -- \(String(describing: HomeView.employeeInfo!.punchedIn))")
+//            HomeView().checkPunchStatus()
+//
+//        } else {
+//            if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
+//                inProgress()
+//
+//                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
+//                    HomeView.employeeInfo = user
+//                    HomeView.addressInfo = addressInfo
+//                    HomeView().checkPunchStatus()
+//                }
+//            } else { completedProgress() }
+//        }
     }
     
     func checkSuccess(responseType: [String: String]) {

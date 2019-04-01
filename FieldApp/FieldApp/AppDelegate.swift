@@ -16,8 +16,6 @@ import CoreLocation
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    var notificationDelegate = UYLNotificationDelegate()
-    var notificationCenter = UNUserNotificationCenter.current()
     var myViewController: HomeView?
     var myEmployeeVC: EmployeeIDEntry?
     var didEnterBackground: Bool?
@@ -25,12 +23,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     override init() {
         super.init()
-        FirebaseApp.configure()
     }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
+        FirebaseApp.configure()
         UserLocation.instance.initialize()
         registerForPushNotif()
         didEnterBackground = false
@@ -121,8 +118,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("app did become active")
         if myViewController != nil  && didEnterBackground == true {
-            HomeView.employeeInfo = nil
-            self.myViewController?.checkForUserInfo()
+
+//            HomeView.employeeInfo = nil
+//            self.myViewController?.checkForUserInfo()
         }
     }
     
@@ -137,10 +135,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     
     func registerForPushNotif() {
-        notificationCenter.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             
             if granted == true {
-                self.notificationCenter.getNotificationSettings { (settings) in
+                UNUserNotificationCenter.current().getNotificationSettings { (settings) in
                     
                     if settings.authorizationStatus == .authorized {
                         self.main.addOperation(UIApplication.shared.registerForRemoteNotifications)
@@ -177,6 +175,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     print("fetch to server failed w/ error: \(error!.localizedDescription)"); return
                 } else {
                     print("sent device token successfully")
+                    return
+                    // Or check response from Server
                 }
             }; task.resume()
         }
@@ -202,16 +202,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             
             switch catg {
             case "vehicleCheckList":
-                if state == UIApplicationState.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
-                else { HomeView.vehicleCkListNotif = true }
+                if state == UIApplicationState.active {
+//                    vc.performSegue(withIdentifier: "vehicleCkList", sender: nil)
+                } else {
+//                    HomeView.vehicleCkListNotif = true
+                }
             
             case "scheduleReady":
                 ScheduleView.scheduleRdy = true
                 
                 if state == UIApplicationState.active {
-                    vc.performSegue(withIdentifier: "schedule", sender: nil)
+//                    vc.performSegue(withIdentifier: "schedule", sender: nil)
                 } else {
-                    HomeView.scheduleReadyNotif = true
+//                    HomeView.scheduleReadyNotif = true
                 }
 
             default:

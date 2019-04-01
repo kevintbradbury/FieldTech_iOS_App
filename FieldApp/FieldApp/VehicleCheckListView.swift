@@ -146,7 +146,8 @@ class VehicleCheckListView: UITableViewController {
             route: route, headers: ["vehiclechecklist", "true" ], formBody: data, images: [signatureImg], uploadType: "vehicleCheckList"
         ) { responseType in
             self.activityIndicator.stopAnimating()
-            HomeView.vehicleCkListNotif = nil
+//            HomeView.vehicleCkListNotif = nil
+            
             self.handleResponseType(responseType: responseType)
         }
     }
