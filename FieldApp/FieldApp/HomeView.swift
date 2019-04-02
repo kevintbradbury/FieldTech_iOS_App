@@ -10,7 +10,6 @@ import UIKit
 import CoreLocation
 import UserNotifications
 import UserNotificationsUI
-
 import Firebase
 import FirebaseAuth
 import ImagePicker
@@ -21,21 +20,19 @@ import FanMenu
 
 class HomeBkgd: MacawView {
     required init?(coder aDecoder: NSCoder) {
-        let scrnBounds = UIScreen.main.bounds
-        let h = scrnBounds.height
-        let w = scrnBounds.width
-        
-        let node = Group()
-        let shp = Shape(
-            form: Rect(x: 0.0, y: 0.0, w: Double(w), h: Double(h / 2)),
-            fill: LinearGradient(degree: 90, from: Color.black, to: Color.white),
-            stroke: Stroke(fill: Color.clear, width: 0.0)
-        )
-        let shpTwo = Shape(
-            form: Rect(x: 0.0, y: Double(h / 2), w: Double(w), h: Double(h / 2)),
-            fill: LinearGradient(degree: 90, from: Color.white, to: Color.black),
-            stroke: Stroke(fill: Color.clear, width: 0.0)
-        )
+        let h = UIScreen.main.bounds.height,
+            w = UIScreen.main.bounds.width,
+            node = Group(),
+            shp = Shape(
+                form: Rect(x: 0.0, y: 0.0, w: Double(w), h: Double(h / 2)),
+                fill: LinearGradient(degree: 90, from: Color.black, to: Color.white),
+                stroke: Stroke(fill: Color.clear, width: 0.0)
+            ),
+            shpTwo = Shape(
+                form: Rect(x: 0.0, y: Double(h / 2), w: Double(w), h: Double(h / 2)),
+                fill: LinearGradient(degree: 90, from: Color.white, to: Color.black),
+                stroke: Stroke(fill: Color.clear, width: 0.0)
+            )
         
         node.contents.append(shp)
         node.contents.append(shpTwo)
@@ -43,52 +40,6 @@ class HomeBkgd: MacawView {
     }
 }
 
-class HomeFan: MacawView {
-    required init?(coder aDecoder: NSCoder) {
-        let scrnBounds = UIScreen.main.bounds
-        let h = scrnBounds.height
-        let w = scrnBounds.width
-        
-        let btnRadius = 35.0
-        let menuRadius = Double(4 * btnRadius)
-        let dbPi = 2 * Double.pi
-        let fanMenu = FanMenu(
-            frame: CGRect(x: (w / 2), y: (h / 2), width: (w / 2), height: (h / 2))
-        )
-        fanMenu.menuRadius = menuRadius
-        fanMenu.duration = 0.1
-        fanMenu.interval = (0, dbPi)
-        fanMenu.radius = btnRadius
-        fanMenu.menuBackground = Color.clear
-        
-        fanMenu.button = FanMenuButton(
-            id: "main", image: "MB_logo", color: Color.white
-        )
-        let colors: [Color] = [
-            Color.green, Color.blue, Color.teal, Color.red, Color.fuchsia,
-            Color.navy, Color.purple, Color.yellow, Color.white
-        ]
-        let icons = [
-            "hotel_req", "tools", "materials", "form", "vacation",
-            "safety", "camera", "clock", "schedule"
-        ]
-        
-        fanMenu.items = colors.enumerated().map { (index, item) in
-            FanMenuButton(
-                id: String(index), image: String(icons[index]), color: item
-            )
-        }
-        
-        fanMenu.onItemWillClick = { button in
-            print("button: ", button.id, button.image)
-//            HomeView.hideShowProfile()
-            
-            if button.id != "main" { HomeView().chooseSegue(image: button.image) }
-        }
-        
-        super.init(node: fanMenu.node, coder: aDecoder)
-    }
-}
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
     
@@ -97,28 +48,28 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var activityBckgd: UIView!
     @IBOutlet var profileBtn: UIButton!
-    @IBOutlet var logoView: HomeFan!
     @IBOutlet var bkgdView: HomeBkgd!
+    //    @IBOutlet var logoView: HomeFan!
 
 
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
-//    let colors: [Color] = [
-//        Color.green, Color.blue, Color.teal, Color.red, Color.fuchsia,
-//        Color.navy, Color.purple, Color.yellow, Color.white
-//    ]
-    //        Color(val: 0xFF9742)
-//    let icons = [
-//        "hotel_req", "tools", "materials", "form", "vacation",
-//        "safety", "camera", "clock", "schedule"
-//    ]
+    let colors: [Color] = [
+        Color.green, Color.blue, Color.teal, Color.red, Color.fuchsia,
+        Color.navy, Color.purple, Color.yellow, Color(val: 0xFF9742)
+    ]
+    let icons = [
+        "hotel_req", "tools", "materials", "form", "vacation",
+        "safety", "camera", "clock", "schedule"
+    ]
 
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var main = OperationQueue.main
     var jobs: [Job.UserJob] = []
     var profileUpload: Bool?
     var questsAlerts: [UIAlertController] = []
+    var menuOpen = false
     public static var vehicleCkListNotif: Bool?
     public static var scheduleReadyNotif: Bool?
     public static var employeeInfo: UserData.UserInfo?
@@ -281,43 +232,55 @@ extension HomeView {
     }
 
     func setUpHomeBtn() {
-//        let btnRadius = 35.0
-//        let menuRadius = Double(4 * btnRadius)
-//        let dbPi = 2 * Double.pi
-//        logoView.menuRadius = menuRadius
-//        logoView.duration = 0.1
-//        logoView.interval = (0, dbPi)
-//        logoView.radius = btnRadius
-//        logoView.menuBackground = Color.clear
-//
-//        logoView.button = FanMenuButton(
-//            id: "main", image: "MB_logo", color: Color.white
-//        )
-//
-//        logoView.items = colors.enumerated().map { (index, item) in
-//            FanMenuButton(
-//                id: String(index), image: String(icons[index]), color: item
-//            )
-//        }
-//
-//        logoView.onItemWillClick = { button in
-//            print("button: ", button.id, button.image)
-//            self.hideShowProfile()
-//
-//            if button.id != "main" { self.chooseSegue(image: button.image) }
-//        }
+        let w = UIScreen.main.bounds.width,
+        h = UIScreen.main.bounds.height,
+        btnRadius = 35.0,
+        menuRadius = Double(4 * btnRadius),
+        dbPi = 2 * Double.pi
+        
+//        let crcle = Circle(
+//            cx: Double(w / 2), cy: Double(h / 2), r: Double(w / 2 / 2)
+//            ).bounds()
+        let menuVw = FanMenu(frame:
+        CGRect(x: 0, y: 0, width: w, height: h)
+        )
+        //        fanLogoMenu = FanMenu(frame: crcle.toCG())
 
+        menuVw.menuRadius = menuRadius
+        menuVw.radius = btnRadius
+        menuVw.duration = 0.1
+        menuVw.interval = (0, dbPi)
+        menuVw.menuBackground = .clear
+        menuVw.button = FanMenuButton(
+            id: "main", image: "MB_logo", color: Color.white
+        )
+        menuVw.items = colors.enumerated().map { (index, item) in
+            FanMenuButton(
+                id: String(index), image: String(icons[index]), color: item
+            )
+        }
+        menuVw.onItemWillClick = { button in
+            print("button: ", button.id, button.image)
+            self.hideShowProfile()
+
+            if button.id != "main" { self.chooseSegue(image: button.image) }
+        }
+
+        bkgdView.addSubview(menuVw)
     }
 
-//    func hideShowProfile() {
-//        if logoView.isOpen {
-//            profileBtn.isHidden = true
-//            userLabel.isHidden = true
-//        } else {
-//            profileBtn.isHidden = false
-//            userLabel.isHidden = false
-//        }
-//    }
+    func hideShowProfile() {
+        
+        if menuOpen == true {
+            menuOpen = false
+            profileBtn.isHidden = true
+            userLabel.isHidden = true
+        } else {
+            menuOpen = true
+            profileBtn.isHidden = false
+            userLabel.isHidden = false
+        }
+    }
 
     func chooseSegue(image: String) {
         switch image {
