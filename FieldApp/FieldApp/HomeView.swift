@@ -14,7 +14,7 @@ import Firebase
 import FirebaseAuth
 import ImagePicker
 import Macaw
-import FanMenu
+//import FanMenu
 //import SwiftyJSON
 
 
@@ -40,17 +40,15 @@ class HomeBkgd: MacawView {
     }
 }
 
-
 class HomeView: UIViewController, UINavigationControllerDelegate {
-    
     
     @IBOutlet var userLabel: UILabel!
     @IBOutlet var activityIndicator: UIActivityIndicatorView!
     @IBOutlet var activityBckgd: UIView!
     @IBOutlet var profileBtn: UIButton!
     @IBOutlet var bkgdView: HomeBkgd!
+    @IBOutlet var homeFanMenu: UIView!
     //    @IBOutlet var logoView: HomeFan!
-
 
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
@@ -123,21 +121,21 @@ extension HomeView {
         if HomeView.safetyQs.count > 0 {
 
             for (index, value) in HomeView.safetyQs.enumerated() {
-                let questionPopup = UIAlertController(title: "Safety Question", message: value.question, preferredStyle: UIAlertControllerStyle.alert)
+                let questionPopup = UIAlertController(title: "Safety Question", message: value.question, preferredStyle: UIAlertController.Style.alert)
 
-                let a = UIAlertAction(title: value.options.a, style: UIAlertActionStyle.default) { action in
+                let a = UIAlertAction(title: value.options.a, style: UIAlertAction.Style.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
                     self.handleSafetyQuesAnswer(selected: "a", answer: value.answer, options: value.options, i: (index + 1) )
                 };
-                let b = UIAlertAction(title: value.options.b, style: UIAlertActionStyle.default) { action in
+                let b = UIAlertAction(title: value.options.b, style: UIAlertAction.Style.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
                     self.handleSafetyQuesAnswer(selected: "b", answer: value.answer, options: value.options, i: (index + 1))
                 };
-                let c = UIAlertAction(title: value.options.c, style: UIAlertActionStyle.default) { action in
+                let c = UIAlertAction(title: value.options.c, style: UIAlertAction.Style.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
                     self.handleSafetyQuesAnswer(selected: "c", answer: value.answer, options: value.options, i: (index + 1))
                 };
-                let d = UIAlertAction(title: value.options.d, style: UIAlertActionStyle.default) { action in
+                let d = UIAlertAction(title: value.options.d, style: UIAlertAction.Style.default) { action in
                     questionPopup.dismiss(animated: true, completion: nil)
                     self.handleSafetyQuesAnswer(selected: "d", answer: value.answer, options: value.options, i: (index + 1))
                 };
@@ -212,9 +210,9 @@ extension HomeView {
             let paraStyle = NSMutableParagraphStyle()
             paraStyle.alignment = NSTextAlignment.left
             let messageText = NSMutableAttributedString(string: msg, attributes: [
-                NSAttributedStringKey.paragraphStyle : paraStyle,
-                NSAttributedStringKey.font : UIFont.preferredFont(forTextStyle: .body),
-                NSAttributedStringKey.foregroundColor: UIColor.black
+                NSAttributedString.Key.paragraphStyle : paraStyle,
+                NSAttributedString.Key.font : UIFont.preferredFont(forTextStyle: .body),
+                NSAttributedString.Key.foregroundColor: UIColor.black
                 ])
             // Include phone number in future
 
@@ -236,37 +234,33 @@ extension HomeView {
         h = UIScreen.main.bounds.height,
         btnRadius = 35.0,
         menuRadius = Double(4 * btnRadius),
-        dbPi = 2 * Double.pi
-        
-//        let crcle = Circle(
-//            cx: Double(w / 2), cy: Double(h / 2), r: Double(w / 2 / 2)
-//            ).bounds()
-        let menuVw = FanMenu(frame:
-        CGRect(x: 0, y: 0, width: w, height: h)
+        dbPi = 2 * Double.pi,
+        rect = CGRect(
+            x: (0), y: (0), width: (w), height: (h)
         )
-        //        fanLogoMenu = FanMenu(frame: crcle.toCG())
+        let menuView = FanMenu(frame: rect)
 
-        menuVw.menuRadius = menuRadius
-        menuVw.radius = btnRadius
-        menuVw.duration = 0.1
-        menuVw.interval = (0, dbPi)
-        menuVw.menuBackground = .clear
-        menuVw.button = FanMenuButton(
-            id: "main", image: "MB_logo", color: Color.white
+        menuView.menuBackground = Color.clear
+        menuView.menuRadius = menuRadius
+        menuView.radius = btnRadius
+        menuView.interval = (0, dbPi)
+        menuView.duration = 0.1
+        menuView.button = FanMenuButton(
+            id: "main", image: "MB_logo", color: Color.clear
         )
-        menuVw.items = colors.enumerated().map { (index, item) in
+        menuView.items = colors.enumerated().map { (index, item) in
             FanMenuButton(
                 id: String(index), image: String(icons[index]), color: item
             )
         }
-        menuVw.onItemWillClick = { button in
+        menuView.onItemWillClick = { button in
             print("button: ", button.id, button.image)
             self.hideShowProfile()
 
             if button.id != "main" { self.chooseSegue(image: button.image) }
         }
-
-        bkgdView.addSubview(menuVw)
+        
+        homeFanMenu.addSubview(menuView)
     }
 
     func hideShowProfile() {
@@ -584,7 +578,7 @@ extension HomeView {
     func saveLocalPhoto(image: UIImage) {
         let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
         let imageUrl: URL = URL(fileURLWithPath: imagePath)
-        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
+        guard let imageData = image.jpegData(compressionQuality: 1) else { return }
 
         do {
             try imageData.write(to: imageUrl)

@@ -61,9 +61,9 @@ class ChangeOrdersView: UIViewController {
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     @IBAction func backAction(_ sender: Any) {
@@ -229,7 +229,7 @@ class ChangeOrdersView: UIViewController {
     
     func viewForToolRental() {
         view.backgroundColor = UIColor.blue
-        backButton.setTitleColor(UIColor.white, for: UIControlState.normal)
+        backButton.setTitleColor(UIColor.white, for: UIControl.State.normal)
         
         locationLabel.text = "Tool Type"
         materialLabel.text = "Brand"
@@ -263,7 +263,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
             dismiss(animated: true, completion: nil)
             
             let alert = UIAlertController(
-                title: "Confirm", message: "Are you sure you would like to send the \(formTypeVal)?", preferredStyle: UIAlertControllerStyle.alert
+                title: "Confirm", message: "Are you sure you would like to send the \(formTypeVal)?", preferredStyle: UIAlertController.Style.alert
             )
             let yes = UIAlertAction(title: "YES", style: .default, handler: { action in
                 self.sendCO(images: images)

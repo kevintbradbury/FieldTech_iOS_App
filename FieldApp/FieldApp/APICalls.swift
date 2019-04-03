@@ -201,7 +201,7 @@ class APICalls {
                 if error != nil { print(error ?? "err"); return }
                 
                 guard let verfData = data,
-                    let json = (try? JSONSerialization.jsonObject(with: verfData, options: []) as? NSArray) else {
+                    let json = (((try? JSONSerialization.jsonObject(with: verfData, options: []) as? NSArray) as NSArray??)) else {
                         print("failed to serialize JSON from SafetyQ req")
                         return }
                 var allSafetyQuestions = [SafetyQuestion]()
@@ -275,7 +275,7 @@ class APICalls {
                     multipartFormData.append(formBody, withName: uploadType)
                     var i = 0
                     for img in images {
-                        guard let imageData = UIImageJPEGRepresentation(img, 1) else { return }
+                        guard let imageData = img.jpegData(compressionQuality: 1) else { return }
                         let nm = "\(uploadType)_\(i)"
                         
                         multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")

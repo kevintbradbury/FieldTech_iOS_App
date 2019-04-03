@@ -451,10 +451,10 @@ extension EmployeeIDEntry {
     
     func chooseBreakLength() {
         let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: .alert)
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { (action) -> Void in print("chose Cancel") }
-        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 30)
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) { (action) -> Void in print("chose Cancel") }
+        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertAction.Style.default) { (action) -> Void in self.goOnLunch(breakLength: 30)
         }
-        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 60)
+        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertAction.Style.default) { (action) -> Void in self.goOnLunch(breakLength: 60)
         }
         
         actionsheet.addAction(chooseThirty)
@@ -587,7 +587,7 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
         roleSelection.delegate = self
         
         if role != nil && role != "" {
-            guard let index = dataSource.index(where: { (obj) -> Bool in
+            guard let index = dataSource.firstIndex(where: { (obj) -> Bool in
                 obj == role
             }) else  { return }
             

@@ -133,7 +133,7 @@ extension UserLocation {
             let content = UNMutableNotificationContent()
             content.title = "Clocked Out"
             content.body = "You were clocked out because you left the job site."
-            content.sound = UNNotificationSound.default()
+            content.sound = UNNotificationSound.default
             let intrvl = TimeInterval(1.01)
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
             let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)

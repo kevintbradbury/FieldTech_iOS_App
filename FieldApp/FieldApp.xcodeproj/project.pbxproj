@@ -18,6 +18,7 @@
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
+		06E18B482255654C0058974B /* FanMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E18B472255654B0058974B /* FanMenu.swift */; };
 		06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */; };
 		06F161C321F77E0D001E0312 /* TORLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06F161C221F77E0C001E0312 /* TORLogView.swift */; };
 		06FADEBD2150351D00021943 /* StoresMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066223362150322800B9C8E2 /* StoresMapView.swift */; };
@@ -68,6 +69,7 @@
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06775988213DDE1C001F8802 /* ChangeOrders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeOrders.swift; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
+		06E18B472255654B0058974B /* FanMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanMenu.swift; sourceTree = "<group>"; };
 		06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		06F161C221F77E0C001E0312 /* TORLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TORLogView.swift; sourceTree = "<group>"; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 				06775988213DDE1C001F8802 /* ChangeOrders.swift */,
 				0AC8EF7E1F71854C00E86DD6 /* DataStructure.swift */,
 				06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */,
+				06E18B472255654B0058974B /* FanMenu.swift */,
 				0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */,
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
@@ -303,6 +306,7 @@
 					0AC8EF4A1F71826200E86DD6 = {
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = 9B58YSTSJ6;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -316,12 +320,14 @@
 					0AC8EF5E1F71826200E86DD6 = {
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = 3TAADZBCK9;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 0AC8EF4A1F71826200E86DD6;
 					};
 					0AC8EF691F71826200E86DD6 = {
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = 3TAADZBCK9;
+						LastSwiftMigration = 1020;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 0AC8EF4A1F71826200E86DD6;
 					};
@@ -499,6 +505,7 @@
 				065E63DB21E82B5B0063A572 /* VehicleCheckListView.swift in Sources */,
 				0623249B21DD81C1000025E3 /* TimeOffRequestView.swift in Sources */,
 				06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */,
+				06E18B482255654C0058974B /* FanMenu.swift in Sources */,
 				0618A7C92169280C00A05EEE /* MacawButtonView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -678,13 +685,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-Xfrontend -warn-long-function-bodies=100";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -700,12 +707,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -720,7 +727,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FieldApp.app/FieldApp";
 			};
 			name = Debug;
@@ -736,7 +743,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FieldApp.app/FieldApp";
 			};
 			name = Release;
@@ -751,7 +758,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = FieldApp;
 			};
 			name = Debug;
@@ -766,7 +773,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = MillworkBros.FieldAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = FieldApp;
 			};
 			name = Release;

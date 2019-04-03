@@ -96,7 +96,7 @@ PODS:
   - nanopb/encode (0.3.901)
   - Protobuf (3.7.0)
   - SwiftGifOrigin (1.7.0)
-  - SwiftyJSON (4.2.0)
+  - SwiftyJSON (4.3.0)
   - SWXMLHash (4.9.0)
 
 DEPENDENCIES:
@@ -166,9 +166,9 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
   SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
-  SwiftyJSON: c4bcba26dd9ec7a027fc8eade48e2c911f229e96
+  SwiftyJSON: 6faa0040f8b59dead0ee07436cbf76b73c08fd08
   SWXMLHash: 87b0006848a548b7f9485b40bc71721b3ae39add
 
-PODFILE CHECKSUM: 242446ee8caafc8d6085fc2c799a6474200348c1
+PODFILE CHECKSUM: c9e09393887591c61e68e484eb7c5360c0000028
 
 COCOAPODS: 1.6.1

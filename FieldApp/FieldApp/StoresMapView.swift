@@ -55,7 +55,7 @@ class StoresMapView: UIViewController {
             mapView.removeAnnotations(annotations)
         }
         
-        let req = MKLocalSearchRequest()
+        let req = MKLocalSearch.Request()
         req.naturalLanguageQuery = "hardware, tools"// "hardware stores"
         req.region = mapView.region
         let search = MKLocalSearch.init(request: req)
@@ -148,7 +148,7 @@ class StoresMapView: UIViewController {
         if let url = URL(string: "tel://\(int)"), UIApplication.shared.canOpenURL(url) {
             
             if #available(iOS 10, *) {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                UIApplication.shared.open(url, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
             } else {
                 UIApplication.shared.openURL(url)
             }
@@ -233,3 +233,8 @@ class CustomAnnotation: NSObject, MKAnnotation {
     }
 }
 
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+}

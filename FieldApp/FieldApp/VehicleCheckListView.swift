@@ -118,7 +118,7 @@ class VehicleCheckListView: UITableViewController {
 
     func confirmSubmit() {
         let alert = UIAlertController(title: "Confirm", message: "Submit Vehicle Inspection Form?", preferredStyle: .alert)
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel, handler: nil)
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil)
         let yes = UIAlertAction(title: "YES", style: .default) { action in  self.sendForm() }
         
         alert.addAction(yes)
@@ -155,6 +155,6 @@ class VehicleCheckListView: UITableViewController {
 
 extension VehicleCheckListView: EPSignatureDelegate {
     func epSignature(_: EPSignatureViewController, didSign signatureImage: UIImage, boundingRect: CGRect) {
-        signatureBtn.setImage(signatureImage, for: UIControlState.normal)
+        signatureBtn.setImage(signatureImage, for: UIControl.State.normal)
     }
 }

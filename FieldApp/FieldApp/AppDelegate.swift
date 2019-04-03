@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         super.init()
     }
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         FirebaseApp.configure()
         UserLocation.instance.initialize()
@@ -89,7 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, open url: URL,
-                     options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
+                     options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
         if Auth.auth().canHandle(url) {
             return true
         }
@@ -202,7 +202,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             
             switch catg {
             case "vehicleCheckList":
-                if state == UIApplicationState.active {
+                if state == UIApplication.State.active {
 //                    vc.performSegue(withIdentifier: "vehicleCkList", sender: nil)
                 } else {
 //                    HomeView.vehicleCkListNotif = true
@@ -211,7 +211,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             case "scheduleReady":
                 ScheduleView.scheduleRdy = true
                 
-                if state == UIApplicationState.active {
+                if state == UIApplication.State.active {
 //                    vc.performSegue(withIdentifier: "schedule", sender: nil)
                 } else {
 //                    HomeView.scheduleReadyNotif = true

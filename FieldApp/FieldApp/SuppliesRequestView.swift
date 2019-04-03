@@ -38,7 +38,7 @@ class SuppliesRequestView: UIViewController {
         materialsCollection.append(emptyMaterial)
         
         materialsTable.beginUpdates()
-        materialsTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: UITableViewRowAnimation.automatic)
+        materialsTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: UITableView.RowAnimation.automatic)
         materialsTable.endUpdates()
     }
     
@@ -78,14 +78,14 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             materialsTable.beginUpdates()
             
             if materialsCollection.indices.contains(indexPath.row) == true { materialsCollection.remove(at: indexPath.row) }
             else { materialsTable.endUpdates(); return }
             
-            materialsTable.deleteRows(at: [indexPath], with: UITableViewRowAnimation.automatic)
+            materialsTable.deleteRows(at: [indexPath], with: UITableView.RowAnimation.automatic)
             materialsTable.endUpdates()
         }
     }
