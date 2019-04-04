@@ -2277,7 +2277,6 @@
         <image name="signature" width="350" height="350"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="pAu-Wh-4fN"/>
         <segue reference="ZaQ-ls-SCW"/>
         <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>

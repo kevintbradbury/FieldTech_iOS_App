@@ -94,20 +94,20 @@ public class FanMenu: MacawView {
         
         let scene = FanMenuScene(fanMenu: self)
         let node = scene.node
+        
         node.place = Transform.move(
             dx: Double(self.frame.width / 2),
             dy: Double(self.frame.height / 2)
         )
         self.node = node
         self.scene = scene
-        
     }
 }
 
 class FanMenuScene {
     
     let fanMenu: FanMenu
-    
+
     let buttonNode: Group
     let buttonsNode: Group
     let backgroundCircle: Shape
@@ -154,11 +154,9 @@ class FanMenuScene {
         )
         
         if let color = fanMenu.menuBackground {
-            backgroundCircle.fill = Color.aqua
-            //            backgroundCircle.fill = color
+            backgroundCircle.fill = color
         } else {
-            backgroundCircle.fill = Color.fuchsia
-            //            backgroundCircle.fill = button.color.with(a: 0.2)
+            backgroundCircle.fill = button.color.with(a: 0.2)
         }
         
         node = [backgroundCircle, buttonsNode, buttonNode].group()
@@ -253,10 +251,7 @@ class FanMenuScene {
                 opaque: true, opacity: 1.0,
                 visible: true
             )
-            //            Image(src: button.image, place: Transform.move(
-            //                dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2
-            //            ))
-            
+
             contents.append(image)
         }
         let node = Group(contents: contents)
