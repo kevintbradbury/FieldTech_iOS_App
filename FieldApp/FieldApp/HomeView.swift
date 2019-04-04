@@ -238,7 +238,7 @@ extension HomeView {
         )
         let menuView = FanMenu(frame: rect)
 
-        menuView.menuBackground = Color.clear
+        menuView.menuBackground = Color.rgba(r: 255, g: 255, b: 255, a: 0.25)
         menuView.menuRadius = menuRadius
         menuView.radius = btnRadius
         menuView.interval = (0, dbPi)
@@ -481,7 +481,7 @@ extension HomeView {
             vc.employee = HomeView.employeeInfo
         case "clock_in":
             let vc = segue.destination as! EmployeeIDEntry
-            vc.foundUser = HomeView.employeeInfo
+            EmployeeIDEntry.foundUser = HomeView.employeeInfo
             guard let unwrap = HomeView.role else { return }
             vc.role = unwrap
         case "changeOrder":

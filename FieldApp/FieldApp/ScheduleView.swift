@@ -178,17 +178,14 @@ extension ScheduleView {
         let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .alert)
         let no = UIAlertAction(title: "No", style: .cancel)
         let yes = UIAlertAction(title: "Yes", style: .default) { action in
-
-            //            guard let user = HomeView.employeeInfo?.userName else { return }
-            //            APICalls().acceptMoreHrs(employee: user)
+            guard let user = HomeView.employeeInfo?.userName else { return }
+            APICalls().acceptMoreHrs(employee: user)
         }
         
         readyAlert.addAction(no)
         readyAlert.addAction(yes)
         
         self.present(readyAlert, animated: true, completion: nil)
-        //            DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-        //            }
     }
     
     func loading() {
@@ -467,22 +464,45 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         if selectedJobs.count > 0 {
             let jb = selectedJobs[indexPath.row]
             let dt = selectedDates[indexPath.row]
-            _ = selectedJobs[indexPath.row].jobName
-            _ = selectedJobs[indexPath.row].poNumber
-            _ = getTime(date: dt.installDate)
-            _ = getMonthDayYear(date: dt.installDate)
-            let jobName = jb.jobName
-            _ = jb.poNumber
-            let startTm = getTime(date: dt.installDate)
-            let address = "\(jb.jobAddress), \(jb.jobCity), \(jb.jobState)"
-            
-            cell.jobInfoLabel.text = "\(jobName) \(startTm) \n\(address)"
+            let labelTxt = createLabel(jb: jb, dt: dt)
+
+            cell.jobInfoLabel.text = labelTxt
         }
+        let blkBkgd = UIView()
+        blkBkgd.backgroundColor = .darkGray
+        
+        cell.selectedBackgroundView = blkBkgd
 
         return cell
     }
     
+    func createLabel(jb: Job.UserJob, dt: Job.UserJob.JobDates) -> String {
+        let jobName = jb.jobName
+        let startTm = getTime(date: dt.installDate)
+        let address = "\(jb.jobAddress), \(jb.jobCity), \(jb.jobState)"
+        
+        var labelTxt = "\(jobName) \(startTm) \n\(address) \n\(jb.supervisor) | \(jb.fieldLead) \n"
+        
+        jb.assignedEmployees.enumerated().map { (index, oneEmployee) in
+            if index == (jb.assignedEmployees.count - 1) {
+                labelTxt += "\(oneEmployee)"
+            } else {
+                labelTxt += "\(oneEmployee), "
+            }
+        }
+        
+        return labelTxt
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        showDirectionsAlert(indexPath: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        showDirectionsAlert(indexPath: indexPath)
+    }
+    
+    func showDirectionsAlert(indexPath: IndexPath) {
         let matchingJob = selectedJobs[indexPath.row]
         
         let alert = UIAlertController(title: "Directions", message: "Get directions to PO: \(matchingJob.poNumber) \n\(matchingJob.jobName)?", preferredStyle: .actionSheet)
@@ -496,24 +516,17 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         
         self.main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
-
 }
 
 
 // ----------------
 
-
 class CalendarCell: JTAppleCell {
-    
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var highlightView: UIView!
     @IBOutlet weak var jobName: UILabel!
-    
 }
 
-
 class JobCell: UITableViewCell {
-    
     @IBOutlet var jobInfoLabel: UILabel!
-    
 }

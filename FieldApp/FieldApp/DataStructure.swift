@@ -137,9 +137,7 @@ class UserData {
 
 class Job: Codable {
     
-    var jobName: String?
-    var poNumber: String?
-    var jobLocation: [Double]?
+    var jobName: String?, poNumber: String?, jobLocation: [Double]?
     
     struct UserJob {
         
@@ -147,9 +145,7 @@ class Job: Codable {
         let jobName: String
         let dates: [JobDates]
         let jobLocation: CLLocationCoordinate2D
-        let jobAddress: String
-        let jobCity: String
-        let jobState: String
+        let jobAddress: String, jobCity: String, jobState: String
         let projCoord: String
         let fieldLead: String
         let supervisor: String
@@ -161,50 +157,45 @@ class Job: Codable {
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else { print("couldnt parse poNumber"); return nil }
-            guard let jobName = dictionary["name"] as? String else { print("couldnt parse storeName"); return nil }
+            guard let purchaseOrderNumber = dictionary["poNumber"] as? String,
+                let jobName = dictionary["name"] as? String else {
+                    print("couldnt parse storeName or poNumber"); return nil
+            }
             
-            guard let fieldLd = dictionary["fieldLead"] as? String else { print("coulnt parse fieldLead"); return nil }
-            guard let supervir = dictionary["supervisor"] as? String else { print("couldnt parse supervisor"); return nil }
-            guard let assignedEmploys = dictionary["assignedEmployees"] as? [String] else { print("couldnt parse assignedEmployees"); return nil }
-            
-            var lat = CLLocationDegrees()
-            var long = CLLocationDegrees()
             var coordinates = CLLocationCoordinate2D()
             var address = "", city = "", state = "", coordinator = "", fieldLead = "", supervisor = "", assignedEmployees = [""]
             let dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
-            if let projC = dictionary["projCoord"] as? String { coordinator = projC }
             
             if let location = dictionary["jobLocation"] as? [Double] {
+                var lat = CLLocationDegrees(0.0), long = CLLocationDegrees(0.0)
+                
                 if location.count > 1 {
                     lat = CLLocationDegrees(location[0])
                     long = CLLocationDegrees(location[1])
-                } else {
-                    lat = CLLocationDegrees(0.0)
-                    long = CLLocationDegrees(0.0)
                 }
-                coordinates = CLLocationCoordinate2D()
-                coordinates.latitude = lat
-                coordinates.longitude = long
+                coordinates = CLLocationCoordinate2D(latitude: lat, longitude: long)
+            }
+            
+            if let addressAsString = dictionary["jobAddress"] as? String,
+                let cityAsString = dictionary["jobCity"] as? String,
+                let stateAsString = dictionary["jobState"] as? String {
                 
-                print(dictionary["jobAddress"] ?? "")
-                
-                if let addressAsString = dictionary["jobAddress"] as? String,
-                    let cityAsString = dictionary["jobCity"] as? String,
-                    let stateAsString = dictionary["jobState"] as? String {
-//                    print("job address from server: \(addressAsString)")
-                    
-                    address = addressAsString
-                    city = cityAsString
-                    state = stateAsString
-                    
-                }
+                address = addressAsString
+                city = cityAsString
+                state = stateAsString
+            }
+            
+            if let projC = dictionary["projCoord"] as? String { coordinator = projC }
+            if let json_fieldLd = dictionary["fieldLead"] as? String { fieldLead = json_fieldLd }
+            if let json_super = dictionary["supervisor"] as? String { supervisor = json_super }
+            if let json_employees = dictionary["assignedEmployees"] as? [String] {
+                assignedEmployees = json_employees
             }
             
             return UserJob(
                 poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, 
                 jobLocation: coordinates, jobAddress: address, jobCity: city, jobState: state, 
-                projCoord: coordinator, fieldLead: fieldLd, supervisor: supervir, assignedEmployees: assignedEmploys
+                projCoord: coordinator, fieldLead: fieldLead, supervisor: supervisor, assignedEmployees: assignedEmployees
                 )
         }
         
@@ -446,7 +437,6 @@ struct TimeOffReq: Encodable  {
             username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0, approved: nil
         )
         var approved: Bool?
-        print("TOR: approved: \(String(describing: dictionary["approved"]))")
         
         guard let username = dictionary["username"] as? String,
             let employeeID = dictionary["employeeID"] as? String,
@@ -455,7 +445,7 @@ struct TimeOffReq: Encodable  {
             let start = dictionary["start"] as? String,
             let end = dictionary["end"] as? String,
             let signed = dictionary["signedDate"] as? String else {
-                print("unable to parse timeOffReq"); return timeOffReq
+                print("unable to parse timeOffReq \(dictionary)"); return timeOffReq
         }
         
         if dictionary["approved"] != nil {
@@ -467,8 +457,10 @@ struct TimeOffReq: Encodable  {
         let signedDt = FieldActions.getDateFromISOString(isoDate: signed)
         
         return TimeOffReq(
-            username: username, employeeID: Int(employeeID) ?? 0, department: department, shiftHours: shiftHours,
-            start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970, signedDate: signedDt.timeIntervalSince1970, approved: approved
+            username: username, employeeID: Int(employeeID) ?? 0,
+            department: department, shiftHours: shiftHours,
+            start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970,
+            signedDate: signedDt.timeIntervalSince1970, approved: approved
         )
     }
 }
