@@ -99,13 +99,11 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         checkForUserInfo()
-//        logoView.close()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         checkForSafetyQs()
-//        logoView.close()
     }
 
     @IBAction func pressdProfBtn(_ sender: Any) {
@@ -261,6 +259,9 @@ extension HomeView {
         }
         
         homeFanMenu.addSubview(menuView)
+        for subVw in homeFanMenu.subviews {
+            subVw.backgroundColor = .clear
+        }
     }
 
     func hideShowProfile() {
