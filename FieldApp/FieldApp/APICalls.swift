@@ -20,8 +20,8 @@ import Firebase
 class APICalls {
     static let host = "https://mb-server-app-kbradbury.c9users.io/"
     
-    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob], [TimeOffReq], [Holiday]) -> ()) {
-        let route = "employee/" + employeeID + "/jobs"
+    func checkForToken(employeeID: String, callback: @escaping (Bool)->() ) {
+        let route = "checkForToken/\(employeeID)"
         
         setupRequest(route: route, method: "GET") { request in
             
@@ -31,8 +31,48 @@ class APICalls {
                     return
                 }
                 guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    return
+                    print("could not verify data from dataTask"); return
+                }
+                guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
+                        print("couldn't parse json objects as an Array"); return
+                }
+                guard let hasToken = json["hasToken"] as? Bool else { return }
+                
+                callback(hasToken)
+            }
+            task.resume()
+        }
+    }
+    
+    func updateToken(token: String, route: String) {
+        UserDefaults.standard.set(token, forKey: "token");
+        
+        APICalls().setupRequest(route: route, method: "POST") { req in
+            var request = req
+            request.addValue(token, forHTTPHeaderField: "token")
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil {
+                    print("fetch to server failed w/ error: \(error!.localizedDescription)"); return
+                } else {
+                    print("sent device token successfully"); return
+                    // Or check response from Server
+                }
+            }; task.resume()
+        }
+    }
+    
+    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob], [TimeOffReq], [Holiday]) -> ()) {
+        let route = "employee/" + employeeID + "/jobs"
+        
+        setupRequest(route: route, method: "GET") { request in
+            
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil {
+                    print("Error in fetchJobInfo: \(String(describing: error))"); return
+                }
+                guard let verifiedData = data else {
+                    print("could not verify data from dataTask"); return
                 }
                 guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary,
                     let jobs = json["employeeJobs"] as? NSArray,
@@ -64,10 +104,9 @@ class APICalls {
             
             let task = URLSession.shared.dataTask(with: request) {data, response, error in
                 if error != nil {
-                    print("failed to fetch JSON from database \n \(String(describing: response))");
-                    return
-                    
+                    print("failed to fetch JSON from database \n \(String(describing: error))"); return
                 } else {
+                    
                     print("no errors sending GPS coordinatess")
                     guard let verifiedData = data else { print("could not verify data from dataTask"); return }
                     guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { print("json serialization failed"); return }
@@ -102,8 +141,7 @@ class APICalls {
             
             let task = URLSession.shared.dataTask(with: req) {data, response, error in
                 if error != nil {
-                    print("failed to fetch JSON from database \n \(String(describing: response))");
-                    return
+                    print("failed to fetch JSON from database \n \(String(describing: error))"); return
                     
                 } else {
                     print("no errors sending GPS coordinatess")
@@ -154,7 +192,7 @@ class APICalls {
             
             let task = URLSession.shared.dataTask(with: req) {data, response, error in
                 if error != nil {
-                    print("failed to fetch JSON from database \n \(String(describing: response))"); return
+                    print("failed to fetch JSON from database \n \(String(describing: error))"); return
                 } else {
                     print("no errors sending GPS coordinates")
                     guard let verifiedData = data else { print("could not verify data from dataTask"); return }
@@ -175,8 +213,9 @@ class APICalls {
             
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 
-                if error != nil { print(error as Any); return }
-                else {
+                if error != nil {
+                    print("Error on fetchEmployee: \(String(describing: error))"); return
+                } else {
                     guard let verifiedData = data else { print("couldn't verify data from server"); return }
                     guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
                         print("json serialization failed"); return
@@ -198,7 +237,9 @@ class APICalls {
         
         setupRequest(route: route, method: "GET") { request in
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if error != nil { print(error ?? "err"); return }
+                if error != nil {
+                    print("Error in getSafetyQs: \(error)"); return
+                }
                 
                 guard let verfData = data,
                     let json = (((try? JSONSerialization.jsonObject(with: verfData, options: []) as? NSArray) as NSArray??)) else {
@@ -223,7 +264,7 @@ class APICalls {
         setupRequest(route: route, method: "GET") { request in
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if error != nil {
-                    print(error ?? "err"); return
+                    print("Error in addPoints: \(error)"); return
                 }
                 
                 guard let verfData = data else {
@@ -241,9 +282,8 @@ class APICalls {
         setupRequest(route: route, method: "POST") { request in
             let task = URLSession.shared.dataTask(with: request) { data, response, err in
                 if err != nil {
-                    print(err ?? "err"); return
+                    print("Error in acceptMoreHrs: \(err)"); return
                 }
-                
                 
             }
             task.resume()
@@ -353,7 +393,7 @@ class APICalls {
         let currentUser = Auth.auth().currentUser
         currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
             if let err = error {
-                print(err)
+                print("Error in getFIRidToken: \(err)")
             }
             guard let verifiedTk: String = idToken else { return }
              cb(verifiedTk)

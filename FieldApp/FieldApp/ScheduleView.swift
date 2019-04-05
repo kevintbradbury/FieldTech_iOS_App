@@ -28,6 +28,8 @@ class ScheduleView: UIViewController {
     
     let formatter = DateFormatter()
     let main = OperationQueue.main
+    let daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    
     var employee: UserData.UserInfo?
     var holidays: [Holiday] = []
     var timeOreqs: [TimeOffReq] = []
@@ -172,18 +174,40 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 
 }
 
+extension ScheduleView: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return daysOfWeek.count
+    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return daysOfWeek[row]
+    }
+}
+
 extension ScheduleView {
     
     func confirmRegOrMoreHrs() {
-        let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .alert)
-        let no = UIAlertAction(title: "No", style: .cancel)
-        let yes = UIAlertAction(title: "Yes", style: .default) { action in
-            guard let user = HomeView.employeeInfo?.userName else { return }
-            APICalls().acceptMoreHrs(employee: user)
-        }
+        let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .actionSheet)
+        let dayPicker = UIPickerView(frame:readyAlert.view.frame)
         
-        readyAlert.addAction(no)
-        readyAlert.addAction(yes)
+        dayPicker.delegate = self
+        dayPicker.dataSource = self
+        
+        let vc = UIViewController()
+        vc.view.addSubview(dayPicker)
+        
+        readyAlert.addChild(vc)
+        
+//        let no = UIAlertAction(title: "No", style: .cancel)
+//        let yes = UIAlertAction(title: "Yes", style: .default) { action in
+//            guard let user = HomeView.employeeInfo?.userName else { return }
+//            APICalls().acceptMoreHrs(employee: user)
+//        }
+//
+//        readyAlert.addAction(no)
+//        readyAlert.addAction(yes)
         
         self.present(readyAlert, animated: true, completion: nil)
     }
@@ -519,7 +543,7 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
 }
 
 
-// ----------------
+// -- Cells Classes
 
 class CalendarCell: JTAppleCell {
     @IBOutlet weak var dateLabel: UILabel!

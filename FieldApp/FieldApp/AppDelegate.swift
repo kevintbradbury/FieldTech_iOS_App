@@ -153,32 +153,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let id = UserDefaults.standard.string(forKey: "employeeID") else {
             print("no saved id"); return
         }
-        let route = "employee/token/\(id)"
-        updateToken(token: token, route: route)
-        
-//        if let existingToken = UserDefaults.standard.string(forKey: "token") {
-//            if existingToken == token {
-//                print("token matches"); return
-//            } else { updateToken(token: token, route: route) }
-//        } else { updateToken(token: token, route: route) }
-    }
-    
-    func updateToken(token: String, route: String) {
-        UserDefaults.standard.set(token, forKey: "token");
-        
-        APICalls().setupRequest(route: route, method: "POST") { req in
-            var request = req
-            request.addValue(token, forHTTPHeaderField: "token")
-            
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if error != nil {
-                    print("fetch to server failed w/ error: \(error!.localizedDescription)"); return
-                } else {
-                    print("sent device token successfully")
-                    return
-                    // Or check response from Server
-                }
-            }; task.resume()
+        APICalls().checkForToken(employeeID: id) { hasToken in
+            if hasToken != true {
+                let route = "employee/token/\(id)"
+                APICalls().updateToken(token: token, route: route)
+            }
         }
     }
 }

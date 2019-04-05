@@ -20,7 +20,6 @@ import ImagePicker
 import Alamofire
 import EventKit
 import Macaw
-//import Starscream
 
 
 class EmployeeIDEntry: UIViewController {
@@ -35,7 +34,9 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var lunchBreakBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
-    @IBOutlet var animatedClockView: MacawView!
+    @IBOutlet var animatedClockView: AnimatedClock!
+    @IBOutlet var longHand: LongHandAnimated!
+    
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
@@ -59,13 +60,15 @@ class EmployeeIDEntry: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        imgPicker.delegate = self
         roleSelection.delegate = self
         roleSelection.dataSource = self
+        longHand.backgroundColor = .clear
+        animatedClockView.backgroundColor = .clear
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        imgPicker.delegate = self
         
         setRoles()
         checkAppDelANDnotif()
@@ -86,11 +89,20 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
+    @IBAction func animatedClockPress(_ sender: Any) { animateOrWrapUp() }
     
 }
 
 
 extension EmployeeIDEntry {
+    
+    func animateOrWrapUp() {
+        if EmployeeIDEntry.foundUser?.punchedIn == true {
+            self.wrapUpAlert()
+        } else {
+            self.clockInClockOut()
+        }
+    }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
@@ -109,15 +121,9 @@ extension EmployeeIDEntry {
         }
     }
     
-    func startSpinning() {
-        guard let nodeClockHnd: Node = self.animatedClockView.node else { return }
-        
-        let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
-        anm.cycle().play()
-    }
-    
     public func clockInClockOut() {
-        startSpinning()
+        let anmation = longHand.node.placeVar.animation(angle: -5.25, x: 0, y: 0, during: 1, delay: 0)
+        anmation.cycle().play()
         
         if role != nil && role != "---" && role != "" {
             
@@ -538,73 +544,17 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { return dataSource.count }
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return dataSource[row] }
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) { role = dataSource[row]  }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return dataSource.count
+    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return dataSource[row]
+    }
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        role = dataSource[row]
+    }
     
 }
 
-extension EmployeeIDEntry {
-//    class AnimatedClock: MacawView {
-//        required init?(coder aDecoder: NSCoder) {
-    func addClock() {
-            let w = (UIScreen.main.bounds.width / 2)
-            let image = Image(
-                src: "clock",
-                w: Int(w), h: Int(w),
-                place: Transform.move(dx: 0, dy: 0)
-            )
-            
-            if EmployeeIDEntry.foundUser?.punchedIn == true {
-                image.src = "clockOut"
-            } else {
-                image.src = "clockIn"
-            }
-            
-            let ruler = Image(
-                src: "clock_longHand",
-                w: Int(image.w / 8), h: Int(image.h / 2),
-                place: Transform.move(
-                    dx: Double(image.w / 2), dy: Double(w / 3)
-                ),
-                tag: ["clock_longHand"]
-            )
-            let grp = Group()
-            let animation = ruler.placeVar.animation(angle: -6.0)
-            
-            grp.contents.append(image)
-            grp.contents.append(ruler)
-            
-            for oneNode in grp.contents {
-                oneNode.onTouchPressed({ touch in
-                    animation.cycle().play()
-                    
-                    if EmployeeIDEntry.foundUser?.punchedIn == true {
-                        self.wrapUpAlert()
-                    } else {
-                        self.clockInClockOut()
-                    }
-                })
-            }
-            
-            func stopSpinning(node: Node) {
-                if let verifNode = node.nodeBy(tag: "clock_longHand") {
-                    verifNode.placeVar.onChange { transfrm in
-                        //            transfrm
-                    }
-                    let anmt: Animation = verifNode.placeVar.animation(angle: 0.0)
-                    anmt.cycle().stop()
-                }
-            }
-        for node in grp.contents {
-            guard let rect = node.bounds?.toCG() else { return }
-            let sbView = UIView(frame: node.bounds!.toCG())
-        }
-
-//            super.init(node: grp, coder: aDecoder)
-        }
-        
-//    }
-}
 
 

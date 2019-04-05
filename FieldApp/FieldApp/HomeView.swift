@@ -18,27 +18,7 @@ import Macaw
 //import SwiftyJSON
 
 
-class HomeBkgd: MacawView {
-    required init?(coder aDecoder: NSCoder) {
-        let h = UIScreen.main.bounds.height,
-            w = UIScreen.main.bounds.width,
-            node = Group(),
-            shp = Shape(
-                form: Rect(x: 0.0, y: 0.0, w: Double(w), h: Double(h / 2)),
-                fill: LinearGradient(degree: 90, from: Color.black, to: Color.white),
-                stroke: Stroke(fill: Color.clear, width: 0.0)
-            ),
-            shpTwo = Shape(
-                form: Rect(x: 0.0, y: Double(h / 2), w: Double(w), h: Double(h / 2)),
-                fill: LinearGradient(degree: 90, from: Color.white, to: Color.black),
-                stroke: Stroke(fill: Color.clear, width: 0.0)
-            )
-        
-        node.contents.append(shp)
-        node.contents.append(shpTwo)
-        super.init(node: node, coder: aDecoder)
-    }
-}
+
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
     
@@ -48,7 +28,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var profileBtn: UIButton!
     @IBOutlet var bkgdView: HomeBkgd!
     @IBOutlet var homeFanMenu: UIView!
-    //    @IBOutlet var logoView: HomeFan!
 
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()

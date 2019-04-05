@@ -159,28 +159,26 @@
                                     <action selector="goClockIn:" destination="bq0-eu-ofj" eventType="touchUpInside" id="iqa-NS-ADN"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nct-pa-u5V">
-                                <rect key="frame" x="20" y="20" width="48" height="35"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="35" id="7qn-0F-76B"/>
-                                </constraints>
-                                <state key="normal" title="back">
-                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="backToHome:" destination="bq0-eu-ofj" eventType="touchUpInside" id="BoZ-K5-mzg"/>
-                                </connections>
-                            </button>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i9j-eu-RJ9">
                                 <rect key="frame" x="16" y="114" width="288" height="85"/>
                             </pickerView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eoh-Qc-nCh" userLabel="animatedClockView" customClass="MacawView">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eoh-Qc-nCh" userLabel="animatedClockView" customClass="AnimatedClock" customModule="FieldApp" customModuleProvider="target">
                                 <rect key="frame" x="80" y="224" width="160" height="160"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="eoh-Qc-nCh" secondAttribute="height" multiplier="1:1" id="n96-b8-Wr9"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SPc-Hz-1lf" userLabel="longHandVw" customClass="LongHandAnimated" customModule="FieldApp" customModuleProvider="target">
+                                <rect key="frame" x="152" y="289" width="40" height="44"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="piG-9y-UJK" userLabel="clockAndHandBtn">
+                                <rect key="frame" x="80" y="224" width="160" height="160"/>
+                                <connections>
+                                    <action selector="animatedClockPress:" destination="bq0-eu-ofj" eventType="touchUpInside" id="F3g-yl-C6f"/>
+                                </connections>
+                            </button>
                             <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <color key="backgroundColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -193,10 +191,23 @@
                                 </constraints>
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </activityIndicatorView>
+                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nct-pa-u5V">
+                                <rect key="frame" x="20" y="20" width="48" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="7qn-0F-76B"/>
+                                </constraints>
+                                <state key="normal" title="back">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="backToHome:" destination="bq0-eu-ofj" eventType="touchUpInside" id="BoZ-K5-mzg"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="height" secondItem="pLG-Ve-Unv" secondAttribute="height" multiplier="0.15" id="1jw-2t-Rbm"/>
+                            <constraint firstItem="SPc-Hz-1lf" firstAttribute="width" secondItem="eoh-Qc-nCh" secondAttribute="width" multiplier="0.25" id="3JX-PW-Uaj"/>
                             <constraint firstItem="eoh-Qc-nCh" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.5" id="3hJ-hW-eqR"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leading" constant="20" id="6tk-AU-Kej"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="top" secondItem="pLG-Ve-Unv" secondAttribute="top" id="7Bq-eW-HJ4"/>
@@ -204,17 +215,23 @@
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="top" secondItem="cgM-Ze-PLd" secondAttribute="bottom" constant="7" id="8Jc-uW-1eI"/>
                             <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="8sz-Zl-beD"/>
                             <constraint firstItem="Xgx-TL-7uV" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="9fr-4L-0Id"/>
+                            <constraint firstItem="piG-9y-UJK" firstAttribute="height" secondItem="eoh-Qc-nCh" secondAttribute="height" id="AS4-Yb-TwN"/>
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Ckc-PT-RTV"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="F6A-AU-53E"/>
+                            <constraint firstItem="SPc-Hz-1lf" firstAttribute="firstBaseline" secondItem="eoh-Qc-nCh" secondAttribute="centerY" multiplier="0.95" id="Fq0-GL-dFf"/>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leadingMargin" id="Hmf-5b-tL5"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="eoh-Qc-nCh" secondAttribute="bottom" constant="25" id="I7L-fg-S0E"/>
+                            <constraint firstItem="piG-9y-UJK" firstAttribute="centerX" secondItem="eoh-Qc-nCh" secondAttribute="centerX" id="JFK-tu-wif"/>
                             <constraint firstAttribute="trailingMargin" secondItem="i9j-eu-RJ9" secondAttribute="trailing" id="Kyk-2l-k46"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
+                            <constraint firstItem="SPc-Hz-1lf" firstAttribute="height" secondItem="eoh-Qc-nCh" secondAttribute="height" multiplier="0.275" id="ObB-4g-jG4"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.25" id="XTB-nN-P5q"/>
                             <constraint firstItem="SjV-jM-1u8" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leading" id="bnf-dw-BMy"/>
                             <constraint firstItem="cgM-Ze-PLd" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="-40" id="cj2-Tl-Eli"/>
+                            <constraint firstItem="piG-9y-UJK" firstAttribute="width" secondItem="eoh-Qc-nCh" secondAttribute="width" id="dKG-hC-qYw"/>
+                            <constraint firstItem="piG-9y-UJK" firstAttribute="centerY" secondItem="eoh-Qc-nCh" secondAttribute="centerY" id="gB0-vY-F8H"/>
                             <constraint firstItem="eoh-Qc-nCh" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="20" id="ggg-Ry-PVd"/>
                             <constraint firstItem="eoh-Qc-nCh" firstAttribute="top" secondItem="i9j-eu-RJ9" secondAttribute="bottom" constant="25" id="hWx-h7-Uem"/>
                             <constraint firstItem="Nct-pa-u5V" firstAttribute="top" secondItem="IYW-Qc-e8a" secondAttribute="bottom" id="mzN-h5-frs"/>
@@ -226,6 +243,7 @@
                             <constraint firstAttribute="trailing" secondItem="SjV-jM-1u8" secondAttribute="trailing" id="xUe-29-WoX"/>
                             <constraint firstItem="KXz-M4-q6L" firstAttribute="top" secondItem="SjV-jM-1u8" secondAttribute="bottom" id="yAS-Rq-Ssu"/>
                             <constraint firstItem="Xgx-TL-7uV" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" constant="25" id="zFr-Yt-D9Z"/>
+                            <constraint firstItem="SPc-Hz-1lf" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="centerX" multiplier="0.95" id="zc0-uk-38u"/>
                         </constraints>
                     </view>
                     <connections>
@@ -237,6 +255,7 @@
                         <outlet property="clockOut" destination="Mkf-uE-ifr" id="XNj-f5-aZ7"/>
                         <outlet property="employeeID" destination="cgM-Ze-PLd" id="ang-Xn-Vpj"/>
                         <outlet property="enterIDText" destination="cRn-CE-CNR" id="vT9-eK-YLF"/>
+                        <outlet property="longHand" destination="SPc-Hz-1lf" id="IF5-Yc-9Cq"/>
                         <outlet property="lunchBreakBtn" destination="JJN-tO-qBs" id="xhy-im-VUa"/>
                         <outlet property="roleSelection" destination="i9j-eu-RJ9" id="4Dj-zO-hs0"/>
                         <outlet property="sendButton" destination="8V0-xo-CLS" id="Mw3-Qj-lTu"/>
@@ -246,7 +265,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LGY-O2-z5N" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2312" y="-733"/>
+            <point key="canvasLocation" x="2311.875" y="-733.09859154929575"/>
         </scene>
         <!--Home View-->
         <scene sceneID="kAf-eN-8VW">
@@ -553,18 +572,6 @@
                                     <constraint firstItem="Abz-5m-Agc" firstAttribute="width" secondItem="g1v-fe-i20" secondAttribute="width" multiplier="0.5" id="x2B-aR-Q5I"/>
                                 </constraints>
                             </view>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7HF-L9-dB1">
-                                <rect key="frame" x="20" y="20" width="48" height="35"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="35" id="4j5-b7-o2M"/>
-                                </constraints>
-                                <state key="normal" title="back">
-                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="dismissVC:" destination="gwV-lw-m8q" eventType="touchUpInside" id="bVw-qe-XV2"/>
-                                </connections>
-                            </button>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="SdX-qA-5FG">
                                 <rect key="frame" x="141.5" y="220" width="37" height="37"/>
                                 <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -636,6 +643,18 @@
                                 </state>
                                 <connections>
                                     <action selector="accptMoreHrsBtn:" destination="gwV-lw-m8q" eventType="touchUpInside" id="bKF-DT-tFb"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7HF-L9-dB1">
+                                <rect key="frame" x="20" y="20" width="48" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="4j5-b7-o2M"/>
+                                </constraints>
+                                <state key="normal" title="back">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="dismissVC:" destination="gwV-lw-m8q" eventType="touchUpInside" id="bVw-qe-XV2"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -1600,15 +1619,6 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Qv-nQ-AaU">
-                                <rect key="frame" x="22" y="20" width="48" height="30"/>
-                                <state key="normal" title="back">
-                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="goBack:" destination="UOg-nS-YY1" eventType="touchUpInside" id="3t7-0o-Ea9"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d4g-ot-PnT">
                                 <rect key="frame" x="16" y="518" width="288" height="30"/>
                                 <color key="backgroundColor" red="0.5" green="0.11530746710000001" blue="0.054244892009999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -1627,6 +1637,15 @@
                                 </state>
                                 <connections>
                                     <action selector="addMaterialsCell:" destination="UOg-nS-YY1" eventType="touchUpInside" id="d06-tX-QLV"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Qv-nQ-AaU">
+                                <rect key="frame" x="22" y="20" width="48" height="30"/>
+                                <state key="normal" title="back">
+                                    <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="goBack:" destination="UOg-nS-YY1" eventType="touchUpInside" id="3t7-0o-Ea9"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -1674,6 +1693,14 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="qMy-xV-J4t">
                                 <rect key="frame" x="0.0" y="70" width="320" height="427"/>
                             </mapView>
+                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7gF-9m-fTa" userLabel="loadingBkgd">
+                                <rect key="frame" x="0.0" y="70" width="320" height="427"/>
+                                <color key="backgroundColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            </view>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="aIY-dg-c4C">
+                                <rect key="frame" x="141.5" y="265" width="37" height="37"/>
+                                <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ckv-b6-zL8">
                                 <rect key="frame" x="20" y="20" width="48" height="35"/>
                                 <constraints>
@@ -1686,14 +1713,6 @@
                                     <action selector="returnHome:" destination="dip-GN-7tK" eventType="touchUpInside" id="X0Q-OZ-Qqb"/>
                                 </connections>
                             </button>
-                            <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7gF-9m-fTa" userLabel="loadingBkgd">
-                                <rect key="frame" x="0.0" y="70" width="320" height="427"/>
-                                <color key="backgroundColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                            </view>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="aIY-dg-c4C">
-                                <rect key="frame" x="141.5" y="265" width="37" height="37"/>
-                                <color key="color" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.76273001269035534" blue="0.52718571185644525" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
@@ -2187,6 +2206,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.51000000000000001" colorSpace="custom" customColorSpace="displayP3"/>
                             </view>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="xFh-eo-gpd">
+                                <rect key="frame" x="141.5" y="265.5" width="37" height="37"/>
+                                <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7aF-Qv-IoM">
                                 <rect key="frame" x="20" y="20" width="48" height="35"/>
                                 <constraints>
@@ -2199,10 +2222,6 @@
                                     <action selector="goBack:" destination="ace-3O-hgX" eventType="touchUpInside" id="Rjd-mp-cK1"/>
                                 </connections>
                             </button>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="xFh-eo-gpd">
-                                <rect key="frame" x="141.5" y="265.5" width="37" height="37"/>
-                                <color key="color" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
