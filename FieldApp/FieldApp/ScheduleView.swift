@@ -25,10 +25,18 @@ class ScheduleView: UIViewController {
     @IBOutlet weak var poNumberLbl: UILabel!
     @IBOutlet weak var installDateLbl: UILabel!
     @IBOutlet weak var directionsBtn: UIButton!
+    @IBOutlet var daysOfWeekView: UIView!
+    @IBOutlet var sundaySwitch: UISwitch!
+    @IBOutlet var mondaySwitch: UISwitch!
+    @IBOutlet var tuesdaySwitch: UISwitch!
+    @IBOutlet var wednesdaySwitch: UISwitch!
+    @IBOutlet var thursdaySwitch: UISwitch!
+    @IBOutlet var fridaySwitch: UISwitch!
+    @IBOutlet var saturdaySwitch: UISwitch!
+    
     
     let formatter = DateFormatter()
     let main = OperationQueue.main
-    let daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     
     var employee: UserData.UserInfo?
     var holidays: [Holiday] = []
@@ -45,10 +53,15 @@ class ScheduleView: UIViewController {
         
         jobsTable.delegate = self
         jobsTable.dataSource = self
+        daysOfWeekView.isHidden = true
     }
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func accptMoreHrsBtn(_ sender: Any) { confirmRegOrMoreHrs() }
+    @IBAction func sendDaysOfWeek(_ sender: Any) {
+        //Get vals here
+    }
+    @IBAction func cancelMoreHours(_ sender: Any) { daysOfWeekView.isHidden = true }
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
@@ -174,42 +187,22 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 
 }
 
-extension ScheduleView: UIPickerViewDelegate, UIPickerViewDataSource {
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return daysOfWeek.count
-    }
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return daysOfWeek[row]
-    }
-}
-
 extension ScheduleView {
     
     func confirmRegOrMoreHrs() {
-        let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .actionSheet)
-        let dayPicker = UIPickerView(frame:readyAlert.view.frame)
+                daysOfWeekView.isHidden = false
+        daysOfWeekView.layer.cornerRadius = 20
         
-        dayPicker.delegate = self
-        dayPicker.dataSource = self
-        
-        let vc = UIViewController()
-        vc.view.addSubview(dayPicker)
-        
-        readyAlert.addChild(vc)
-        
-//        let no = UIAlertAction(title: "No", style: .cancel)
-//        let yes = UIAlertAction(title: "Yes", style: .default) { action in
-//            guard let user = HomeView.employeeInfo?.userName else { return }
-//            APICalls().acceptMoreHrs(employee: user)
-//        }
-//
-//        readyAlert.addAction(no)
-//        readyAlert.addAction(yes)
-        
-        self.present(readyAlert, animated: true, completion: nil)
+        //        let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .actionSheet)
+        //        readyAlert.view.addSubview(daySelection)
+        //        let no = UIAlertAction(title: "No", style: .cancel)
+        //        let yes = UIAlertAction(title: "Yes", style: .default) { action in
+        //            guard let user = HomeView.employeeInfo?.userName else { return }
+        //            APICalls().acceptMoreHrs(employee: user)
+        //        }
+        //        readyAlert.addAction(no)
+        //        readyAlert.addAction(yes)
+        //        self.present(readyAlert, animated: true, completion: nil)
     }
     
     func loading() {
