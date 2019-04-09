@@ -87,7 +87,7 @@ extension ToolSignOffView {
         jsonEncoder = JSONEncoder(),
         route = "toolReturn/\(employeeID)",
         headers = ["formType", "Tool Return"],
-        returnObj = FieldActions.ToolReturn(rental: toolForm, signedDate: signedDate, printedNames: printedNames)
+        returnObj = FieldActions.ToolReturn(rental: rental, signedDate: dt, printedNames: printedNames)
         var formBody = Data()
         
         do { formBody = try jsonEncoder.encode(returnObj) }

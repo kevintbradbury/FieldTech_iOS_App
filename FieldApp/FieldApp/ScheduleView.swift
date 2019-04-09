@@ -47,7 +47,7 @@ class ScheduleView: UIViewController {
     var selectedJobs: [Job.UserJob] = []
     var selectedDates: [Job.UserJob.JobDates] = []
     public static var scheduleRdy: Bool?
-//        UserDefaults.standard.bool(forKey: "scheduleReady")
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,6 +56,11 @@ class ScheduleView: UIViewController {
         jobsTable.delegate = self
         jobsTable.dataSource = self
         daysOfWeekView.isHidden = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        checkScheduleReady()
     }
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -192,7 +197,14 @@ struct AcceptMoreDays: Encodable {
 }
 
 extension ScheduleView {
-    
+    func checkScheduleReady() {
+        guard let readyOrNot = ScheduleView.scheduleRdy else {
+            return
+        }
+        if readyOrNot == true {
+            confirmRegOrMoreHrs()
+        }
+    }
     
     func getDaysAccepted() {
         let acceptMoreHrs = AcceptMoreDays(
@@ -205,8 +217,25 @@ extension ScheduleView {
             sat: saturdaySwitch.isOn
         )
         guard let user = employee?.userName else { return }
-        print(acceptMoreHrs)
-        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs)
+        let mirror = Mirror(reflecting: acceptMoreHrs)
+        var acceptedDays = 0
+        
+        for (property, val) in mirror.children {
+            guard let boool = val as? Bool else { return }
+            if boool == true {
+                acceptedDays += 1
+            }
+        }
+        
+        if (acceptedDays < 2) {
+            showAlert(withTitle: "Select Nights", message: "You must select at least 2 nights."); return
+        }
+        activityIndicator.startAnimating()
+        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs) { success in
+            self.main.addOperation {
+                self.activityIndicator.stopAnimating()
+            }
+        }
     }
     
     func confirmRegOrMoreHrs() {

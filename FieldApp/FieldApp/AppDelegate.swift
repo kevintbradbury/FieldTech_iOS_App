@@ -172,32 +172,32 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-            let catg = response.notification.request.content.categoryIdentifier
+            let category = response.notification.request.content.categoryIdentifier
             let state = UIApplication.shared.applicationState
             
-            print("UNUserNotificationCenter didReceive category: \(response.notification.request.content.categoryIdentifier)")
+            print("UNUserNotificationCenter didReceive category: \(category)")
             
             guard let vc = self.myViewController else { return }
             
-            switch catg {
+            switch category {
             case "vehicleCheckList":
+                HomeView.vehicleCkListNotif = true
+                
                 if state == UIApplication.State.active {
-//                    vc.performSegue(withIdentifier: "vehicleCkList", sender: nil)
-                } else {
-//                    HomeView.vehicleCkListNotif = true
+                    vc.performSegue(withIdentifier: "vehicleCkList", sender: nil)
                 }
             
             case "scheduleReady":
                 ScheduleView.scheduleRdy = true
+                HomeView.scheduleReadyNotif = true
                 
                 if state == UIApplication.State.active {
-//                    vc.performSegue(withIdentifier: "schedule", sender: nil)
-                } else {
-//                    HomeView.scheduleReadyNotif = true
+                    vc.performSegue(withIdentifier: "schedule", sender: nil)
                 }
 
             default:
-                center.removeAllDeliveredNotifications()
+                print("Received notification w/ category: \(category)")
+//                center.removeAllDeliveredNotifications()
             }
             
             completionHandler()

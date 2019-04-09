@@ -26,22 +26,14 @@ class APICalls {
         
         setupRequest(route: route, method: "GET") { request in
             
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if error != nil {
-                    print("Error in checkForToken: \(error)"); return
-                }
-                guard let verifiedData = data,
-                    let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                        print("APICalls > checkForToken > data or json error");
-                        return
-                }
+            self.startSession(request: request, route: route) { json in
+                
                 guard let hasToken = json["hasToken"] as? Bool else {
-                        print("APICalls > checkForToken > hasToken error");
-                        return
+                    print("APICalls > checkForToken > hasToken error");
+                    return
                 }
                 callback(hasToken)
             }
-            task.resume()
         }
     }
     
@@ -67,15 +59,8 @@ class APICalls {
         let route = "employee/" + employeeID + "/jobs"
         
         setupRequest(route: route, method: "GET") { request in
+            self.startSession(request: request, route: route) { json in
             
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if error != nil {
-                    print("Error in fetchJobInfo: \(String(describing: error))"); return
-                }
-                guard let verifiedData = data,
-                    let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                        print("APICalls > fetchJobInfo > data or json error"); return
-                }
                 guard let jobs = json["employeeJobs"] as? NSArray,
                     let tORS = json["timeOffReqs"] as? NSArray,
                     let hldys = json["holidays"] as? NSArray else {
@@ -88,33 +73,26 @@ class APICalls {
                 
                 callback(employeeJobs, timeOffReqs, holidays)
             }
-            task.resume()
         }
     }
     
     func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, po: String, override: Bool, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()) {
         var route = "employee/\(employee.employeeID)"
-        if override == true {
-            route += "/override/" + po
-        }
+        if override == true { route += "/override/" + po }
         
         let data = convertToJSON(employee: employee, location: location, role: role)
-        var auto: String { if autoClockOut == true { return "true" } else { return "" } }
+        var auto: String {
+            if autoClockOut == true { return "true" } else { return "" }
+        }
         
         setupRequest(route: route, method: "POST") { req in
             var requestWithData = req
             requestWithData.httpBody = data
             requestWithData.addValue(auto, forHTTPHeaderField: "autoClockOut")
-            print(requestWithData.allHTTPHeaderFields as Any)
             
-            let task = URLSession.shared.dataTask(with: requestWithData) {data, response, error in
-                if error != nil {
-                    print("failed to fetch JSON from database \n \(String(describing: error))"); return
-                }
-                guard let verifiedData = data,
-                    let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary,
-                    let successfulPunch = json["success"] as? Bool else {
-                        print("APICalls > sendCoordinates > dat or json or successfulPunch failed"); return
+            self.startSession(request: requestWithData, route: route) { json in
+                guard let successfulPunch = json["success"] as? Bool else {
+                    print("APICalls > sendCoordinates > successfulPunch failed"); return
                 }
                 
                 if let currentJob = json["job"] as? String,
@@ -125,11 +103,12 @@ class APICalls {
                     callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
                     
                 } else {
-                    guard let err = json["error"] as? String else { return }
+                    guard let err = json["error"] as? String else {
+                        print("APICalls > sendCoordinates > no Error data provided"); return
+                    }
                     callback(successfulPunch, "", "", [0.0], false, err)
                 }
             }
-            task.resume()
         }
     }
     
@@ -153,18 +132,13 @@ class APICalls {
             
             requestWithData.httpBody = data
             
-            let task = URLSession.shared.dataTask(with: requestWithData) {data, response, err in
-                if err != nil {
-                    print("Erro in justCheckCoordinates \n \(String(describing: err))"); return
-                }
-                guard let verifiedData = data,
-                    let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary,
-                    let successfulPunch = json["success"] as? Bool else {
+            self.startSession(request: requestWithData, route: route) { json in
+            
+                    guard let successfulPunch = json["success"] as? Bool else {
                         print("APICalls > justCheckCoordinates > failed on data or json or successfulPunch"); return
                 }
                 callback(successfulPunch)
             }
-            task.resume()
         }
     }
     
@@ -172,25 +146,15 @@ class APICalls {
         let route = "employee/" + String(employeeId)
         
         setupRequest(route: route, method: "GET") { request in
-            
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            self.startSession(request: request, route: route) { json in
                 
-                if error != nil {
-                    print("Error on fetchEmployee: \(String(describing: error))"); return
-                } else {
-                    guard let verifiedData = data else { print("couldn't verify data from server"); return }
-                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                        print("json serialization failed"); return
-                    }
-                    guard let user = UserData.UserInfo.fromJSON(dictionary: json),
-                        let dictionary = json["addressInfo"] as? NSDictionary,
-                        let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
-                            
-                            print("failed to parse UserData"); return
-                    }
-                    callback(user, addressInfo)
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json),
+                    let dictionary = json["addressInfo"] as? NSDictionary,
+                    let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                        print("failed to parse UserData"); return
                 }
-            }; task.resume()
+                callback(user, addressInfo)
+            }
         }
     }
     
@@ -239,7 +203,7 @@ class APICalls {
         }
     }
     
-    func acceptMoreHrs(employee: String, moreDays: AcceptMoreDays) {
+    func acceptMoreHrs(employee: String, moreDays: AcceptMoreDays, callback: @escaping (Bool)->()) {
         let route = "acceptMoreHours/\(employee)"
         var data = Data()
         
@@ -252,19 +216,12 @@ class APICalls {
         setupRequest(route: route, method: "POST") { request in
             var req = request
             req.httpBody = data
-            
-            let task = URLSession.shared.dataTask(with: req) { data, response, err in
-                if err != nil {
-                    print("Error in acceptMoreHrs: \(err)"); return
-                }
-                guard let verifiedResponse = response else {
-                    print("APICalls > acceptMoreHours > couldnt verify response: \(response)"); return
-                }
-                print(verifiedResponse)
-                // Handle server response
 
+            self.startSession(request: req, route: route) { json in
+                print("\(route): success \(json["success"])")
+                guard let success = json["success"] as? Bool else { return }
+                callback(success)
             }
-            task.resume()
         }
     }
     
@@ -384,30 +341,26 @@ extension APICalls {
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
-        _ = URLSession.shared;
-        
         getFIRidToken() { firebaseIDtoken in
             request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")
             cb(request)
         }
     }
     
-    func startSession(request: URLRequest, session: URLSession, callback: @escaping (Bool, Data)->()) {
-        print("start session w/ req: ", request)
+    func startSession(request: URLRequest, route: String, callback: @escaping (NSDictionary)->()) {
+        print("start session w/ req")
         
-        let task = session.dataTask(with: request) {data, response, error in
+        let task = URLSession.shared.dataTask(with: request) {data, response, error in
             if error != nil {
-                print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))")
-                callback(false, Data())
+                print("Error in route: \(route) \n \(String(describing: error))")
                 return
-            } else {
-                guard let verifiedData = data else {
-                    print("could not verify data from dataTask")
-                    callback(false, Data())
-                    return
-                }
-                callback(true, verifiedData)
             }
+            guard let verifiedData = data,
+                let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
+                    print("APICalls > startSession > data or json error in route: \(route)");
+                    return
+            }
+            callback(json)
         }
         task.resume()
     }

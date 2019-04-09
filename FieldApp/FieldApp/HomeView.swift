@@ -83,6 +83,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         checkForSafetyQs()
+        checkForUserInfo()
     }
 
     @IBAction func pressdProfBtn(_ sender: Any) {
@@ -427,9 +428,17 @@ extension HomeView {
     func completedProgress() {
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
 
-        if HomeView.vehicleCkListNotif == true { self.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
-        else if HomeView.scheduleReadyNotif == true {
-            self.performSegue(withIdentifier: "schedule", sender: nil)
+        print("completedProgress: \(HomeView.vehicleCkListNotif) | \(HomeView.scheduleReadyNotif)")
+        
+        if let checklistForVehicle = HomeView.vehicleCkListNotif {
+            if checklistForVehicle == true {
+                self.performSegue(withIdentifier: "vehicleCkList", sender: nil)
+            }
+            
+        } else if let readySchedule = HomeView.scheduleReadyNotif {
+            if readySchedule == true {
+                self.performSegue(withIdentifier: "schedule", sender: nil)
+            }
         }
     }
 
