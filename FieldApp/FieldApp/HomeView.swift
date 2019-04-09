@@ -619,12 +619,18 @@ extension HomeView: ImagePickerDelegate {
 
             picker.dismiss(animated: true) {
                 self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+                
                 guard let emply = HomeView.employeeInfo?.userName,
                     let idNum = UserDefaults.standard.string(forKey: "employeeID") else { return }
-                let route = "employee/\(idNum)/profileUpload"
-                let headers = ["employee", emply]
-                let info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA")
-                let formBody = APICalls().generateAddressData(addressInfo: info)
+                
+                let route = "employee/\(idNum)/profileUpload",
+                headers = ["employee", emply],
+                info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA"),
+                jsonEncoder = JSONEncoder()
+                var formBody = Data()
+                
+                do { formBody = try jsonEncoder.encode(info) }
+                catch { print("error converting addressInfo to DATA", error); return };
 
                 APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { responseType in
                     self.saveLocalPhoto(image: images[0])

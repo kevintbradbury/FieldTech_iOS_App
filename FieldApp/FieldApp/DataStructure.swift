@@ -13,37 +13,35 @@ import MapKit
 
 class UserData {
     
-    var userID: Int?
-    var userName: String?
-    var userLocation: CLLocationCoordinate2D?
-    var proximityConfirm: Bool?
-    var timeIn: Int?
-    var timeOut: Int?
-    var timerSet: TimeInterval?
-    var breakComplete: Bool?
-    var overBreak: Bool?
-    var punchedIn: Bool?
-    var completedWorkPhotos: [UIImage]?
-    var locationConfirm: Bool?
+    var userID: Int?,
+    userName: String?,
+    userLocation: CLLocationCoordinate2D?,
+    proximityConfirm: Bool?,
+    timeIn: Int?,
+    timeOut: Int?,
+    timerSet: TimeInterval?,
+    breakComplete: Bool?,
+    overBreak: Bool?,
+    punchedIn: Bool?,
+    completedWorkPhotos: [UIImage]?,
+    locationConfirm: Bool?
     
     struct UserInfoCodeable: Encodable {
-        let userName: String
-        let employeeID: String
-        let coordinateLat: String
-        let coordinateLong: String
-        let currentRole: String
+        let userName: String,
+        employeeID: String,
+        coordinateLat: String,
+        coordinateLong: String,
+        currentRole: String
     }
     
     struct AddressInfo: Codable {
-        let address: String?
-        let city: String?
-        let state: String?
+        let address: String?, city: String?, state: String?
         
         static func fromJSON(dictionary: NSDictionary) -> AddressInfo? {
             guard let address = dictionary["address"] as? String,
-             let city = dictionary["city"] as? String,
-             let state = dictionary["state"] as? String else {
-                print("state address failed to parse"); return nil
+                let city = dictionary["city"] as? String,
+                let state = dictionary["state"] as? String else {
+                    print("state address failed to parse"); return nil
             }
             
             return AddressInfo(address: address, city: city, state: state)
@@ -52,32 +50,27 @@ class UserData {
     
     struct UserInfo {
         
-        let employeeID: Int
-        let userName: String
-        var employeeJobs: [Job.UserJob]
-        var punchedIn: Bool?
-        //                let employeePhone: Int?
+        var employeeID: Int,
+        userName: String,
+        employeeJobs: [Job.UserJob],
+        punchedIn: Bool?
         //                let workWeekHours: Int?
         //                let userPoints: Int?
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
             var clocked = false
-//            var clocked = false
             
             guard let userId = dictionary["employeeID"] as? Int,
-             let jobs = dictionary["employeeJobs"] as? NSArray,
-             let userName = dictionary["username"] as? String else {
-                print("User Info failed to parse"); return nil
+                let jobs = dictionary["employeeJobs"] as? NSArray,
+                let userName = dictionary["username"] as? String else {
+                    print("User Info failed to parse"); return nil
             }
             if let clockInOut = dictionary["punchedIn"] as? Bool {
                 clocked = clockInOut
             }
-            //                let userNumber = dictionary["phoneNumber"] as? Int,
             //                let weekHours = dictionary["workWeekHours"] as? Int,
             //                let points = dictionary["userPoints"] as? Int,
-            //                clocked = clockIn
-            
             
             for job in jobs {
                 guard let jobDIctionary = job as? NSDictionary,
@@ -93,15 +86,15 @@ class UserData {
     
     struct TimeCard {
         
-        let weekBeginDate: String?
-        let sunday: NSDictionary?
-        let monday: NSDictionary?
-        let tuesday: NSDictionary?
-        let wednesday: NSDictionary?
-        let thursday: NSDictionary?
-        let friday: NSDictionary?
-        let saturday: NSDictionary?
-        let totalHours: Int?
+        let weekBeginDate: String?,
+        sunday: NSDictionary?,
+        monday: NSDictionary?,
+        tuesday: NSDictionary?,
+        wednesday: NSDictionary?,
+        thursday: NSDictionary?,
+        friday: NSDictionary?,
+        saturday: NSDictionary?,
+        totalHours: Int?
         
         static func fromJSON(dictionary: NSDictionary) -> TimeCard? {
             
@@ -141,15 +134,15 @@ class Job: Codable {
     
     struct UserJob {
         
-        let poNumber: String
-        let jobName: String
-        let dates: [JobDates]
-        let jobLocation: CLLocationCoordinate2D
-        let jobAddress: String, jobCity: String, jobState: String
-        let projCoord: String
-        let fieldLead: String
-        let supervisor: String
-        let assignedEmployees: [String]
+        let poNumber: String,
+        jobName: String,
+        dates: [JobDates],
+        jobLocation: CLLocationCoordinate2D,
+        jobAddress: String, jobCity: String, jobState: String,
+        projCoord: String,
+        fieldLead: String,
+        supervisor: String,
+        assignedEmployees: [String]
         
         struct JobDates {
             let installDate: Date, endDate: Date
@@ -196,7 +189,7 @@ class Job: Codable {
                 poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, 
                 jobLocation: coordinates, jobAddress: address, jobCity: city, jobState: state, 
                 projCoord: coordinator, fieldLead: fieldLead, supervisor: supervisor, assignedEmployees: assignedEmployees
-                )
+            )
         }
         
         static func stringToDate(string: String) -> Date {
@@ -236,7 +229,7 @@ class Job: Codable {
                 for i in datesCollection {
                     guard let start = i["installDate"] as? String else { return handleJustDates() }
                     guard let end = i["endDate"] as? String else { return handleJustDates() }
-
+                    
                     let startEnd = JobDates(installDate: stringToDate(string: start), endDate: stringToDate(string: end))
                     
                     dates.append(startEnd)
@@ -250,98 +243,101 @@ class Job: Codable {
 
 class FieldActions {
     
-    var formType: String?
-    var jobName: String?
-    var poNumber: String?
-    var requestedBy: String?
-    var location: String? // Address?
-    var material: String?
-    var colorSpec: String?
-    var quantity: Double?
-    var neededBy: Double? // Seconds from 1970
-    var description: String?
+    var formType: String?,
+    jobName: String?,
+    poNumber: String?,
+    requestedBy: String?,
+    location: String?, // Address?
+    material: String?,
+    colorSpec: String?,
+    quantity: Double?,
+    neededBy: Double?, // Seconds from 1970
+    description: String?
     let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
     let maxDistance = 5  // Miles?
     
-
-    
     struct SuppliesRequest: Encodable {
-        var formType: String?
-        var jobName: String?
-        var poNumber: String?
-        var requestedBy: String?
-        var location: String?
-        var neededBy: Double? // Seconds from 1970
-        var description: String?
-        var suppliesCollection: [MaterialQuantityColor]
+        var formType: String?,
+        jobName: String?,
+        poNumber: String?,
+        requestedBy: String?,
+        location: String?,
+        neededBy: Double?, // Seconds from 1970
+        description: String?,
+        suppliesCollection: [MaterialQuantityColor]
         
         struct MaterialQuantityColor: Encodable {
-            var quantity: Double
-            var material: String
-            var color:  String
+            var quantity: Double, material: String, color:  String
         }
     }
     
     struct ToolRental: Encodable {
-        var formType: String?
-        var jobName: String?
-        var poNumber: String?
-        var requestedBy: String?
-        var toolType: String?
-        var brand: String?
-        var duration: Int? // Number of Days
-        var quantity: Double?
-        var neededBy: Double? // Seconds from 1970
-        var location: String?
+        var formType: String?,
+        jobName: String?,
+        poNumber: String?,
+        requestedBy: String?,
+        toolType: String?,
+        brand: String?,
+        duration: Int?, // Number of Days
+        quantity: Double?,
+        neededBy: Double?, // Seconds from 1970
+        location: String?
         
         let reminderPeriods = [24, 48, 72, 96]
     }
     
-    struct  ChangeOrders: Encodable {
-        var formType: String?
-        var jobName: String?
-        var poNumber: String?
-        var requestedBy: String?
-        var location: String? // Address?
-        var material: String?
-        var colorSpec: String?
-        var quantity: Double?
-        var neededBy: Double? // Seconds from 1970
-        var description: String?
+    struct ToolReturn: Encodable {
+        let rental: FieldActions.ToolRental, signedDate: String, printedNames: [String]
     }
     
+    struct ToolsNImages {
+        let tools: [FieldActions.ToolRental], images: [UIImage]
+    }
+    
+    struct  ChangeOrders: Encodable {
+        var formType: String?,
+        jobName: String?,
+        poNumber: String?,
+        requestedBy: String?,
+        location: String?, // Address?
+        material: String?,
+        colorSpec: String?,
+        quantity: Double?,
+        neededBy: Double?, // Seconds from 1970
+        description: String?
+    }
     
     struct VehicleChecklist: Encodable {
-        var username: String
-        var department: String
-        var licensePlate: String
-        var date: Double
-        var outsideInspection: OutsideInspection
-        var startupInspection: StartupInspection
-        var issuesReport: String
+        var username: String,
+        department: String,
+        licensePlate: String,
+        date: Double,
+        outsideInspection: OutsideInspection,
+        startupInspection: StartupInspection,
+        issuesReport: String
         
         struct OutsideInspection: Encodable {
-            var windows: Bool
-            var tiresNnuts: Bool
-            var engine: Bool
-            var litesNsignals: Bool
-            var mirrors: Bool
-            var windshieldNwipres: Bool
-            var dents: Bool
-            var exteriorComments: String
+            var windows: Bool,
+            tiresNnuts: Bool,
+            engine: Bool,
+            litesNsignals: Bool,
+            mirrors: Bool,
+            windshieldNwipres: Bool,
+            dents: Bool,
+            exteriorComments: String
         }
         
         struct StartupInspection: Encodable {
-            var engine: Bool
-            var gauges: Bool
-            var wipers: Bool
-            var horn: Bool
-            var brakes: Bool
-            var seatbelt: Bool
-            var insuranceNregist: Bool
-            var firstAidKit: Bool
-            var clean: Bool
-            var startupComments: String
+            var engine: Bool,
+            gauges: Bool,
+            wipers: Bool,
+            horn: Bool,
+            brakes: Bool,
+            seatbelt: Bool,
+            insuranceNregist: Bool,
+            firstAidKit: Bool,
+            clean: Bool,
+            startupComments: String
         }
     }
     
@@ -364,12 +360,11 @@ class FieldActions {
                     let neededBy = dictionary["neededBy"] as? String,
                     let quantity = dictionary["quantity"] as? Int,
                     let location = dictionary["location"] as? String,
-                    let _ = dictionary["returnDate"] as? String,
                     let photoStr = dictionary["photo"] as? String,
                     let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
                     let image = UIImage(data: photoDecoded) {
-                        let neededDate = Job.UserJob.stringToDate(string: neededBy)
-                        let needDouble = neededDate.timeIntervalSince1970
+                    let neededDate = Job.UserJob.stringToDate(string: neededBy)
+                    let needDouble = neededDate.timeIntervalSince1970
                     
                     let toolToAdd = FieldActions.ToolRental(
                         formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: needDouble, location: location
@@ -391,29 +386,26 @@ class FieldActions {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         
         guard let actualDate = dateFormatter.date(from: adjStr[0]) else {
-                print("unable to change ISOstring to Date"); return Date()
+            print("unable to change ISOstring to Date"); return Date()
         }
         return actualDate
     }
 }
 
 struct Holiday: Decodable {
-    let date: String
-    let start: Date
-    let end: Date
-    let name: String
-    let type: String
+    let date: String, start: Date, end: Date
+    let name: String, type: String
     
     static func parseJson(dictionary: NSDictionary) -> Holiday {
         let hldy = Holiday(date: "", start: Date(), end: Date(), name: "", type: "")
         
         guard let date = dictionary["date"] as? String,
-        let start = dictionary["start"] as? String,
-        let end = dictionary["end"] as? String,
-        let name = dictionary["name"] as? String,
-        let type = dictionary["type"] as? String else {
-            print("unable to parse Holiday dictionary: \n\(dictionary)")
-            return hldy
+            let start = dictionary["start"] as? String,
+            let end = dictionary["end"] as? String,
+            let name = dictionary["name"] as? String,
+            let type = dictionary["type"] as? String else {
+                print("unable to parse Holiday dictionary: \n\(dictionary)")
+                return hldy
         }
         
         return Holiday(
@@ -423,14 +415,14 @@ struct Holiday: Decodable {
 }
 
 struct TimeOffReq: Encodable  {
-    let username: String
-    let employeeID: Int
-    let department: String
-    let shiftHours: String
-    let start: Double
-    let end: Double
-    let signedDate: Double
-    let approved: Bool?
+    let username: String,
+    employeeID: Int,
+    department: String,
+    shiftHours: String,
+    start: Double,
+    end: Double,
+    signedDate: Double,
+    approved: Bool?
     
     static func parseJson(dictionary: NSDictionary) -> TimeOffReq {
         let timeOffReq = TimeOffReq(
@@ -470,7 +462,7 @@ struct SafetyQuestion: Encodable {
     var question: String
     var options: answerOptions
     var answer: String
-
+    
     struct answerOptions: Encodable { var a: String; var b: String; var c: String; var d: String }
     
     static func jsonToSQ(dictionary: NSDictionary) -> SafetyQuestion {

@@ -298,21 +298,30 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
     func checkFormType(images: [UIImage], po: String, employee: String) {
-        let route = "changeOrder/\(po)"
+        let route = "changeOrder/\(po)", jsonEncoder = JSONEncoder()
         var data = Data()
         
         if formTypeVal == tool_rental {
-            guard let tlRent = toolRentalForm else { return }
-            data = APICalls().generateTOOLstring(toolForm: tlRent)
+            guard let toolRental = toolRentalForm else { return }
+            
+            do { data = try jsonEncoder.encode(toolRental) }
+            catch { print("error converting \(formTypeVal) to DATA: \(error)"); return }
             
         } else if formTypeVal == change_order {
             guard let co = changeOrder else { return }
-            data = APICalls().generateCOstring(co: co)
+            
+            do { data = try jsonEncoder.encode(co) }
+            catch { print("error converting \(formTypeVal) to DATA: \(error)"); return }
             
         } else  if formTypeVal == supplies_request {
             guard let srForm = suppliesRequestForm else { return }
-            data = APICalls().generateSRFstring(srForm: srForm)
+            
+            do { data = try jsonEncoder.encode(srForm) }
+            catch { print("error converting \(formTypeVal) to DATA: \(error)"); return }
         }
+        // data = APICalls().generateTOOLstring(toolForm: tlRent)
+        // data = APICalls().generateCOstring(co: co)
+        // data = APICalls().generateSRFstring(srForm: srForm)
         
         APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
             self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)

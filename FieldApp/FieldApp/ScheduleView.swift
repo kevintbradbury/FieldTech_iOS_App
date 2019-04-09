@@ -33,6 +33,8 @@ class ScheduleView: UIViewController {
     @IBOutlet var thursdaySwitch: UISwitch!
     @IBOutlet var fridaySwitch: UISwitch!
     @IBOutlet var saturdaySwitch: UISwitch!
+    @IBOutlet var submitBtn: UIButton!
+    @IBOutlet var cancelBtn: UIButton!
     
     
     let formatter = DateFormatter()
@@ -58,9 +60,7 @@ class ScheduleView: UIViewController {
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func accptMoreHrsBtn(_ sender: Any) { confirmRegOrMoreHrs() }
-    @IBAction func sendDaysOfWeek(_ sender: Any) {
-        //Get vals here
-    }
+    @IBAction func sendDaysOfWeek(_ sender: Any) { getDaysAccepted() }
     @IBAction func cancelMoreHours(_ sender: Any) { daysOfWeekView.isHidden = true }
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
@@ -187,22 +187,33 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 
 }
 
+struct AcceptMoreDays: Encodable {
+    let sun: Bool, mon: Bool, tue: Bool, wed: Bool, thu: Bool, fri: Bool, sat: Bool
+}
+
 extension ScheduleView {
     
+    
+    func getDaysAccepted() {
+        let acceptMoreHrs = AcceptMoreDays(
+            sun: sundaySwitch.isOn,
+            mon: mondaySwitch.isOn,
+            tue: tuesdaySwitch.isOn,
+            wed: wednesdaySwitch.isOn,
+            thu: thursdaySwitch.isOn,
+            fri: fridaySwitch.isOn,
+            sat: saturdaySwitch.isOn
+        )
+        guard let user = employee?.userName else { return }
+        print(acceptMoreHrs)
+        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs)
+    }
+    
     func confirmRegOrMoreHrs() {
-                daysOfWeekView.isHidden = false
+        daysOfWeekView.isHidden = false
         daysOfWeekView.layer.cornerRadius = 20
-        
-        //        let readyAlert = UIAlertController(title: "Confirm", message: "Are you available for more hours this week?", preferredStyle: .actionSheet)
-        //        readyAlert.view.addSubview(daySelection)
-        //        let no = UIAlertAction(title: "No", style: .cancel)
-        //        let yes = UIAlertAction(title: "Yes", style: .default) { action in
-        //            guard let user = HomeView.employeeInfo?.userName else { return }
-        //            APICalls().acceptMoreHrs(employee: user)
-        //        }
-        //        readyAlert.addAction(no)
-        //        readyAlert.addAction(yes)
-        //        self.present(readyAlert, animated: true, completion: nil)
+        submitBtn.layer.cornerRadius = 10
+        cancelBtn.layer.cornerRadius = 10
     }
     
     func loading() {

@@ -148,8 +148,17 @@ extension EmployeeIDEntry {
             let unwrappedRole = role else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
-        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err)
+        APICalls().sendCoordinates(
+            employee: user,
+            location: locationArray,
+            autoClockOut: false,
+            role: unwrappedRole,
+            po: "",
+            override: false
+        ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+            self.handleSuccess(
+                success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
+            )
         }
     }
     
@@ -252,7 +261,7 @@ extension EmployeeIDEntry {
         UserDefaults.standard.set(EmployeeIDEntry.foundUser?.userName, forKey: "employeeName")
         
         if id == "return" {
-            HomeView.employeeInfo?.punchedIn = EmployeeIDEntry.foundUser?.punchedIn
+            HomeView.employeeInfo = EmployeeIDEntry.foundUser
             HomeView.todaysJob.jobName = todaysJob.jobName
             HomeView.todaysJob.poNumber = todaysJob.poNumber
             HomeView.todaysJob.jobLocation = todaysJob.jobLocation
@@ -308,7 +317,14 @@ extension EmployeeIDEntry {
             if poNumber.text != nil && poNumber.text != "" {
                 poToString = poNumber.text!
                 
-                APICalls().manualSendPO(employee: uwrappedUsr, location: locationArray, role: unwrappedRole, po: poToString) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                APICalls().sendCoordinates(
+                    employee: uwrappedUsr,
+                    location: locationArray,
+                    autoClockOut: false,
+                    role: unwrappedRole,
+                    po: poToString,
+                    override: true
+                ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
                     self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err)
                 }
             }

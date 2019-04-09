@@ -123,13 +123,18 @@ extension UserLocation {
             let coordinate = UserLocation.instance.currentCoordinate else { print("failed on employeeName or coordinate"); return }
         let employeeID = UserDefaults.standard.integer(forKey: "employeeID")
         let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
-        let autoClockOut = true
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
         // get role here
         let role: String
         
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut, role: "-") { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+        APICalls().sendCoordinates(
+            employee: userInfo,
+            location: locationArray,
+            autoClockOut: true,
+            role: "-", po: "",
+            override: false
+        ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             let content = UNMutableNotificationContent()
             content.title = "Clocked Out"
             content.body = "You were clocked out because you left the job site."

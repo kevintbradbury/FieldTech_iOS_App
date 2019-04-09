@@ -848,6 +848,7 @@
                         <outlet property="activityIndicator" destination="SdX-qA-5FG" id="cR8-wi-ZI0"/>
                         <outlet property="backButton" destination="7HF-L9-dB1" id="xqq-Xh-Y0T"/>
                         <outlet property="calendarView" destination="lpg-pI-w0l" id="6jv-iv-7fH"/>
+                        <outlet property="cancelBtn" destination="NKY-85-MyY" id="T3A-CE-MPY"/>
                         <outlet property="daysOfWeekView" destination="ntd-Nh-AL0" id="bRB-yV-6F9"/>
                         <outlet property="directionsBtn" destination="fn9-jT-dfc" id="m8e-FA-8MA"/>
                         <outlet property="fridaySwitch" destination="Toy-ny-4hh" id="dVF-K0-MtR"/>
@@ -859,6 +860,7 @@
                         <outlet property="monthLabel" destination="gQ2-2s-BTt" id="GOd-kh-bWs"/>
                         <outlet property="poNumberLbl" destination="8Yl-a4-K3f" id="rDl-Bn-aFi"/>
                         <outlet property="saturdaySwitch" destination="Af3-8E-QEE" id="DcO-jg-ryX"/>
+                        <outlet property="submitBtn" destination="Jh8-LC-gV4" id="o1r-y9-dJQ"/>
                         <outlet property="sundaySwitch" destination="0FP-Up-Hxh" id="63D-3L-c4v"/>
                         <outlet property="thursdaySwitch" destination="j1f-cK-fO4" id="auh-qc-fWf"/>
                         <outlet property="tuesdaySwitch" destination="dPc-MB-kus" id="Usp-XS-Ucf"/>

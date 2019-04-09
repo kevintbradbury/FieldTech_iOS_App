@@ -25,13 +25,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "576198865.640865"
+            filePath = "FieldApp/ScheduleView.swift"
+            timestampString = "576455096.921055"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "215"
-            endingLineNumber = "215"
-            landmarkName = "fetchEmployee(employeeId:callback:)"
+            startingLineNumber = "210"
+            endingLineNumber = "210"
+            landmarkName = "getDaysAccepted()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,44 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/APICalls.swift"
-            timestampString = "576198865.640926"
+            timestampString = "576455096.921272"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "222"
-            endingLineNumber = "222"
-            landmarkName = "fetchEmployee(employeeId:callback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "576198865.6409709"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "287"
-            endingLineNumber = "287"
-            landmarkName = "acceptMoreHrs(employee:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "576198865.641012"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "40"
-            endingLineNumber = "40"
-            landmarkName = "checkForToken(employeeID:callback:)"
+            startingLineNumber = "296"
+            endingLineNumber = "296"
+            landmarkName = "alamoUpload(route:headers:formBody:images:uploadType:callback:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

@@ -81,12 +81,17 @@ extension ToolSignOffView {
         }
         inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
         
-        let dt =  dateFormatter.string(from: Date())
-        let images = [returnerSig, receiverSig]
-        let printedNames = [returnerNm, receiverNm]
-        let formBody = APICalls().generateToolReturnData(toolForm: rental, signedDate: dt, printedNames: printedNames)
-        let route = "toolReturn/\(employeeID)"
-        let headers = ["formType", "Tool Return"]
+        let dt =  dateFormatter.string(from: Date()),
+        images = [returnerSig, receiverSig],
+        printedNames = [returnerNm, receiverNm],
+        jsonEncoder = JSONEncoder(),
+        route = "toolReturn/\(employeeID)",
+        headers = ["formType", "Tool Return"],
+        returnObj = FieldActions.ToolReturn(rental: toolForm, signedDate: signedDate, printedNames: printedNames)
+        var formBody = Data()
+        
+        do { formBody = try jsonEncoder.encode(returnObj) }
+        catch { print("error converting ToolReturn to DATA", error); return }
         
         APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
             self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
