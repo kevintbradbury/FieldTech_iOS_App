@@ -104,9 +104,11 @@ extension UIViewController {
     func handleResponseType(responseType: [String: String]) {
         OperationQueue.main.addOperation {
             if responseType["success"] == "true" { return }
-            else if let msg = responseType["msg"] { self.showAlert(withTitle: "Upload Status", message: msg) }
-            else if let error = responseType["error"] { self.showAlert(withTitle: "Error", message: error) }
-            else { print(responseType) }
+            else if let msg = responseType["msg"] {
+                self.showAlert(withTitle: "Upload Status", message: msg)
+            } else if let error = responseType["error"] {
+                self.showAlert(withTitle: "Error", message: error)
+            } else { print(responseType) }
         }
     }
     
@@ -127,13 +129,20 @@ extension UIViewController {
     }
 }
 
-class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+
+extension UNUserNotificationCenterDelegate {
+//class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.alert, .sound, .badge])
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        print(
+            "received Local Notification: \n actionIdentifier: \(response.actionIdentifier) \n identifier \(response.notification.request.identifier)"
+        )
+        
         switch response.actionIdentifier {
         case UNNotificationDismissActionIdentifier:
             print("Dismiss Action")

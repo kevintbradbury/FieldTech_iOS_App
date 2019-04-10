@@ -28,7 +28,13 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var profileBtn: UIButton!
     @IBOutlet var bkgdView: HomeBkgd!
     @IBOutlet var homeFanMenu: UIView!
-
+    @IBOutlet var jobCheckUpView: UIView!
+    @IBOutlet var returnTomorrowSwitch: UISwitch!
+    @IBOutlet var workersToReturnLbl: UILabel!
+    @IBOutlet var workersStepper: UIStepper!
+    @IBOutlet var requiredAddedMaterialsSwitch: UISwitch!
+    
+    
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
@@ -49,6 +55,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var menuOpen = false
     public static var vehicleCkListNotif: Bool?
     public static var scheduleReadyNotif: Bool?
+    public static var jobCheckup: Bool?
     public static var employeeInfo: UserData.UserInfo?
     public static var addressInfo: UserData.AddressInfo?
     public static var todaysJob = Job()
@@ -61,6 +68,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("viewDidLoad")
+        
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
         }
@@ -83,17 +92,32 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         checkForSafetyQs()
-        checkForUserInfo()
     }
 
-    @IBAction func pressdProfBtn(_ sender: Any) {
-        profilePress()
-    }
-
+    @IBAction func pressdProfBtn(_ sender: Any) { profilePress() }
+    @IBAction func stepperValChangd(_ sender: UIStepper) { setStepperVals(value: sender.value) }
+    @IBAction func sendJobCheckup(_ sender: Any) { getJobCheckupInfo() }
+    
 }
 
 
 extension HomeView {
+    
+    func setStepperVals(value: Double) {
+        let currVal = (workersStepper.stepValue + value)
+        if currVal < 0 { currVal = 0 }
+        
+        workersStepper.stepValue = currVal
+        workersToReturnLbl.text = "\(Int(workersStepper.stepValue))"
+    }
+    
+    func getJobCheckupInfo() {
+        let returnTwr = returnTomorrowSwitch.isOn
+        let amountOfWorkers = workersStepper.stepValue
+        let addedMaterial = self.requiredAddedMaterialsSwitch.isOn
+        
+        // Send to Server
+    }
     
     func checkForSafetyQs() {
         if HomeView.safetyQs.count > 0 {
@@ -208,6 +232,9 @@ extension HomeView {
     }
 
     func setUpHomeBtn() {
+//        jobCheckUpView.isHidden = true
+        
+        
         let w = UIScreen.main.bounds.width,
         h = UIScreen.main.bounds.height,
         btnRadius = 35.0,
@@ -289,7 +316,8 @@ extension HomeView {
 
     func checkAppDelANDnotif() {
         let appDelegate: AppDelegate = UIApplication.shared.delegate! as! AppDelegate
-        appDelegate.myViewController = self
+        appDelegate.homeViewActive = self
+        UserLocation.homeViewActive = self
 
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
@@ -438,6 +466,10 @@ extension HomeView {
         } else if let readySchedule = HomeView.scheduleReadyNotif {
             if readySchedule == true {
                 self.performSegue(withIdentifier: "schedule", sender: nil)
+            }
+        } else if let jobCheck = HomeView.jobCheckup {
+            if jobCheck == true {
+                jobCheckUpView.isHidden = false
             }
         }
     }

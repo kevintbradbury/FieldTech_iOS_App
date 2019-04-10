@@ -243,6 +243,8 @@ extension ScheduleView {
         daysOfWeekView.layer.cornerRadius = 20
         submitBtn.layer.cornerRadius = 10
         cancelBtn.layer.cornerRadius = 10
+        ScheduleView.scheduleRdy = nil
+        HomeView.scheduleReadyNotif = nil
     }
     
     func loading() {

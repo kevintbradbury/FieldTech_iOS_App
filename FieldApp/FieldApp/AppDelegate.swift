@@ -16,7 +16,7 @@ import CoreLocation
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    var myViewController: HomeView?
+    var homeViewActive: HomeView?
     var myEmployeeVC: EmployeeIDEntry?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
@@ -117,10 +117,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("app did become active")
-        if myViewController != nil  && didEnterBackground == true {
-
-//            HomeView.employeeInfo = nil
-//            self.myViewController?.checkForUserInfo()
+        if homeViewActive != nil  && didEnterBackground == true {
+            HomeView.employeeInfo = nil
+            self.homeViewActive?.checkForUserInfo()
         }
     }
     
@@ -170,6 +169,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+
+        print("UNUserNotificationCenter > response: \(response)")
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             let category = response.notification.request.content.categoryIdentifier
@@ -177,7 +178,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             
             print("UNUserNotificationCenter didReceive category: \(category)")
             
-            guard let vc = self.myViewController else { return }
+            guard let vc = self.homeViewActive else { return }
             
             switch category {
             case "vehicleCheckList":

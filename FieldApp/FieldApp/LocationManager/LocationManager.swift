@@ -18,6 +18,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     static let instance = UserLocation()
     override init() {}
     
+    public static var homeViewActive: HomeView?
     private var alreadyInitialized = false
     private var onLocation: ((CLLocationCoordinate2D) -> Void)?
     var locationManager = CLLocationManager()
@@ -159,8 +160,29 @@ extension UserLocation {
 }
 
 extension UserLocation: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) { completionHandler([.alert, .badge, .sound]) }
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) { completionHandler() }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert, .badge, .sound])
+    }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        let identifier = response.notification.request.identifier
+        let state = UIApplication.shared.applicationState
+        guard let vc = UserLocation.homeViewActive else { return }
+        
+        switch identifier {
+        case "jobCheckup":
+            HomeView.jobCheckup = true
+            
+            if state == UIApplication.State.active {
+                vc.jobCheckUpView.isHidden = false
+            }
+            
+        default:
+            print("LocationManger > didReceive notification: \(response.notification)")
+        }
+        
+        completionHandler()
+    }
 }
 
 

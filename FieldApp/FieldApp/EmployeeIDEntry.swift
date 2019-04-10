@@ -242,17 +242,25 @@ extension EmployeeIDEntry {
         notificationCenter.add(tenMinBreakRmdr) { (error) in
             if error != nil {
                 print("error setting clock notif: \(String(describing: error))")
-            } else {
-                print("added reminder at 2 hour mark")
             }
         }
         notificationCenter.add(clckOutRmndr) { (error) in
             if error != nil {
                 print("error setting clock notif: \(String(describing: error))")
-            } else {
-                print("added reminder at 4 hour mark")
             }
         }
+        
+//        if idf == "clockOut" {
+            let thirtyMin = (60 * 30) // change to 30 min after testing
+            let jobUpdate = createNotification(
+                intervalInSeconds: 5, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
+            )
+            notificationCenter.add(jobUpdate) { error in
+                if error != nil {
+                    print("error setting clock notif: \(String(describing: error))")
+                }
+            }
+//        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
