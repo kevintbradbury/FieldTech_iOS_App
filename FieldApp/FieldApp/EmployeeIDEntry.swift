@@ -250,17 +250,17 @@ extension EmployeeIDEntry {
             }
         }
         
-//        if idf == "clockOut" {
-            let thirtyMin = (60 * 30) // change to 30 min after testing
+        if idf == "clockOut" {
+            let thirtyMin = (60 * 30)
             let jobUpdate = createNotification(
-                intervalInSeconds: 5, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
+                intervalInSeconds: thirtyMin, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
             )
             notificationCenter.add(jobUpdate) { error in
                 if error != nil {
                     print("error setting clock notif: \(String(describing: error))")
                 }
             }
-//        }
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

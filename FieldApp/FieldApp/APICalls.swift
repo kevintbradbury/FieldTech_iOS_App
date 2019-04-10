@@ -142,6 +142,20 @@ class APICalls {
         }
     }
     
+    func sendJobCheckup(po: String, body: Data, callback: @escaping () -> ()){
+        let route = "jobCheckupInfo/" + String(po)
+        
+        setupRequest(route: route, method: "POST") { request in
+            var reqWithData = request
+            reqWithData.httpBody = body
+            
+            self.startSession(request: reqWithData, route: route) { json in
+                
+                callback()
+            }
+        }
+    }
+    
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
         let route = "employee/" + String(employeeId)
         

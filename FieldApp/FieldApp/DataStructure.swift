@@ -239,6 +239,10 @@ class Job: Codable {
             return dates
         }
     }
+    
+    struct JobCheckupInfo: Encodable {
+        let returnTomorrow: Bool, numberOfWorkers: Int, addedMaterial: Bool, poNumber: String
+    }
 }
 
 class FieldActions {

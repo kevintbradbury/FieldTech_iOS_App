@@ -53,6 +53,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var profileUpload: Bool?
     var questsAlerts: [UIAlertController] = []
     var menuOpen = false
+    var employeesToReturn = 0
     public static var vehicleCkListNotif: Bool?
     public static var scheduleReadyNotif: Bool?
     public static var jobCheckup: Bool?
@@ -95,7 +96,9 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     }
 
     @IBAction func pressdProfBtn(_ sender: Any) { profilePress() }
-    @IBAction func stepperValChangd(_ sender: UIStepper) { setStepperVals(value: sender.value) }
+    @IBAction func stepperValChangd(_ sender: UIStepper) {
+        workersToReturnLbl.text = "\(Int(sender.value))"; employeesToReturn = Int(sender.value)
+    }
     @IBAction func sendJobCheckup(_ sender: Any) { getJobCheckupInfo() }
     
 }
@@ -103,20 +106,34 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 
 extension HomeView {
     
-    func setStepperVals(value: Double) {
-        let currVal = (workersStepper.stepValue + value)
-        if currVal < 0 { currVal = 0 }
-        
-        workersStepper.stepValue = currVal
-        workersToReturnLbl.text = "\(Int(workersStepper.stepValue))"
-    }
-    
     func getJobCheckupInfo() {
-        let returnTwr = returnTomorrowSwitch.isOn
-        let amountOfWorkers = workersStepper.stepValue
-        let addedMaterial = self.requiredAddedMaterialsSwitch.isOn
+        let returnTwr = returnTomorrowSwitch.isOn,
+         addedMaterial = self.requiredAddedMaterialsSwitch.isOn
+        guard let po = HomeView.todaysJob.poNumber ?? UserDefaults.standard.string(forKey: "todaysJobPO") else {
+            return
+        }
         
-        // Send to Server
+        let checkupInfo = Job.JobCheckupInfo(
+            returnTomorrow: returnTwr, numberOfWorkers: employeesToReturn, addedMaterial: addedMaterial, poNumber: po
+        )
+        let jsonEncoder = JSONEncoder()
+        var body = Data()
+        
+        do {
+            body = try jsonEncoder.encode(checkupInfo)
+        } catch {
+            print("error: \(error)"); return
+        }
+        
+        APICalls().sendJobCheckup(po: po, body: body) {
+            // get confirmation here
+            
+            if addedMaterial == true {
+                self.main.addOperation {
+                    self.performSegue(withIdentifier: "suppliesReq", sender: nil)
+                }
+            }
+        }
     }
     
     func checkForSafetyQs() {
@@ -232,8 +249,7 @@ extension HomeView {
     }
 
     func setUpHomeBtn() {
-//        jobCheckUpView.isHidden = true
-        
+        jobCheckUpView.isHidden = true
         
         let w = UIScreen.main.bounds.width,
         h = UIScreen.main.bounds.height,
@@ -455,8 +471,6 @@ extension HomeView {
 
     func completedProgress() {
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
-
-        print("completedProgress: \(HomeView.vehicleCkListNotif) | \(HomeView.scheduleReadyNotif)")
         
         if let checklistForVehicle = HomeView.vehicleCkListNotif {
             if checklistForVehicle == true {
