@@ -79,7 +79,7 @@ extension ToolSignOffView {
             let employeeID = UserDefaults.standard.string(forKey: "employeeID") else {
                 showAlert(withTitle: "Incomplete", message: "Fill out all fields before submitting."); return
         }
-        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
+        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: true)
         
         let dt =  dateFormatter.string(from: Date()),
         images = [returnerSig, receiverSig],
@@ -93,7 +93,8 @@ extension ToolSignOffView {
         do { formBody = try jsonEncoder.encode(returnObj) }
         catch { print("error converting ToolReturn to DATA", error); return }
         
-        APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
+//        APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
+        alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
             self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType)
         }

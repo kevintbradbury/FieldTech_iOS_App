@@ -12,6 +12,7 @@ import UserNotifications
 import UserNotificationsUI
 import EPSignature
 import MapKit
+import Alamofire
 
 
 extension UIViewController {
@@ -112,7 +113,34 @@ extension UIViewController {
         }
     }
     
-    func inProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView) {
+    func inProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView, showProgress: Bool) {
+        activityBckgd.accessibilityIdentifier = "activityBckgd"
+        
+        if showProgress == true {
+            let w = CGFloat(activityBckgd.frame.width / 2)
+            let progressLabel = UIProgressView(
+                frame: CGRect(
+                    x: CGFloat(activityIndicator.center.x - (w / 2)),
+                    y: CGFloat(activityIndicator.center.y + (activityIndicator.frame.height * 2)),
+                    width: w,
+                    height: CGFloat(activityIndicator.frame.height)
+                )
+            )
+            
+            progressLabel.accessibilityIdentifier = "progressLabel"
+            progressLabel.progress = 0.0
+            progressLabel.trackTintColor = .black
+            
+            activityBckgd.addSubview(progressLabel)
+            
+        } else {
+            for subVw in activityBckgd.subviews {
+                if subVw.accessibilityIdentifier == "progressLabel" {
+                    activityBckgd.willRemoveSubview(subVw)
+                }
+            }
+        }
+        
         OperationQueue.main.addOperation {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             activityBckgd.isHidden = false
@@ -125,6 +153,98 @@ extension UIViewController {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             activityBckgd.isHidden = true
             activityIndicator.stopAnimating()
+        }
+    }
+    
+    func getProgressLabel() -> UIProgressView {
+        var progressLabel: UIProgressView?
+        
+        for subVw in self.view.subviews {
+            if subVw.accessibilityIdentifier == "activityBckgd" {
+                
+                for subSubVw in subVw.subviews {
+                    if subSubVw.accessibilityIdentifier == "progressLabel" {
+                        progressLabel = subSubVw as? UIProgressView
+                    }
+                }
+            }
+        }
+        guard var unwrappedLb = progressLabel as? UIProgressView else { return UIProgressView() }
+        return unwrappedLb
+    }
+    
+    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping ([String: String]) -> ()) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        let url = "\(APICalls.host)\(route)"
+        var headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data",
+            headers[0] : headers[1]
+        ]
+        var progressLabel = getProgressLabel()
+        
+        APICalls().getFIRidToken() { idToken in
+            headers["Authorization"] = idToken
+            
+            Alamofire.upload(
+                multipartFormData: { multipartFormData in
+                    multipartFormData.append(formBody, withName: uploadType)
+                    var i = 0
+                    for img in images {
+                        guard let imageData = img.jpegData(compressionQuality: 1) else { return }
+                        let nm = "\(uploadType)_\(i)"
+                        
+                        multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")
+                        i += 1
+                    }
+            },
+                usingThreshold: UInt64.init(),
+                to: url,
+                method: .post,
+                headers: headers,
+                encodingCompletion: { encodingResult in
+                    switch encodingResult {
+                    case .success(let upload, _, _):
+                        upload.uploadProgress { progress in
+                            let percent = Float(progress.fractionCompleted * 100).rounded()
+                            progressLabel.setProgress(percent, animated: true)
+                        }
+                        upload.validate()
+                        upload.responseString { response in
+                            
+                            guard response.result.isSuccess else {
+                                guard let err = response.result.error as? String else { return }
+                                print("error while uploading file: \(err)");
+                                APICalls.succeedOrFailUpload(msg: "Error occured: \(err) with upload: ", uploadType: uploadType, success: false)
+                                callback(["error" : err]); return
+                            }
+                            guard let msg = response.result.value,
+                                let data: Data = msg.data(using: String.Encoding.utf16, allowLossyConversion: true),
+                                let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
+                                    APICalls.succeedOrFailUpload(msg: " uploaded successfully.", uploadType: uploadType, success: true);
+                                    callback(["success": "true"]); return
+                            }
+                            
+                            APICalls().handleResponseMsgOrErr(json: json, uploadType: uploadType) { responseType in
+                                callback(responseType)
+                            }
+                        }
+                        
+                    case .failure(let encodingError):
+                        print(encodingError);
+                        APICalls.succeedOrFailUpload(msg: "Failed to upload: ", uploadType: uploadType, success: false)
+                        callback(["error": encodingError.localizedDescription])
+                    }
+            }
+            );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        }
+    }
+    
+    func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping ([String : String]) -> () ) {
+        let route = "job/\(jobNumber)/upload"
+        let headers = ["employee", employee]
+        
+        alamoUpload(route: route, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { responseType in
+            callback(responseType)
         }
     }
 }

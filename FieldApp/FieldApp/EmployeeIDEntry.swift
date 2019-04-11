@@ -251,7 +251,7 @@ extension EmployeeIDEntry {
         }
         
         if idf == "clockOut" {
-            let thirtyMin = (60 * 30)
+            let thirtyMin = Double(60 * 30)
             let jobUpdate = createNotification(
                 intervalInSeconds: thirtyMin, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
             )
@@ -312,7 +312,7 @@ extension EmployeeIDEntry {
         )
         
         let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
-            self.inProgress()
+            self.inProgressVw()
             
             guard let coordinate = UserLocation.instance.currentCoordinate,
                 let uwrappedUsr = EmployeeIDEntry.foundUser,
@@ -380,7 +380,7 @@ extension EmployeeIDEntry {
         }
     }
     
-    func inProgress() {
+    func inProgressVw() {
         self.main.addOperation {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             self.activityBckgd.isHidden = false
@@ -490,7 +490,7 @@ extension EmployeeIDEntry {
 
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
-                inProgress()
+                inProgressVw()
 
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
                     HomeView.employeeInfo = user
@@ -533,14 +533,14 @@ extension EmployeeIDEntry: ImagePickerDelegate {
 
         if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             if imgs.count < 11 {
-                inProgress()
+                inProgressVw()
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
-                    APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { responseType in
+                    uploadJobImages(images: imgs, jobNumber: po, employee: emply) { responseType in
                         self.checkSuccess(responseType: responseType)
                     }
                 } else {
-                    APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { responseType in
+                    uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { responseType in
                         self.checkSuccess(responseType: responseType)
                     }
                 };  dismiss(animated: true, completion: nil)
@@ -550,7 +550,9 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         }
     }
 
-    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {   }
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+        imagePicker.dismiss(animated: true, completion: nil)
+    }
 }
 
 extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {

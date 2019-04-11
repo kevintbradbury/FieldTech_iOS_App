@@ -279,10 +279,11 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+        imagePicker.dismiss(animated: true, completion: nil)
     }
     
     func sendCO(images: [UIImage]) {
-        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
+        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator, showProgress: true)
         
         if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
             let emply =  UserDefaults.standard.string(forKey: "employeeName") {
@@ -323,7 +324,8 @@ extension ChangeOrdersView: ImagePickerDelegate {
         // data = APICalls().generateCOstring(co: co)
         // data = APICalls().generateSRFstring(srForm: srForm)
         
-        APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
+//        APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
+        alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
             self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType)
         }

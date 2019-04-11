@@ -69,8 +69,7 @@ class TimeOffRequestView: UIViewController {
                 return
         }
         
-//        activityIndicator.startAnimating()
-        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
+        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator, showProgress: false)
         
         let tmOffForm = TimeOffReq(
             username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,
@@ -84,7 +83,8 @@ class TimeOffRequestView: UIViewController {
         do { data = try jsonEncoder.encode(tmOffForm) }
         catch { print(error.localizedDescription) };
         
-        APICalls().alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { responseType in
+//        APICalls().alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { responseType in
+        alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { responseType in
 //            self.activityIndicator.stopAnimating()
             self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType)

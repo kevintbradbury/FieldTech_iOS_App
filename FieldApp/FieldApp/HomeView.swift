@@ -14,10 +14,6 @@ import Firebase
 import FirebaseAuth
 import ImagePicker
 import Macaw
-//import FanMenu
-//import SwiftyJSON
-
-
 
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
@@ -34,7 +30,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var workersStepper: UIStepper!
     @IBOutlet var requiredAddedMaterialsSwitch: UISwitch!
     
-    
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
     let firebaseAuth =  Auth.auth()
@@ -47,29 +42,28 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         "safety", "camera", "clock", "schedule"
     ]
 
-    var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
-    var main = OperationQueue.main
-    var jobs: [Job.UserJob] = []
-    var profileUpload: Bool?
-    var questsAlerts: [UIAlertController] = []
-    var menuOpen = false
     var employeesToReturn = 0
-    public static var vehicleCkListNotif: Bool?
-    public static var scheduleReadyNotif: Bool?
-    public static var jobCheckup: Bool?
-    public static var employeeInfo: UserData.UserInfo?
-    public static var addressInfo: UserData.AddressInfo?
-    public static var todaysJob = Job()
-    public static var role: String?
-    public static var safetyQs: [SafetyQuestion] = []
-    public var imageAssets: [UIImage] {
+    var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
+    var jobs: [Job.UserJob] = []
+    var main = OperationQueue.main
+    var menuOpen = false
+    var profileUpload: Bool?
+    var questionAlerts: [UIAlertController] = []
+    public static var addressInfo: UserData.AddressInfo?,
+    employeeInfo: UserData.UserInfo?,
+    jobCheckup: Bool?,
+    role: String?,
+    safetyQs: [SafetyQuestion] = [],
+    scheduleReadyNotif: Bool?,
+    todaysJob = Job(),
+    vehicleCkListNotif: Bool?
+    var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("viewDidLoad")
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }
@@ -112,7 +106,6 @@ extension HomeView {
         guard let po = HomeView.todaysJob.poNumber ?? UserDefaults.standard.string(forKey: "todaysJobPO") else {
             return
         }
-        
         let checkupInfo = Job.JobCheckupInfo(
             returnTomorrow: returnTwr, numberOfWorkers: employeesToReturn, addedMaterial: addedMaterial, poNumber: po
         )
@@ -124,9 +117,11 @@ extension HomeView {
         } catch {
             print("error: \(error)"); return
         }
+        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
         
         APICalls().sendJobCheckup(po: po, body: body) {
             // get confirmation here
+            self.completedProgress()
             
             if addedMaterial == true {
                 self.main.addOperation {
@@ -164,11 +159,11 @@ extension HomeView {
                 questionPopup.addAction(c)
                 questionPopup.addAction(d)
 
-                questsAlerts.append(questionPopup)
+                questionAlerts.append(questionPopup)
             }
 
             main.addOperation {
-                self.present(self.questsAlerts[0], animated: true, completion: nil)
+                self.present(self.questionAlerts[0], animated: true, completion: nil)
             }
         }
     }
@@ -178,11 +173,11 @@ extension HomeView {
         func makeAlert(correct: String, msg: String) {
             let alert = UIAlertController(title: correct, message: msg, preferredStyle: .alert)
             let action = UIAlertAction(title: "OK", style: .cancel) { action in
-                if i >= self.questsAlerts.count {
+                if i >= self.questionAlerts.count {
                     HomeView.safetyQs = []
                     return
-                } else if self.questsAlerts[i] != nil {
-                    self.present(self.questsAlerts[i], animated: true, completion: nil)
+                } else if self.questionAlerts[i] != nil {
+                    self.present(self.questionAlerts[i], animated: true, completion: nil)
                 }
             }
 
@@ -249,8 +244,6 @@ extension HomeView {
     }
 
     func setUpHomeBtn() {
-        jobCheckUpView.isHidden = true
-        
         let w = UIScreen.main.bounds.width,
         h = UIScreen.main.bounds.height,
         btnRadius = 35.0,
@@ -394,7 +387,7 @@ extension HomeView {
 
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
-                self.inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
+                self.inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
 
                 fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo in
                     HomeView.employeeInfo = user
@@ -470,6 +463,7 @@ extension HomeView {
     }
 
     func completedProgress() {
+        main.addOperation { self.jobCheckUpView.isHidden = true }
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
         
         if let checklistForVehicle = HomeView.vehicleCkListNotif {
@@ -673,7 +667,7 @@ extension HomeView: ImagePickerDelegate {
         if profileUpload == true && imageAssets.count == 1 {
 
             picker.dismiss(animated: true) {
-                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
                 
                 guard let emply = HomeView.employeeInfo?.userName,
                     let idNum = UserDefaults.standard.string(forKey: "employeeID") else { return }
@@ -687,7 +681,7 @@ extension HomeView: ImagePickerDelegate {
                 do { formBody = try jsonEncoder.encode(info) }
                 catch { print("error converting addressInfo to DATA", error); return };
 
-                APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { responseType in
+                self.alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "profilePhoto") { responseType in
                     self.saveLocalPhoto(image: images[0])
                     self.loadProfilePic()
                     self.checkSuccess(responseType: responseType)
@@ -697,16 +691,17 @@ extension HomeView: ImagePickerDelegate {
             }
         } else if imageAssets.count < 11 {
             picker.dismiss(animated: true) {
-                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
 
 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                     let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: po, employee: emply) { responseType in
+                    
+                    self.uploadJobImages(images: self.imageAssets, jobNumber: po, employee: emply) { responseType in
                         self.checkSuccess(responseType: responseType)
                     }
                 } else {
-                    APICalls().uploadJobImages(images: self.imageAssets, jobNumber: "---", employee: "---") { responseType in
+                    self.uploadJobImages(images: self.imageAssets, jobNumber: "---", employee: "---") { responseType in
                         self.checkSuccess(responseType: responseType)
                     }
                 }
@@ -717,6 +712,7 @@ extension HomeView: ImagePickerDelegate {
     }
 
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+        imagePicker.dismiss(animated: true, completion: nil)
     }
     
 }
