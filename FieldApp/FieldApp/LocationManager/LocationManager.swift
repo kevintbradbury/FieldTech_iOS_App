@@ -119,9 +119,11 @@ extension UserLocation {
     }
     
     func handleGeoFenceEvent(forRegion region: CLRegion) {
-        print("region EXIT event triggered \(region)")
+        print("handleGeoFenceEvent EXIT region: \(region)")
         guard let employeeName = UserDefaults.standard.string(forKey: "employeeName"),
-            let coordinate = UserLocation.instance.currentCoordinate else { print("failed on employeeName or coordinate"); return }
+            let coordinate = UserLocation.instance.currentCoordinate else {
+                print("failed on employeeName or coordinate or employeeID"); return
+        }
         let employeeID = UserDefaults.standard.integer(forKey: "employeeID")
         let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
@@ -130,25 +132,10 @@ extension UserLocation {
         let role: String
         
         APICalls().sendCoordinates(
-            employee: userInfo,
-            location: locationArray,
-            autoClockOut: true,
-            role: "-", po: "",
-            override: false
+            employee: userInfo, location: locationArray, autoClockOut: true, role: "-", po: "", override: false
         ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-            let content = UNMutableNotificationContent()
-            content.title = "Clocked Out"
-            content.body = "You were clocked out because you left the job site."
-            content.sound = UNNotificationSound.default
-            let intrvl = TimeInterval(1.01)
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
-            let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
             
-            self.notificationCenter?.add(request) { (error) in
-                if error != nil { print("error setting up notification request") } else {
-                    print("added notification")
-                }
-            }
+            self.notifyClockOut(identifier: region.identifier)
             
             if clockedIn == false && success == true {
                 UserLocation.instance.stopMonitoring()
@@ -157,6 +144,41 @@ extension UserLocation {
             }
         }
     }
+    
+    func notifyClockOut(identifier: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "Clocked Out"
+        content.body = "You were clocked out because you left the job site."
+        content.sound = UNNotificationSound.default
+       
+        let intrvl = TimeInterval(5)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+        
+        self.notificationCenter?.add(request) { (error) in
+            if error != nil {
+                print("Error setting notification: \(error)")
+            }
+        }
+        
+        var notificationContent = UNMutableNotificationContent()
+        notificationContent.title = "Please send Job updates"
+        notificationContent.body = "Please send photos, supplies requests, or change orders."
+        notificationContent.sound = UNNotificationSound.default
+        notificationContent.categoryIdentifier = "leftJobSite"
+        notificationContent.threadIdentifier = "leftJobSite"
+        
+        let thirtySecs = TimeInterval(60) // 60 for production
+        let triggerTwo = UNTimeIntervalNotificationTrigger(timeInterval: thirtySecs, repeats: true)
+        let requestTwo = UNNotificationRequest(identifier: "leftJobSite", content: notificationContent, trigger: triggerTwo)
+        
+        self.notificationCenter?.add(requestTwo) { (error) in
+            if error != nil {
+                print("Error setting notification: \(error)")
+            }
+        }
+    }
+    
 }
 
 extension UserLocation: UNUserNotificationCenterDelegate {
@@ -176,9 +198,16 @@ extension UserLocation: UNUserNotificationCenterDelegate {
             if state == UIApplication.State.active {
                 vc.jobCheckUpView.isHidden = false
             }
+        case "leftJobSite":
+            HomeView.leftJobSite = true
+            center.removeDeliveredNotifications(withIdentifiers: ["leftJobSite"])
+            
+            if state == UIApplication.State.active {
+                // Show popup
+            }
             
         default:
-            print("LocationManger > didReceive notification: \(response.notification)")
+            print("LocationManger > didReceive notification: \(identifier)")
         }
         
         completionHandler()

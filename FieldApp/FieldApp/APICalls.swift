@@ -102,11 +102,9 @@ class APICalls {
                     
                     callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
                     
-                } else {
-                    guard let err = json["error"] as? String else {
-                        print("APICalls > sendCoordinates > no Error data provided"); return
-                    }
-                    callback(successfulPunch, "", "", [0.0], false, err)
+                } else if let err = json["error"] as? String {
+                    print("APICalls > sendCoordinates > Error \(err)");
+                    callback(false, "", "", [0.0], false, err)
                 }
             }
         }

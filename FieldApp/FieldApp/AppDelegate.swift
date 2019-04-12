@@ -66,7 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             completionHandler(.noData);     return
         }
         
-        print(notification)
+        print("didReceiveRemoteNotification > notification: \(notification)")
         
         guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
@@ -164,7 +164,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        print(notification)
+        print("AppDelegate > notification: \(notification.request.identifier)")
         completionHandler(.alert)
     }
     

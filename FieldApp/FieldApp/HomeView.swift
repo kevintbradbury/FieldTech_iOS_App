@@ -52,6 +52,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     public static var addressInfo: UserData.AddressInfo?,
     employeeInfo: UserData.UserInfo?,
     jobCheckup: Bool?,
+    leftJobSite: Bool?,
     role: String?,
     safetyQs: [SafetyQuestion] = [],
     scheduleReadyNotif: Bool?,
@@ -60,7 +61,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
