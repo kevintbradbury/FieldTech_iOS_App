@@ -250,32 +250,3 @@ extension UIViewController {
 }
 
 
-//extension UNUserNotificationCenterDelegate {
-////class UYLNotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
-//
-//    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-//        completionHandler([.alert, .sound, .badge])
-//    }
-//
-//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-//
-//        print(
-//            "received Local Notification: \n actionIdentifier: \(response.actionIdentifier) \n identifier \(response.notification.request.identifier)"
-//        )
-//
-//        switch response.actionIdentifier {
-//        case UNNotificationDismissActionIdentifier:
-//            print("Dismiss Action")
-//        case UNNotificationDefaultActionIdentifier:
-//            print("Default")
-//        case "STOP_ACTION":
-//            print("stop alarm")
-//        case "SNOOZE":
-//            print("Snooze action")
-//
-//        default:
-//            print("unknown action")
-//        }
-//        completionHandler()
-//    }
-//}
