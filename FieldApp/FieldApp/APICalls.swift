@@ -18,8 +18,21 @@ import Firebase
 
 
 class APICalls {
-    static let host = "https://mb-server-app-kbradbury.c9users.io/"
+//    static var host = "https://mb-server-app-kbradbury.c9users.io/"
+    static var host = ""
     let jsonEncoder = JSONEncoder()
+    
+    public static func getHostFromPList() {
+        var resourceDictionary: NSDictionary?
+        
+        if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
+            resourceDictionary = NSDictionary(contentsOfFile: path)
+        }
+        
+        if let resourceFileDIctionaryContent = resourceDictionary {
+            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
+        }
+    }
     
     func checkForToken(employeeID: String, callback: @escaping (Bool)->() ) {
         let route = "checkForToken/\(employeeID)"

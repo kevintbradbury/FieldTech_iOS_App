@@ -31,6 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserLocation.instance.initialize()
         registerForPushNotif()
         didEnterBackground = false
+        APICalls.getHostFromPList()
         
         print("app didFinishLaunching w/ options")
         return true
@@ -166,46 +167,76 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        print("AppDelegate > notification: \(notification.request.identifier)")
+        print("AppDelegate > willPresent > notification: \(notification.request.identifier)")
+        handleNotif(category: notification.request.identifier)
+        
         completionHandler(.alert)
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            let cat_ = response.notification.request.identifier
             let category = response.notification.request.content.categoryIdentifier
             let state = UIApplication.shared.applicationState
             
-            print("UNUserNotificationCenter didReceive category: \(category)")
-            guard let vc = self.homeViewActive else { return }
+            handleNotif(category: category)
             
-            switch category {
-                
-            case "vehicleCheckList":
-                HomeView.vehicleCkListNotif = true
-                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
-
-            case "scheduleReady":
-                ScheduleView.scheduleRdy = true
-                HomeView.scheduleReadyNotif = true
-                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
-                
-            case "jobCheckup":
-                HomeView.jobCheckup = true
-                if state == UIApplication.State.active {
-                    OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
-                }
-                
-            case "leftJobSite":
-                HomeView.leftJobSite = true
-                center.removeDeliveredNotifications(withIdentifiers: [category])
-                center.removePendingNotificationRequests(withIdentifiers: [category])
-                
-            default:
-                print("Received notification w/ category: \(category)")
-            }
+//            print("UNUserNotificationCenter didReceive category: \(category)")
+//            guard let vc = self.homeViewActive else { return }
+//            switch category {
+//            case "vehicleCheckList":
+//                HomeView.vehicleCkListNotif = true
+//                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+//            case "scheduleReady":
+//                ScheduleView.scheduleRdy = true
+//                HomeView.scheduleReadyNotif = true
+//                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
+//            case "jobCheckup":
+//                HomeView.jobCheckup = true
+//                if state == UIApplication.State.active {
+//                    OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
+//                }
+//            case "leftJobSite":
+//                HomeView.leftJobSite = true
+//                center.removeDeliveredNotifications(withIdentifiers: [category])
+//                center.removePendingNotificationRequests(withIdentifiers: [category])
+//            default:
+//                print("Received notification w/ category: \(category)")
+//            }
             
             completionHandler()
+        }
+    }
+    
+    func handleNotif(category: String) {
+        print("UNUserNotificationCenter willPresent or didReceive category: \(category)")
+        guard let vc = self.homeViewActive else { return }
+        
+        switch category {
+            
+        case "vehicleCheckList":
+            HomeView.vehicleCkListNotif = true
+            if state == UIApplication.State.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+            
+        case "scheduleReady":
+            ScheduleView.scheduleRdy = true
+            HomeView.scheduleReadyNotif = true
+            if state == UIApplication.State.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
+            
+        case "jobCheckup":
+            HomeView.jobCheckup = true
+            if state == UIApplication.State.active {
+                OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
+            }
+            
+        case "leftJobSite":
+            HomeView.leftJobSite = true
+            center.removeDeliveredNotifications(withIdentifiers: [category])
+            center.removePendingNotificationRequests(withIdentifiers: [category])
+            
+        default:
+            print("Received notification w/ category: \(category)")
         }
     }
 }

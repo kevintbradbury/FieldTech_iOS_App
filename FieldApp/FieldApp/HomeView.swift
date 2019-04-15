@@ -463,7 +463,6 @@ extension HomeView {
     }
 
     func completedProgress() {
-        main.addOperation { self.jobCheckUpView.isHidden = true }
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
         
         if let checklistForVehicle = HomeView.vehicleCkListNotif {

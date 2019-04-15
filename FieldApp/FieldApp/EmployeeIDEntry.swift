@@ -214,7 +214,7 @@ extension EmployeeIDEntry {
                     self.completedProgress()
                 }
             }
-            setBreakNotifcs(twoHrs: twoHours, fourHrs: fourHours, title: title, msg: message, idf: identifier)
+            setBreakNotifcs(twoHrs: twoHours, fourHrs: fourHours, title: title, msg: message, identifier: identifier)
             
         } else {
             
@@ -230,13 +230,13 @@ extension EmployeeIDEntry {
         }
     }
     
-    func setBreakNotifcs(twoHrs: Double, fourHrs: Double, title: String, msg: String, idf: String) {
+    func setBreakNotifcs(twoHrs: Double, fourHrs: Double, title: String, msg: String, identifier: String) {
         let tenMinBreakRmdr = createNotification(
             intervalInSeconds: twoHrs, title: "10 Minute Break",
             message: "Don't forget to take a short 10 minute break.", identifier: "tenMinBrk"
         )
         let clckOutRmndr = createNotification(
-            intervalInSeconds: fourHrs, title: title, message: msg, identifier: idf
+            intervalInSeconds: fourHrs, title: title, message: msg, identifier: identifier
         )
         
         notificationCenter.add(tenMinBreakRmdr) { (error) in
@@ -250,10 +250,10 @@ extension EmployeeIDEntry {
             }
         }
         
-        if idf == "clockOut" {
-            let thirtyMin = Double(60 * 30)
+        if identifier == "clockOut" {
+//            let thirtyMin = Double(60 * 30)
             let jobUpdate = createNotification(
-                intervalInSeconds: thirtyMin, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
+                intervalInSeconds: 2.0, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
             )
             notificationCenter.add(jobUpdate) { error in
                 if error != nil {
