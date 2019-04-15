@@ -25,7 +25,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     var currentLocation: CLLocation?
     var currentRegion: MKCoordinateRegion?
     var currentCoordinate: CLLocationCoordinate2D? { return currentLocation?.coordinate }
-    var notificationCenter: UNUserNotificationCenter?
+//    var notificationCenter: UNUserNotificationCenter?
     var regionToCheck: CLCircularRegion?
     
     func initialize() {
@@ -36,8 +36,8 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
         
-        notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter?.delegate = self
+//        notificationCenter = UNUserNotificationCenter.current()
+//        notificationCenter?.delegate = self
         
         alreadyInitialized = true
     }
@@ -99,7 +99,7 @@ extension UserLocation {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
             let radius = CLLocationDistance(402)    // radius 1/4 mile ~= 402 meters
-            let region = CLCircularRegion(center: location, radius: radius, identifier: "range")
+            let region = CLCircularRegion(center: location, radius: radius, identifier: "leftJobSite")
             print("region to start monitoring: \(region)")
             locationManager.startMonitoring(for: region)
             
@@ -139,31 +139,17 @@ extension UserLocation {
             
             if clockedIn == false && success == true {
                 UserLocation.instance.stopMonitoring()
-//                HomeView.employeeInfo = nil
+                HomeView.employeeInfo = nil
                 NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : userInfo])
             }
         }
     }
     
     func notifyClockOut(identifier: String) {
-        let content = UNMutableNotificationContent()
-        content.title = "Clocked Out"
-        content.body = "You were clocked out because you left the job site."
-        content.sound = UNNotificationSound.default
-       
-        let intrvl = TimeInterval(5)
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         
-        self.notificationCenter?.add(request) { (error) in
-            if error != nil {
-                print("Error setting notification: \(error)")
-            }
-        }
-        
-        var notificationContent = UNMutableNotificationContent()
-        notificationContent.title = "Please send Job updates"
-        notificationContent.body = "Please send photos, supplies requests, or change orders."
+        let notificationContent = UNMutableNotificationContent()
+        notificationContent.title = "Clocked Out"
+        notificationContent.body = "You were clocked out because you left the job site. \nPlease send photos, supplies requests, or change orders."
         notificationContent.sound = UNNotificationSound.default
         notificationContent.categoryIdentifier = "leftJobSite"
         notificationContent.threadIdentifier = "leftJobSite"
@@ -172,7 +158,7 @@ extension UserLocation {
         let triggerTwo = UNTimeIntervalNotificationTrigger(timeInterval: thirtySecs, repeats: true)
         let requestTwo = UNNotificationRequest(identifier: "leftJobSite", content: notificationContent, trigger: triggerTwo)
         
-        self.notificationCenter?.add(requestTwo) { (error) in
+        UNUserNotificationCenter.current().add(requestTwo) { (error) in
             if error != nil {
                 print("Error setting notification: \(error)")
             }
@@ -181,37 +167,50 @@ extension UserLocation {
     
 }
 
-extension UserLocation: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert, .badge, .sound])
-    }
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        
-        let identifier = response.notification.request.identifier
-        let state = UIApplication.shared.applicationState
-        guard let vc = UserLocation.homeViewActive else { return }
-        
-        switch identifier {
-        case "jobCheckup":
-            HomeView.jobCheckup = true
-            
-            if state == UIApplication.State.active {
-                vc.jobCheckUpView.isHidden = false
-            }
-        case "leftJobSite":
-            HomeView.leftJobSite = true
-            center.removeDeliveredNotifications(withIdentifiers: ["leftJobSite"])
-            
-            if state == UIApplication.State.active {
-                // Show popup
-            }
-            
-        default:
-            print("LocationManger > didReceive notification: \(identifier)")
-        }
-        
-        completionHandler()
-    }
-}
 
-
+//extension UserLocation: UNUserNotificationCenterDelegate {
+//
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+//        print("AppDelegate > notification: \(notification.request.identifier)")
+//        completionHandler(.alert)
+//    }
+//
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+//
+//        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+//            let category = response.notification.request.content.categoryIdentifier
+//            let state = UIApplication.shared.applicationState
+//
+//            print("UNUserNotificationCenter didReceive category: \(category)")
+//            guard let vc = self.homeViewActive else { return }
+//
+//            switch category {
+//
+//            case "vehicleCheckList":
+//                HomeView.vehicleCkListNotif = true
+//                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+//
+//            case "scheduleReady":
+//                ScheduleView.scheduleRdy = true
+//                HomeView.scheduleReadyNotif = true
+//                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
+//
+//            case "jobCheckup":
+//                HomeView.jobCheckup = true
+//                if state == UIApplication.State.active {
+//                    OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
+//                }
+//
+//            case "leftJobSite":
+//                HomeView.leftJobSite = true
+//                center.removeDeliveredNotifications(withIdentifiers: [category])
+//                center.removePendingNotificationRequests(withIdentifiers: [category])
+//
+//            default:
+//                print("Received notification w/ category: \(category)")
+//            }
+//
+//            completionHandler()
+//        }
+//    }
+//}

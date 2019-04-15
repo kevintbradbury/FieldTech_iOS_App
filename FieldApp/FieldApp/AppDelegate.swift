@@ -33,7 +33,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didEnterBackground = false
         
         print("app didFinishLaunching w/ options")
-        
         return true
     }
     
@@ -66,7 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             completionHandler(.noData);     return
         }
         
-        print("didReceiveRemoteNotification > notification: \(notification)")
+        print("AppDelegate > notification: \(notification)")
         
         guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
@@ -117,9 +116,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("app did become active")
+        
         if homeViewActive != nil  && didEnterBackground == true {
             HomeView.employeeInfo = nil
-            self.homeViewActive?.checkForUserInfo()
+            OperationQueue.main.addOperation {
+                self.homeViewActive?.checkForUserInfo()
+            }
         }
     }
     
@@ -169,40 +171,44 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-
-        print("UNUserNotificationCenter > response: \(response)")
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             let category = response.notification.request.content.categoryIdentifier
             let state = UIApplication.shared.applicationState
             
             print("UNUserNotificationCenter didReceive category: \(category)")
-            
             guard let vc = self.homeViewActive else { return }
             
             switch category {
+                
             case "vehicleCheckList":
                 HomeView.vehicleCkListNotif = true
-                
-                if state == UIApplication.State.active {
-                    vc.performSegue(withIdentifier: "vehicleCkList", sender: nil)
-                }
-            
+                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+
             case "scheduleReady":
                 ScheduleView.scheduleRdy = true
                 HomeView.scheduleReadyNotif = true
+                if state == UIApplication.State.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
                 
+            case "jobCheckup":
+                HomeView.jobCheckup = true
                 if state == UIApplication.State.active {
-                    vc.performSegue(withIdentifier: "schedule", sender: nil)
+                    OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
                 }
-
+                
+            case "leftJobSite":
+                HomeView.leftJobSite = true
+                center.removeDeliveredNotifications(withIdentifiers: [category])
+                center.removePendingNotificationRequests(withIdentifiers: [category])
+                
             default:
                 print("Received notification w/ category: \(category)")
-//                center.removeAllDeliveredNotifications()
             }
             
             completionHandler()
         }
     }
-    
 }
+
+
+

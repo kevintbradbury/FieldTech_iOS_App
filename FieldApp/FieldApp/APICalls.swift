@@ -78,7 +78,9 @@ class APICalls {
     
     func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, po: String, override: Bool, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()) {
         var route = "employee/\(employee.employeeID)"
-        if override == true { route += "/override/" + po }
+        if override == true {
+            route += "/override/\(po)"
+        }
         
         let data = convertToJSON(employee: employee, location: location, role: role)
         var auto: String {
@@ -95,16 +97,18 @@ class APICalls {
                     print("APICalls > sendCoordinates > successfulPunch failed"); return
                 }
                 
-                if let currentJob = json["job"] as? String,
+                if let err = json["error"] as? String {
+                    print("APICalls > sendCoordinates > Error \(err)");
+                    callback(successfulPunch, "", "", [0.0], false, err)
+                    
+                } else if let currentJob = json["job"] as? String,
                     let poNumber = json["poNumber"] as? String,
                     let jobLatLong = json["jobLatLong"] as? [Double],
                     let clockedIn = json["punchedIn"] as? Bool {
-                    
                     callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
                     
-                } else if let err = json["error"] as? String {
-                    print("APICalls > sendCoordinates > Error \(err)");
-                    callback(false, "", "", [0.0], false, err)
+                } else if autoClockOut == true {
+                    callback(successfulPunch, "", "", [0.0], false, "")
                 }
             }
         }
@@ -114,7 +118,7 @@ class APICalls {
         guard let employee = UserDefaults.standard.string(forKey: "employeeName") else { return }
         guard let emplyID = UserDefaults.standard.string(forKey: "employeeID") else { return }
         
-        let route = "checkCoordinates/" + employee
+        let route = "checkCoordinates/\(employee)"
         let person = UserData.UserInfoCodeable(
             userName: employee,
             employeeID: emplyID,
@@ -293,7 +297,7 @@ extension APICalls {
                 print("Error in route: \(route) \n \(String(describing: error))")
                 return
             }
-            guard let verifiedData = data,
+            guard let verifiedData = data as? Data,
                 let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
                     print("APICalls > startSession > data or json error in route: \(route)");
                     return

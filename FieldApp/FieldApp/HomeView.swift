@@ -330,7 +330,7 @@ extension HomeView {
 
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
-                for singleNote in notifications { print("request in notif center: ", singleNote.request) }
+                print("request(s) in notif center: \(notifications.count)")
             }
         }
 
@@ -563,7 +563,16 @@ extension HomeView {
                 clockedOutUI()
 
             } else { main.addOperation(setFetchedEmployeeUI) }
-        } else { completedProgress(); return }
+        } else {
+            guard let employeeID = UserDefaults.standard.string(forKey: "employeeID"),
+            let id = Int(employeeID) else { return }
+            
+            fetchEmployee(employeeId: id) { userInfo, userAddress in
+                HomeView.employeeInfo = userInfo
+                self.checkPunchStatus()
+            }
+//            completedProgress(); return
+        }
     }
 
     func setUpNotifications() {

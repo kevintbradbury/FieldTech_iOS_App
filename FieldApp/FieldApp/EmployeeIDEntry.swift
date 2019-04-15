@@ -512,9 +512,7 @@ extension EmployeeIDEntry {
         
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
-                for singleNote in notifications {
-                    print("request in notif center: \(singleNote.request.identifier)" )
-                }
+                print("request(s) in notif center: \(notifications.count)" )
             }
         }
     }
