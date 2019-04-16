@@ -251,9 +251,9 @@ extension EmployeeIDEntry {
         }
         
         if identifier == "clockOut" {
-//            let thirtyMin = Double(60 * 30)
+            let thirtyMin = Double(60 * 30)
             let jobUpdate = createNotification(
-                intervalInSeconds: 2.0, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
+                intervalInSeconds: thirtyMin, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
             )
             notificationCenter.add(jobUpdate) { error in
                 if error != nil {

@@ -120,7 +120,7 @@ extension HomeView {
         inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
         
         APICalls().sendJobCheckup(po: po, body: body) {
-            // get confirmation here
+            HomeView.jobCheckup = nil
             self.completedProgress()
             
             if addedMaterial == true {
@@ -463,6 +463,9 @@ extension HomeView {
     }
 
     func completedProgress() {
+        main.addOperation {
+            self.jobCheckUpView.isHidden = true
+        }
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
         
         if let checklistForVehicle = HomeView.vehicleCkListNotif {
@@ -476,7 +479,9 @@ extension HomeView {
             }
         } else if let jobCheck = HomeView.jobCheckup {
             if jobCheck == true {
-                jobCheckUpView.isHidden = false
+                main.addOperation {
+                    self.jobCheckUpView.isHidden = false
+                }
             }
         }
     }
