@@ -353,33 +353,56 @@ class FieldActions {
             
             for oneTool in tools {
                 
-                if let dictionary = oneTool as? Dictionary<String, Any>,
-                    let formType = dictionary["formType"] as? String,
-                    let jobName = dictionary["jobName"] as? String,
-                    let poNumber = dictionary["poNumber"] as? String,
-                    let requestedBy = dictionary["requestedBy"] as? String,
-                    let toolType = dictionary["toolType"] as? String,
-                    let brand = dictionary["brand"] as? String,
-                    let duration = dictionary["duration"] as? Int,
-                    let neededBy = dictionary["neededBy"] as? String,
-                    let quantity = dictionary["quantity"] as? Int,
-                    let location = dictionary["location"] as? String,
+                if
+                    let dictionary = oneTool as? Dictionary<String, Any>,
                     let photoStr = dictionary["photo"] as? String,
                     let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
-                    let image = UIImage(data: photoDecoded) {
+                    let image = UIImage(data: photoDecoded),
+                    let duration = dictionary["duration"] as? Int,
+                    let quantity = dictionary["quantity"] as? Int
+                {
+                    
+                    let formType = FieldActions.nilOrString(val: dictionary["formType"])
+                    let jobName = FieldActions.nilOrString(val: dictionary["jobName"])
+                    let poNumber = FieldActions.nilOrString(val: dictionary["poNumber"])
+                    let requestedBy = FieldActions.nilOrString(val: dictionary["requestedBy"])
+                    let toolType = FieldActions.nilOrString(val: dictionary["toolType"])
+                    let brand = FieldActions.nilOrString(val: dictionary["brand"])
+                    let neededBy = FieldActions.nilOrString(val: dictionary["neededBy"])
+                    let location = FieldActions.nilOrString(val: dictionary["location"])
+                    
                     let neededDate = Job.UserJob.stringToDate(string: neededBy)
                     let needDouble = neededDate.timeIntervalSince1970
                     
                     let toolToAdd = FieldActions.ToolRental(
-                        formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: needDouble, location: location
+                        formType: formType,
+                        jobName: jobName,
+                        poNumber: poNumber,
+                        requestedBy: requestedBy,
+                        toolType: toolType,
+                        brand: brand,
+                        duration: duration,
+                        quantity: Double(quantity),
+                        neededBy: needDouble,
+                        location: location
                     )
                     boxOtools.append(toolToAdd)
                     toolImages.append(image)
+                } else {
+                    print("Failed parsing Tool json.")
                 }
             }
         }
         
         return (boxOtools, toolImages)
+    }
+    
+    static func nilOrString(val: Any) -> String {
+        if let valAsString = val as? String {
+            return valAsString
+        } else {
+            return ""
+        }
     }
     
     static func getDateFromISOString(isoDate: String) -> Date {

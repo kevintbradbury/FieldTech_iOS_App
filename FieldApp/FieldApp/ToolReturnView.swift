@@ -17,7 +17,7 @@ class ToolReturnView: UITableViewController {
     
     public var employeeID: Int?
     var toolToReturn: FieldActions.ToolRental?
-    var rentals = [FieldActions.ToolRental]()
+    var rentals: [FieldActions.ToolRental]?
     var images = [UIImage]()
     
     override func viewDidLoad() {
@@ -28,8 +28,9 @@ class ToolReturnView: UITableViewController {
             self.rentals = toolsNimgs.tools
             self.images = toolsNimgs.images
             self.tableView.reloadData()
+            guard let safeRentals = self.rentals else { return }
             
-            if self.rentals.count == 0 { self.showAlert(withTitle: "No Tools", message: "Didn't find any tools rented.") }
+            if safeRentals.count == 0 { self.showAlert(withTitle: "No Tools", message: "Didn't find any tools rented.") }
         }
     }
     
@@ -44,17 +45,21 @@ extension ToolReturnView {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var rentalCount = 1
-        
-        if rentals.count > 0 { rentalCount = rentals.count }
+        var rentalCount = 0
+        guard let safeRentals = self.rentals else { return rentalCount }
+
+        if safeRentals.count > 0 { rentalCount = safeRentals.count }
         
         return rentalCount
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "rentalCell", for: indexPath) as! ToolRentalReturnCell
-        let index = Int(indexPath.item)
-        let toolRntl = rentals[index]
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "rentalCell", for: indexPath) as? ToolRentalReturnCell else {
+            return UITableViewCell()
+        }
+        guard let safeRentals = self.rentals,
+         let index = indexPath.item as? Int,
+            let toolRntl = safeRentals[index] as? FieldActions.ToolRental else { return cell }
         
         if let img = images[index] as? UIImage,
             let toolName = toolRntl.toolType,
@@ -65,7 +70,7 @@ extension ToolReturnView {
             
             let dt = Date(timeIntervalSince1970: secs)
             let dtReadable = ScheduleView().getMonthDayYear(date: dt)
-            let txt = String(jobNm + "\n" + brand + ": " + toolName + "\n" + "Rental Date: " + dtReadable)
+            let txt = String("\(jobNm)\n \(brand) : \(toolName) \n Rental Date: \(dtReadable)")
             
             cell.toolImg.image = img
             cell.toolInfoLabel.text = txt
@@ -76,7 +81,8 @@ extension ToolReturnView {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let index = Int(indexPath.item)
-        let toolRntl = rentals[index]
+        guard let safeRentals = self.rentals else { return }
+        let toolRntl = safeRentals[index]
         
         if let _ = images[index] as? UIImage,
             let _ = toolRntl.toolType,
@@ -95,12 +101,13 @@ extension ToolReturnView {
 
 extension ToolReturnView {
     func showRentalDetails(tool: FieldActions.ToolRental, returnDate: String) {
+        guard let safeTool = tool as? FieldActions.ToolRental else { return }
         
-        let msg = "\(tool.jobName!)  \n \(tool.toolType!): \(returnDate)"
+        let msg = "PO: \(safeTool.poNumber!)  \n \(safeTool.toolType!): \(returnDate)"
         let alert = UIAlertController(title: "Confirm Tool Return", message: msg, preferredStyle: .alert),
         cancel = UIAlertAction(title: "NO", style: .destructive),
         returnTool = UIAlertAction(title: "YES", style: .default) { action in
-            self.toolToReturn = tool
+            self.toolToReturn = safeTool
             self.performSegue(withIdentifier: "toolSignOff", sender: nil)
         }
         
