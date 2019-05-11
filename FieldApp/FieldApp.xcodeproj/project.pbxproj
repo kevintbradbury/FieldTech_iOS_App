@@ -17,6 +17,7 @@
 		065E63DB21E82B5B0063A572 /* VehicleCheckListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
+		06903AE4228641C6000373E8 /* OneTimeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06903AE3228641C6000373E8 /* OneTimeLoginController.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
 		06D7222D2257B575007FE483 /* CustomViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D7222C2257B575007FE483 /* CustomViews.swift */; };
 		06E18B482255654C0058974B /* FanMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E18B472255654B0058974B /* FanMenu.swift */; };
@@ -69,6 +70,7 @@
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06775988213DDE1C001F8802 /* ChangeOrders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeOrders.swift; sourceTree = "<group>"; };
+		06903AE3228641C6000373E8 /* OneTimeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTimeLoginController.swift; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
 		06D7222C2257B575007FE483 /* CustomViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViews.swift; sourceTree = "<group>"; };
 		06E18B472255654B0058974B /* FanMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanMenu.swift; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 				0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */,
 				0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */,
 				0AC8EF501F71826200E86DD6 /* LoginViewController.swift */,
+				06903AE3228641C6000373E8 /* OneTimeLoginController.swift */,
 				0AC8EF7C1F71842F00E86DD6 /* LocationManager.swift */,
 				0618A7C82169280C00A05EEE /* MacawButtonView.swift */,
 				062005A51FFC642900F1E193 /* ScheduleView.swift */,
@@ -497,6 +500,7 @@
 				0AC8EF511F71826200E86DD6 /* LoginViewController.swift in Sources */,
 				06FADEBD2150351D00021943 /* StoresMapView.swift in Sources */,
 				0618A7C7216579AB00A05EEE /* ToolSignOffView.swift in Sources */,
+				06903AE4228641C6000373E8 /* OneTimeLoginController.swift in Sources */,
 				0AC8EF811F71E31000E86DD6 /* GeoCodingAPIcall.swift in Sources */,
 				062A32D5215C09A0001B6703 /* ToolReturnView.swift in Sources */,
 				06D7222D2257B575007FE483 /* CustomViews.swift in Sources */,

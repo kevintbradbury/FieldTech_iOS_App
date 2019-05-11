@@ -11,6 +11,12 @@ import UIKit
 import CoreLocation
 import MapKit
 
+
+struct UsernameAndPassword: Encodable {
+    let username: String
+    let password: String
+}
+
 class UserData {
     
     var userID: Int?,
