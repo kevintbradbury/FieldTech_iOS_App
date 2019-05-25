@@ -12,7 +12,7 @@ import CoreLocation
 import MapKit
 
 
-struct UsernameAndPassword: Encodable {
+struct UsernameAndPassword: Encodable, Decodable {
     let username: String
     let password: String
 }

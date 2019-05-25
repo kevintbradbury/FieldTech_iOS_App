@@ -182,7 +182,7 @@ extension UIViewController {
         ]
         var progressLabel = getProgressLabel()
         
-        APICalls().getFIRidToken() { idToken in
+        APICalls.getFIRidToken() { idToken in
             headers["Authorization"] = idToken
             
             Alamofire.upload(

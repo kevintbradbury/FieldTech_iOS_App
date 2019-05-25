@@ -40,7 +40,7 @@ class APICalls {
         setupRequest(route: route, method: "GET") { request in
             
             self.startSession(request: request, route: route) { json in
-                
+
                 guard let hasToken = json["hasToken"] as? Bool else {
                     print("APICalls > checkForToken > hasToken error");
                     return
@@ -68,7 +68,7 @@ class APICalls {
         }
     }
     
-    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob], [TimeOffReq], [Holiday]) -> ()) {
+    func fetchJobInfo(employeeID: String, vc: UIViewController, callback: @escaping ([Job.UserJob], [TimeOffReq], [Holiday]) -> ()) {
         let route = "employee/" + employeeID + "/jobs"
         
         setupRequest(route: route, method: "GET") { request in
@@ -109,17 +109,17 @@ class APICalls {
                 guard let successfulPunch = json["success"] as? Bool else {
                     print("APICalls > sendCoordinates > successfulPunch failed"); return
                 }
-                
+
                 if let err = json["error"] as? String {
                     print("APICalls > sendCoordinates > Error \(err)");
                     callback(successfulPunch, "", "", [0.0], false, err)
-                    
+
                 } else if let currentJob = json["job"] as? String,
                     let poNumber = json["poNumber"] as? String,
                     let jobLatLong = json["jobLatLong"] as? [Double],
                     let clockedIn = json["punchedIn"] as? Bool {
                     callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
-                    
+
                 } else if autoClockOut == true {
                     callback(successfulPunch, "", "", [0.0], false, "")
                 }
@@ -157,7 +157,7 @@ class APICalls {
         }
     }
     
-    func sendJobCheckup(po: String, body: Data, callback: @escaping () -> ()){
+    func sendJobCheckup(po: String, body: Data, vc:UIViewController, callback: @escaping () -> ()){
         let route = "jobCheckupInfo/" + String(po)
         
         setupRequest(route: route, method: "POST") { request in
@@ -171,7 +171,7 @@ class APICalls {
         }
     }
     
-    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
+    func fetchEmployee(employeeId: Int, vc:UIViewController, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
         let route = "employee/" + String(employeeId)
         
         setupRequest(route: route, method: "GET") { request in
@@ -232,7 +232,7 @@ class APICalls {
         }
     }
     
-    func acceptMoreHrs(employee: String, moreDays: AcceptMoreDays, callback: @escaping (Bool)->()) {
+    func acceptMoreHrs(employee: String, moreDays: AcceptMoreDays, vc:UIViewController, callback: @escaping (Bool)->()) {
         let route = "acceptMoreHours/\(employee)"
         var data = Data()
         
@@ -257,7 +257,7 @@ class APICalls {
     func getToolRentals(employeeID: Int, callback: @escaping (FieldActions.ToolsNImages) -> ()) {
         let route = APICalls.host + "toolRentals/\(employeeID)"
         
-        getFIRidToken() { idToken in
+        APICalls.getFIRidToken() { idToken in
             let headers: HTTPHeaders = [ "Authorization" : idToken ]
             Alamofire.request(route, headers: headers).responseJSON() { response in
                 
@@ -275,7 +275,7 @@ class APICalls {
         }
     }
     
-    func getFIRidToken(cb: @escaping (String) -> () ) {
+    static func getFIRidToken(cb: @escaping (String) -> () ) {
         let currentUser = Auth.auth().currentUser
         currentUser?.getIDTokenForcingRefresh(true) { idToken, error in
             if let err = error {
@@ -296,7 +296,7 @@ extension APICalls {
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
-        getFIRidToken() { firebaseIDtoken in
+        APICalls.getFIRidToken() { firebaseIDtoken in
             request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")
             cb(request)
         }
@@ -305,15 +305,15 @@ extension APICalls {
     func startSession(request: URLRequest, route: String, callback: @escaping (NSDictionary)->()) {
         print("start session w/ req")
         
-        let task = URLSession.shared.dataTask(with: request) {data, response, error in
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if error != nil {
                 print("Error in route: \(route) \n \(String(describing: error))")
                 return
             }
             guard let verifiedData = data as? Data,
                 let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                    print("APICalls > startSession > data or json error in route: \(route)");
-                    return
+                    print("APICalls>startSession> data/json error in route: \(route) \n \(String(describing: response)) \n \(data)");
+                    callback(["error":"unable to parse JSON"]); return
             }
             callback(json)
         }

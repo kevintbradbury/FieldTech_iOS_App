@@ -119,7 +119,7 @@ extension HomeView {
         }
         inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
         
-        APICalls().sendJobCheckup(po: po, body: body) {
+        APICalls().sendJobCheckup(po: po, body: body, vc: self) {
             HomeView.jobCheckup = nil
             self.completedProgress()
             
@@ -413,31 +413,22 @@ extension HomeView {
 
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
         let route = "employee/" + String(employeeId)
-
+        
         APICalls().setupRequest(route: route, method: "GET") { request in
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-
-                if error != nil { print(error as Any); return }
-                else {
-                    guard let verifiedData = data else {
-                        print("couldn't verify data from server"); return
-                    }
-                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                        print("json serialization failed"); return
-                    }
-                    guard let user = UserData.UserInfo.fromJSON(dictionary: json),
-                        let dictionary = json["addressInfo"] as? NSDictionary,
-                        let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
-                            print("failed to parse UserData from json\(json)");
-                            self.completedProgress()
-
-                            guard let resMsg = json as? [String:String] else { return }
-                            self.handleResponseType(responseType: resMsg)
-                            return
-                    }
-                    callback(user, addressInfo)
+            APICalls().startSession(request: request, route: route) { json in
+                
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json),
+                    let dictionary = json["addressInfo"] as? NSDictionary,
+                    let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                        print("failed to parse UserData from json\(json)");
+                        self.completedProgress()
+                        
+                        guard let resMsg = json as? [String:String] else { return }
+                        self.handleResponseType(responseType: resMsg)
+                        return
                 }
-            }; task.resume()
+                callback(user, addressInfo)
+            }
         }
     }
 

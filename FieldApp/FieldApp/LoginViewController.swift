@@ -35,7 +35,8 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
         Auth.auth().addStateDidChangeListener() { auth, user in
             if user != nil {
                 self.activityIndicator.stopAnimating()
-                self.performSegue(withIdentifier: "home", sender: nil)
+//                self.performSegue(withIdentifier: "home", sender: nil)
+                self.checkForUsernameNPassword()
             }
         }
 
@@ -56,6 +57,15 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
         authPhoneNumber(phoneNumber: phoneNum)
     }
     
+    func checkForUsernameNPassword() {
+        if let path = Bundle.main.path(forResource: "Preferences", ofType: "plist"),
+            let xml = FileManager.default.contents(atPath: path),
+            let preferences = try? PropertyListDecoder().decode(UsernameAndPassword.self, from: xml) {
+            self.performSegue(withIdentifier: "home", sender: nil)
+        } else {
+            self.performSegue(withIdentifier: "addLoginInfo", sender: nil)
+        }
+    }
     
     func authPhoneNumber(phoneNumber: String) {
         let adjustedNum = String("+1\(phoneNumber)")

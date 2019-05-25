@@ -42,7 +42,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/HomeView.swift"
-            timestampString = "577128342.621981"
+            timestampString = "579559956.176554"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "112"
@@ -64,6 +64,22 @@
             startingLineNumber = "149"
             endingLineNumber = "149"
             landmarkName = "notifyClockOut(identifier:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "FieldApp/OneTimeLoginController.swift"
+            timestampString = "580513194.953257"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "125"
+            endingLineNumber = "125"
+            landmarkName = "getUsernmAndPasswd()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

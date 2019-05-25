@@ -152,7 +152,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         if let unwrappedEmployee = self.employee {
             let idToString = String(unwrappedEmployee.employeeID)
             
-            APICalls().fetchJobInfo(employeeID: idToString) { (jobs, timeOffReqs, holidayss) in
+            APICalls().fetchJobInfo(employeeID: idToString, vc: self) { (jobs, timeOffReqs, holidayss) in
                 self.jobsArray = jobs
                 self.jobsArray.sort { ($0.jobName < $1.jobName) }
                 self.timeOreqs = timeOffReqs
@@ -231,7 +231,7 @@ extension ScheduleView {
             showAlert(withTitle: "Select Nights", message: "You must select at least 2 nights."); return
         }
         activityIndicator.startAnimating()
-        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs) { success in
+        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs, vc: self) { success in
             self.main.addOperation {
                 self.activityIndicator.stopAnimating()
             }

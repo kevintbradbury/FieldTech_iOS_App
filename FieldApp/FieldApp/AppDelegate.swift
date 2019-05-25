@@ -134,7 +134,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         print("app will terminate")
     }
-
     
     func registerForPushNotif() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
@@ -218,6 +217,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 }
+
 
 
 
