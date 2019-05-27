@@ -496,7 +496,6 @@ extension HomeView {
 extension HomeView {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        logoView.close()
 
         switch segue.identifier {
         case "schedule":
@@ -566,7 +565,6 @@ extension HomeView {
                 HomeView.employeeInfo = userInfo
                 self.checkPunchStatus()
             }
-//            completedProgress(); return
         }
     }
 

@@ -12,9 +12,41 @@ import CoreLocation
 import MapKit
 
 
-struct UsernameAndPassword: Encodable, Decodable {
+struct UsernameAndPassword: Codable {
     let username: String
     let password: String
+    
+    static func saveIdUserAndPasswd(userNpass: UsernameAndPassword, employeeId: String, cb: @escaping(UsernameAndPassword) -> () ) {
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .xml
+        
+        do {
+            let data = try encoder.encode(userNpass)
+            try data.write(to: path)
+            
+            UserDefaults.standard.set(employeeId, forKey: "employeeID")
+            UsernameAndPassword.getUsernmAndPasswd() { usrNpass in
+                cb(userNpass)
+            }
+        } catch {
+            print("Error encoding username and password with error: \(error).")
+        }
+    }
+    
+    static func getUsernmAndPasswd(cb: @escaping (UsernameAndPassword)->()) {
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
+        
+        do {
+            let decoder = PropertyListDecoder()
+            guard let data = try? Data(contentsOf: path),
+                let userNpass = try? decoder.decode(UsernameAndPassword.self, from: data) else { return }
+            
+            cb(userNpass)
+        } catch {
+            print("Couldn't find saved username or password.")
+        }
+    }
 }
 
 class UserData {

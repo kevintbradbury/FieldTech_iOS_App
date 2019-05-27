@@ -18,7 +18,6 @@ import Firebase
 
 
 class APICalls {
-//    static var host = "https://mb-server-app-kbradbury.c9users.io/"
     static var host = ""
     let jsonEncoder = JSONEncoder()
     
@@ -297,8 +296,14 @@ extension APICalls {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
         APICalls.getFIRidToken() { firebaseIDtoken in
-            request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")
-            cb(request)
+            
+            UsernameAndPassword.getUsernmAndPasswd() { userNpass in
+                request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")
+                request.addValue(userNpass.username, forHTTPHeaderField: "username")
+                request.addValue(userNpass.password, forHTTPHeaderField: "password")
+
+                cb(request)
+            }
         }
     }
     

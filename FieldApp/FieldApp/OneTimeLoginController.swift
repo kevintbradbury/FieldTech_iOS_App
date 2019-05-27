@@ -57,12 +57,25 @@ class OneTimeLoginController: UIViewController {
             
             if success == true && self.userInfo != nil && self.userAddressInfo != nil {
                 guard let unwrappedUsrAndPass = self.userNpass else { return }
-                self.saveIdUserAndPasswd(userNpass: unwrappedUsrAndPass, employeeId: id)
                 
+                UsernameAndPassword.saveIdUserAndPasswd(userNpass: unwrappedUsrAndPass, employeeId: id) { userNpass in
+                    self.showSavedAlert(withTitle: "Complete", message: "Saved username: \(userNpass.username) and password.")
+                }
             } else {
                 self.showAlert(withTitle: "Error", message: "Error in Response")
             }
         }
+    }
+    
+    func showSavedAlert(withTitle title: String?, message: String?) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel) { action in
+            self.performSegue(withIdentifier: "doneWithLogin", sender: nil)
+        }
+        let main = OperationQueue.main
+        
+        alert.addAction(action)
+        main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (Bool) -> ()) {
@@ -104,43 +117,35 @@ class OneTimeLoginController: UIViewController {
         }
     }
     
-    func saveIdUserAndPasswd(userNpass: UsernameAndPassword, employeeId: String) {
-        let encoder = PropertyListEncoder()
-        encoder.outputFormat = .xml
-        
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
-        
-        do {
-            let data = try encoder.encode(userNpass)
-            try data.write(to: path)
-            
-            UserDefaults.standard.set(employeeId, forKey: "employeeID")
-            getUsernmAndPasswd()
-        } catch {
-            print("Error ecoding usr n pass w/ err: \(error)")
-        }
-    }
-    
-    func getUsernmAndPasswd() {
-        if let path = Bundle.main.path(forResource: "UsernameAndPassword", ofType: "plist"),
-            let xml = FileManager.default.contents(atPath: path),
-            let usrAndPassList = try? PropertyListDecoder().decode(UsernameAndPassword.self, from: xml) {
-            
-            showAlert(withTitle: "Confirmed", message: "Username: \(usrAndPassList.username) and Password Confirmed.")
-        }
-        
-//        var resourceDictionary: NSDictionary?
+//    func saveIdUserAndPasswd(userNpass: UsernameAndPassword, employeeId: String) {
+//        let encoder = PropertyListEncoder()
+//        encoder.outputFormat = .xml
 //
-//        if let path = Bundle.main.path(forResource: "Preferences", ofType: "plist") {
-//            resourceDictionary = NSDictionary(contentsOfFile: path)
-//        }
+//        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
 //
-//        if let resourceFileDIctionaryContent = resourceDictionary {
-//            let nm = resourceFileDIctionaryContent["username"] as? String ?? ""
-//            showAlert(withTitle: "Confirmed", message: "Username: \(nm) and Password Confirmed")
+//        do {
+//            let data = try encoder.encode(userNpass)
+//            try data.write(to: path)
+//
+//            UserDefaults.standard.set(employeeId, forKey: "employeeID")
+//            getUsernmAndPasswd(path: path)
+//        } catch {
+//            showAlert(withTitle: "Error", message: "Error ecoding usr n pass w/ err: \(error).")
 //        }
-        
-    }
+//    }
+//
+//    func getUsernmAndPasswd(path: URL) {
+//
+//        do {
+//            guard let data = try? Data(contentsOf: path) else { return }
+//            let decoder = PropertyListDecoder()
+//            guard let usrNpass = try? decoder.decode(UsernameAndPassword.self, from: data) else { return }
+//
+//            showAlert(withTitle: "Confirmed", message: "Username: \(usrNpass.username) and Password Confirmed.")
+//        } catch {
+//            showAlert(withTitle: "Error", message: "Couldn't find saved username or password.")
+//        }
+//    }
 }
 
 

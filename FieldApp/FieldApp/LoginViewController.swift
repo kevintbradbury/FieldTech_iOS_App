@@ -58,9 +58,14 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
     }
     
     func checkForUsernameNPassword() {
-        if let path = Bundle.main.path(forResource: "Preferences", ofType: "plist"),
-            let xml = FileManager.default.contents(atPath: path),
-            let preferences = try? PropertyListDecoder().decode(UsernameAndPassword.self, from: xml) {
+        var savedUserNpass: UsernameAndPassword?
+        
+        UsernameAndPassword.getUsernmAndPasswd() { userNpass in
+            savedUserNpass = userNpass
+        }
+        
+        if let usernm = savedUserNpass?.username,
+            let passwd = savedUserNpass?.password {
             self.performSegue(withIdentifier: "home", sender: nil)
         } else {
             self.performSegue(withIdentifier: "addLoginInfo", sender: nil)
