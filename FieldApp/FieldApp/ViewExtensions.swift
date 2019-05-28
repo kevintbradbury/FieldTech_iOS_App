@@ -180,10 +180,15 @@ extension UIViewController {
             "Content-type" : "multipart/form-data",
             headers[0] : headers[1]
         ]
+        UsernameAndPassword.getUsernmAndPasswd() { userNpass in
+            headers.updateValue(userNpass.username, forKey: "username")
+            headers.updateValue(userNpass.password, forKey: "password")
+        }
         var progressLabel = getProgressLabel()
         
         APICalls.getFIRidToken() { idToken in
-            headers["Authorization"] = idToken
+            headers.updateValue(idToken, forKey: "Authorization")
+//            headers["Authorization"] = idToken
             
             Alamofire.upload(
                 multipartFormData: { multipartFormData in

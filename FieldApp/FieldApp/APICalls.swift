@@ -257,7 +257,12 @@ class APICalls {
         let route = APICalls.host + "toolRentals/\(employeeID)"
         
         APICalls.getFIRidToken() { idToken in
-            let headers: HTTPHeaders = [ "Authorization" : idToken ]
+            var headers: HTTPHeaders = [ "Authorization" : idToken ]
+            
+            UsernameAndPassword.getUsernmAndPasswd() { userNpass in
+                headers.updateValue(userNpass.username, forKey: "username")
+                headers.updateValue(userNpass.password, forKey: "password")
+            }
             Alamofire.request(route, headers: headers).responseJSON() { response in
                 
                 if let json = response.result.value {

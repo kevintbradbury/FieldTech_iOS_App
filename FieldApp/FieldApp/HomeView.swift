@@ -202,7 +202,7 @@ extension HomeView {
 
         if selected == answer {
             makeAlert(correct: "Correct", msg: "Answer: \(answer) \(fullAnswer)")
-            // add pts here
+         
             guard let user = HomeView.employeeInfo?.userName else { return }
             APICalls().addPoints(employee: user, pts: 2)
         } else {
@@ -687,7 +687,6 @@ extension HomeView: ImagePickerDelegate {
                     self.saveLocalPhoto(image: images[0])
                     self.loadProfilePic()
                     self.checkSuccess(responseType: responseType)
-//                    HomeView.hideShowProfile()
                     self.profileUpload = nil
                 }
             }
