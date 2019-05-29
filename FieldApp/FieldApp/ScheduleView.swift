@@ -25,29 +25,52 @@ class ScheduleView: UIViewController {
     @IBOutlet weak var poNumberLbl: UILabel!
     @IBOutlet weak var installDateLbl: UILabel!
     @IBOutlet weak var directionsBtn: UIButton!
+    @IBOutlet var daysOfWeekView: UIView!
+    @IBOutlet var sundaySwitch: UISwitch!
+    @IBOutlet var mondaySwitch: UISwitch!
+    @IBOutlet var tuesdaySwitch: UISwitch!
+    @IBOutlet var wednesdaySwitch: UISwitch!
+    @IBOutlet var thursdaySwitch: UISwitch!
+    @IBOutlet var fridaySwitch: UISwitch!
+    @IBOutlet var saturdaySwitch: UISwitch!
+    @IBOutlet var submitBtn: UIButton!
+    @IBOutlet var cancelBtn: UIButton!
+    
     
     let formatter = DateFormatter()
     let main = OperationQueue.main
+    
     var employee: UserData.UserInfo?
+    var holidays: [Holiday] = []
+    var timeOreqs: [TimeOffReq] = []
     var jobsArray: [Job.UserJob] = []
     var selectedJobs: [Job.UserJob] = []
     var selectedDates: [Job.UserJob.JobDates] = []
+    public static var scheduleRdy: Bool?
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         initialCalSetup()
         
         jobsTable.delegate = self
         jobsTable.dataSource = self
+        daysOfWeekView.isHidden = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        checkScheduleReady()
     }
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
-    
+    @IBAction func accptMoreHrsBtn(_ sender: Any) { confirmRegOrMoreHrs() }
+    @IBAction func sendDaysOfWeek(_ sender: Any) { getDaysAccepted() }
+    @IBAction func cancelMoreHours(_ sender: Any) { daysOfWeekView.isHidden = true }
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
             checkForJob(name: jobNameLbl.text!) { matchingJob in
-                ScheduleView.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
+                    self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
             }
         }
     }
@@ -57,6 +80,8 @@ class ScheduleView: UIViewController {
 extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelegate {
     
     func initialCalSetup() {
+//        HomeView.scheduleReadyNotif = false
+        
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
         calendarView.isPrefetchingEnabled = true
@@ -101,7 +126,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     }
     
     func calendar(_ calendar: JTAppleCalendarView, willDisplay cell: JTAppleCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
-        let tableCell = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
+        _ = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
@@ -127,12 +152,12 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         if let unwrappedEmployee = self.employee {
             let idToString = String(unwrappedEmployee.employeeID)
             
-            APICalls().fetchJobInfo(employeeID: idToString) { jobs in
+            APICalls().fetchJobInfo(employeeID: idToString, vc: self) { (jobs, timeOffReqs, holidayss) in
                 self.jobsArray = jobs
                 self.jobsArray.sort { ($0.jobName < $1.jobName) }
+                self.timeOreqs = timeOffReqs
+                self.holidays = holidayss
                 self.stopLoading()
-
-                print("jobs count: \(self.jobsArray.count)")
             }
         }
     }
@@ -167,7 +192,60 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 
 }
 
+struct AcceptMoreDays: Encodable {
+    let sun: Bool, mon: Bool, tue: Bool, wed: Bool, thu: Bool, fri: Bool, sat: Bool
+}
+
 extension ScheduleView {
+    func checkScheduleReady() {
+        guard let readyOrNot = ScheduleView.scheduleRdy else {
+            return
+        }
+        if readyOrNot == true {
+            confirmRegOrMoreHrs()
+        }
+    }
+    
+    func getDaysAccepted() {
+        let acceptMoreHrs = AcceptMoreDays(
+            sun: sundaySwitch.isOn,
+            mon: mondaySwitch.isOn,
+            tue: tuesdaySwitch.isOn,
+            wed: wednesdaySwitch.isOn,
+            thu: thursdaySwitch.isOn,
+            fri: fridaySwitch.isOn,
+            sat: saturdaySwitch.isOn
+        )
+        guard let user = employee?.userName else { return }
+        let mirror = Mirror(reflecting: acceptMoreHrs)
+        var acceptedDays = 0
+        
+        for (property, val) in mirror.children {
+            guard let boool = val as? Bool else { return }
+            if boool == true {
+                acceptedDays += 1
+            }
+        }
+        
+        if (acceptedDays < 2) {
+            showAlert(withTitle: "Select Nights", message: "You must select at least 2 nights."); return
+        }
+        activityIndicator.startAnimating()
+        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs, vc: self) { success in
+            self.main.addOperation {
+                self.activityIndicator.stopAnimating()
+            }
+        }
+    }
+    
+    func confirmRegOrMoreHrs() {
+        daysOfWeekView.isHidden = false
+        daysOfWeekView.layer.cornerRadius = 20
+        submitBtn.layer.cornerRadius = 10
+        cancelBtn.layer.cornerRadius = 10
+        ScheduleView.scheduleRdy = nil
+        HomeView.scheduleReadyNotif = nil
+    }
     
     func loading() {
         self.main.addOperation {
@@ -179,6 +257,7 @@ extension ScheduleView {
     
     func stopLoading() {
         self.main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.calendarView.reloadData()
             self.activityIndicator.stopAnimating()
         }
@@ -189,14 +268,6 @@ extension ScheduleView {
         poNumberLbl.text = ""
         installDateLbl.text = ""
         directionsBtn.isHidden = true
-    }
-    
-    static func openMapsWithDirections(to coordinate: CLLocationCoordinate2D, destination name: String) {
-        let options = [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
-        let placemark = MKPlacemark(coordinate: coordinate, addressDictionary: nil)
-        let mapItem = MKMapItem(placemark: placemark)
-        mapItem.name = name
-        mapItem.openInMaps(launchOptions: options)
     }
     
     func checkJobsDates(date: Date, callback: ([Job.UserJob], [Job.UserJob.JobDates], [Int]) -> ()) {
@@ -234,11 +305,88 @@ extension ScheduleView {
         }
     }
     
+    func checkForTOR(date: Date, cb: (TimeOffReq) -> () ) {
+        
+        if timeOreqs.count > 0 {
+            let dtMDY = getMonthDayYear(date: date)
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            
+            for day in timeOreqs {
+                if day.approved != true { continue }
+                
+                let st = Date(timeIntervalSince1970: day.start)
+                let end = Date(timeIntervalSince1970: day.end)
+                let stMDY = getMonthDayYear(date: st)
+                
+                if st < date && date < end {
+                    cb(day)
+                } else if dtMDY == stMDY {
+                    cb(day)
+                }
+            }
+        }
+    }
+    
+    func checkForHoliday(date: Date, cell: CalendarCell, cb: (Holiday) -> () ) {
+        for subVw in cell.subviews {
+            if subVw.accessibilityIdentifier == "holidayLabel" {
+                subVw.removeFromSuperview()
+            }
+        }
+        
+        if holidays.count > 0 {
+            let dtMDY = getMonthDayYear(date: date)
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            
+            for day in holidays {
+                let st = day.start
+                let end = day.end
+                let stMDY = getMonthDayYear(date: st)
+                
+                if st < date && date < end {
+                    cb(day)
+                } else if dtMDY == stMDY {
+                    cb(day)
+                }
+            }
+        }
+    }
+    
+    func setHldyLabel(cell: CalendarCell, holidy: Holiday) {
+        
+        let splitName = holidy.name.components(separatedBy: " ")
+        var holidayName = ""
+        var fontSize = 8
+        
+        for char in splitName {
+            
+            if char.count > 7 {
+                fontSize -= 1
+                holidayName += "\(char)\n"
+            } else {
+                holidayName += "\(char)\n"
+            }
+        }
+        
+        let frame = CGRect(x: 0, y: 0, width: cell.frame.width, height: cell.frame.height)
+        let label = UILabel(frame: frame)
+        label.numberOfLines = (splitName.count + 1)
+        label.backgroundColor = UIColor.blue
+        label.textColor = UIColor.white
+        label.text = holidayName
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: CGFloat(fontSize))
+        label.accessibilityIdentifier = "holidayLabel"
+        
+        self.main.addOperation { cell.addSubview(label) }
+    }
+    
     func checkForJob(name: String, callback: (Job.UserJob) -> ()) {
         for job in jobsArray {
             if name == job.jobName {
-                guard let matchingJob = job as? Job.UserJob else { return }
-                callback(matchingJob)
+                callback(job)
             }
         }
     }
@@ -298,7 +446,6 @@ extension ScheduleView {
         }
         
         checkJobsDates(date: cellState.date) { matchingJbs, jobDates, colorInts in
-            print("matchingJobs.count : \(matchingJbs.count)")
             
             if matchingJbs.count > 0 && jobDates.count > 0 {
                 let colorChoices = [UIColor.cyan, UIColor.magenta, UIColor.yellow, UIColor.lightGray]
@@ -319,19 +466,20 @@ extension ScheduleView {
             }
         }
         
+        checkForTOR(date: cellState.date) { tmOffReq in
+            cell.backgroundColor = UIColor.white
+            cell.dateLabel.textColor = UIColor.black
+        }
+        
+        checkForHoliday(date: cellState.date, cell: cell) { holidy in
+            self.setHldyLabel(cell: cell, holidy: holidy)
+        }
+        
         return cell
     }
     
     // Effectively handles no more than 4 jobs in single calendar cell
     func createJobTab(cell: CalendarCell, oneDt: Job.UserJob.JobDates, oneJb: Job.UserJob, i: Int) -> UILabel {  // UIView
-        
-//        let w = CGFloat(cell.frame.width / 4)
-//        let h = CGFloat(oneDt.endDate.timeIntervalSince1970 - oneDt.installDate.timeIntervalSince1970) / 10000
-//        let x = CGFloat(Double(w) * Double(i))
-//        let y = CGFloat(oneDt.installDate.timeIntervalSince1970 / 100000000)
-//        let jobVw = UIView(frame: frame)
-//        jobVw.layer.backgroundColor = colorChoices[i]
-//        jobVw.accessibilityIdentifier = "jobTab"
         
         let w = cell.frame.width - 1
         let h = CGFloat(cell.frame.height / 8)
@@ -349,13 +497,17 @@ extension ScheduleView {
         return label
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "torList" {
+            guard let vc = segue.destination as? TORLogView else { return }
+            vc.timeOffReqs = timeOreqs
+        }
+    }
 }
 
 extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
+    func numberOfSections(in tableView: UITableView) -> Int { return 1 }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var z = 0
@@ -369,24 +521,52 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         }
 
         if selectedJobs.count > 0 {
+            let jb = selectedJobs[indexPath.row]
             let dt = selectedDates[indexPath.row]
-            let a = selectedJobs[indexPath.row].jobName
-            let b = selectedJobs[indexPath.row].poNumber
-            let bb = getTime(date: dt.installDate)
-            let cc = getMonthDayYear(date: dt.installDate)
-            
-            cell.jobInfoLabel.text = "\(a) PO-\(b) \n\(bb)"
+            let labelTxt = createLabel(jb: jb, dt: dt)
+
+            cell.jobInfoLabel.text = labelTxt
         }
+        let blkBkgd = UIView()
+        blkBkgd.backgroundColor = .darkGray
+        
+        cell.selectedBackgroundView = blkBkgd
 
         return cell
     }
     
+    func createLabel(jb: Job.UserJob, dt: Job.UserJob.JobDates) -> String {
+        let jobName = jb.jobName
+        let startTm = getTime(date: dt.installDate)
+        let address = "\(jb.jobAddress), \(jb.jobCity), \(jb.jobState)"
+        
+        var labelTxt = "\(jobName) \(startTm) \n\(address) \n\(jb.supervisor) | \(jb.fieldLead) \n"
+        
+        jb.assignedEmployees.enumerated().map { (index, oneEmployee) in
+            if index == (jb.assignedEmployees.count - 1) {
+                labelTxt += "\(oneEmployee)"
+            } else {
+                labelTxt += "\(oneEmployee), "
+            }
+        }
+        
+        return labelTxt
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        showDirectionsAlert(indexPath: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        showDirectionsAlert(indexPath: indexPath)
+    }
+    
+    func showDirectionsAlert(indexPath: IndexPath) {
         let matchingJob = selectedJobs[indexPath.row]
         
-        let alert = UIAlertController(title: "Directions", message: "Get driving Directions?", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Directions", message: "Get directions to PO: \(matchingJob.poNumber) \n\(matchingJob.jobName)?", preferredStyle: .actionSheet)
         let yes = UIAlertAction(title: "Yes", style: .default) { (action) in
-            ScheduleView.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
+            self.openMapsWithDirections(to: matchingJob.jobLocation, destination: matchingJob.jobName)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         
@@ -395,5 +575,17 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         
         self.main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
+}
 
+
+// -- Cells Classes
+
+class CalendarCell: JTAppleCell {
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var highlightView: UIView!
+    @IBOutlet weak var jobName: UILabel!
+}
+
+class JobCell: UITableViewCell {
+    @IBOutlet var jobInfoLabel: UILabel!
 }

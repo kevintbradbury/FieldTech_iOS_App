@@ -20,7 +20,6 @@ import ImagePicker
 import Alamofire
 import EventKit
 import Macaw
-//import Starscream
 
 
 class EmployeeIDEntry: UIViewController {
@@ -35,35 +34,41 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var lunchBreakBtn: UIButton!
     @IBOutlet weak var activityBckgd: UIView!
-    @IBOutlet var animatedClockView: MacawView!
+    @IBOutlet var animatedClockView: AnimatedClock!
+    @IBOutlet var longHand: LongHandAnimated!
+    
     
     let firebaseAuth = Auth.auth()
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
-    let picker = ImagePickerController()
-    let dataSource = ["---", "Field", "Shop", "Driver", "Measurements"]
+    let imgPicker = ImagePickerController()
+    let dataSource = ["---", "Field", "Shop", "Drive Time", "Measurements"]
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
+    var safetyQs: [SafetyQuestion] = []
     var todaysJob = Job()
-    var foundUser: UserData.UserInfo?
     var location = UserData.init().userLocation
     var firAuthId = UserDefaults.standard.string(forKey: "authVerificationID")
     var hadLunch = false
     var profileUpload: Bool?
+    public static var foundUser: UserData.UserInfo?
     public var role: String?
     var imageAssets: [UIImage] {
-        return AssetManager.resolveAssets(picker.stack.assets)
+        return AssetManager.resolveAssets(imgPicker.stack.assets)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        roleSelection.setValue(UIColor.white, forKey: "textColor")
+        imgPicker.delegate = self
+        roleSelection.delegate = self
+        roleSelection.dataSource = self
+        longHand.backgroundColor = .clear
+        animatedClockView.backgroundColor = .clear
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        picker.delegate = self
         
         setRoles()
         checkAppDelANDnotif()
@@ -71,7 +76,6 @@ class EmployeeIDEntry: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         hideTextfield()
-        setClockBtn()
         
         let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
         setShadows(btns: btns)
@@ -85,60 +89,26 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockIn(_ sender: Any) { clockInClockOut() }
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
+    @IBAction func animatedClockPress(_ sender: Any) { animateOrWrapUp() }
     
 }
 
 
 extension EmployeeIDEntry {
     
-    func setClockBtn() {
-        
-            let image = Image(
-                src: "clock",
-                w: Int(animatedClockView.frame.width),
-                h: Int(animatedClockView.frame.height),
-                place: Transform.move(
-                    dx: Double(animatedClockView.frame.width / 8),
-                    dy: Double(animatedClockView.frame.height / 8)
-                )
-            )
-            
-            if foundUser?.punchedIn == true {
-                image.src = "clockOut"
-            } else {
-                image.src = "clockIn"
-            }
-            
-            let ruler = Image(
-                src: "clock_longHand",
-                w: Int(image.w / 8),
-                h: Int(image.h / 2),
-                place: Transform.move(
-                    dx: Double(animatedClockView.frame.width / 1.75),
-                    dy: Double(animatedClockView.frame.height / 3)
-                ),
-                tag: ["clock_longHand"]
-            )
-            let grp = Group()
-            grp.contents.append(image)
-            grp.contents.append(ruler)
-            
-            animatedClockView.node = grp
-
-        self.animatedClockView.node.onTouchPressed({ touch in
-            if self.foundUser?.punchedIn == true {
-                self.wrapUpAlert()
-            } else {
-                self.clockInClockOut()
-            }
-        })
+    func animateOrWrapUp() {
+        if EmployeeIDEntry.foundUser?.punchedIn == true {
+            self.wrapUpAlert()
+        } else {
+            self.clockInClockOut()
+        }
     }
     
     func isEmployeeIDNum(callback: @escaping (UserData.UserInfo) -> ()) {
         var employeeNumberToInt: Int?
         
-        if foundUser?.employeeID != nil {
-            guard let employeeNumber = foundUser?.employeeID else { return }
+        if EmployeeIDEntry.foundUser?.employeeID != nil {
+            guard let employeeNumber = EmployeeIDEntry.foundUser?.employeeID else { return }
             employeeNumberToInt = Int(employeeNumber)
         } else {
             guard let employeeNumber = employeeID.text else { return }
@@ -146,19 +116,19 @@ extension EmployeeIDEntry {
         }
         
         fetchEmployee(employeeId: employeeNumberToInt!) { user in
-            self.foundUser = user
-            callback(self.foundUser!)
+            EmployeeIDEntry.foundUser = user
+            callback(EmployeeIDEntry.foundUser!)
         }
     }
     
-    func clockInClockOut() {
-//        inProgress()
-        startSpinning()
+    public func clockInClockOut() {
+        let anmation = longHand.node.placeVar.animation(angle: -5.25, x: 0, y: 0, during: 1, delay: 0)
+        anmation.cycle().play()
         
         if role != nil && role != "---" && role != "" {
             
-            if foundUser?.employeeID != nil {
-                guard let unwrappedUser = foundUser else { return }
+            if EmployeeIDEntry.foundUser?.employeeID != nil {
+                guard let unwrappedUser = EmployeeIDEntry.foundUser else { return }
                 makePunchCall(user: unwrappedUser)
                 
             } else if employeeID.text != "" {
@@ -169,10 +139,7 @@ extension EmployeeIDEntry {
                 incorrectID(success: true)
             }
         } else {
-//            finishedLoading()
-            
             showAlert(withTitle: "No Role", message: "Please select a role before clocking in or out.")
-            stopSpinning()
         }
     }
     
@@ -181,46 +148,30 @@ extension EmployeeIDEntry {
             let unwrappedRole = role else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
-        APICalls().sendCoordinates(employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-            self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err)
+        APICalls().sendCoordinates(
+            employee: user,
+            location: locationArray,
+            autoClockOut: false,
+            role: unwrappedRole,
+            po: "",
+            override: false
+        ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+            self.handleSuccess(
+                success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
+            )
         }
     }
     
     func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String) {
         if success == true {
-            print("punched in / out: \(String(describing: foundUser?.punchedIn))")
+            print("punched in / out: \(String(describing: EmployeeIDEntry.foundUser?.punchedIn))")
             self.todaysJob.jobName = currentJob
             self.todaysJob.poNumber = poNumber
             self.todaysJob.jobLocation = jobLatLong
-            self.foundUser?.punchedIn = clockedIn
-            self.completedProgress()
+            EmployeeIDEntry.foundUser?.punchedIn = clockedIn
             
-            if clockedIn == true {
-                let fourHours = Double((4 * 60) * 60)
-                var title = "Reminder", message = "Message", identifier = "identifier"
-                
-                func checkLunch() {
-                    hadLunch = UserDefaults.standard.bool(forKey: "hadLunch")
-                    if hadLunch == true {
-                        title = "Clock Out Reminder"; message = "Time to wrap up for the day."; identifier = "clockOut";
-                        hadLunch = false; UserDefaults.standard.set(nil, forKey: "hadLunch")
-                    } else {
-                        title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
-                    }
-                }
-                checkLunch()
-                
-                let request = createNotification(
-                    intervalInSeconds: fourHours, title: title, message: message, identifier: identifier
-                )
-                notificationCenter.add(request) { (error) in
-                    if error != nil {
-                        print("error setting clock notif: "); print(error)
-                    } else {
-                        print("added reminder at 4 hour mark")
-                    }
-                }
-            }
+            self.setClockInNotifcs(clockedIn: clockedIn)
+            
         } else if manualPO == false {
             showPONumEntryWin()
         } else if err != "" {
@@ -242,17 +193,88 @@ extension EmployeeIDEntry {
         }
     }
     
+    func setClockInNotifcs(clockedIn: Bool) {
+        
+        if clockedIn == true {
+            let twoHours = Double((2 * 60) * 60)
+            let fourHours = Double((4 * 60) * 60)
+            var title = "", message = "", identifier = ""
+            hadLunch = UserDefaults.standard.bool(forKey: "hadLunch")
+            
+            if hadLunch == true {
+                hadLunch = false;
+                UserDefaults.standard.set(false, forKey: "hadLunch")
+                title = "Clock Out Reminder"; message = "Time to wrap up for the day."; identifier = "clockOut";
+                self.completedProgress()
+                
+            } else {
+                title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
+                APICalls().getSafetyQs() { safetyQuestions in
+                    self.safetyQs = safetyQuestions
+                    self.completedProgress()
+                }
+            }
+            setBreakNotifcs(twoHrs: twoHours, fourHrs: fourHours, title: title, msg: message, identifier: identifier)
+            
+        } else {
+            
+            if self.hadLunch == false {
+                UserDefaults.standard.set(true, forKey: "hadLunch")
+                APICalls().getSafetyQs() { safetyQuestions in
+                    self.safetyQs = safetyQuestions
+                    self.completedProgress()
+                }
+            } else {
+                self.completedProgress()
+            }
+        }
+    }
+    
+    func setBreakNotifcs(twoHrs: Double, fourHrs: Double, title: String, msg: String, identifier: String) {
+        let tenMinBreakRmdr = createNotification(
+            intervalInSeconds: twoHrs, title: "10 Minute Break",
+            message: "Don't forget to take a short 10 minute break.", identifier: "tenMinBrk"
+        )
+        let clckOutRmndr = createNotification(
+            intervalInSeconds: fourHrs, title: title, message: msg, identifier: identifier
+        )
+        
+        notificationCenter.add(tenMinBreakRmdr) { (error) in
+            if error != nil {
+                print("error setting clock notif: \(String(describing: error))")
+            }
+        }
+        notificationCenter.add(clckOutRmndr) { (error) in
+            if error != nil {
+                print("error setting clock notif: \(String(describing: error))")
+            }
+        }
+        
+        if identifier == "clockOut" {
+            let thirtyMin = Double(60 * 30)
+            let jobUpdate = createNotification(
+                intervalInSeconds: thirtyMin, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
+            )
+            notificationCenter.add(jobUpdate) { error in
+                if error != nil {
+                    print("error setting clock notif: \(String(describing: error))")
+                }
+            }
+        }
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let id = segue.identifier
-        UserDefaults.standard.set(foundUser?.employeeID, forKey: "employeeID")
-        UserDefaults.standard.set(foundUser?.userName, forKey: "employeeName")
+        UserDefaults.standard.set(EmployeeIDEntry.foundUser?.employeeID, forKey: "employeeID")
+        UserDefaults.standard.set(EmployeeIDEntry.foundUser?.userName, forKey: "employeeName")
         
         if id == "return" {
-            HomeView.employeeInfo?.punchedIn = foundUser?.punchedIn
+            HomeView.employeeInfo = EmployeeIDEntry.foundUser
             HomeView.todaysJob.jobName = todaysJob.jobName
             HomeView.todaysJob.poNumber = todaysJob.poNumber
             HomeView.todaysJob.jobLocation = todaysJob.jobLocation
             HomeView.role = role
+            HomeView.safetyQs = safetyQs
             
         } else  if id == "clockTOchange" {
             let vc = segue.destination as! ChangeOrdersView
@@ -261,37 +283,39 @@ extension EmployeeIDEntry {
     }
     
     func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
-        let route = "employee/" + String(employeeId)
+        let route = "employee/\(String(employeeId))"
         
-        APICalls().setupRequest(route: route, method: "GET") { request in
-            let session = URLSession.shared;
+        APICalls().setupRequest(route: route, method: "GET") { request  in
             
-            let task = session.dataTask(with: request) {data, response, error in
+            let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
                 if error != nil {
-                    print("failed to fetch JSON from database \n \(String(describing: response)) \n \(String(describing: error))"); return
+                    print("failed to fetch JSON from database \n \(String(describing: error)) \n \(String(describing: response))"); return
                 } else {
                     guard let verifiedData = data else { print("could not verify data from dataTask"); return }
-                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { return }
+                    guard let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else { print("failed to parse JSON"); return }
                     guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
-                        print("json serialization failed: \(json)")
+                        print("json to UserInfo failed: \(json)")
                         self.main.addOperation { self.incorrectID(success: true) }
                         return
                     }
                     callback(user)
                 }
-            }
-            task.resume()
+            }; task.resume()
         }
     }
     
     func showPONumEntryWin() {
-        let alert = UIAlertController(title: "Manual PO Entry", message: "No PO found for current time and date, would you like to enter PO number manually?", preferredStyle: .alert)
+        let alert = UIAlertController(
+            title: "Manual PO Entry",
+            message: "No PO found for this time/date, enter PO number manually?",
+            preferredStyle: .alert
+        )
         
         let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
-            self.inProgress()
+            self.inProgressVw()
             
             guard let coordinate = UserLocation.instance.currentCoordinate,
-                let uwrappedUsr = self.foundUser,
+                let uwrappedUsr = EmployeeIDEntry.foundUser,
                 let unwrappedRole = self.role else { return }
             
             let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
@@ -301,7 +325,14 @@ extension EmployeeIDEntry {
             if poNumber.text != nil && poNumber.text != "" {
                 poToString = poNumber.text!
                 
-                APICalls().manualSendPO(employee: uwrappedUsr, location: locationArray, role: unwrappedRole, po: poToString) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                APICalls().sendCoordinates(
+                    employee: uwrappedUsr,
+                    location: locationArray,
+                    autoClockOut: false,
+                    role: unwrappedRole,
+                    po: poToString,
+                    override: true
+                ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
                     self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err)
                 }
             }
@@ -321,8 +352,8 @@ extension EmployeeIDEntry {
     }
     
     func hideTextfield() {
-        if foundUser != nil {
-            guard let punchedIn = self.foundUser?.punchedIn else { return }
+        if EmployeeIDEntry.foundUser != nil {
+            guard let punchedIn = EmployeeIDEntry.foundUser?.punchedIn else { return }
             self.main.addOperation {
                 self.employeeID.isHidden = true
                 self.sendButton.isHidden = true
@@ -349,7 +380,7 @@ extension EmployeeIDEntry {
         }
     }
     
-    func inProgress() {
+    func inProgressVw() {
         self.main.addOperation {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             self.activityBckgd.isHidden = false
@@ -362,7 +393,6 @@ extension EmployeeIDEntry {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
-            self.stopSpinning()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             self.performSegue(withIdentifier: "return", sender: self)
         }
@@ -373,7 +403,6 @@ extension EmployeeIDEntry {
             self.activityBckgd.isHidden = true
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
-            self.stopSpinning()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
         }
     }
@@ -382,33 +411,42 @@ extension EmployeeIDEntry {
 extension EmployeeIDEntry {
     
     func goOnLunch(breakLength: Double) {
-        let timeInSeconds = Double(breakLength * 60)
-        let request = createNotification(intervalInSeconds: timeInSeconds, title: "Break Over", message: "Sorry, break time is over.", identifier: "breakOver")
         
-        notificationCenter.add(request, withCompletionHandler: { (error) in
-            if error != nil { print("there was an error: "); print(error) } else {
-                let fiveMinInSec = Double(5 * 60)
-                let tenMinBefore = Double((breakLength * 60) - fiveMinInSec)
-                let earlyrequest = self.createNotification(intervalInSeconds: tenMinBefore, title: "Break Almost Done", message: "Break is almost over, start wrapping up.", identifier: "breakAlmostOver")
-                
-                self.notificationCenter.add(earlyrequest, withCompletionHandler: { (error) in
-                    if error != nil {
-                        print("looks like there was an error: "); print(error)
-                    } else {
-                        UserDefaults.standard.set(true, forKey: "hadLunch")
-                        self.hadLunch = true
-                        self.clockInClockOut()
-                    }
-                })
+        let tenMinBefore = Double( (breakLength * 60) - Double(5 * 60) )
+        let breakTmInSeconds = Double(breakLength * 60)
+        let earlyrequest = createNotification(
+            intervalInSeconds: tenMinBefore, title: "Break Almost Done",
+            message: "Break is almost over, start wrapping up.", identifier: "breakAlmostOver"
+        )
+        let request = createNotification(
+            intervalInSeconds: breakTmInSeconds, title: "Break Over",
+            message: "Sorry, break time is over.", identifier: "breakOver"
+        )
+        
+        notificationCenter.add(earlyrequest) { (error) in
+            if error != nil {
+                print("There was an error: \(error?.localizedDescription))")
             }
-        })
+        }
+        
+        notificationCenter.add(request) { (error) in
+            if error != nil {
+                print("There was an error: \(error?.localizedDescription))")
+            } else {
+                UserDefaults.standard.set(true, forKey: "hadLunch")
+                self.hadLunch = true
+                self.clockInClockOut()
+            }
+        }
     }
     
     func chooseBreakLength() {
-        let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: UIAlertControllerStyle.actionSheet)
-        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 30) }
-        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertActionStyle.default) { (action) -> Void in self.goOnLunch(breakLength: 60) }
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.destructive) { (action) -> Void in print("chose Cancel") }
+        let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: .alert)
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) { (action) -> Void in print("chose Cancel") }
+        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertAction.Style.default) { (action) -> Void in self.goOnLunch(breakLength: 30)
+        }
+        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertAction.Style.default) { (action) -> Void in self.goOnLunch(breakLength: 60)
+        }
         
         actionsheet.addAction(chooseThirty)
         actionsheet.addAction(chooseSixty)
@@ -417,28 +455,27 @@ extension EmployeeIDEntry {
         self.present(actionsheet, animated: true)
     }
     
-    func wrapUpAlert() {
+    public func wrapUpAlert() {
         let actionsheet = UIAlertController(
             title: "Reminder",
             message: " Is the Job site clean? \n Have you taken photos? \n Have materials been ordered?",
-            preferredStyle: UIAlertControllerStyle.actionSheet
+            preferredStyle: .alert
         )
-        let finishUp = UIAlertAction(title: "OK, Clock Me Out", style: .default) { (action) -> Void in
+        let clockInNOut = UIAlertAction(title: "OK, Clock Me Out", style: .destructive) { (action) -> Void in
             self.clockInClockOut()
         }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .destructive) { (action) -> Void in
-            self.present(self.picker, animated: true, completion: nil)
-        }
-        let reqMaterials = UIAlertAction(title: "WAIT, need to request materials", style: .destructive) { (action) -> Void in
+        let reqMaterials = UIAlertAction(title: "WAIT, go request materials", style: .default) { (action) -> Void in
             self.performSegue(withIdentifier: "clockTOchange", sender: nil)
         }
+        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .default) { (action) -> Void in
+            self.present(self.imgPicker, animated: true, completion: nil)
+        }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
-            self.stopSpinning()
         }
         
-        actionsheet.addAction(finishUp)
-        actionsheet.addAction(takePhotos)
+        actionsheet.addAction(clockInNOut)
         actionsheet.addAction(reqMaterials)
+        actionsheet.addAction(takePhotos)
         actionsheet.addAction(cancel)
         
         self.main.addOperation {
@@ -448,14 +485,14 @@ extension EmployeeIDEntry {
     
     func checkForUserInfo() {
         if HomeView.employeeInfo?.employeeID != nil {
-            print("punched in -- \(HomeView.employeeInfo!.punchedIn)")
+            print("punched in -- \(String(describing: HomeView.employeeInfo!.punchedIn))")
             HomeView().checkPunchStatus()
-            
+
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
-                inProgress()
-                
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
+                inProgressVw()
+
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!, vc: self) { user, addressInfo  in
                     HomeView.employeeInfo = user
                     HomeView.addressInfo = addressInfo
                     HomeView().checkPunchStatus()
@@ -464,13 +501,9 @@ extension EmployeeIDEntry {
         }
     }
     
-    func checkSuccess(success: Bool) {
-        if success == true {
-            completedProgress()
-        } else {
-            completedProgress()
-            showAlert(withTitle: "Upload Failed", message: "Photos failed to upload to Server.")
-        }
+    func checkSuccess(responseType: [String: String]) {
+        completedProgress()
+        self.handleResponseType(responseType: responseType)
     }
     
     func checkAppDelANDnotif() {
@@ -479,60 +512,10 @@ extension EmployeeIDEntry {
         
         if appDelegate.didEnterBackground == true {
             notificationCenter.getDeliveredNotifications() { notifications in
-                if notifications != nil {
-                    for singleNote in notifications { print("request in notif center: ", singleNote.request.identifier) }
-                }
+                print("request(s) in notif center: \(notifications.count)" )
             }
         }
     }
-    
-    func startSpinning() {
-        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
-        
-        let anm: Animation = nodeClockHnd.placeVar.animation(angle: -6.2)
-        anm.cycle().play()
-    }
-    
-    func stopSpinning() {
-        guard let nodeClockHnd: Node = self.animatedClockView.node.nodeBy(tag: "clock_longHand") else { return }
-        nodeClockHnd.placeVar.onChange { (transfrm) in
-            transfrm
-        }
-        let anmt: Animation = nodeClockHnd.placeVar.animation(angle: 0.0)
-        anmt.cycle().stop()
-    }
-    
-//    func saveLocalPhoto(image: UIImage) {
-//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
-//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
-//        guard let imageData = UIImageJPEGRepresentation(image, 1) else { return }
-//
-//        do {
-//            try imageData.write(to: imageUrl)
-//            print("saved photo...probably @ URL: \n \(imageUrl)")
-//        } catch {
-//            print(error.localizedDescription)
-//        }
-//    }
-//
-//    func loadProfilePic() {
-//        let imagePath: String = "\(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])/profilePic.jpg"
-//        let imageUrl: URL = URL(fileURLWithPath: imagePath)
-//        var image = UIImage()
-//
-//        if FileManager.default.fileExists(atPath: imagePath) {
-//            guard let imageData = try? Data(contentsOf: imageUrl) else {
-//                print("Couldnt convert url to data obj"); return
-//            }
-//            image = UIImage(data: imageData, scale: UIScreen.main.scale) ?? image
-////            profileBtn.clipsToBounds = true
-//            profileBtn.layer.cornerRadius = 27.5
-//            profileBtn.setImage(image, for: .normal)
-//
-//        } else {
-//            print("File not found: \(imagePath)"); return
-//        }
-//    }
 }
 
 extension EmployeeIDEntry: ImagePickerDelegate {
@@ -548,51 +531,54 @@ extension EmployeeIDEntry: ImagePickerDelegate {
 
         if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             if imgs.count < 11 {
-                inProgress()
+                inProgressVw()
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
-                    APICalls().uploadJobImages(images: imgs, jobNumber: po, employee: emply) { success in
-                        self.checkSuccess(success: success)
+                    uploadJobImages(images: imgs, jobNumber: po, employee: emply) { responseType in
+                        self.checkSuccess(responseType: responseType)
                     }
                 } else {
-                    APICalls().uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { success in
-                        self.checkSuccess(success: success)
+                    uploadJobImages(images: imgs, jobNumber: "---", employee: "---") { responseType in
+                        self.checkSuccess(responseType: responseType)
                     }
                 };  dismiss(animated: true, completion: nil)
             } else {
-                picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
+                imgPicker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
             }
         }
     }
 
-    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {   }
+    func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
+        imagePicker.dismiss(animated: true, completion: nil)
+    }
 }
 
 extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func setRoles() {
-        roleSelection.dataSource = self
-        roleSelection.delegate = self
-        
-        if role != nil && role != "" {
-            guard let index = dataSource.index(where: { (obj) -> Bool in
-                obj == role
-            }) else  { return }
-            
-            roleSelection.selectRow(index, inComponent: 0, animated: true)
+        if let verifiedRole = role as? String {
+            if verifiedRole != nil && verifiedRole != "" {
+                guard let index = dataSource.firstIndex(where: { (obj) -> Bool in
+                    obj == verifiedRole
+                }) else  { return }
+                
+                roleSelection.selectRow(index, inComponent: 0, animated: true)
+            }
         }
     }
     
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {   return 1    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {    return dataSource.count }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? { return dataSource[row]  }
-    
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {    role = dataSource[row]  }
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return dataSource.count
+    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return dataSource[row]
+    }
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        role = dataSource[row]
+    }
     
 }
-
 
 
 

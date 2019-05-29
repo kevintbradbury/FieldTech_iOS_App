@@ -95,12 +95,15 @@ public class FanMenu: MacawView {
         let scene = FanMenuScene(fanMenu: self)
         let node = scene.node
         node.place = Transform.move(
-            dx: Double((self.frame.width / 2) + CGFloat(self.radius)),
-            dy: Double((self.frame.height / 2) + CGFloat(self.radius))
+            dx: Double(self.frame.width) / 2,
+            dy: Double(self.frame.height) / 2
         )
         self.node = node
         self.scene = scene
-        
+    }
+    
+    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        return findNodeAt(location: point) != nil
     }
 }
 
@@ -122,21 +125,19 @@ class FanMenuScene {
         let button = fanMenu.button!
         
         menuCircle = Shape(
-            form: Circle(r: fanMenu.radius * 2),
+            form: Circle(r: fanMenu.radius),
             fill: button.color
         )
-        buttonNode = [menuCircle].group()
         
-        if let uiImage = UIImage(named: button.image) {
+        buttonNode = [menuCircle].group()
+        if !button.image.isEmpty, let uiImage = UIImage(named: button.image) {
             menuIcon = Image(
                 src: button.image,
-                w: Int(fanMenu.radius * 3), h: Int(fanMenu.radius * 3),
                 place: Transform.move(
-                    dx: -Double(fanMenu.radius * 1.5), dy: -Double(fanMenu.radius * 1.5)
-                ),
-                opaque: true, opacity: 1.0, visible: true
+                    dx: -Double(uiImage.size.width) / 2,
+                    dy: -Double(uiImage.size.height) / 2
+                )
             )
-            
             buttonNode.contents.append(menuIcon!)
         } else {
             menuIcon = .none
@@ -237,18 +238,20 @@ class FanMenuScene {
                 fill: button.color
             )
         ]
-        if let uiImage = UIImage(named: button.image) {
+        if !button.image.isEmpty, let uiImage = UIImage(named: button.image) {
+            let w = UIScreen.main.bounds.width
+            let h = UIScreen.main.bounds.height
             let image = Image(
-                src: button.image, w: Int(fanMenu.radius * 1.5), h: Int(fanMenu.radius * 1.5),
+                src: button.image,
+                w: Int(w / 8),
+                h: Int(h / 8),
                 place: Transform.move(
-                    dx: -Double(fanMenu.radius * 0.75), dy: -Double(fanMenu.radius * 0.75)
-                ),
-                opaque: true, opacity: 1.0,
-                visible: true
+                    dx: -Double(fanMenu.radius) / 2,
+                    dy: -Double(fanMenu.radius) / 2
+//                    dx: -Double(uiImage.size.width) / 2,
+//                    dy: -Double(uiImage.size.height) / 2
+                )
             )
-//            Image(src: button.image, place: Transform.move(
-//                dx: -Double(uiImage.size.width) / 2, dy: -Double(uiImage.size.height) / 2
-//            ))
             
             contents.append(image)
         }

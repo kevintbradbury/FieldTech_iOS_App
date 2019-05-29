@@ -16,36 +16,32 @@ import CoreLocation
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
-    var notificationDelegate = UYLNotificationDelegate()
-    var notificationCenter = UNUserNotificationCenter.current()
-    var myViewController: HomeView?
+    var homeViewActive: HomeView?
     var myEmployeeVC: EmployeeIDEntry?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
 
     override init() {
         super.init()
-        FirebaseApp.configure()
     }
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
+        FirebaseApp.configure()
         UserLocation.instance.initialize()
         registerForPushNotif()
         didEnterBackground = false
+        APICalls.getHostFromPList()
         
         print("app didFinishLaunching w/ options")
-        
         return true
     }
     
-    func application(_ application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data){
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
-        UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+        UNUserNotificationCenter.current().delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
         UNUserNotificationCenter.current().requestAuthorization(
             options: authOptions,
@@ -64,31 +60,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print(notification)
         
         if Auth.auth().canHandleNotification(notification) {
-            completionHandler(.noData); return
+            print("didReceiveRemoteNotification: FireBase notification")
+            completionHandler(.noData);     return
         }
         
-        if let aps = notification[AnyHashable("aps")] as? NSDictionary,
+        print("AppDelegate > notification: \(notification)")
+        
+        guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
-            let action = alert["action"] as? String {
-            print("received notification: with action -  \(action)")
+            let action = alert[AnyHashable("action")] as? String else {
+                print("didReceiveRemoteNotification: failed parsing: aps/alert/action")
+                completionHandler(.newData);    return
+        }
+        
+        if action == "gps Update" {
+            guard let coordinate = UserLocation.instance.currentCoordinate else { return }
+            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
             
-            if action == "gps Update" {
-                guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-                let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-                
-                APICalls().justCheckCoordinates(location: locationArray) { success in
-                    if success != true { completionHandler(.failed) }
-                    else { completionHandler(.newData); print("coordinate check succeeded") }
-                }
+            APICalls().justCheckCoordinates(location: locationArray) { success in
+                if success != true { completionHandler(.failed) }
+                else { completionHandler(.newData); print("didReceiveRemoteNotification: coordinate check succeeded") }
             }
+        } else {
+            print("didReceiveRemoteNotification: action: \(alert)");   completionHandler(.newData)
         }
     }
     
     func application(_ application: UIApplication, open url: URL,
-                     options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
+                     options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
         if Auth.auth().canHandle(url) {
             return true
         }
@@ -116,9 +117,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("app did become active")
-        if myViewController != nil  && didEnterBackground == true {
+        
+        if homeViewActive != nil  && didEnterBackground == true {
             HomeView.employeeInfo = nil
-            self.myViewController?.checkForUserInfo()
+            OperationQueue.main.addOperation {
+                self.homeViewActive?.checkForUserInfo()
+            }
         }
     }
     
@@ -132,19 +136,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func registerForPushNotif() {
-        notificationCenter.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             
             if granted == true {
-                self.notificationCenter.getNotificationSettings { (settings) in
+                UNUserNotificationCenter.current().getNotificationSettings { (settings) in
                     
                     if settings.authorizationStatus == .authorized {
                         self.main.addOperation(UIApplication.shared.registerForRemoteNotifications)
                         return
                     }
                 }
-            } else {
-                fatalError("notification not granted: \(granted), \(error)")
-            }
+            } else { fatalError("notification not granted: \(granted), \(String(describing: error))") }
         }
     }
     
@@ -152,32 +154,70 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let id = UserDefaults.standard.string(forKey: "employeeID") else {
             print("no saved id"); return
         }
-        let route = "employee/token/" + id
-        
-        if let existingToken = UserDefaults.standard.string(forKey: "token") {
-            if existingToken == token {
-                return
-            } else { updateToken(token: token, route: route) }
-        } else { updateToken(token: token, route: route) }
-    }
-    
-    func updateToken(token: String, route: String) {
-        UserDefaults.standard.set(token, forKey: "token");
-        
-        APICalls().setupRequest(route: route, method: "POST") { req in
-            var request = req
-            request.addValue(token, forHTTPHeaderField: "token")
-            
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if error != nil {
-                    print("fetch to server failed w/ error: \(error!.localizedDescription)"); return
-                } else {
-                    print("sent device token successfully")
-                }
+        APICalls().checkForToken(employeeID: id) { hasToken in
+            if hasToken != true {
+                let route = "employee/token/\(id)"
+                APICalls().updateToken(token: token, route: route)
             }
-            task.resume()
         }
     }
 }
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    // If App is currently open
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        print("AppDelegate > willPresent > notification: \(notification.request.identifier)")
+        handleNotif(category: notification.request.identifier, center: center)
+        
+        completionHandler(.alert)
+    }
+    
+    // If App is currently in background or phone is locked
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+            let cat_ = response.notification.request.identifier
+            let category = response.notification.request.content.categoryIdentifier
+            
+            handleNotif(category: category, center: center)
+            completionHandler()
+        }
+    }
+    
+    func handleNotif(category: String, center: UNUserNotificationCenter) {
+        print("UNUserNotificationCenter willPresent or didReceive category: \(category)")
+        let state = UIApplication.shared.applicationState
+        guard let vc = self.homeViewActive else { return }
+        
+        switch category {
+            
+        case "vehicleCheckList":
+            HomeView.vehicleCkListNotif = true
+            if state == UIApplication.State.active { vc.performSegue(withIdentifier: "vehicleCkList", sender: nil) }
+            
+        case "scheduleReady":
+            ScheduleView.scheduleRdy = true
+            HomeView.scheduleReadyNotif = true
+            if state == UIApplication.State.active { vc.performSegue(withIdentifier: "schedule", sender: nil) }
+            
+        case "jobCheckup":
+            HomeView.jobCheckup = true
+            if state == UIApplication.State.active {
+                OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
+            }
+            
+        case "leftJobSite":
+            HomeView.leftJobSite = true
+            center.removeDeliveredNotifications(withIdentifiers: [category])
+            center.removePendingNotificationRequests(withIdentifiers: [category])
+            
+        default:
+            print("Received notification w/ category: \(category)")
+        }
+    }
+}
+
+
 
 

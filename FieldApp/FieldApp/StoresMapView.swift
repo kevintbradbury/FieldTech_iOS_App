@@ -35,8 +35,6 @@ class StoresMapView: UIViewController {
     }
     
     func intitMap() {
-//        showLoading()
-        
         guard let currentLoc = UserLocation.instance.currentCoordinate else { return }
         let span = MKCoordinateSpan(
             latitudeDelta: CLLocationDegrees(0.25), longitudeDelta: CLLocationDegrees(0.25)
@@ -52,35 +50,23 @@ class StoresMapView: UIViewController {
     func findHWStores() {
         showLoading()
 
-        if let annotations: [MKAnnotation] = mapView.annotations {
+        if mapView.annotations.count > 0 {
+            let annotations: [MKAnnotation] = mapView.annotations
             mapView.removeAnnotations(annotations)
         }
         
-        let req = MKLocalSearchRequest()
-        req.naturalLanguageQuery = "hardware stores"
+        let req = MKLocalSearch.Request()
+        req.naturalLanguageQuery = "hardware, tools"// "hardware stores"
         req.region = mapView.region
         let search = MKLocalSearch.init(request: req)
         
-        search.start { (res, error) in
+        search.start { (response, error) in
             if error != nil {
                 self.showAlert(withTitle: "Error", message: "Failed completing map search request.")
                 self.stopLoading()
                 
-            } else {
-                print("request was good")
-                guard let searchResults = res?.mapItems else { return }
-                
-                for mapItem in searchResults {
-                    guard let resultString: String = mapItem.name else { return }
-                    
-                    self.checkResults(resultString: resultString) { result in
-                                let annotation = CustomAnnotation(
-                                    title: mapItem.name!, coordinate: mapItem.placemark.coordinate, info: "customAnt"
-                                )
-                                self.mapView.addAnnotation(annotation)
-                    }
-                }
-                self.stopLoading()
+            } else if let searchResults = response?.mapItems {
+                self.setMapAnnotations(searchResults: searchResults)
             }
         }
     }
@@ -93,15 +79,46 @@ class StoresMapView: UIViewController {
         for char in resultString {
             if char == " " {
                 
-                if result == "The" { continue }
+                if result == "The " { continue }
                 else {
-                    for store in FieldActions.SuppliesRequest().hardwareLocations {
+                    for store in FieldActions().hardwareLocations {
                         if result == store { cb(result) }
                         else { continue }
                     }
                 }
             } else { result += String(char) }
         }
+    }
+    
+    func setMapAnnotations(searchResults: [MKMapItem]) {
+        var custmAnntns = [MKAnnotation]()
+        
+        for mapItem in searchResults {
+            guard let title: String = mapItem.name,
+                let phone: String = mapItem.phoneNumber else { continue }
+            let latLon: CLLocationCoordinate2D = mapItem.placemark.coordinate
+            let annotation = CustomAnnotation(title: title, subtitle: phone, coordinate: latLon, info: "customAnt")
+            
+            self.checkResults(resultString: title) { result in
+                custmAnntns.append(annotation)
+            }
+        }
+        
+        if custmAnntns.count == 0 {
+            
+            for mapItem in searchResults {
+                guard let title: String = mapItem.name,
+                let phone: String = mapItem.phoneNumber else { continue }
+                let latLon: CLLocationCoordinate2D = mapItem.placemark.coordinate
+                let annotation = CustomAnnotation(title: title, subtitle: phone, coordinate: latLon, info: "customAnt")
+                
+                self.mapView.addAnnotation(annotation)
+            }
+        } else {
+            self.mapView.addAnnotations(custmAnntns)
+        }
+        
+        self.stopLoading()
     }
     
     func showLoading() {
@@ -115,6 +132,28 @@ class StoresMapView: UIViewController {
         main.addOperation {
             self.activityIndicator.stopAnimating()
             self.loadingBkgd.isHidden = true
+        }
+    }
+    
+    func makePhoneCall(phoneStr: String) {
+        var phoneNumber = ""
+        
+        for char in phoneStr {
+            if char == "(" || char == ")" || char == "-" || char == " " { continue }
+            else { phoneNumber += "\(char)" }
+        }
+        let phone = phoneNumber.replacingOccurrences(of: "+1", with: "")
+        let int = phone.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        
+        if let url = URL(string: "tel://\(int)"), UIApplication.shared.canOpenURL(url) {
+            
+            if #available(iOS 10, *) {
+                UIApplication.shared.open(url, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
+            } else {
+                UIApplication.shared.openURL(url)
+            }
+        } else {
+            print("Couldnt open phone number |\(int)|")
         }
     }
     
@@ -145,10 +184,24 @@ extension StoresMapView: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        guard let annotation = view.annotation else { return }
-        guard let destination = annotation.title as? String else { return }
+        guard let annotation = view.annotation,
+            let destination = annotation.title as? String,
+            let phoneStr = annotation.subtitle as? String else { return }
         
-        ScheduleView.openMapsWithDirections(to: annotation.coordinate, destination: destination)
+        let alert = UIAlertController(title: "Select", message: " Driving directions or \n Call \(destination)?", preferredStyle: .alert)
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
+        let call = UIAlertAction(title: "Call", style: .default) { action in
+            self.makePhoneCall(phoneStr: phoneStr)
+        }
+        let drive = UIAlertAction(title: "Driving Directions", style: .default) { action in
+            self.openMapsWithDirections(to: annotation.coordinate, destination: destination)
+        }
+        
+        alert.addAction(drive)
+        alert.addAction(call)
+        alert.addAction(cancel)
+        
+        self.present(alert, animated: true, completion: nil)
     }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
@@ -168,13 +221,20 @@ extension StoresMapView: MKMapViewDelegate {
 
 class CustomAnnotation: NSObject, MKAnnotation {
     var title: String?
+    var subtitle: String?
     var coordinate: CLLocationCoordinate2D
     var info: String
     
-    init(title: String, coordinate: CLLocationCoordinate2D, info: String) {
+    init(title: String, subtitle: String, coordinate: CLLocationCoordinate2D, info: String) {
         self.title = title
+        self.subtitle = subtitle
         self.coordinate = coordinate
         self.info = info
     }
 }
 
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+}

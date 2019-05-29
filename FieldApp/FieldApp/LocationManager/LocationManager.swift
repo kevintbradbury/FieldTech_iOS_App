@@ -18,13 +18,14 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     static let instance = UserLocation()
     override init() {}
     
+    public static var homeViewActive: HomeView?
     private var alreadyInitialized = false
     private var onLocation: ((CLLocationCoordinate2D) -> Void)?
     var locationManager = CLLocationManager()
     var currentLocation: CLLocation?
     var currentRegion: MKCoordinateRegion?
     var currentCoordinate: CLLocationCoordinate2D? { return currentLocation?.coordinate }
-    var notificationCenter: UNUserNotificationCenter?
+//    var notificationCenter: UNUserNotificationCenter?
     var regionToCheck: CLCircularRegion?
     
     func initialize() {
@@ -35,8 +36,8 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
         
-        notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter?.delegate = self
+//        notificationCenter = UNUserNotificationCenter.current()
+//        notificationCenter?.delegate = self
         
         alreadyInitialized = true
     }
@@ -72,9 +73,11 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) { print("monitoring failed for region w/ identifier: "); print(region?.identifier) }
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with followign error: "); print(error) }
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with following error: \(error)") }
+    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        print("monitoring failed for region w/ identifier: \(String(describing: region?.identifier))")
+    }
     
 }
 
@@ -96,9 +99,7 @@ extension UserLocation {
             fatalError("GPS loc not set to ALWAYS in use")
         } else {
             let radius = CLLocationDistance(402)    // radius 1/4 mile ~= 402 meters
-            guard let region = CLCircularRegion(center: location, radius: radius, identifier: "range") as? CLCircularRegion else {
-                return
-            }
+            let region = CLCircularRegion(center: location, radius: radius, identifier: "leftJobSite")
             print("region to start monitoring: \(region)")
             locationManager.startMonitoring(for: region)
             
@@ -118,31 +119,23 @@ extension UserLocation {
     }
     
     func handleGeoFenceEvent(forRegion region: CLRegion) {
-        print("region EXIT event triggered \(region)")
-        guard let employeeID = UserDefaults.standard.integer(forKey: "employeeID") as? Int else { print("failed on employeeID"); return }
-        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName") as? String else { print("failed on employeeName"); return }
+        print("handleGeoFenceEvent EXIT region: \(region)")
+        guard let employeeName = UserDefaults.standard.string(forKey: "employeeName"),
+            let coordinate = UserLocation.instance.currentCoordinate else {
+                print("failed on employeeName or coordinate or employeeID"); return
+        }
+        let employeeID = UserDefaults.standard.integer(forKey: "employeeID")
         let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
-        let autoClockOut = true
-        guard let coordinate = UserLocation.instance.currentCoordinate as? CLLocationCoordinate2D else { return }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
         // get role here
         let role: String
         
-        APICalls().sendCoordinates(employee: userInfo, location: locationArray, autoClockOut: autoClockOut, role: "-") { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-            let content = UNMutableNotificationContent()
-            content.title = "Clocked Out"
-            content.body = "You were clocked out because you left the job site."
-            content.sound = UNNotificationSound.default()
-            let intrvl = TimeInterval(1.01)
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: intrvl, repeats: false)
-            let request = UNNotificationRequest(identifier: region.identifier, content: content, trigger: trigger)
+        APICalls().sendCoordinates(
+            employee: userInfo, location: locationArray, autoClockOut: true, role: "-", po: "", override: false
+        ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             
-            self.notificationCenter?.add(request) { (error) in
-                if error != nil { print("error setting up notification request") } else {
-                    print("added notification")
-                }
-            }
+            self.notifyClockOut(identifier: region.identifier)
             
             if clockedIn == false && success == true {
                 UserLocation.instance.stopMonitoring()
@@ -151,11 +144,26 @@ extension UserLocation {
             }
         }
     }
+    
+    func notifyClockOut(identifier: String) {
+        
+        let notificationContent = UNMutableNotificationContent()
+        notificationContent.title = "Clocked Out"
+        notificationContent.body = "You were clocked out because you left the job site. \nPlease send photos, supplies requests, or change orders."
+        notificationContent.sound = UNNotificationSound.default
+        notificationContent.categoryIdentifier = "leftJobSite"
+        notificationContent.threadIdentifier = "leftJobSite"
+        
+        let thirtySecs = TimeInterval(60) // 60 for production
+        let triggerTwo = UNTimeIntervalNotificationTrigger(timeInterval: thirtySecs, repeats: true)
+        let requestTwo = UNNotificationRequest(identifier: "leftJobSite", content: notificationContent, trigger: triggerTwo)
+        
+        UNUserNotificationCenter.current().add(requestTwo) { (error) in
+            if error != nil {
+                print("Error setting notification: \(error)")
+            }
+        }
+    }
+    
 }
-
-extension UserLocation: UNUserNotificationCenterDelegate {
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) { completionHandler([.alert, .badge, .sound]) }
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) { completionHandler() }
-}
-
 

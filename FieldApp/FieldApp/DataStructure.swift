@@ -11,39 +11,75 @@ import UIKit
 import CoreLocation
 import MapKit
 
+
+struct UsernameAndPassword: Codable {
+    let username: String
+    let password: String
+    
+    static func saveIdUserAndPasswd(userNpass: UsernameAndPassword, employeeId: String, cb: @escaping(UsernameAndPassword) -> () ) {
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
+        let encoder = PropertyListEncoder()
+        encoder.outputFormat = .xml
+        
+        do {
+            let data = try encoder.encode(userNpass)
+            try data.write(to: path)
+            
+            UserDefaults.standard.set(employeeId, forKey: "employeeID")
+            UsernameAndPassword.getUsernmAndPasswd() { usrNpass in
+                cb(userNpass)
+            }
+        } catch {
+            print("Error encoding username and password with error: \(error).")
+        }
+    }
+    
+    static func getUsernmAndPasswd(cb: @escaping (UsernameAndPassword)->()) {
+        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
+        
+        do {
+            let decoder = PropertyListDecoder()
+            guard let data = try? Data(contentsOf: path),
+                let userNpass = try? decoder.decode(UsernameAndPassword.self, from: data) else { return }
+            
+            cb(userNpass)
+        } catch {
+            print("Couldn't find saved username or password.")
+        }
+    }
+}
+
 class UserData {
     
-    var userID: Int?
-    var userName: String?
-    var userLocation: CLLocationCoordinate2D?
-    var proximityConfirm: Bool?
-    var timeIn: Int?
-    var timeOut: Int?
-    var timerSet: TimeInterval?
-    var breakComplete: Bool?
-    var overBreak: Bool?
-    var punchedIn: Bool?
-    var completedWorkPhotos: [UIImage]?
-    var locationConfirm: Bool?
+    var userID: Int?,
+    userName: String?,
+    userLocation: CLLocationCoordinate2D?,
+    proximityConfirm: Bool?,
+    timeIn: Int?,
+    timeOut: Int?,
+    timerSet: TimeInterval?,
+    breakComplete: Bool?,
+    overBreak: Bool?,
+    punchedIn: Bool?,
+    completedWorkPhotos: [UIImage]?,
+    locationConfirm: Bool?
     
     struct UserInfoCodeable: Encodable {
-        let userName: String
-        let employeeID: String
-        let coordinateLat: String
-        let coordinateLong: String
-        let currentRole: String
+        let userName: String,
+        employeeID: String,
+        coordinateLat: String,
+        coordinateLong: String,
+        currentRole: String
     }
     
     struct AddressInfo: Codable {
-        let address: String?
-        let city: String?
-        let state: String?
+        let address: String?, city: String?, state: String?
         
         static func fromJSON(dictionary: NSDictionary) -> AddressInfo? {
             guard let address = dictionary["address"] as? String,
-             let city = dictionary["city"] as? String,
-             let state = dictionary["state"] as? String else {
-                print("state address failed to parse"); return nil
+                let city = dictionary["city"] as? String,
+                let state = dictionary["state"] as? String else {
+                    print("state address failed to parse"); return nil
             }
             
             return AddressInfo(address: address, city: city, state: state)
@@ -52,29 +88,27 @@ class UserData {
     
     struct UserInfo {
         
-        let employeeID: Int
-        let userName: String
-        var employeeJobs: [Job.UserJob]
-        var punchedIn: Bool?
-        //                let employeePhone: Int?
+        var employeeID: Int,
+        userName: String,
+        employeeJobs: [Job.UserJob],
+        punchedIn: Bool?
         //                let workWeekHours: Int?
         //                let userPoints: Int?
         
         static func fromJSON(dictionary: NSDictionary) -> UserInfo? {
             var jobsToAdd = [Job.UserJob]()
-//            var clocked = false
+            var clocked = false
             
             guard let userId = dictionary["employeeID"] as? Int,
-             let jobs = dictionary["employeeJobs"] as? NSArray,
-             let userName = dictionary["username"] as? String,
-             let clockIn = dictionary["punchedIn"] as? Bool else {
-                print("User Info failed to parse"); return nil
+                let jobs = dictionary["employeeJobs"] as? NSArray,
+                let userName = dictionary["username"] as? String else {
+                    print("User Info failed to parse"); return nil
             }
-            //                let userNumber = dictionary["phoneNumber"] as? Int,
+            if let clockInOut = dictionary["punchedIn"] as? Bool {
+                clocked = clockInOut
+            }
             //                let weekHours = dictionary["workWeekHours"] as? Int,
             //                let points = dictionary["userPoints"] as? Int,
-            //                clocked = clockIn
-            
             
             for job in jobs {
                 guard let jobDIctionary = job as? NSDictionary,
@@ -83,22 +117,22 @@ class UserData {
             }
             
             return UserInfo(
-                employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clockIn
+                employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clocked
             )
         }
     }
     
     struct TimeCard {
         
-        let weekBeginDate: String?
-        let sunday: NSDictionary?
-        let monday: NSDictionary?
-        let tuesday: NSDictionary?
-        let wednesday: NSDictionary?
-        let thursday: NSDictionary?
-        let friday: NSDictionary?
-        let saturday: NSDictionary?
-        let totalHours: Int?
+        let weekBeginDate: String?,
+        sunday: NSDictionary?,
+        monday: NSDictionary?,
+        tuesday: NSDictionary?,
+        wednesday: NSDictionary?,
+        thursday: NSDictionary?,
+        friday: NSDictionary?,
+        saturday: NSDictionary?,
+        totalHours: Int?
         
         static func fromJSON(dictionary: NSDictionary) -> TimeCard? {
             
@@ -134,65 +168,66 @@ class UserData {
 
 class Job: Codable {
     
-    var jobName: String?
-    var poNumber: String?
-    var jobLocation: [Double]?
+    var jobName: String?, poNumber: String?, jobLocation: [Double]?
     
     struct UserJob {
         
-        let poNumber: String
-        let jobName: String
-        let dates: [JobDates]
-        let jobLocation: CLLocationCoordinate2D
-        let jobAddress: String
-        let jobCity: String
-        let jobState: String
-        let projCoord: String
+        let poNumber: String,
+        jobName: String,
+        dates: [JobDates],
+        jobLocation: CLLocationCoordinate2D,
+        jobAddress: String, jobCity: String, jobState: String,
+        projCoord: String,
+        fieldLead: String,
+        supervisor: String,
+        assignedEmployees: [String]
         
         struct JobDates {
-            let installDate: Date
-            let endDate: Date
+            let installDate: Date, endDate: Date
         }
-
-//        let employeeJobHours: String?
         
         static func jsonToDictionary(dictionary: NSDictionary) -> UserJob? {
             
-            guard let purchaseOrderNumber = dictionary["poNumber"] as? String else { print("couldnt parse poNumber"); return nil }
-            guard let jobName = dictionary["name"] as? String else { print("couldnt parse storeName"); return nil }
+            guard let purchaseOrderNumber = dictionary["poNumber"] as? String,
+                let jobName = dictionary["name"] as? String else {
+                    print("couldnt parse storeName or poNumber"); return nil
+            }
             
-            var lat = CLLocationDegrees()
-            var long = CLLocationDegrees()
             var coordinates = CLLocationCoordinate2D()
-            var address = "", city = "", state = "", coordinator = ""
+            var address = "", city = "", state = "", coordinator = "", fieldLead = "", supervisor = "", assignedEmployees = [""]
             let dates = checkForArray(datesObj: dictionary["dates"], dictionary: dictionary)
             
             if let location = dictionary["jobLocation"] as? [Double] {
-                lat = CLLocationDegrees(location[0])
-                long = CLLocationDegrees(location[1])
-                coordinates = CLLocationCoordinate2D()
-                coordinates.latitude = lat
-                coordinates.longitude = long
+                var lat = CLLocationDegrees(0.0), long = CLLocationDegrees(0.0)
                 
-                print(dictionary["jobAddress"])
-                
-                if let addressAsString = dictionary["jobAddress"] as? String,
-                    let cityAsString = dictionary["jobCity"] as? String,
-                    let stateAsString = dictionary["jobState"] as? String {
-//                    print("job address from server: \(addressAsString)")
-                    
-                    address = addressAsString
-                    city = cityAsString
-                    state = stateAsString
-                    
-                    if let projC = dictionary["projCoord"] as? String { coordinator = projC }
+                if location.count > 1 {
+                    lat = CLLocationDegrees(location[0])
+                    long = CLLocationDegrees(location[1])
                 }
+                coordinates = CLLocationCoordinate2D(latitude: lat, longitude: long)
             }
             
-            //                let budgetHours = dictionary["jobBudgetHours"] as? String,
-            //                let employeeHours = dictionary["employeeJobHours"] as? String
+            if let addressAsString = dictionary["jobAddress"] as? String,
+                let cityAsString = dictionary["jobCity"] as? String,
+                let stateAsString = dictionary["jobState"] as? String {
+                
+                address = addressAsString
+                city = cityAsString
+                state = stateAsString
+            }
             
-            return UserJob(poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, jobLocation: coordinates, jobAddress: address, jobCity: city, jobState: state, projCoord: coordinator)
+            if let projC = dictionary["projCoord"] as? String { coordinator = projC }
+            if let json_fieldLd = dictionary["fieldLead"] as? String { fieldLead = json_fieldLd }
+            if let json_super = dictionary["supervisor"] as? String { supervisor = json_super }
+            if let json_employees = dictionary["assignedEmployees"] as? [String] {
+                assignedEmployees = json_employees
+            }
+            
+            return UserJob(
+                poNumber: purchaseOrderNumber, jobName: jobName, dates: dates, 
+                jobLocation: coordinates, jobAddress: address, jobCity: city, jobState: state, 
+                projCoord: coordinator, fieldLead: fieldLead, supervisor: supervisor, assignedEmployees: assignedEmployees
+            )
         }
         
         static func stringToDate(string: String) -> Date {
@@ -209,11 +244,11 @@ class Job: Codable {
             var dates = [JobDates]()
             
             func handleJustDates() -> [JobDates] {
-                var endString = ""
+                var _ = ""
                 guard let start = dictionary["installDate"] as? String else { return dates }
                 guard let end = dictionary["endDate"] as? String else {
                     
-                    var complete = stringToDate(string: start) + (86400)  // if no endDate, make end 24hrs * 60min * 60sec after start
+                    let complete = stringToDate(string: start) + (86400)  // if no endDate, make end 24hrs * 60min * 60sec after start
                     let dtObj = JobDates(installDate: stringToDate(string: start), endDate: complete)
                     dates.append(dtObj)
                     
@@ -232,7 +267,7 @@ class Job: Codable {
                 for i in datesCollection {
                     guard let start = i["installDate"] as? String else { return handleJustDates() }
                     guard let end = i["endDate"] as? String else { return handleJustDates() }
-
+                    
                     let startEnd = JobDates(installDate: stringToDate(string: start), endDate: stringToDate(string: end))
                     
                     dates.append(startEnd)
@@ -242,56 +277,110 @@ class Job: Codable {
             return dates
         }
     }
-}
-
-class ContactInfo {
     
-    let departmentEmail = "admin@millworkbrothers.com"
-    let faxNumber: Int64 = 5628021113
-    let textNumbers: [String:Int64] = [
-        "Pete" : 123,
-        "Natalie" : 123,
-        "Jesus" : 123,
-        "Office" : 5625842155
-    ]
-    
+    struct JobCheckupInfo: Encodable {
+        let returnTomorrow: Bool, numberOfWorkers: Int, addedMaterial: Bool, poNumber: String
+    }
 }
 
 class FieldActions {
     
-    let poFolder = URL(string: "P O Server Folder")
-    var requestedUser: String?
-    var poNumber: Int?
-    var date: Date?
-    var jobName: String?
-    var neededBy: String?
-    var description: String?
+    var formType: String?,
+    jobName: String?,
+    poNumber: String?,
+    requestedBy: String?,
+    location: String?, // Address?
+    material: String?,
+    colorSpec: String?,
+    quantity: Double?,
+    neededBy: Double?, // Seconds from 1970
+    description: String?
+    let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
+    let maxDistance = 5  // Miles?
     
-    struct SuppliesRequest {
-        let hardwareLocations: Array = ["Ace", "Lowe's", "Orchard", "Harbor", "TheHome"]
-        let maxDistance = 5  // Miles?
-        let material: Array = ["material1", "material2", "etc."]
-        var chosenLocation: String?
-        var receiptPhoto = UIImage()
-        var arrived: Bool?
-        var materialQuantity: Int?
-        var receiptUploaded: Bool?
-        var fieldSuppliesDestinationFolder = URL(string: "Supplies Server Folder")
+    struct SuppliesRequest: Encodable {
+        var formType: String?,
+        jobName: String?,
+        poNumber: String?,
+        requestedBy: String?,
+        location: String?,
+        neededBy: Double?, // Seconds from 1970
+        description: String?,
+        suppliesCollection: [MaterialQuantityColor]
+        
+        struct MaterialQuantityColor: Encodable {
+            var quantity: Double, material: String, color:  String
+        }
     }
     
     struct ToolRental: Encodable {
-        var formType: String?
-        var jobName: String?
-        var poNumber: String?
-        var requestedBy: String?
-        var toolType: String?
-        var brand: String?
-        var duration: Int? // Number of Days
-        var quantity: Double?
-        var neededBy: Double? // Seconds from 1970
-        var location: String?
+        var formType: String?,
+        jobName: String?,
+        poNumber: String?,
+        requestedBy: String?,
+        toolType: String?,
+        brand: String?,
+        duration: Int?, // Number of Days
+        quantity: Double?,
+        neededBy: Double?, // Seconds from 1970
+        location: String?
         
         let reminderPeriods = [24, 48, 72, 96]
+    }
+    
+    struct ToolReturn: Encodable {
+        let rental: FieldActions.ToolRental, signedDate: String, printedNames: [String]
+    }
+    
+    struct ToolsNImages {
+        let tools: [FieldActions.ToolRental], images: [UIImage]
+    }
+    
+    struct  ChangeOrders: Encodable {
+        var formType: String?,
+        jobName: String?,
+        poNumber: String?,
+        requestedBy: String?,
+        location: String?, // Address?
+        material: String?,
+        colorSpec: String?,
+        quantity: Double?,
+        neededBy: Double?, // Seconds from 1970
+        description: String?
+    }
+    
+    struct VehicleChecklist: Encodable {
+        var username: String,
+        department: String,
+        licensePlate: String,
+        date: Double,
+        outsideInspection: OutsideInspection,
+        startupInspection: StartupInspection,
+        issuesReport: String
+        
+        struct OutsideInspection: Encodable {
+            var windows: Bool,
+            tiresNnuts: Bool,
+            engine: Bool,
+            litesNsignals: Bool,
+            mirrors: Bool,
+            windshieldNwipres: Bool,
+            dents: Bool,
+            exteriorComments: String
+        }
+        
+        struct StartupInspection: Encodable {
+            var engine: Bool,
+            gauges: Bool,
+            wipers: Bool,
+            horn: Bool,
+            brakes: Bool,
+            seatbelt: Bool,
+            insuranceNregist: Bool,
+            firstAidKit: Bool,
+            clean: Bool,
+            startupComments: String
+        }
     }
     
     static func fromJSONtoTool(json: Any) -> ([FieldActions.ToolRental], [UIImage]) {
@@ -302,29 +391,43 @@ class FieldActions {
             
             for oneTool in tools {
                 
-                if let dictionary = oneTool as? Dictionary<String, Any>,
-                    let formType = dictionary["formType"] as? String,
-                    let jobName = dictionary["jobName"] as? String,
-                    let poNumber = dictionary["poNumber"] as? String,
-                    let requestedBy = dictionary["requestedBy"] as? String,
-                    let toolType = dictionary["toolType"] as? String,
-                    let brand = dictionary["brand"] as? String,
-                    let duration = dictionary["duration"] as? Int,
-                    let neededBy = dictionary["neededBy"] as? String,
-                    let quantity = dictionary["quantity"] as? Int,
-                    let location = dictionary["location"] as? String,
-                    let returnDate = dictionary["returnDate"] as? String,
+                if
+                    let dictionary = oneTool as? Dictionary<String, Any>,
                     let photoStr = dictionary["photo"] as? String,
                     let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
                     let image = UIImage(data: photoDecoded),
-                    let neededDate = Job.UserJob.stringToDate(string: neededBy) as? Date,
-                    let needDouble = neededDate.timeIntervalSince1970 as? Double {
+                    let duration = dictionary["duration"] as? Int,
+                    let quantity = dictionary["quantity"] as? Int
+                {
+                    
+                    let formType = FieldActions.nilOrString(val: dictionary["formType"])
+                    let jobName = FieldActions.nilOrString(val: dictionary["jobName"])
+                    let poNumber = FieldActions.nilOrString(val: dictionary["poNumber"])
+                    let requestedBy = FieldActions.nilOrString(val: dictionary["requestedBy"])
+                    let toolType = FieldActions.nilOrString(val: dictionary["toolType"])
+                    let brand = FieldActions.nilOrString(val: dictionary["brand"])
+                    let neededBy = FieldActions.nilOrString(val: dictionary["neededBy"])
+                    let location = FieldActions.nilOrString(val: dictionary["location"])
+                    
+                    let neededDate = Job.UserJob.stringToDate(string: neededBy)
+                    let needDouble = neededDate.timeIntervalSince1970
                     
                     let toolToAdd = FieldActions.ToolRental(
-                        formType: formType, jobName: jobName, poNumber: poNumber, requestedBy: requestedBy, toolType: toolType, brand: brand, duration: duration, quantity: Double(quantity), neededBy: needDouble, location: location
+                        formType: formType,
+                        jobName: jobName,
+                        poNumber: poNumber,
+                        requestedBy: requestedBy,
+                        toolType: toolType,
+                        brand: brand,
+                        duration: duration,
+                        quantity: Double(quantity),
+                        neededBy: needDouble,
+                        location: location
                     )
                     boxOtools.append(toolToAdd)
                     toolImages.append(image)
+                } else {
+                    print("Failed parsing Tool json.")
                 }
             }
         }
@@ -332,52 +435,122 @@ class FieldActions {
         return (boxOtools, toolImages)
     }
     
-    struct  ChangeOrders: Encodable {
-        var formType: String?
-        var jobName: String?
-        var poNumber: String?
-        var requestedBy: String?
-        var location: String? // Address?
-        var material: String?
-        var colorSpec: String?
-        var quantity: Double?
-        var neededBy: Double? // Seconds from 1970
-        var description: String?
+    static func nilOrString(val: Any) -> String {
+        if let valAsString = val as? String {
+            return valAsString
+        } else {
+            return ""
+        }
     }
     
-    class PhotoUpload {
+    static func getDateFromISOString(isoDate: String) -> Date {
+        let adjStr = isoDate.components(separatedBy: "T")
+        let dateFormatter = DateFormatter()
         
-        var projectPhotos: [UIImage]?
-        let presetEmail = "supervisor@millworkbrothers.com"
+        dateFormatter.dateFormat = "yyyy-MM-dd" // 'T'HH:mm:ssZZZZZ
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        
+        guard let actualDate = dateFormatter.date(from: adjStr[0]) else {
+            print("unable to change ISOstring to Date"); return Date()
+        }
+        return actualDate
     }
+}
+
+struct Holiday: Decodable {
+    let date: String, start: Date, end: Date
+    let name: String, type: String
     
+    static func parseJson(dictionary: NSDictionary) -> Holiday {
+        let hldy = Holiday(date: "", start: Date(), end: Date(), name: "", type: "")
+        
+        guard let date = dictionary["date"] as? String,
+            let start = dictionary["start"] as? String,
+            let end = dictionary["end"] as? String,
+            let name = dictionary["name"] as? String,
+            let type = dictionary["type"] as? String else {
+                print("unable to parse Holiday dictionary: \n\(dictionary)")
+                return hldy
+        }
+        
+        return Holiday(
+            date: date, start: FieldActions.getDateFromISOString(isoDate: start), end: FieldActions.getDateFromISOString(isoDate: end), name: name, type: type
+        )
+    }
 }
 
-struct TimeOffReq: Codable  {
-    let username: String
-    let employeeID: String
-    let department: String
-    let shiftHours: String
-    let start: Double
-    let  end: Double
-    let returningDate: Double
-    let signaturePath: String
-    let signedDate: Double
+struct TimeOffReq: Encodable  {
+    let username: String,
+    employeeID: Int,
+    department: String,
+    shiftHours: String,
+    start: Double,
+    end: Double,
+    signedDate: Double,
+    approved: Bool?
+    
+    static func parseJson(dictionary: NSDictionary) -> TimeOffReq {
+        let timeOffReq = TimeOffReq(
+            username: "", employeeID: 0, department: "", shiftHours: "", start: 0, end: 0, signedDate: 0, approved: nil
+        )
+        var approved: Bool?
+        
+        guard let username = dictionary["username"] as? String,
+            let employeeID = dictionary["employeeID"] as? String,
+            let department = dictionary["department"] as? String,
+            let shiftHours = dictionary["shiftHours"] as? String,
+            let start = dictionary["start"] as? String,
+            let end = dictionary["end"] as? String,
+            let signed = dictionary["signedDate"] as? String else {
+                print("unable to parse timeOffReq \(dictionary)"); return timeOffReq
+        }
+        
+        if dictionary["approved"] != nil {
+            approved = dictionary["approved"] as? Bool
+        }
+        
+        let startDt = FieldActions.getDateFromISOString(isoDate: start)
+        let endDt = FieldActions.getDateFromISOString(isoDate: end)
+        let signedDt = FieldActions.getDateFromISOString(isoDate: signed)
+        
+        return TimeOffReq(
+            username: username, employeeID: Int(employeeID) ?? 0,
+            department: department, shiftHours: shiftHours,
+            start: startDt.timeIntervalSince1970, end: endDt.timeIntervalSince1970,
+            signedDate: signedDt.timeIntervalSince1970, approved: approved
+        )
+    }
 }
 
-struct GeoKey {
-    static let latitude = "latitude"
-    static let longitude = "longitude"
-    static let radius = "radius"
-    static let identifier = "identifier"
-    static let note = "note"
-    static let eventType = "eventType"
+
+struct SafetyQuestion: Encodable {
+    var question: String
+    var options: answerOptions
+    var answer: String
+    
+    struct answerOptions: Encodable { var a: String; var b: String; var c: String; var d: String }
+    
+    static func jsonToSQ(dictionary: NSDictionary) -> SafetyQuestion {
+        
+        guard let question = dictionary["question"] as? String,
+            let answerOptions = dictionary["options"] as? NSDictionary,
+            let a = answerOptions["a"] as? String,
+            let b = answerOptions["b"] as? String,
+            let c = answerOptions["c"] as? String,
+            let d = answerOptions["d"] as? String,
+            let answer = dictionary["answer"] as? String else {
+                print("failed to parse safetyQuestion")
+                return SafetyQuestion(
+                    question: "", options: SafetyQuestion.answerOptions(a: "", b: "", c: "", d: ""), answer: ""
+                )
+        }
+        let options = SafetyQuestion.answerOptions(a: a, b: b, c: c, d: d)
+        
+        return SafetyQuestion(question: question, options: options, answer: answer)
+    }
 }
 
-enum EventType: String {
-    case onEntry = "On Entry"
-    case onExit = "On Exit"
-}
+
 
 
 
