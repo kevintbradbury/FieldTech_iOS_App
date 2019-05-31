@@ -17,6 +17,7 @@ import Firebase
 
 
 
+
 class APICalls {
     static var host = ""
     let jsonEncoder = JSONEncoder()

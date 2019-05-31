@@ -11,6 +11,17 @@ import Foundation
 import CoreLocation
 import Firebase
 import FirebaseAuth
+import Gifu
+
+class CustomGif: UIImageView, GIFAnimatable {
+    public lazy var animator: Animator? = {
+        return Animator(withDelegate: self)
+    }()
+    
+    override public func display(_ layer: CALayer) {
+        updateImageIfNeeded()
+    }
+}
 
 
 class LoginViewController: UIViewController {   //, AuthUIDelegate {
@@ -19,6 +30,7 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var phoneNumberField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
+    @IBOutlet var customGifAnimation: UIView!
     
     var authId = UserDefaults.standard.string(forKey: "authVerificationID")
     
@@ -35,8 +47,9 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
         Auth.auth().addStateDidChangeListener() { auth, user in
             if user != nil {
                 self.activityIndicator.stopAnimating()
-//                self.performSegue(withIdentifier: "home", sender: nil)
-                self.checkForUsernameNPassword()
+                
+//                self.checkForUsernameNPassword()
+                self.animateGifVw()
             }
         }
 
@@ -55,6 +68,23 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
             showAlert(withTitle: "Error", message: "No number given or formatting issue."); return
         }
         authPhoneNumber(phoneNumber: phoneNum)
+    }
+    
+    func animateGifVw() {
+        if let path = Bundle.main.path(forResource: "transparent_Coins_no-bkgd", ofType: "gif") {
+            let url = URL(fileURLWithPath: path)
+            
+            let frm = customGifAnimation.frame
+            let w = frm.width
+            let h = frm.height
+            let gifVw = GIFImageView(frame: CGRect(x: 0, y: 0, width: w, height: h))
+            
+            gifVw.animate(withGIFURL: url)
+            customGifAnimation.addSubview(gifVw)
+            
+//            customGifVw.prepareForAnimation(withGIFData: data)
+//            customGifVw.startAnimating()
+        }
     }
     
     func checkForUsernameNPassword() {

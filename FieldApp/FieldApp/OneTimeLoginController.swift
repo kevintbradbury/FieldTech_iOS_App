@@ -116,36 +116,7 @@ class OneTimeLoginController: UIViewController {
             }
         }
     }
-    
-//    func saveIdUserAndPasswd(userNpass: UsernameAndPassword, employeeId: String) {
-//        let encoder = PropertyListEncoder()
-//        encoder.outputFormat = .xml
-//
-//        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
-//
-//        do {
-//            let data = try encoder.encode(userNpass)
-//            try data.write(to: path)
-//
-//            UserDefaults.standard.set(employeeId, forKey: "employeeID")
-//            getUsernmAndPasswd(path: path)
-//        } catch {
-//            showAlert(withTitle: "Error", message: "Error ecoding usr n pass w/ err: \(error).")
-//        }
-//    }
-//
-//    func getUsernmAndPasswd(path: URL) {
-//
-//        do {
-//            guard let data = try? Data(contentsOf: path) else { return }
-//            let decoder = PropertyListDecoder()
-//            guard let usrNpass = try? decoder.decode(UsernameAndPassword.self, from: data) else { return }
-//
-//            showAlert(withTitle: "Confirmed", message: "Username: \(usrNpass.username) and Password Confirmed.")
-//        } catch {
-//            showAlert(withTitle: "Error", message: "Couldn't find saved username or password.")
-//        }
-//    }
+
 }
 
 
