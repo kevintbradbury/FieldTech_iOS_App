@@ -1,15 +1,47 @@
 import Foundation
 import Macaw
 
+public enum FanMenuButtonTitlePosition {
+    case left
+    case right
+    case top
+    case bottom
+}
+
 public struct FanMenuButton {
     public let id: String
-    public let image: String
+    public let image: UIImage?
     public let color: Color
+    public let title: String
+    public let titleColor: Color?
+    public let titlePosition: FanMenuButtonTitlePosition
     
-    public init(id: String, image: String, color: Color) {
+    public init(id: String,
+                image: UIImage?,
+                color: Color,
+                title: String = "",
+                titleColor: Color? = .none,
+                titlePosition: FanMenuButtonTitlePosition = .bottom) {
         self.id = id
         self.image = image
         self.color = color
+        self.title = title
+        self.titleColor = titleColor
+        self.titlePosition = titlePosition
+    }
+
+    public init(id: String,
+                image: String,
+                color: Color,
+                title: String = "",
+                titleColor: Color? = .none,
+                titlePosition: FanMenuButtonTitlePosition = .bottom) {
+        self.init(id: id,
+                  image: UIImage(named: image),
+                  color: color,
+                  title: title,
+                  titleColor: titleColor,
+                  titlePosition: titlePosition)
     }
 }
 
@@ -62,6 +94,12 @@ public class FanMenu: MacawView {
             updateNode()
         }
     }
+
+    public var buttonsTitleIndent: Double = 8.0 {
+        didSet {
+            updateNode()
+        }
+    }
     
     public var onItemWillClick: ((_ button: FanMenuButton) -> ())?
     public var onItemDidClick: ((_ button: FanMenuButton) -> ())?
@@ -86,7 +124,7 @@ public class FanMenu: MacawView {
     }
     
     public func updateNode() {
-        guard let _ = button else {
+        guard button != nil else {
             self.node = Group()
             self.scene = .none
             return
@@ -130,9 +168,9 @@ class FanMenuScene {
         )
         
         buttonNode = [menuCircle].group()
-        if !button.image.isEmpty, let uiImage = UIImage(named: button.image) {
+        if let uiImage = button.image {
             menuIcon = Image(
-                src: button.image,
+                image: uiImage,
                 place: Transform.move(
                     dx: -Double(uiImage.size.width) / 2,
                     dy: -Double(uiImage.size.height) / 2
@@ -145,7 +183,7 @@ class FanMenuScene {
         
         buttonsNode = fanMenu.items.map {
             return FanMenuScene.createFanButtonNode(button: $0, fanMenu: fanMenu)
-        }.group()
+            }.group()
         
         
         backgroundCircle = Shape(
@@ -160,7 +198,7 @@ class FanMenuScene {
         
         node = [backgroundCircle, buttonsNode, buttonNode].group()
         
-        buttonNode.onTouchPressed { _ in
+        buttonNode.onTouchPressed { [unowned self] _ in
             if let animationValue = self.animation {
                 if animationValue.state() != .paused {
                     return
@@ -177,8 +215,8 @@ class FanMenuScene {
         if let button = fanMenu.button {
             self.fanMenu.onItemWillClick?(button)
             
-            self.updateState(open: open) {
-                self.fanMenu.onItemDidClick?(button)
+            self.updateState(open: open) { [weak self] in
+                self?.fanMenu.onItemDidClick?(button)
             }
         }
     }
@@ -204,8 +242,8 @@ class FanMenuScene {
                 node.placeVar.animation(
                     to: transform,
                     during: fanMenu.duration
-                ).easing(Easing.easeOut)
-            ].combine()
+                    ).easing(Easing.easeOut)
+                ].combine()
             
             let delay = fanMenu.delay * Double(index)
             if delay == 0.0 {
@@ -215,7 +253,7 @@ class FanMenuScene {
             let filterOpacity = isOpen ? 0.0 : 1.0
             let fillerAnimation = node.opacityVar.animation(from: filterOpacity, to: filterOpacity, during: delay)
             return [fillerAnimation, mainAnimation].sequence()
-        }.combine()
+            }.combine()
         
         // stub
         let buttonAnimation = self.buttonNode.opacityVar.animation(
@@ -238,27 +276,60 @@ class FanMenuScene {
                 fill: button.color
             )
         ]
-        if !button.image.isEmpty, let uiImage = UIImage(named: button.image) {
-            let w = UIScreen.main.bounds.width
-            let h = UIScreen.main.bounds.height
+        if let uiImage = button.image {
             let image = Image(
-                src: button.image,
-                w: Int(w / 8),
-                h: Int(h / 8),
+                image: uiImage,
                 place: Transform.move(
-                    dx: -Double(fanMenu.radius) / 2,
-                    dy: -Double(fanMenu.radius) / 2
-//                    dx: -Double(uiImage.size.width) / 2,
-//                    dy: -Double(uiImage.size.height) / 2
+                    dx: -Double(uiImage.size.width) / 2,
+                    dy: -Double(uiImage.size.height) / 2
                 )
             )
-            
+
+            if !button.title.isEmpty {
+
+                let place: Transform
+
+                let text = Text(text: button.title)
+
+                switch button.titlePosition {
+                case .right:
+                    place = Transform.move(
+                        dx: Double(uiImage.size.width) + fanMenu.buttonsTitleIndent,
+                        dy: -Double(uiImage.size.height) / 2
+                    )
+                case .left:
+                    place = Transform.move(
+                        dx: -Double(uiImage.size.width) - fanMenu.buttonsTitleIndent - text.bounds.w,
+                        dy: -Double(uiImage.size.height) / 2
+                    )
+                case .bottom:
+                    place = Transform.move(
+                        dx: -Double(uiImage.size.width) / 2,
+                        dy: Double(uiImage.size.height) + fanMenu.buttonsTitleIndent
+                    )
+                case .top:
+                    place = Transform.move(
+                        dx: -Double(uiImage.size.width) / 2,
+                        dy: -Double(uiImage.size.height) - fanMenu.buttonsTitleIndent - text.bounds.h
+                    )
+                }
+
+                if let textColor = button.titleColor {
+                    text.fill = textColor
+                }
+
+                text.place = place
+
+                contents.append(text)
+            }
+
             contents.append(image)
         }
+
         let node = Group(contents: contents)
         node.opacity = 0.0
         
-        node.onTouchPressed { _ in
+        node.onTouchPressed { [unowned fanMenu] _ in
             fanMenu.onItemWillClick?(button)
             
             fanMenu.scene?.updateState(open: false) {

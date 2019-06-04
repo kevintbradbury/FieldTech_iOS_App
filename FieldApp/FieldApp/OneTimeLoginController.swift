@@ -55,7 +55,7 @@ class OneTimeLoginController: UIViewController {
         fetchEmployee(employeeId: employeeId) { success in
             self.completeProgress(activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator)
             
-            if success == true && self.userInfo != nil && self.userAddressInfo != nil {
+            if success == true && self.userInfo != nil {
                 guard let unwrappedUsrAndPass = self.userNpass else { return }
                 
                 UsernameAndPassword.saveIdUserAndPasswd(userNpass: unwrappedUsrAndPass, employeeId: id) { userNpass in
@@ -87,8 +87,8 @@ class OneTimeLoginController: UIViewController {
         let url = URL(string: APICalls.host + route)!
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         
+        request.timeoutInterval = 90
         request.httpMethod = "GET"
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
         
         APICalls.getFIRidToken() { firebaseIDtoken in
             request.addValue(firebaseIDtoken, forHTTPHeaderField: "Authorization")
@@ -99,9 +99,7 @@ class OneTimeLoginController: UIViewController {
                 if json["error"] != nil {
                     callback(false); return
                 }
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json),
-                    let dictionary = json["addressInfo"] as? NSDictionary,
-                    let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                         
                         print("failed to parse UserData from json: \(json)");
                         self.completeProgress(activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator)
@@ -111,41 +109,11 @@ class OneTimeLoginController: UIViewController {
                         return
                 }
                 self.userInfo = user
-                self.userAddressInfo = addressInfo
                 callback(true)
             }
         }
     }
     
-//    func saveIdUserAndPasswd(userNpass: UsernameAndPassword, employeeId: String) {
-//        let encoder = PropertyListEncoder()
-//        encoder.outputFormat = .xml
-//
-//        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("UsernameAndPassword.plist")
-//
-//        do {
-//            let data = try encoder.encode(userNpass)
-//            try data.write(to: path)
-//
-//            UserDefaults.standard.set(employeeId, forKey: "employeeID")
-//            getUsernmAndPasswd(path: path)
-//        } catch {
-//            showAlert(withTitle: "Error", message: "Error ecoding usr n pass w/ err: \(error).")
-//        }
-//    }
-//
-//    func getUsernmAndPasswd(path: URL) {
-//
-//        do {
-//            guard let data = try? Data(contentsOf: path) else { return }
-//            let decoder = PropertyListDecoder()
-//            guard let usrNpass = try? decoder.decode(UsernameAndPassword.self, from: data) else { return }
-//
-//            showAlert(withTitle: "Confirmed", message: "Username: \(usrNpass.username) and Password Confirmed.")
-//        } catch {
-//            showAlert(withTitle: "Error", message: "Couldn't find saved username or password.")
-//        }
-//    }
 }
 
 

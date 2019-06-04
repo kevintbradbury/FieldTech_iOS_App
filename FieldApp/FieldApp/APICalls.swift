@@ -299,6 +299,7 @@ extension APICalls {
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("close", forHTTPHeaderField: "Connection")
         
         APICalls.getFIRidToken() { firebaseIDtoken in
             
@@ -318,6 +319,7 @@ extension APICalls {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if error != nil {
                 print("Error in route: \(route) \n \(String(describing: error))")
+                callback(["error": error])
                 return
             }
             guard let verifiedData = data as? Data,

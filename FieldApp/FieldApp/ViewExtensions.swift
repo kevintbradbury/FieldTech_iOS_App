@@ -188,7 +188,7 @@ extension UIViewController {
         
         APICalls.getFIRidToken() { idToken in
             headers.updateValue(idToken, forKey: "Authorization")
-//            headers["Authorization"] = idToken
+            headers.updateValue("close", forKey: "Connection")
             
             Alamofire.upload(
                 multipartFormData: { multipartFormData in

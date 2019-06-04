@@ -35,7 +35,6 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
         Auth.auth().addStateDidChangeListener() { auth, user in
             if user != nil {
                 self.activityIndicator.stopAnimating()
-//                self.performSegue(withIdentifier: "home", sender: nil)
                 self.checkForUsernameNPassword()
             }
         }
