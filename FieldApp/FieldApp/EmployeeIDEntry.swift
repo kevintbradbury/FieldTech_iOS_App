@@ -93,7 +93,6 @@ class EmployeeIDEntry: UIViewController {
     
 }
 
-
 extension EmployeeIDEntry {
     
     func animateOrWrapUp() {
@@ -359,6 +358,7 @@ extension EmployeeIDEntry {
                 self.sendButton.isHidden = true
                 self.enterIDText.isHidden = true
                 self.animatedClockView.isHidden = false
+                self.longHand.isHidden = false
                 
                 if punchedIn == true {
                     self.clockIn.isHidden = true
@@ -376,6 +376,7 @@ extension EmployeeIDEntry {
                 self.clockOut.isHidden = true
                 self.lunchBreakBtn.isHidden = true
                 self.animatedClockView.isHidden = true
+                self.longHand.isHidden = true
             }
         }
     }

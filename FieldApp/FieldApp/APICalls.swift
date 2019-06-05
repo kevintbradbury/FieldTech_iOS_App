@@ -315,8 +315,10 @@ extension APICalls {
     
     func startSession(request: URLRequest, route: String, callback: @escaping (NSDictionary)->()) {
         print("start session w/ req")
+        let config = URLSessionConfiguration.default
+        let session = URLSession.init(configuration: config)
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        let task = session.dataTask(with: request) { data, response, error in
             if error != nil {
                 print("Error in route: \(route) \n \(String(describing: error))")
                 callback(["error": error])

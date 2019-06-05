@@ -90,10 +90,10 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     }
 
     @IBAction func pressdProfBtn(_ sender: Any) { profilePress() }
+    @IBAction func sendJobCheckup(_ sender: Any) { getJobCheckupInfo() }
     @IBAction func stepperValChangd(_ sender: UIStepper) {
         workersToReturnLbl.text = "\(Int(sender.value))"; employeesToReturn = Int(sender.value)
     }
-    @IBAction func sendJobCheckup(_ sender: Any) { getJobCheckupInfo() }
     
 }
 
@@ -214,13 +214,14 @@ extension HomeView {
     func profilePress() {
         profileUpload = true
 
-        if HomeView.employeeInfo != nil && HomeView.addressInfo != nil {
-            guard let name = HomeView.employeeInfo?.userName,
-                let address = HomeView.addressInfo?.address,
-                let city = HomeView.addressInfo?.city,
-                let state = HomeView.addressInfo?.state else { return }
+//        if HomeView.employeeInfo != nil && HomeView.addressInfo != nil {
+//            guard let name = HomeView.employeeInfo?.userName,
+//                let address = HomeView.addressInfo?.address,
+//                let city = HomeView.addressInfo?.city,
+//                let state = HomeView.addressInfo?.state else { return }
 
-            let msg = "\n\(name)\n\(address)\n\(city), \(state) \n \nWould you like to add/update your profile photo? "
+//            let msg = "\n\(name)\n\(address)\n\(city), \(state) \n \nWould you like to add/update your profile photo? "
+            let msg = "Would you like to add/update your profile photo? "
             let paraStyle = NSMutableParagraphStyle()
             paraStyle.alignment = NSTextAlignment.left
             let messageText = NSMutableAttributedString(string: msg, attributes: [
@@ -240,7 +241,7 @@ extension HomeView {
             alert.addAction(confirm)
             alert.addAction(cancel)
             self.present(alert, animated: true, completion: nil)
-        }
+//        }
     }
 
     func setUpHomeBtn() {
@@ -389,9 +390,8 @@ extension HomeView {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 self.inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
 
-                fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo in
+                fetchEmployee(employeeId: Int(employeeID)!) { user in
                     HomeView.employeeInfo = user
-                    HomeView.addressInfo = addressInfo
                     self.checkPunchStatus()
                 }
             } else { completedProgress() }
@@ -411,15 +411,14 @@ extension HomeView {
 
 extension HomeView {
 
-    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
         let route = "employee/" + String(employeeId)
         
         APICalls().setupRequest(route: route, method: "GET") { request in
             APICalls().startSession(request: request, route: route) { json in
                 
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json),
-                    let dictionary = json["addressInfo"] as? NSDictionary,
-                    let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
+                guard let user = UserData.UserInfo.fromJSON(dictionary: json)
+                    else {
                         print("failed to parse UserData from json\(json)");
                         self.completedProgress()
                         
@@ -427,7 +426,7 @@ extension HomeView {
                         self.handleResponseType(responseType: resMsg)
                         return
                 }
-                callback(user, addressInfo)
+                callback(user)
             }
         }
     }
@@ -561,7 +560,7 @@ extension HomeView {
             guard let employeeID = UserDefaults.standard.string(forKey: "employeeID"),
             let id = Int(employeeID) else { return }
             
-            fetchEmployee(employeeId: id) { userInfo, userAddress in
+            fetchEmployee(employeeId: id) { userInfo in
                 HomeView.employeeInfo = userInfo
                 self.checkPunchStatus()
             }
