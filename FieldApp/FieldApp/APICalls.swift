@@ -29,8 +29,8 @@ class APICalls {
         }
         
         if let resourceFileDIctionaryContent = resourceDictionary {
-            APICalls.host = resourceFileDIctionaryContent["TEST_SERVER"] as? String ?? ""
-//            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
+//            APICalls.host = resourceFileDIctionaryContent["TEST_SERVER"] as? String ?? ""
+            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
         }
     }
     
@@ -107,7 +107,9 @@ class APICalls {
             
             self.startSession(request: requestWithData, route: route) { json in
                 guard let successfulPunch = json["success"] as? Bool else {
-                    print("APICalls > sendCoordinates > successfulPunch failed"); return
+                    print("APICalls > sendCoordinates > successfulPunch failed")
+                    callback(false, "", "", [0.0], false, "APICalls > sendCoordinates > successfulPunch failed")
+                    return
                 }
 
                 if let err = json["error"] as? String {

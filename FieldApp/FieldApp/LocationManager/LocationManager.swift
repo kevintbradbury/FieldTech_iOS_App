@@ -127,17 +127,14 @@ extension UserLocation {
         let employeeID = UserDefaults.standard.integer(forKey: "employeeID")
         let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        
-        // get role here
         let role: String
         
         APICalls().sendCoordinates(
             employee: userInfo, location: locationArray, autoClockOut: true, role: "-", po: "", override: false
         ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             
-            self.notifyClockOut(identifier: region.identifier)
-            
             if clockedIn == false && success == true {
+                self.notifyClockOut(identifier: region.identifier)
                 UserLocation.instance.stopMonitoring()
                 HomeView.employeeInfo = nil
                 NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : userInfo])
@@ -154,13 +151,21 @@ extension UserLocation {
         notificationContent.categoryIdentifier = "leftJobSite"
         notificationContent.threadIdentifier = "leftJobSite"
         
-        let thirtySecs = TimeInterval(60) // 60 for production
-        let triggerTwo = UNTimeIntervalNotificationTrigger(timeInterval: thirtySecs, repeats: true)
-        let requestTwo = UNNotificationRequest(identifier: "leftJobSite", content: notificationContent, trigger: triggerTwo)
+        var clockedOutNotifs = [UNNotificationRequest]()
         
-        UNUserNotificationCenter.current().add(requestTwo) { (error) in
-            if error != nil {
-                print("Error setting notification: \(error)")
+        for i in 1...6 {
+            let fiveMin = TimeInterval(60 * 5 * i) // 60*5*i for production
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: fiveMin, repeats: false)
+            let clockedOutNotif = UNNotificationRequest(identifier: "leftJobSite\(i)", content: notificationContent, trigger: trigger)
+            
+            clockedOutNotifs.append(clockedOutNotif)
+        }
+        
+        for notf in clockedOutNotifs {
+            UNUserNotificationCenter.current().add(notf) { (error) in
+                if error != nil {
+                    print("Error setting notification: \(error)")
+                }
             }
         }
     }

@@ -134,9 +134,11 @@ extension UIViewController {
             activityBckgd.addSubview(progressLabel)
             
         } else {
-            for subVw in activityBckgd.subviews {
-                if subVw.accessibilityIdentifier == "progressLabel" {
-                    activityBckgd.willRemoveSubview(subVw)
+            OperationQueue.main.addOperation {
+                for subVw in activityBckgd.subviews {
+                    if subVw.accessibilityIdentifier == "progressLabel" {
+                        activityBckgd.willRemoveSubview(subVw)
+                    }
                 }
             }
         }

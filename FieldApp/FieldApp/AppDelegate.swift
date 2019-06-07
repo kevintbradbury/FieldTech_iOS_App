@@ -117,6 +117,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("app did become active")
+        removeAutoClockNotif(center: UNUserNotificationCenter.current())
         
         if homeViewActive != nil  && didEnterBackground == true {
             HomeView.employeeInfo = nil
@@ -206,14 +207,34 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             if state == UIApplication.State.active {
                 OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
             }
-            
+
         case "leftJobSite":
-            HomeView.leftJobSite = true
-            center.removeDeliveredNotifications(withIdentifiers: [category])
-            center.removePendingNotificationRequests(withIdentifiers: [category])
+            removeAutoClockNotif(center: center)
+        case "leftJobSite1":
+            removeAutoClockNotif(center: center)
+        case "leftJobSite2":
+            removeAutoClockNotif(center: center)
+        case "leftJobSite3":
+            removeAutoClockNotif(center: center)
+        case "leftJobSite4":
+           removeAutoClockNotif(center: center)
+        case "leftJobSite5":
+            removeAutoClockNotif(center: center)
+        case "leftJobSite6":
+            removeAutoClockNotif(center: center)
             
         default:
             print("Received notification w/ category: \(category)")
+        }
+    }
+    
+    func removeAutoClockNotif(center: UNUserNotificationCenter) {
+        HomeView.leftJobSite = true
+        
+        for i in 1...6 {
+            let category = "leftJobSite\(i)"
+            center.removeDeliveredNotifications(withIdentifiers: [category])
+            center.removePendingNotificationRequests(withIdentifiers: [category])
         }
     }
 }

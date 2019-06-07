@@ -19,6 +19,7 @@ pod "EPSignature"
 pod 'Macaw'
 pod 'FanMenu'
 pod 'SwiftGifOrigin'
+pod 'MLPAutoCompleteTextField', '~> 1.5'
 # pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3' ## must be Swift 4+
 
 
