@@ -57,6 +57,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     safetyQs: [SafetyQuestion] = [],
     scheduleReadyNotif: Bool?,
     todaysJob = Job(),
+    todaysPO: String?,
     vehicleCkListNotif: Bool?
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
@@ -453,9 +454,7 @@ extension HomeView {
     }
 
     func completedProgress() {
-        main.addOperation {
-            self.jobCheckUpView.isHidden = true
-        }
+        main.addOperation { self.jobCheckUpView.isHidden = true }
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
         
         if let checklistForVehicle = HomeView.vehicleCkListNotif {
@@ -582,7 +581,8 @@ extension HomeView {
     }
 
     func checkSuccess(responseType: [String: String]) {
-        if responseType["success"] == "true" { completedProgress() }
+        completedProgress()
+        if responseType["success"] == "true" { return }
         else if let msg = responseType["msg"] { showAlert(withTitle: "Error", message: msg) }
         else if let error = responseType["error"] { failedUpload(error: error) }
     }
@@ -691,24 +691,62 @@ extension HomeView: ImagePickerDelegate {
             }
         } else if imageAssets.count < 11 {
             picker.dismiss(animated: true) {
-                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
-
 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                     let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                    self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
                     
                     self.uploadJobImages(images: self.imageAssets, jobNumber: po, employee: emply) { responseType in
                         self.checkSuccess(responseType: responseType)
                     }
+                } else if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+                    self.promptForPOnum(employee: emply)
                 } else {
-                    self.uploadJobImages(images: self.imageAssets, jobNumber: "---", employee: "---") { responseType in
-                        self.checkSuccess(responseType: responseType)
-                    }
+                    self.promptForPOnum(employee: nil)
                 }
             }
         } else {
             picker.showAlert(withTitle: "Max Photos", message: "You can only upload a maximum of 10 photos each time.")
         }
+    }
+    
+    func promptForPOnum(employee: String?) {
+        let alert = UIAlertController(title: "Enter PO", message: "No PO number found", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Submit", style: .default) { action in
+            
+            if let txtFields = alert.textFields,
+                let poNumber = txtFields[0].text {
+                var empl = ""
+                
+                if let safeEmployee = employee {
+                    empl = safeEmployee
+                } else if let safeEmployee = txtFields[1].text {
+                    empl = safeEmployee
+                }
+                
+                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
+                
+                self.uploadJobImages(images: self.imageAssets, jobNumber: poNumber, employee: empl) { responseType in
+                    self.checkSuccess(responseType: responseType)
+                }
+                
+            } else {
+                self.showAlert(withTitle: "No PO", message: "No PO entered.")
+                self.main.addOperation { self.picker.dismiss(animated: true, completion: nil) }
+                return
+            }
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alert.addTextField() { textField in textField.placeholder = "PO Number" }
+        if employee == nil {
+            alert.addTextField() { textField in textField.placeholder = "Employee Name" }
+        }
+        
+        alert.addAction(action)
+        alert.addAction(cancel)
+        
+        self.present(alert, animated: true, completion: nil)
     }
 
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {

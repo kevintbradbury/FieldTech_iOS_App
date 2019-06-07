@@ -173,77 +173,6 @@ extension UIViewController {
         return unwrappedLb
     }
     
-    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping ([String: String]) -> ()) {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        let url = "\(APICalls.host)\(route)"
-        var headers: HTTPHeaders = [
-            "Content-type" : "multipart/form-data",
-            headers[0] : headers[1]
-        ]
-        UsernameAndPassword.getUsernmAndPasswd() { userNpass in
-            headers.updateValue(userNpass.username, forKey: "username")
-            headers.updateValue(userNpass.password, forKey: "password")
-        }
-        var progressLabel = getProgressLabel()
-        
-        APICalls.getFIRidToken() { idToken in
-            headers.updateValue(idToken, forKey: "Authorization")
-            headers.updateValue("close", forKey: "Connection")
-            
-            Alamofire.upload(
-                multipartFormData: { multipartFormData in
-                    multipartFormData.append(formBody, withName: uploadType)
-                    var i = 0
-                    for img in images {
-                        guard let imageData = img.jpegData(compressionQuality: 1) else { return }
-                        let nm = "\(uploadType)_\(i)"
-                        
-                        multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")
-                        i += 1
-                    }
-            },
-                usingThreshold: UInt64.init(),
-                to: url,
-                method: .post,
-                headers: headers,
-                encodingCompletion: { encodingResult in
-                    switch encodingResult {
-                    case .success(let upload, _, _):
-                        upload.uploadProgress { progress in
-                            let percent = Float(progress.fractionCompleted * 100).rounded()
-                            progressLabel.setProgress(percent, animated: true)
-                        }
-                        upload.validate()
-                        upload.responseString { response in
-                            
-                            guard response.result.isSuccess else {
-                                guard let err = response.result.error as? String else { return }
-                                print("error while uploading file: \(err)");
-                                APICalls.succeedOrFailUpload(msg: "Error occured: \(err) with upload: ", uploadType: uploadType, success: false)
-                                callback(["error" : err]); return
-                            }
-                            guard let msg = response.result.value,
-                                let data: Data = msg.data(using: String.Encoding.utf16, allowLossyConversion: true),
-                                let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
-                                    APICalls.succeedOrFailUpload(msg: " uploaded successfully.", uploadType: uploadType, success: true);
-                                    callback(["success": "true"]); return
-                            }
-                            
-                            APICalls().handleResponseMsgOrErr(json: json, uploadType: uploadType) { responseType in
-                                callback(responseType)
-                            }
-                        }
-                        
-                    case .failure(let encodingError):
-                        print(encodingError);
-                        APICalls.succeedOrFailUpload(msg: "Failed to upload: ", uploadType: uploadType, success: false)
-                        callback(["error": encodingError.localizedDescription])
-                    }
-            }
-            );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        }
-    }
-    
     func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping ([String : String]) -> () ) {
         let route = "job/\(jobNumber)/upload"
         let headers = ["employee", employee]
@@ -252,6 +181,79 @@ extension UIViewController {
             callback(responseType)
         }
     }
+    
+    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping ([String: String]) -> ()) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        let url = "\(APICalls.host)\(route)"
+        var headers: HTTPHeaders = [
+            "Content-type" : "multipart/form-data", headers[0] : headers[1]
+        ]
+        UsernameAndPassword.getUsernmAndPasswd() { userNpass in
+            headers.updateValue(userNpass.username, forKey: "username")
+            headers.updateValue(userNpass.password, forKey: "password")
+
+            APICalls.getFIRidToken() { idToken in
+                headers.updateValue(idToken, forKey: "Authorization")
+                headers.updateValue("close", forKey: "Connection")
+                
+                Alamofire.upload(
+                    multipartFormData: { multipartFormData in
+                        multipartFormData.append(formBody, withName: uploadType)
+                        var i = 0
+                        for img in images {
+                            guard let imageData = img.jpegData(compressionQuality: 1) else { return }
+                            let nm = "\(uploadType)_\(i)"
+                            
+                            multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")
+                            i += 1
+                        }
+                },
+                    usingThreshold: UInt64.init(), to: url, method: .post, headers: headers,
+                    encodingCompletion: { encodingResult in
+                        switch encodingResult {
+                        case .success(let upload, _, _):
+                            var progressLabel = self.getProgressLabel()
+                            upload.uploadProgress { progress in
+                                let percent = Float(progress.fractionCompleted * 100).rounded()
+                                progressLabel.setProgress(percent, animated: true)
+                            }
+                            upload.validate()
+                            upload.responseString { response in
+                                
+                                guard response.result.isSuccess else {
+                                    guard let err = response.error as? String else {
+                                        APICalls.succeedOrFailUpload(msg: "Error occured with upload.", uploadType: uploadType, success: false)
+                                        callback(["error" : response.result.description]); return
+                                    }
+                                    print("error while uploading file: \(err)");
+                                    APICalls.succeedOrFailUpload(msg: "Error occured: \(err) with upload: ", uploadType: uploadType, success: false)
+                                    callback(["error" : err]); return
+                                }
+                                guard let msg = response.result.value,
+                                    let data: Data = msg.data(using: String.Encoding.utf16, allowLossyConversion: true),
+                                    let json = (try? JSONSerialization.jsonObject(with: data, options: [])) as? NSDictionary else {
+                                        APICalls.succeedOrFailUpload(msg: " uploaded successfully.", uploadType: uploadType, success: true);
+                                        callback(["success": "true"]); return
+                                }
+                                APICalls().handleResponseMsgOrErr(json: json, uploadType: uploadType) { responseType in
+                                    callback(responseType)
+                                }
+                            }
+                        case .failure(let encodingError):
+                            print(encodingError);
+                            APICalls.succeedOrFailUpload(msg: "Failed to upload: ", uploadType: uploadType, success: false)
+                            callback(["error": encodingError.localizedDescription]); return
+                            
+                        default:
+                            APICalls.succeedOrFailUpload(msg: "Failed with error.", uploadType: uploadType, success: false)
+                            callback(["error": "Unknown error"]); return
+                        }
+                }
+                );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            }
+        }
+    }
+    
 }
 
 

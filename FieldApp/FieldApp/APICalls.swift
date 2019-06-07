@@ -29,7 +29,8 @@ class APICalls {
         }
         
         if let resourceFileDIctionaryContent = resourceDictionary {
-            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
+            APICalls.host = resourceFileDIctionaryContent["TEST_SERVER"] as? String ?? ""
+//            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
         }
     }
     
@@ -181,6 +182,7 @@ class APICalls {
                     let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
                         print("failed to parse UserData"); return
                 }
+                UserDefaults.standard.set(user.userName, forKey: "employeeName")
                 callback(user, addressInfo)
             }
         }

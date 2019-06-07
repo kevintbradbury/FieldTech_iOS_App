@@ -16,7 +16,7 @@ class ChangeOrdersView: UIViewController {
     
     @IBOutlet weak var formType: UILabel!
     @IBOutlet weak var jobNameLabel: UILabel!
-    @IBOutlet weak var poNumberLabel: UILabel!
+    @IBOutlet var poNumberField: UITextField!
     @IBOutlet weak var requestedByLabel: UILabel!
     @IBOutlet var locationLabel: UILabel!
     @IBOutlet var materialLabel: UILabel!
@@ -80,13 +80,12 @@ class ChangeOrdersView: UIViewController {
                 
                 self.present(self.picker, animated: true)
             }
-
     }
     
     func setViews() {
         formType.text = formTypeVal
         requestedByLabel.text = employeeName
-        poNumberLabel.text = todaysJobPO
+        
         activityIndicator.hidesWhenStopped = true
         activityIndicator.isHidden = true
         activityBckgrd.isHidden = true
@@ -118,12 +117,13 @@ class ChangeOrdersView: UIViewController {
     func getTextVals(callback: @escaping (FieldActions.ChangeOrders) -> ()) {
         let secsFrom1970 = datePickerFields.date.timeIntervalSince1970
         guard let employee = employeeName,
-            let po = todaysJobPO,
+            let po = poNumberField.text,
             let location = locationText.text,
             let descrip = descripText.text else {
                 showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
                 return
         }
+        todaysJob = po
         var changeOrderObj = FieldActions.ChangeOrders(
             formType: formTypeVal,
             jobName: "",
@@ -161,21 +161,6 @@ class ChangeOrdersView: UIViewController {
             dismiss(animated: true, completion: nil)
             showAlert(withTitle: "Error", message: "Couldn't find a Job name for this form.")
         }
-//        else if let employeeJobs = HomeView.employeeInfo?.employeeJobs {
-//            for oneJob in employeeJobs {
-//                if oneJob.poNumber == todaysJobPO {
-//                    guard let jbName = oneJob.jobName as? String else { return }
-//                    UserDefaults.standard.set(jbName, forKey: "todaysJobName")
-//                    HomeView.todaysJob.jobName = jbName
-//                    todaysJob = jbName
-//                }
-//            }
-//            if todaysJob != nil && todaysJob != "" {
-//                changeOrderObj.jobName = todaysJob
-//                callback(changeOrderObj)
-//            }
-//        }
-        
     }
     
     func generateToolForm(co: FieldActions.ChangeOrders) {
@@ -289,12 +274,13 @@ extension ChangeOrdersView: ImagePickerDelegate {
             let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             
             checkFormType(images: images, po: po, employee: emply)
-        } else if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-            checkFormType(images: images, po: "---", employee: emply)
+        } else if let emply =  UserDefaults.standard.string(forKey: "employeeName"),
+            let poNum = todaysJob {
+            checkFormType(images: images, po: poNum, employee: emply)
         
         } else {
             completeProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
-            showAlert(withTitle: "Error", message: "An employee name is required for COs, Tool Rentals, & Supplies Reqs.")
+            showAlert(withTitle: "Error", message: "An employee name or PO number is required for COs, Tool Rentals, & Supplies Reqs.")
         };
     }
     
@@ -320,11 +306,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
             do { data = try jsonEncoder.encode(srForm) }
             catch { print("error converting \(formTypeVal) to DATA: \(error)"); return }
         }
-        // data = APICalls().generateTOOLstring(toolForm: tlRent)
-        // data = APICalls().generateCOstring(co: co)
-        // data = APICalls().generateSRFstring(srForm: srForm)
         
-//        APICalls().alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
         alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
             self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType)
