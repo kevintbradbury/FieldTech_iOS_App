@@ -3,24 +3,26 @@
     {
       "orientation" : "portrait",
       "idiom" : "iphone",
+      "minimum-system-version" : "7.0",
+      "subtype" : "retina4",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "iphone",
+      "subtype" : "retina4",
       "filename" : "millwork_brothers_large-1.jpg",
       "minimum-system-version" : "7.0",
-      "subtype" : "retina4",
+      "orientation" : "portrait",
+      "unassigned" : true,
       "scale" : "2x"
     },
     {
-      "orientation" : "portrait",
       "idiom" : "iphone",
+      "subtype" : "retina4",
       "filename" : "millwork_brothers_large.jpg",
       "minimum-system-version" : "7.0",
-      "subtype" : "retina4",
-      "scale" : "2x"
-    },
-    {
       "orientation" : "portrait",
-      "idiom" : "iphone",
-      "minimum-system-version" : "7.0",
-      "subtype" : "retina4",
+      "unassigned" : true,
       "scale" : "2x"
     }
   ],

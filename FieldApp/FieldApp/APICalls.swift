@@ -29,22 +29,19 @@ class APICalls {
         }
         
         if let resourceFileDIctionaryContent = resourceDictionary {
-//            APICalls.host = resourceFileDIctionaryContent["TEST_SERVER"] as? String ?? ""
-            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
+            APICalls.host = resourceFileDIctionaryContent["TEST_SERVER"] as? String ?? ""
+//            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
         }
     }
     
     func checkForToken(employeeID: String, callback: @escaping (Bool)->() ) {
         let route = "checkForToken/\(employeeID)"
+        var hasToken = false
         
         setupRequest(route: route, method: "GET") { request in
-            
             self.startSession(request: request, route: route) { json in
-
-                guard let hasToken = json["hasToken"] as? Bool else {
-                    print("APICalls > checkForToken > hasToken error");
-                    return
-                }
+            
+                if let yesHasToken = json["hasToken"] as? Bool { hasToken = yesHasToken }
                 callback(hasToken)
             }
         }
@@ -62,7 +59,6 @@ class APICalls {
                     print("Error in updateToken: \(error)"); return
                 } else {
                     print("updateToken successfully"); return
-                    // Or check response from Server
                 }
             }; task.resume()
         }
@@ -73,16 +69,13 @@ class APICalls {
         
         setupRequest(route: route, method: "GET") { request in
             self.startSession(request: request, route: route) { json in
-            
-                guard let jobs = json["employeeJobs"] as? NSArray,
-                    let tORS = json["timeOffReqs"] as? NSArray,
-                    let hldys = json["holidays"] as? NSArray else {
-                        print("APICalls > fetchJobInfo > json parse: employeeJobs or timeOffReqs or holidays error"); return
-                }
+                var holidays: [Holiday] = [],
+                employeeJobs: [Job.UserJob] = [],
+                timeOffReqs: [TimeOffReq] = []
                 
-                let employeeJobs: [Job.UserJob] = self.parseJobs(from: jobs),
-                timeOffReqs: [TimeOffReq] = self.parseTORS(from: tORS),
-                holidays: [Holiday] = self.parseHolidays(from: hldys)
+                if let hldys = json["holidays"] as? NSArray { holidays = self.parseHolidays(from: hldys) }
+                if let jobs = json["employeeJobs"] as? NSArray { employeeJobs = self.parseJobs(from: jobs) }
+                if let tORS = json["timeOffReqs"] as? NSArray { timeOffReqs = self.parseTORS(from: tORS) }
                 
                 callback(employeeJobs, timeOffReqs, holidays)
             }
@@ -145,14 +138,15 @@ class APICalls {
             var data = Data()
             
             do { data = try self.jsonEncoder.encode(person) }
-            catch { print("Error in justCheckCoordinates: \(error)"); return}
+            catch { print("Error in justCheckCoordinates: \(error)"); callback(false); return }
             
             requestWithData.httpBody = data
             
             self.startSession(request: requestWithData, route: route) { json in
-            
-                    guard let successfulPunch = json["success"] as? Bool else {
-                        print("APICalls > justCheckCoordinates > failed on data or json or successfulPunch"); return
+                
+                guard let successfulPunch = json["success"] as? Bool else {
+                    print("APICalls > justCheckCoordinates > failed on data or json or successfulPunch")
+                    callback(false); return
                 }
                 callback(successfulPunch)
             }

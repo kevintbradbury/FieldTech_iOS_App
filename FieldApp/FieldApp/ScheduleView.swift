@@ -173,6 +173,9 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         
         validCell.addSubview(borderView)
         
+        formatter.dateFormat = "MMMM dd"
+        monthLabel.text = formatter.string(from: cellState.date)
+        
         checkJobsDates(date: cellState.date) { matchingJbs, jobDts, colorInts in
             selectedJobs = matchingJbs
             selectedDates = jobDts
@@ -197,6 +200,7 @@ struct AcceptMoreDays: Encodable {
 }
 
 extension ScheduleView {
+    
     func checkScheduleReady() {
         guard let readyOrNot = ScheduleView.scheduleRdy else {
             return
@@ -396,7 +400,7 @@ extension ScheduleView {
         
         formatter.dateFormat = "yyyy"
         yearLabel.text = formatter.string(from: date)
-        formatter.dateFormat = "MMMM"
+        formatter.dateFormat = "MMMM dd"
         monthLabel.text = formatter.string(from: date)
     }
     
@@ -441,7 +445,7 @@ extension ScheduleView {
             
             formatter.dateFormat = "yyyy"
             yearLabel.text = formatter.string(from: date)
-            formatter.dateFormat = "MMMM"
+            formatter.dateFormat = "MMMM dd"
             monthLabel.text = formatter.string(from: date)
         }
         

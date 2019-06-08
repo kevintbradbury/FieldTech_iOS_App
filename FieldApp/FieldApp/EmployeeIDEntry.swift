@@ -42,7 +42,7 @@ class EmployeeIDEntry: UIViewController {
     let main = OperationQueue.main
     let notificationCenter = UNUserNotificationCenter.current()
     let imgPicker = ImagePickerController()
-    let dataSource = ["---", "Field", "Shop", "Drive Time", "Measurements"]
+    let dataSource = ["Field", "Shop", "Drive Time", "Measurements"]
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -121,11 +121,7 @@ extension EmployeeIDEntry {
     }
     
     public func clockInClockOut() {
-        let anmation = longHand.node.placeVar.animation(angle: -5.25, x: 0, y: 0, during: 1, delay: 0)
-        anmation.cycle().play()
-        
         if role != nil && role != "---" && role != "" {
-            
             if EmployeeIDEntry.foundUser?.employeeID != nil {
                 guard let unwrappedUser = EmployeeIDEntry.foundUser else { return }
                 makePunchCall(user: unwrappedUser)
@@ -145,7 +141,10 @@ extension EmployeeIDEntry {
     func makePunchCall(user: UserData.UserInfo) {
         guard let coordinate = UserLocation.instance.currentCoordinate,
             let unwrappedRole = role else { return }
+        
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        let anmation = longHand.node.placeVar.animation(angle: -5.25, x: 0, y: 0, during: 1, delay: 0)
+        anmation.cycle().play()
         
         APICalls().sendCoordinates(
             employee: user,
@@ -306,7 +305,7 @@ extension EmployeeIDEntry {
     func showPONumEntryWin() {
         let alert = UIAlertController(
             title: "Manual PO Entry",
-            message: "No PO found for this time/date, enter PO number manually?",
+            message: "No PO found for this time/date. \nEnter PO number manually?",
             preferredStyle: .alert
         )
         
@@ -444,9 +443,11 @@ extension EmployeeIDEntry {
     func chooseBreakLength() {
         let actionsheet = UIAlertController(title: "Lunch Break", message: "Choose your break length", preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel) { (action) -> Void in print("chose Cancel") }
-        let chooseThirty = UIAlertAction(title: "30 minute Break", style: UIAlertAction.Style.default) { (action) -> Void in self.goOnLunch(breakLength: 30)
+        let chooseThirty = UIAlertAction(title: "30 Minute Break", style: UIAlertAction.Style.default) { (action) -> Void in
+            self.goOnLunch(breakLength: 30)
         }
-        let chooseSixty = UIAlertAction(title: "60 minute Break", style: UIAlertAction.Style.default) { (action) -> Void in self.goOnLunch(breakLength: 60)
+        let chooseSixty = UIAlertAction(title: "60 Minute Break", style: UIAlertAction.Style.default) { (action) -> Void in
+            self.goOnLunch(breakLength: 60)
         }
         
         actionsheet.addAction(chooseThirty)
@@ -465,10 +466,10 @@ extension EmployeeIDEntry {
         let clockInNOut = UIAlertAction(title: "OK, Clock Me Out", style: .destructive) { (action) -> Void in
             self.clockInClockOut()
         }
-        let reqMaterials = UIAlertAction(title: "WAIT, go request materials", style: .default) { (action) -> Void in
+        let reqMaterials = UIAlertAction(title: "WAIT, Go request materials", style: .default) { (action) -> Void in
             self.performSegue(withIdentifier: "clockTOchange", sender: nil)
         }
-        let takePhotos = UIAlertAction(title: "WAIT, go to camera", style: .default) { (action) -> Void in
+        let takePhotos = UIAlertAction(title: "WAIT, Go to camera", style: .default) { (action) -> Void in
             self.present(self.imgPicker, animated: true, completion: nil)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) -> Void in
@@ -568,12 +569,23 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
         }
     }
     
-    func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return dataSource.count
     }
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return dataSource[row]
+    }
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let pickerLabel = UILabel()
+        
+        pickerLabel.font = UIFont(name: "Helvetica", size: 28)
+        pickerLabel.textAlignment = .center
+        pickerLabel.text = dataSource[row]
+        
+        return pickerLabel
     }
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         role = dataSource[row]

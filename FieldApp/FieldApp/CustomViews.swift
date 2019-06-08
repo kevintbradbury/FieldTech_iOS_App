@@ -45,9 +45,9 @@ public class AnimatedClock: MacawView {
         
         if let clocked = EmployeeIDEntry.foundUser?.punchedIn {
             if clocked == true {
-                clockimg.src = "clockOut"
-            } else {
                 clockimg.src = "clockIn"
+            } else {
+                clockimg.src = "clock_white"
             }
         }
 //        let grp = Group(); grp.contents.append(clockimg)

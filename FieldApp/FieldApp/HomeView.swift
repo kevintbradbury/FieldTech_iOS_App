@@ -39,7 +39,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     ]
     let icons = [
         "hotel_req", "tools", "materials", "form", "vacation",
-        "safety", "camera", "clock", "schedule"
+        "safety", "camera", "clock_blue", "schedule"
     ]
 
     var employeesToReturn = 0
@@ -297,7 +297,7 @@ extension HomeView {
 
     func chooseSegue(image: String) {
         switch image {
-        case "clock":
+        case "clock_blue":
             performSegue(withIdentifier: "clock_in", sender: nil)
         case "schedule":
             performSegue(withIdentifier: "schedule", sender: nil)
