@@ -49,6 +49,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var menuOpen = false
     var profileUpload: Bool?
     var questionAlerts: [UIAlertController] = []
+    
     public static var addressInfo: UserData.AddressInfo?,
     employeeInfo: UserData.UserInfo?,
     jobCheckup: Bool?,
@@ -58,7 +59,9 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     scheduleReadyNotif: Bool?,
     todaysJob = Job(),
     todaysPO: String?,
-    vehicleCkListNotif: Bool?
+    vehicleCkListNotif: Bool?,
+    toolRenewal: String?
+    
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
     }
@@ -382,7 +385,6 @@ extension HomeView {
     }
 
     @objc func checkForUserInfo() {
-
         if HomeView.employeeInfo?.employeeID != nil {
             print("punched in -- \(String(describing: HomeView.employeeInfo!.punchedIn))")
             checkPunchStatus()
@@ -472,6 +474,8 @@ extension HomeView {
                     self.jobCheckUpView.isHidden = false
                 }
             }
+        } else if HomeView.toolRenewal != nil {
+            extendToolRental()
         }
     }
 
@@ -654,6 +658,38 @@ extension HomeView {
 
         self.present(alert, animated: true, completion: nil)
     }
+    
+    func extendToolRental() {
+        let alert = UIAlertController(title: "Extend Tool Rental", message: "How long would you like to extend the rental?", preferredStyle: .alert)
+        let no = UIAlertAction(title: "NO", style: .cancel)
+        let yes = UIAlertAction(title: "YES", style: .default) { action in
+            
+            guard let txtFields = alert.textFields,
+                let duration = txtFields[0].text,
+                let userBrandTool = HomeView.toolRenewal else { return }
+            
+            self.handleRentalExtension(userBrandTool: userBrandTool, duration: duration)
+        }
+        
+        alert.addTextField() { txtField in
+            txtField.placeholder = "Number of days"
+            txtField.keyboardType = .numberPad
+        }
+        
+        alert.addAction(yes)
+        alert.addAction(no)
+        
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    func handleRentalExtension(userBrandTool: String, duration: String) {
+        let split = userBrandTool.components(separatedBy: ", ")
+        let info = FieldActions.ToolRentalExtension(requestedBy: split[0], toolType: split[2], brand: split[1], duration: Int(duration))
+        
+        APICalls().extendRental(toolData: info) { success in
+            
+        }
+    }
 }
 
 extension HomeView: ImagePickerDelegate {
@@ -675,7 +711,7 @@ extension HomeView: ImagePickerDelegate {
                 
                 let route = "employee/\(idNum)/profileUpload",
                 headers = ["employee", emply],
-                info = UserData.AddressInfo(address: "121 main st", city: "Cerritos", state: "CA"),
+                info = UserData.AddressInfo(address: "", city: "", state: ""),
                 jsonEncoder = JSONEncoder()
                 var formBody = Data()
                 

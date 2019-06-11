@@ -336,6 +336,13 @@ class FieldActions {
         let tools: [FieldActions.ToolRental], images: [UIImage]
     }
     
+    struct ToolRentalExtension: Encodable {
+        var requestedBy: String?,
+        toolType: String?,
+        brand: String?,
+        duration: Int?
+    }
+    
     struct  ChangeOrders: Encodable {
         var formType: String?,
         jobName: String?,

@@ -287,6 +287,25 @@ class APICalls {
              cb(verifiedTk)
         }
     }
+    
+    func extendRental(toolData: FieldActions.ToolRentalExtension, cb: @escaping (Bool)-> ()) {
+        let route = "toolRental/extend"
+        var data = Data()
+        
+        do { data = try self.jsonEncoder.encode(toolData) }
+        catch let err {
+            print("Erro in extendRental, w/ err: \(err)"); cb(false)
+        }
+        
+        setupRequest(route: route, method: "POST") { request in
+            var req = request
+            req.httpBody = data
+            
+            self.startSession(request: req, route: route) { json in
+                
+            }
+        }
+    }
 }
 
 

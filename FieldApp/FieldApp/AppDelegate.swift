@@ -153,14 +153,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func checkToken(token: String) {
         guard let id = UserDefaults.standard.string(forKey: "employeeID") else {
-            print("no saved id"); return
+            print("no saved employeeID"); return
         }
-        APICalls().checkForToken(employeeID: id) { hasToken in
-            if hasToken != true {
-                let route = "employee/token/\(id)"
-                APICalls().updateToken(token: token, route: route)
-            }
-        }
+        let route = "employee/token/\(id)"
+        APICalls().updateToken(token: token, route: route)
     }
 }
 
@@ -168,9 +164,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     // If App is currently open
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        print("AppDelegate > willPresent > notification: \(notification.request.identifier)")
-        handleNotif(category: notification.request.identifier, center: center)
         
+        handleNotif(category: notification.request.identifier, center: center, toolRenewal: notification.request.content.body)
         completionHandler(.alert)
     }
     
@@ -178,16 +173,14 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-            let cat_ = response.notification.request.identifier
             let category = response.notification.request.content.categoryIdentifier
-            
-            handleNotif(category: category, center: center)
+            handleNotif(category: category, center: center, toolRenewal: response.notification.request.content.body)
             completionHandler()
         }
     }
     
-    func handleNotif(category: String, center: UNUserNotificationCenter) {
-        print("UNUserNotificationCenter willPresent or didReceive category: \(category)")
+    func handleNotif(category: String, center: UNUserNotificationCenter, toolRenewal: String?) {
+        print("notifCtr willPresent/didReceive category: \(category)")
         let state = UIApplication.shared.applicationState
         guard let vc = self.homeViewActive else { return }
         
@@ -208,6 +201,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 OperationQueue.main.addOperation { vc.jobCheckUpView.isHidden = false }
             }
 
+        case "extendRental":
+            guard let userBrandToolDate = toolRenewal else { return }
+            HomeView.toolRenewal = userBrandToolDate
+            if state == UIApplication.State.active {
+                OperationQueue.main.addOperation {  vc.extendToolRental() }
+            }
+            
         case "leftJobSite":
             removeAutoClockNotif(center: center)
         case "leftJobSite1":
@@ -238,6 +238,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 }
+
+
 
 
 

@@ -162,6 +162,8 @@ extension EmployeeIDEntry {
     
     func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String) {
         if success == true {
+            UserDefaults.standard.set(poNumber, forKey: "todaysJobPO")
+
             print("punched in / out: \(String(describing: EmployeeIDEntry.foundUser?.punchedIn))")
             self.todaysJob.jobName = currentJob
             self.todaysJob.poNumber = poNumber
@@ -280,7 +282,7 @@ extension EmployeeIDEntry {
         }
     }
     
-    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> ()){
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo) -> () ) {
         let route = "employee/\(String(employeeId))"
         
         APICalls().setupRequest(route: route, method: "GET") { request  in
@@ -558,6 +560,8 @@ extension EmployeeIDEntry: ImagePickerDelegate {
 extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     
     func setRoles() {
+        role = dataSource[0]
+        
         if let verifiedRole = role as? String {
             if verifiedRole != nil && verifiedRole != "" {
                 guard let index = dataSource.firstIndex(where: { (obj) -> Bool in
@@ -565,6 +569,7 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
                 }) else  { return }
                 
                 roleSelection.selectRow(index, inComponent: 0, animated: true)
+                role = dataSource[index]
             }
         }
     }
