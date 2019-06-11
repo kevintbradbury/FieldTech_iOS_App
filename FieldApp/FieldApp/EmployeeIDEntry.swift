@@ -507,7 +507,7 @@ extension EmployeeIDEntry {
     
     func checkSuccess(responseType: [String: String]) {
         completedProgress()
-        self.handleResponseType(responseType: responseType)
+        self.handleResponseType(responseType: responseType, formType: "Image(s) Upload")
     }
     
     func checkAppDelANDnotif() {

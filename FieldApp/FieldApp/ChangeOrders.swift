@@ -83,6 +83,7 @@ class ChangeOrdersView: UIViewController {
     }
     
     func setViews() {
+        descripText.text = ""
         formType.text = formTypeVal
         requestedByLabel.text = employeeName
         
@@ -308,8 +309,9 @@ extension ChangeOrdersView: ImagePickerDelegate {
         }
         
         alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
+            let resType = responseType
             self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
-            self.handleResponseType(responseType: responseType)
+            self.handleResponseType(responseType: resType, formType: self.formTypeVal)
         }
     }
     

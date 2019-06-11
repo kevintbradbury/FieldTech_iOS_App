@@ -96,7 +96,7 @@ extension ToolSignOffView {
 //        APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
         alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
             self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
-            self.handleResponseType(responseType: responseType)
+            self.handleResponseType(responseType: responseType, formType: "Tool Return")
         }
     }
 }

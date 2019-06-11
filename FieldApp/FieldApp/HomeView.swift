@@ -426,7 +426,7 @@ extension HomeView {
                         self.completedProgress()
                         
                         guard let resMsg = json as? [String:String] else { return }
-                        self.handleResponseType(responseType: resMsg)
+                        self.handleResponseType(responseType: resMsg, formType: "fetchEmployee")
                         return
                 }
                 callback(user)
@@ -684,10 +684,17 @@ extension HomeView {
     
     func handleRentalExtension(userBrandTool: String, duration: String) {
         let split = userBrandTool.components(separatedBy: ", ")
-        let info = FieldActions.ToolRentalExtension(requestedBy: split[0], toolType: split[2], brand: split[1], duration: Int(duration))
+        let info = FieldActions.ToolRentalExtension(requestedBy: split[0], toolType: split[2], brand: split[1], duration: duration)
         
-        APICalls().extendRental(toolData: info) { success in
-            
+        APICalls().extendRental(toolData: info) { json in
+            HomeView.toolRenewal = nil
+            guard let success = json["success"] as? Bool else { return }
+            if success == true {
+                self.showAlert(withTitle: "Success!", message: "Tool Rental Extension was uploaded successfully.")
+            } else {
+                guard let responseDict = json as? [String: String] else { return }
+                self.handleResponseType(responseType: responseDict, formType: "Tool Rental Extension")
+            }
         }
     }
 }

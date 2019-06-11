@@ -288,13 +288,13 @@ class APICalls {
         }
     }
     
-    func extendRental(toolData: FieldActions.ToolRentalExtension, cb: @escaping (Bool)-> ()) {
+    func extendRental(toolData: FieldActions.ToolRentalExtension, cb: @escaping (NSDictionary)-> ()) {
         let route = "toolRental/extend"
         var data = Data()
         
         do { data = try self.jsonEncoder.encode(toolData) }
         catch let err {
-            print("Erro in extendRental, w/ err: \(err)"); cb(false)
+            print("Erro in extendRental, w/ err: \(err)"); cb(["error":"Unable to encode data for server."])
         }
         
         setupRequest(route: route, method: "POST") { request in
@@ -302,7 +302,7 @@ class APICalls {
             req.httpBody = data
             
             self.startSession(request: req, route: route) { json in
-                
+                cb(json)
             }
         }
     }
@@ -343,8 +343,8 @@ extension APICalls {
             }
             guard let verifiedData = data as? Data,
                 let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                    print("APICalls>startSession> data/json error in route: \(route) \n \(String(describing: response)) \n \(data)");
-                    callback(["error":"unable to parse JSON"]); return
+                        print("APICalls>startSession> data/json error in route: \(route) \n \(String(describing: response)) \n \(data)")
+                        callback(["error":"unable to parse JSON"]); return
             }
             callback(json)
         }

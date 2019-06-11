@@ -142,14 +142,13 @@ class VehicleCheckListView: UITableViewController {
         
         print(vehicleFm, signatureImg)
         
-//        APICalls().alamoUpload(
         alamoUpload(
             route: route, headers: ["vehiclechecklist", "true" ], formBody: data, images: [signatureImg], uploadType: "vehicleCheckList"
         ) { responseType in
             self.activityIndicator.stopAnimating()
-//            HomeView.vehicleCkListNotif = nil
+            HomeView.vehicleCkListNotif = nil
             
-            self.handleResponseType(responseType: responseType)
+            self.handleResponseType(responseType: responseType, formType: "Vehicle Checklist")
         }
     }
 }

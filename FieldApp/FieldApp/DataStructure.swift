@@ -337,10 +337,7 @@ class FieldActions {
     }
     
     struct ToolRentalExtension: Encodable {
-        var requestedBy: String?,
-        toolType: String?,
-        brand: String?,
-        duration: Int?
+        var requestedBy: String, toolType: String, brand: String, duration: String
     }
     
     struct  ChangeOrders: Encodable {

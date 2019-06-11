@@ -102,14 +102,29 @@ extension UIViewController {
         mapItem.openInMaps(launchOptions: options)
     }
     
-    func handleResponseType(responseType: [String: String]) {
+    func handleResponseType(responseType: [String: String], formType: String) {
         OperationQueue.main.addOperation {
-            if responseType["success"] == "true" { return }
-            else if let msg = responseType["msg"] {
+            
+            if responseType["success"] == "true" {
+                if formType == "fetchEmployee" { return }
+                
+                let alert = UIAlertController(title: "Success!", message: "\(formType) was uploaded successfully.", preferredStyle: .alert)
+                let action = UIAlertAction(title: "OK", style: .default) { action in
+                    self.dismiss(animated: true)
+                }
+                
+                alert.addAction(action)
+                self.present(alert, animated: true, completion: nil)
+            
+            } else if let msg = responseType["msg"] {
                 self.showAlert(withTitle: "Upload Status", message: msg)
+                
             } else if let error = responseType["error"] {
                 self.showAlert(withTitle: "Error", message: error)
-            } else { print(responseType) }
+                
+            } else {
+                print(responseType)
+            }
         }
     }
     

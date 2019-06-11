@@ -105,7 +105,7 @@ class OneTimeLoginController: UIViewController {
                         self.completeProgress(activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator)
                         
                         guard let resMsg = json as? [String:String] else { return }
-                        self.handleResponseType(responseType: resMsg)
+                    self.handleResponseType(responseType: resMsg, formType: "fetchEmployee")
                         return
                 }
                 self.userInfo = user
