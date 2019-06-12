@@ -105,7 +105,7 @@ class APICalls {
                     callback(false, "", "", [0.0], false, "APICalls > sendCoordinates > successfulPunch failed")
                     return
                 }
-
+                
                 if let err = json["error"] as? String {
                     print("APICalls > sendCoordinates > Error \(err)");
                     callback(successfulPunch, "", "", [0.0], false, err)

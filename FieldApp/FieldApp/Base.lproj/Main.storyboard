@@ -385,10 +385,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view hidden="YES" opaque="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJW-NP-9cu">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                                <color key="backgroundColor" red="0.92754600253807107" green="0.92754600253807107" blue="0.92754600253807107" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CZR-Uv-g6q" userLabel="top BKGD View" customClass="HomeBkgd" customModule="FieldApp" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -611,7 +607,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.0" green="0.40000000000000002" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.0" green="0.32666416952876709" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstItem="cXa-na-mw1" firstAttribute="leading" secondItem="sI9-eT-GnF" secondAttribute="leading" constant="20" id="3Rc-jw-ivS"/>
                                     <constraint firstItem="6vX-6f-pRC" firstAttribute="top" secondItem="sI9-eT-GnF" secondAttribute="top" constant="10" id="4mo-aW-f5t"/>
@@ -627,6 +623,10 @@
                                     <constraint firstItem="XhE-pX-V8w" firstAttribute="top" relation="greaterThanOrEqual" secondItem="cXa-na-mw1" secondAttribute="bottom" constant="10" id="hX3-Em-mU7"/>
                                     <constraint firstItem="6vX-6f-pRC" firstAttribute="centerX" secondItem="sI9-eT-GnF" secondAttribute="centerX" id="wcc-0G-CRv"/>
                                 </constraints>
+                            </view>
+                            <view hidden="YES" opaque="NO" alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJW-NP-9cu">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" red="0.92754600253807107" green="0.92754600253807107" blue="0.92754600253807107" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </view>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="vaz-4K-nny">
                                 <rect key="frame" x="169" y="315" width="37" height="37"/>

@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/HomeView.swift"
-            timestampString = "582058753.595015"
+            timestampString = "582076328.685064"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "778"
-            endingLineNumber = "778"
+            startingLineNumber = "792"
+            endingLineNumber = "792"
             landmarkName = "promptForPOnum(employee:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -106,7 +106,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/APICalls.swift"
-            timestampString = "582058753.595453"
+            timestampString = "582076328.685623"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "308"
@@ -122,204 +122,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/EmployeeIDEntry.swift"
-            timestampString = "582058753.59577"
+            timestampString = "582076328.685715"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "308"
             endingLineNumber = "308"
             landmarkName = "showPONumEntryWin()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/EmployeeIDEntry.swift"
-            timestampString = "582058753.595822"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "163"
-            endingLineNumber = "163"
-            landmarkName = "handleSuccess(success:currentJob:poNumber:jobLatLong:clockedIn:manualPO:err:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/EmployeeIDEntry.swift"
-            timestampString = "582058753.595866"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "166"
-            endingLineNumber = "166"
-            landmarkName = "handleSuccess(success:currentJob:poNumber:jobLatLong:clockedIn:manualPO:err:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/EmployeeIDEntry.swift"
-            timestampString = "582058753.595907"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
-            landmarkName = "handleSuccess(success:currentJob:poNumber:jobLatLong:clockedIn:manualPO:err:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "582058753.595946"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "103"
-            endingLineNumber = "103"
-            landmarkName = "sendCoordinates(employee:location:autoClockOut:role:po:override:callback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "582058753.596173"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "108"
-            endingLineNumber = "108"
-            landmarkName = "sendCoordinates(employee:location:autoClockOut:role:po:override:callback:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "582058753.596435"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "113"
-            endingLineNumber = "113"
-            landmarkName = "sendCoordinates(employee:location:autoClockOut:role:po:override:callback:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (__C.NSDictionary) -&gt; () in closure #1 (Foundation.URLRequest) -&gt; () in FieldApp.APICalls.sendCoordinates(employee: FieldApp.UserData.UserInfo, location: Swift.Array&lt;Swift.String&gt;, autoClockOut: Swift.Bool, role: Swift.String, po: Swift.String, override: Swift.Bool, callback: (Swift.Bool, Swift.String, Swift.String, Swift.Array&lt;Swift.Double&gt;, Swift.Bool, Swift.String) -&gt; ()) -&gt; ()"
-                  moduleName = "FieldApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/APICalls.swift"
-                  timestampString = "582058757.801459"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "113"
-                  endingLineNumber = "113"
-                  offsetFromSymbolStart = "1868">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (__C.NSDictionary) -&gt; () in closure #1 (Foundation.URLRequest) -&gt; () in FieldApp.APICalls.sendCoordinates(employee: FieldApp.UserData.UserInfo, location: Swift.Array&lt;Swift.String&gt;, autoClockOut: Swift.Bool, role: Swift.String, po: Swift.String, override: Swift.Bool, callback: (Swift.Bool, Swift.String, Swift.String, Swift.Array&lt;Swift.Double&gt;, Swift.Bool, Swift.String) -&gt; ()) -&gt; ()"
-                  moduleName = "FieldApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/APICalls.swift"
-                  timestampString = "582058757.802838"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "113"
-                  endingLineNumber = "113"
-                  offsetFromSymbolStart = "1932">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/APICalls.swift"
-            timestampString = "582058753.596671"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
-            landmarkName = "sendCoordinates(employee:location:autoClockOut:role:po:override:callback:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (__C.NSDictionary) -&gt; () in closure #1 (Foundation.URLRequest) -&gt; () in FieldApp.APICalls.sendCoordinates(employee: FieldApp.UserData.UserInfo, location: Swift.Array&lt;Swift.String&gt;, autoClockOut: Swift.Bool, role: Swift.String, po: Swift.String, override: Swift.Bool, callback: (Swift.Bool, Swift.String, Swift.String, Swift.Array&lt;Swift.Double&gt;, Swift.Bool, Swift.String) -&gt; ()) -&gt; ()"
-                  moduleName = "FieldApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/APICalls.swift"
-                  timestampString = "582058757.806525"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "119"
-                  endingLineNumber = "119"
-                  offsetFromSymbolStart = "4408">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (__C.NSDictionary) -&gt; () in closure #1 (Foundation.URLRequest) -&gt; () in FieldApp.APICalls.sendCoordinates(employee: FieldApp.UserData.UserInfo, location: Swift.Array&lt;Swift.String&gt;, autoClockOut: Swift.Bool, role: Swift.String, po: Swift.String, override: Swift.Bool, callback: (Swift.Bool, Swift.String, Swift.String, Swift.Array&lt;Swift.Double&gt;, Swift.Bool, Swift.String) -&gt; ()) -&gt; ()"
-                  moduleName = "FieldApp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/mbmac3/Documents/GitHub/MillworkBros_iOS_App/FieldApp/FieldApp/APICalls.swift"
-                  timestampString = "582058757.8078901"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "119"
-                  endingLineNumber = "119"
-                  offsetFromSymbolStart = "4516">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/EmployeeIDEntry.swift"
-            timestampString = "582058753.596923"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "156"
-            endingLineNumber = "156"
-            landmarkName = "makePunchCall(user:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

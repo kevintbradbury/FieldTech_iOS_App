@@ -69,7 +69,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     todaysJob = Job(),
     todaysPO: String?,
     vehicleCkListNotif: Bool?,
-    toolRenewal: String?
+    toolRenewal: String?,
+    toolCount: Int?
     
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
@@ -100,6 +101,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         checkForSafetyQs()
+        checkForToolRentals()
     }
 
     @IBAction func pressdProfBtn(_ sender: Any) { profilePress() }
@@ -146,26 +148,39 @@ extension HomeView {
         }
     }
     
+    func checkForToolRentals() {
+        guard let toolsRented = HomeView.toolCount else { return }
+        if toolsRented > 0 {
+            var toolicons = ""
+            
+            for _ in 0...toolsRented {
+                toolicons += " 🔧 "
+            }
+            guard let currentTxt = userLabel.text else { return }
+            userLabel.text = "\(currentTxt) \n\(toolicons)"
+        }
+    }
+    
     func checkForSafetyQs() {
         if HomeView.safetyQs.count <= 0 { return }
         
         for (index, value) in HomeView.safetyQs.enumerated() {
             let questionPopup = UIAlertController(title: "Safety Question", message: value.question, preferredStyle: UIAlertController.Style.alert)
             
-            let a = UIAlertAction(title: value.options.A, style: UIAlertAction.Style.default) { action in
-                questionPopup.dismiss(animated: false, completion: nil)
+            let a = UIAlertAction(title: "A. \(value.options.A)", style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
                 self.handleSafetyQuesAnswer(selected: "A", answer: value.answer, options: value.options, i: (index + 1) )
             };
-            let b = UIAlertAction(title: value.options.B, style: UIAlertAction.Style.default) { action in
-                questionPopup.dismiss(animated: false, completion: nil)
+            let b = UIAlertAction(title: "B. \(value.options.B)", style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
                 self.handleSafetyQuesAnswer(selected: "B", answer: value.answer, options: value.options, i: (index + 1))
             };
-            let c = UIAlertAction(title: value.options.C, style: UIAlertAction.Style.default) { action in
-                questionPopup.dismiss(animated: false, completion: nil)
+            let c = UIAlertAction(title: "C. \(value.options.C)", style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
                 self.handleSafetyQuesAnswer(selected: "C", answer: value.answer, options: value.options, i: (index + 1))
             };
-            let d = UIAlertAction(title: value.options.D, style: UIAlertAction.Style.default) { action in
-                questionPopup.dismiss(animated: false, completion: nil)
+            let d = UIAlertAction(title: "D. \(value.options.D)", style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
                 self.handleSafetyQuesAnswer(selected: "D", answer: value.answer, options: value.options, i: (index + 1))
             };
             
@@ -192,32 +207,14 @@ extension HomeView {
             
         } else if self.questionAlerts[i] != nil {
             self.present(self.questionAlerts[i], animated: false, completion: nil)
+            indexVal += 1
         }
     }
     
     func handleSafetyQuesAnswer(selected: String, answer: String, options: SafetyQuestion.answerOptions, i: Int) {
-        indexVal = i
-        
-        func makeAlert(correct: String, msg: String) {
-            
-            if correctAnswerVal == false {
-                incrtAnswerLabel.text = msg
-                incrtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
-                incrtOKbtn.layer.borderWidth = 1
-                incrtOKbtn.layer.cornerRadius = 20
-                incorrectAnswerVw.layer.cornerRadius = 20
-                incorrectAnswerVw.isHidden = false
-            } else {
-                crtAnswerLabel.text = msg
-                crtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
-                crtOKbtn.layer.borderWidth = 1
-                crtOKbtn.layer.cornerRadius = 20
-                correctAnswerVw.layer.cornerRadius = 20
-                correctAnswerVw.isHidden = false
-            }
-        }
-
         var fullAnswer = ""
+        indexVal = i
+        print("index = \(i)")
 
         switch answer {
         case "A":
@@ -236,14 +233,31 @@ extension HomeView {
             correctAnswerVal = true
             makeAlert(correct: "CORRECT", msg: "Answer: \(answer) \(fullAnswer)")
          
-            guard let user = HomeView.employeeInfo?.userName else { return }
+            guard let user = HomeView.employeeInfo?.userName as? String else { return }
             APICalls().addPoints(employee: user, pts: 2)
         } else {
             correctAnswerVal = false
             makeAlert(correct: "INCORRECT", msg: "Answer: \(answer) \(fullAnswer)")
         }
     }
-
+    
+    func makeAlert(correct: String, msg: String) {
+        if correctAnswerVal == false {
+            incrtAnswerLabel.text = msg
+            incrtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
+            incrtOKbtn.layer.borderWidth = 1
+            incrtOKbtn.layer.cornerRadius = 20
+            incorrectAnswerVw.layer.cornerRadius = 20
+            incorrectAnswerVw.isHidden = false
+        } else {
+            crtAnswerLabel.text = msg
+            crtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
+            crtOKbtn.layer.borderWidth = 1
+            crtOKbtn.layer.cornerRadius = 20
+            correctAnswerVw.layer.cornerRadius = 20
+            correctAnswerVw.isHidden = false
+        }
+    }
 
     func profilePress() {
         profileUpload = true

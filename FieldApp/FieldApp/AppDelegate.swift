@@ -165,7 +165,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     // If App is currently open
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         
-        handleNotif(category: notification.request.identifier, center: center, toolRenewal: notification.request.content.body)
+        handleNotif(category: notification.request.content.categoryIdentifier, center: center, notifBody: notification.request.content.body)
         completionHandler(.alert)
     }
     
@@ -174,12 +174,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             let category = response.notification.request.content.categoryIdentifier
-            handleNotif(category: category, center: center, toolRenewal: response.notification.request.content.body)
+            handleNotif(category: category, center: center, notifBody: response.notification.request.content.body)
             completionHandler()
         }
     }
     
-    func handleNotif(category: String, center: UNUserNotificationCenter, toolRenewal: String?) {
+    func handleNotif(category: String, center: UNUserNotificationCenter, notifBody: String?) {
         print("notifCtr willPresent/didReceive category: \(category)")
         let state = UIApplication.shared.applicationState
         guard let vc = self.homeViewActive else { return }
@@ -202,7 +202,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             }
 
         case "extendRental":
-            guard let userBrandToolDate = toolRenewal else { return }
+            guard let userBrandToolDate = notifBody else { return }
             HomeView.toolRenewal = userBrandToolDate
             if state == UIApplication.State.active {
                 OperationQueue.main.addOperation {  vc.extendToolRental() }
@@ -210,18 +210,15 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             
         case "leftJobSite":
             removeAutoClockNotif(center: center)
-        case "leftJobSite1":
-            removeAutoClockNotif(center: center)
-        case "leftJobSite2":
-            removeAutoClockNotif(center: center)
-        case "leftJobSite3":
-            removeAutoClockNotif(center: center)
-        case "leftJobSite4":
-           removeAutoClockNotif(center: center)
-        case "leftJobSite5":
-            removeAutoClockNotif(center: center)
-        case "leftJobSite6":
-            removeAutoClockNotif(center: center)
+            
+        case "toolsReminder":
+            if let unwrappedNotifContent = notifBody {
+                print("get tool count \(notifBody!)")
+                let split = unwrappedNotifContent.components(separatedBy: " -")
+                guard let toolCount = Int(split[0]) else { return }
+                HomeView.toolCount = toolCount
+            }
+            
             
         default:
             print("Received notification w/ category: \(category)")
