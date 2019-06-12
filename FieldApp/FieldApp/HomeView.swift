@@ -29,6 +29,12 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var workersToReturnLbl: UILabel!
     @IBOutlet var workersStepper: UIStepper!
     @IBOutlet var requiredAddedMaterialsSwitch: UISwitch!
+    @IBOutlet var incorrectAnswerVw: UIView!
+    @IBOutlet var incrtAnswerLabel: UILabel!
+    @IBOutlet var incrtOKbtn: UIButton!
+    @IBOutlet var correctAnswerVw: UIView!
+    @IBOutlet var crtAnswerLabel: UILabel!
+    @IBOutlet var crtOKbtn: UIButton!
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
@@ -49,6 +55,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var menuOpen = false
     var profileUpload: Bool?
     var questionAlerts: [UIAlertController] = []
+    var indexVal = 0
+    var correctAnswerVal = true
     
     public static var addressInfo: UserData.AddressInfo?,
     employeeInfo: UserData.UserInfo?,
@@ -95,6 +103,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 
     @IBAction func pressdProfBtn(_ sender: Any) { profilePress() }
     @IBAction func sendJobCheckup(_ sender: Any) { getJobCheckupInfo() }
+    @IBAction func hideCorrectAnswVw(_ sender: Any) { showQuestions(i: indexVal) }
+    @IBAction func hideIncorrectAnswVw(_ sender: Any) { showQuestions(i: indexVal) }
     @IBAction func stepperValChangd(_ sender: UIStepper) {
         workersToReturnLbl.text = "\(Int(sender.value))"; employeesToReturn = Int(sender.value)
     }
@@ -136,57 +146,84 @@ extension HomeView {
     }
     
     func checkForSafetyQs() {
-        if HomeView.safetyQs.count > 0 {
-
-            for (index, value) in HomeView.safetyQs.enumerated() {
-                let questionPopup = UIAlertController(title: "Safety Question", message: value.question, preferredStyle: UIAlertController.Style.alert)
-
-                let a = UIAlertAction(title: value.options.a, style: UIAlertAction.Style.default) { action in
-                    questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: "a", answer: value.answer, options: value.options, i: (index + 1) )
-                };
-                let b = UIAlertAction(title: value.options.b, style: UIAlertAction.Style.default) { action in
-                    questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: "b", answer: value.answer, options: value.options, i: (index + 1))
-                };
-                let c = UIAlertAction(title: value.options.c, style: UIAlertAction.Style.default) { action in
-                    questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: "c", answer: value.answer, options: value.options, i: (index + 1))
-                };
-                let d = UIAlertAction(title: value.options.d, style: UIAlertAction.Style.default) { action in
-                    questionPopup.dismiss(animated: true, completion: nil)
-                    self.handleSafetyQuesAnswer(selected: "d", answer: value.answer, options: value.options, i: (index + 1))
-                };
-
-                questionPopup.addAction(a)
-                questionPopup.addAction(b)
-                questionPopup.addAction(c)
-                questionPopup.addAction(d)
-
-                questionAlerts.append(questionPopup)
-            }
-
-            main.addOperation {
-                self.present(self.questionAlerts[0], animated: true, completion: nil)
+        if HomeView.safetyQs.count <= 0 { return }
+        
+        for (index, value) in HomeView.safetyQs.enumerated() {
+            let questionPopup = UIAlertController(title: "Safety Question", message: value.question, preferredStyle: UIAlertController.Style.alert)
+            
+            let a = UIAlertAction(title: value.options.a, style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
+                self.handleSafetyQuesAnswer(selected: "a", answer: value.answer, options: value.options, i: (index + 1) )
+            };
+            let b = UIAlertAction(title: value.options.b, style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
+                self.handleSafetyQuesAnswer(selected: "b", answer: value.answer, options: value.options, i: (index + 1))
+            };
+            let c = UIAlertAction(title: value.options.c, style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
+                self.handleSafetyQuesAnswer(selected: "c", answer: value.answer, options: value.options, i: (index + 1))
+            };
+            let d = UIAlertAction(title: value.options.d, style: UIAlertAction.Style.default) { action in
+                questionPopup.dismiss(animated: true, completion: nil)
+                self.handleSafetyQuesAnswer(selected: "d", answer: value.answer, options: value.options, i: (index + 1))
+            };
+            
+            questionPopup.addAction(a)
+            questionPopup.addAction(b)
+            questionPopup.addAction(c)
+            questionPopup.addAction(d)
+            
+            questionAlerts.append(questionPopup)
+        }
+        
+        main.addOperation {
+            self.present(self.questionAlerts[0], animated: true, completion: nil)
+        }
+    }
+    
+    func showQuestions(i: Int) {
+        incorrectAnswerVw.isHidden = true
+        correctAnswerVw.isHidden = true
+        
+        if i >= self.questionAlerts.count {
+            HomeView.safetyQs = []
+            return
+            
+        } else if self.questionAlerts[i] != nil {
+            
+            if correctAnswerVal == false {
+                self.present(self.questionAlerts[(i - 1)], animated: true, completion: nil)
+                
+            } else {
+                self.present(self.questionAlerts[i], animated: true, completion: nil)
             }
         }
     }
-
+    
     func handleSafetyQuesAnswer(selected: String, answer: String, options: SafetyQuestion.answerOptions, i: Int) {
-
+        indexVal = i
+        
         func makeAlert(correct: String, msg: String) {
-            let alert = UIAlertController(title: correct, message: msg, preferredStyle: .alert)
-            let action = UIAlertAction(title: "OK", style: .cancel) { action in
-                if i >= self.questionAlerts.count {
-                    HomeView.safetyQs = []
-                    return
-                } else if self.questionAlerts[i] != nil {
-                    self.present(self.questionAlerts[i], animated: true, completion: nil)
-                }
+//            let alert = UIAlertController(title: correct, message: msg, preferredStyle: .alert)
+//            let action = UIAlertAction(title: "OK", style: .cancel) { action in self.showQuestions(i: i) }
+            
+            if correctAnswerVal == false {
+                incrtAnswerLabel.text = msg
+                incrtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
+                incrtOKbtn.layer.borderWidth = 1
+                incrtOKbtn.layer.cornerRadius = 20
+                incorrectAnswerVw.layer.cornerRadius = 20
+                incorrectAnswerVw.isHidden = false
+            } else {
+//                alert.addAction(action)
+//                main.addOperation { self.present(alert, animated: true, completion: nil) }
+                crtAnswerLabel.text = msg
+                crtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
+                crtOKbtn.layer.borderWidth = 1
+                crtOKbtn.layer.cornerRadius = 20
+                correctAnswerVw.layer.cornerRadius = 20
+                correctAnswerVw.isHidden = false
             }
-
-            alert.addAction(action)
-            main.addOperation { self.present(alert, animated: true, completion: nil) }
         }
 
         var fullAnswer = ""
@@ -205,12 +242,14 @@ extension HomeView {
         }
 
         if selected == answer {
-            makeAlert(correct: "Correct", msg: "Answer: \(answer) \(fullAnswer)")
+            correctAnswerVal = true
+            makeAlert(correct: "CORRECT", msg: "Answer: \(answer) \(fullAnswer)")
          
             guard let user = HomeView.employeeInfo?.userName else { return }
             APICalls().addPoints(employee: user, pts: 2)
         } else {
-            makeAlert(correct: "Incorrect", msg: "Answer: \(answer) \(fullAnswer)")
+            correctAnswerVal = false
+            makeAlert(correct: "INCORRECT", msg: "Answer: \(answer) \(fullAnswer)")
         }
     }
 
@@ -218,13 +257,6 @@ extension HomeView {
     func profilePress() {
         profileUpload = true
 
-//        if HomeView.employeeInfo != nil && HomeView.addressInfo != nil {
-//            guard let name = HomeView.employeeInfo?.userName,
-//                let address = HomeView.addressInfo?.address,
-//                let city = HomeView.addressInfo?.city,
-//                let state = HomeView.addressInfo?.state else { return }
-
-//            let msg = "\n\(name)\n\(address)\n\(city), \(state) \n \nWould you like to add/update your profile photo? "
             let msg = "Would you like to add/update your profile photo? "
             let paraStyle = NSMutableParagraphStyle()
             paraStyle.alignment = NSTextAlignment.left
@@ -245,7 +277,6 @@ extension HomeView {
             alert.addAction(confirm)
             alert.addAction(cancel)
             self.present(alert, animated: true, completion: nil)
-//        }
     }
 
     func setUpHomeBtn() {
