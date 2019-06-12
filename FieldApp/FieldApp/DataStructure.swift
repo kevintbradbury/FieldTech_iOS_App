@@ -69,7 +69,8 @@ class UserData {
         employeeID: String,
         coordinateLat: String,
         coordinateLong: String,
-        currentRole: String
+        currentRole: String,
+        po: String
     }
     
     struct AddressInfo: Codable {
@@ -532,23 +533,23 @@ struct SafetyQuestion: Encodable {
     var options: answerOptions
     var answer: String
     
-    struct answerOptions: Encodable { var a: String; var b: String; var c: String; var d: String }
+    struct answerOptions: Encodable { var A: String; var B: String; var C: String; var D: String }
     
     static func jsonToSQ(dictionary: NSDictionary) -> SafetyQuestion {
         
         guard let question = dictionary["question"] as? String,
             let answerOptions = dictionary["options"] as? NSDictionary,
-            let a = answerOptions["a"] as? String,
-            let b = answerOptions["b"] as? String,
-            let c = answerOptions["c"] as? String,
-            let d = answerOptions["d"] as? String,
+            let A = answerOptions["A"] as? String,
+            let B = answerOptions["B"] as? String,
+            let C = answerOptions["C"] as? String,
+            let D = answerOptions["D"] as? String,
             let answer = dictionary["answer"] as? String else {
                 print("failed to parse safetyQuestion")
                 return SafetyQuestion(
-                    question: "", options: SafetyQuestion.answerOptions(a: "", b: "", c: "", d: ""), answer: ""
+                    question: "", options: SafetyQuestion.answerOptions(A: "", B: "", C: "", D: ""), answer: ""
                 )
         }
-        let options = SafetyQuestion.answerOptions(a: a, b: b, c: c, d: d)
+        let options = SafetyQuestion.answerOptions(A: A, B: B, C: C, D: D)
         
         return SafetyQuestion(question: question, options: options, answer: answer)
     }

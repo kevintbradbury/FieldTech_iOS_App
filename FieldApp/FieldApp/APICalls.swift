@@ -88,7 +88,7 @@ class APICalls {
             route += "/override/\(po)"
         }
         
-        let data = convertToJSON(employee: employee, location: location, role: role)
+        let data = convertToJSON(employee: employee, location: location, role: role, po: po)
         var auto: String {
             if autoClockOut == true { return "true" } else { return "" }
         }
@@ -99,6 +99,7 @@ class APICalls {
             requestWithData.addValue(auto, forHTTPHeaderField: "autoClockOut")
             
             self.startSession(request: requestWithData, route: route) { json in
+                
                 guard let successfulPunch = json["success"] as? Bool else {
                     print("APICalls > sendCoordinates > successfulPunch failed")
                     callback(false, "", "", [0.0], false, "APICalls > sendCoordinates > successfulPunch failed")
@@ -123,15 +124,17 @@ class APICalls {
     }
     
     func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()) {
-        guard let employee = UserDefaults.standard.string(forKey: "employeeName") else { return }
-        guard let emplyID = UserDefaults.standard.string(forKey: "employeeID") else { return }
+        guard let employee = UserDefaults.standard.string(forKey: "employeeName"),
+            let emplyID = UserDefaults.standard.string(forKey: "employeeID"),
+            let po = UserDefaults.standard.string(forKey: "todaysJobPO") else { return }
         
         let route = "checkCoordinates/\(employee)"
         let person = UserData.UserInfoCodeable(
             userName: employee,
             employeeID: emplyID,
             coordinateLat: location[0], coordinateLong: location[1],
-            currentRole: "-"    //  CurrentRole set from DB, no need to send here
+            currentRole: "-",    //  CurrentRole set from DB, no need to send here
+            po: po
         )
         setupRequest(route: route, method: "POST") { request in
             var requestWithData = request
@@ -343,7 +346,7 @@ extension APICalls {
             }
             guard let verifiedData = data as? Data,
                 let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                        print("APICalls>startSession> data/json error in route: \(route) \n \(String(describing: response)) \n \(data)")
+                        print("APICalls > startSession > data/json error in route: \(route) \n \(String(describing: response)) \n \(data)")
                         callback(["error":"unable to parse JSON"]); return
             }
             callback(json)
@@ -396,13 +399,14 @@ extension APICalls {
         return holidays
     }
     
-    func convertToJSON(employee: UserData.UserInfo, location: [String], role: String) -> Data {
+    func convertToJSON(employee: UserData.UserInfo, location: [String], role: String, po: String) -> Data {
         let person = UserData.UserInfoCodeable(
             userName: employee.userName,
             employeeID: String(employee.employeeID),
             coordinateLat: location[0],
             coordinateLong: location[1],
-            currentRole: role
+            currentRole: role,
+            po: po
         )
         var data = Data()
         var combinedString = person.userName + " -- " + person.employeeID  + " |"

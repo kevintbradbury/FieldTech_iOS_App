@@ -143,24 +143,24 @@ extension EmployeeIDEntry {
             let unwrappedRole = role else { return }
         
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        let anmation = longHand.node.placeVar.animation(angle: -5.25, x: 0, y: 0, during: 1, delay: 0)
+        let anmation = longHand.node.placeVar.animation(angle: -4.25, x: 0, y: 0, during: 1, delay: 0)
         anmation.cycle().play()
+        inProgressVw()
+        
+        var po = ""
+        if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") { po = validPO }
         
         APICalls().sendCoordinates(
-            employee: user,
-            location: locationArray,
-            autoClockOut: false,
-            role: unwrappedRole,
-            po: "",
-            override: false
+            employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole, po: po, override: false
         ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             self.handleSuccess(
-                success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
+                success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err
             )
         }
     }
     
     func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String) {
+        
         if success == true {
             UserDefaults.standard.set(poNumber, forKey: "todaysJobPO")
 
@@ -172,7 +172,7 @@ extension EmployeeIDEntry {
             
             self.setClockInNotifcs(clockedIn: clockedIn)
             
-        } else if manualPO == false {
+        } else if manualPO == true {
             showPONumEntryWin()
         } else if err != "" {
             showAlert(withTitle: "Error", message: err); finishedLoading()
@@ -305,50 +305,52 @@ extension EmployeeIDEntry {
     }
     
     func showPONumEntryWin() {
-        let alert = UIAlertController(
-            title: "Manual PO Entry",
-            message: "No PO found for this time/date. \nEnter PO number manually?",
-            preferredStyle: .alert
-        )
+        guard let coordinate = UserLocation.instance.currentCoordinate,
+            let uwrappedUsr = EmployeeIDEntry.foundUser,
+            let unwrappedRole = self.role else { return }
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         
+        if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") {
+            self.inProgressVw()
+
+            APICalls().sendCoordinates(
+                employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: unwrappedRole, po: validPO, override: true
+            ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                self.handleSuccess(
+                    success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
+                ); return
+            }
+        }
+        
+        let alert = UIAlertController(
+            title: "Manual PO Entry", message: "No PO found for this time/date. \nEnter PO number manually?", preferredStyle: .alert
+        )
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive) { action in self.finishedLoading() }
         let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
             self.inProgressVw()
-            
-            guard let coordinate = UserLocation.instance.currentCoordinate,
-                let uwrappedUsr = EmployeeIDEntry.foundUser,
-                let unwrappedRole = self.role else { return }
-            
-            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
             let poNumber = alert.textFields![0]
-            var poToString = "";
+            var po = "";
             
             if poNumber.text != nil && poNumber.text != "" {
-                poToString = poNumber.text!
+                po = poNumber.text!
                 
                 APICalls().sendCoordinates(
-                    employee: uwrappedUsr,
-                    location: locationArray,
-                    autoClockOut: false,
-                    role: unwrappedRole,
-                    po: poToString,
-                    override: true
+                    employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: unwrappedRole, po: po, override: true
                 ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-                    self.handleSuccess(success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err)
+                    self.handleSuccess(
+                        success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
+                    )
                 }
             }
         }
-        let cancel = UIAlertAction(title: "Cancel", style: .destructive) { action in    self.finishedLoading() }
         
         alert.addTextField { textFieldPhoneNumber in
-            textFieldPhoneNumber.placeholder = "PO number"
-            textFieldPhoneNumber.keyboardType = UIKeyboardType.asciiCapableNumberPad
+            textFieldPhoneNumber.placeholder = "PO number"; textFieldPhoneNumber.keyboardType = UIKeyboardType.asciiCapableNumberPad
         }
         alert.addAction(manualPOentry)
         alert.addAction(cancel)
         
-        self.main.addOperation {
-            self.present(alert, animated: true, completion: nil)
-        }
+        self.main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
     
     func hideTextfield() {
