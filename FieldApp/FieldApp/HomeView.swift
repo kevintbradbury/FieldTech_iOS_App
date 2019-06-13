@@ -510,9 +510,10 @@ extension HomeView {
                     self.jobCheckUpView.isHidden = false
                 }
             }
-        } else if HomeView.toolRenewal != nil {
-            extendToolRental()
         }
+//        else if HomeView.toolRenewal != nil {
+//            extendToolRental()
+//        }
     }
 
     func clockedInUI() {
