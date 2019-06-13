@@ -143,7 +143,7 @@ extension EmployeeIDEntry {
             let unwrappedRole = role else { return }
         
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        let anmation = longHand.node.placeVar.animation(angle: -4.25, x: 0, y: 0, during: 1, delay: 0)
+        let anmation = longHand.node.placeVar.animation(angle: -3.20, x: 0, y: 0, during: 1, delay: 0)
         anmation.cycle().play()
         inProgressVw()
         

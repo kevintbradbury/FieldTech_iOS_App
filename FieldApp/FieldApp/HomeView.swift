@@ -57,7 +57,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var questionAlerts: [UIAlertController] = []
     var indexVal = 0
     var correctAnswerVal = true
-    var incorrectAnswers = 0
+    var incorrectAnswer = -1
     
     public static var addressInfo: UserData.AddressInfo?,
     employeeInfo: UserData.UserInfo?,
@@ -201,12 +201,18 @@ extension HomeView {
         incorrectAnswerVw.isHidden = true
         correctAnswerVw.isHidden = true
         
-        if i >= self.questionAlerts.count {
+        if i >= self.questionAlerts.count && incorrectAnswer > -1 {
+            for alr in questionAlerts { alr.dismiss(animated: false, completion: nil) }
+            self.present(questionAlerts[0], animated: true, completion: nil)
+            incorrectAnswer = -1
+            indexVal = 1
+            
+        } else if i >= self.questionAlerts.count {
             HomeView.safetyQs = []
-            return
+            questionAlerts = []
             
         } else if self.questionAlerts[i] != nil {
-            self.present(self.questionAlerts[i], animated: false, completion: nil)
+            self.present(self.questionAlerts[i], animated: true, completion: nil)
             indexVal += 1
         }
     }
@@ -236,6 +242,7 @@ extension HomeView {
             guard let user = HomeView.employeeInfo?.userName as? String else { return }
             APICalls().addPoints(employee: user, pts: 2)
         } else {
+            incorrectAnswer = i - 1
             correctAnswerVal = false
             makeAlert(correct: "INCORRECT", msg: "Answer: \(answer) \(fullAnswer)")
         }
@@ -511,9 +518,7 @@ extension HomeView {
                 }
             }
         }
-//        else if HomeView.toolRenewal != nil {
-//            extendToolRental()
-//        }
+//        else if HomeView.toolRenewal != nil { extendToolRental() }
     }
 
     func clockedInUI() {
