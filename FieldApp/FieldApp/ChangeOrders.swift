@@ -116,7 +116,13 @@ class ChangeOrdersView: UIViewController {
     }
     
     func getTextVals(callback: @escaping (FieldActions.ChangeOrders) -> ()) {
-        let secsFrom1970 = datePickerFields.date.timeIntervalSince1970
+        let chosenDate = datePickerFields.date.timeIntervalSince1970
+        let now = Date().timeIntervalSince1970 - (60 * 60 * 12)
+        
+        if chosenDate < now {
+            showAlert(withTitle: "Date Error", message: "Can't pick a date earlier than today."); return
+        }
+        
         guard let employee = employeeName,
             let po = poNumberField.text,
             let location = locationText.text,
@@ -134,7 +140,7 @@ class ChangeOrdersView: UIViewController {
             material: "",
             colorSpec: "",
             quantity: 0.0,
-            neededBy: secsFrom1970,
+            neededBy: chosenDate,
             description: descrip
         )
         if formTypeVal == change_order || formTypeVal == tool_rental {

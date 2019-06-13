@@ -110,7 +110,11 @@ extension UIViewController {
                 
                 let alert = UIAlertController(title: "Success!", message: "\(formType) was uploaded successfully.", preferredStyle: .alert)
                 let action = UIAlertAction(title: "OK", style: .default) { action in
-                    self.dismiss(animated: true)
+                    if formType == "Supplies Request" {
+                        self.performSegue(withIdentifier: "toHomeFromChangeOrder", sender: nil)
+                    } else {
+                        self.dismiss(animated: true)
+                    }
                 }
                 
                 alert.addAction(action)

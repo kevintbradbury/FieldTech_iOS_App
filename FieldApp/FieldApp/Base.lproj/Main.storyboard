@@ -2543,6 +2543,7 @@
                         <outlet property="quantityText" destination="UPG-TD-ZUj" id="FMk-Oe-9ru"/>
                         <outlet property="requestedByLabel" destination="9zP-vL-D0z" id="lLW-lO-Vas"/>
                         <outlet property="sendButton" destination="7qt-3s-mtG" id="Z6u-dB-rfF"/>
+                        <segue destination="dvo-Ab-kYb" kind="show" identifier="toHomeFromChangeOrder" id="nXk-h0-2cs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zXB-rg-r0K" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2805,8 +2806,7 @@
         <image name="signature" width="350" height="350"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="pAu-Wh-4fN"/>
         <segue reference="ZaQ-ls-SCW"/>
-        <segue reference="PNM-CA-SzQ"/>
+        <segue reference="nXk-h0-2cs"/>
     </inferredMetricsTieBreakers>
 </document>
