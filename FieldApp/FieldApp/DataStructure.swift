@@ -310,7 +310,13 @@ class FieldActions {
         suppliesCollection: [MaterialQuantityColor]
         
         struct MaterialQuantityColor: Encodable {
-            var quantity: Double, material: String, color:  String
+            var quantity: Double,
+            material: String,
+            color:  String,
+            width: String?,
+            depth: String?,
+            height: String?,
+            panelOrLam: String?
         }
     }
     

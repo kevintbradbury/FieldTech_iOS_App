@@ -42,8 +42,8 @@ class ChangeOrdersView: UIViewController {
     let change_order = "Change Order"
     let supplies_request = "Supplies Request"
     
-    public var formTypeVal = ""
-    public var todaysJob: String?
+    public var formTypeVal = "", todaysJob: String?
+    
     var changeOrder: FieldActions.ChangeOrders?
     var toolRentalForm: FieldActions.ToolRental?
     var suppliesRequestForm: FieldActions.SuppliesRequest?
@@ -251,22 +251,32 @@ extension ChangeOrdersView: ImagePickerDelegate {
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         let images = imageAssets
         
-        if images.count < 2 {
+        if formTypeVal == supplies_request {
+            if images.count >= materialsCollection.count {
+                dismiss(animated: true, completion: nil)
+                
+                let alert = UIAlertController(title: "Confirm", message: "Are you sure you would like to send the \(formTypeVal)?", preferredStyle: UIAlertController.Style.alert)
+                let yes = UIAlertAction(title: "YES", style: .default, handler: { action in self.sendCO(images: images) })
+                
+                alert.addAction(yes)
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+                self.present(alert, animated: true, completion: nil)
+            } else {
+                picker.showAlert(withTitle: "More Photos", message: "You must take at least \(materialsCollection.count) photos for each piece of material.")
+            }
+            
+        } else if images.count < 2 {
             dismiss(animated: true, completion: nil)
             
-            let alert = UIAlertController(
-                title: "Confirm", message: "Are you sure you would like to send the \(formTypeVal)?", preferredStyle: UIAlertController.Style.alert
-            )
-            let yes = UIAlertAction(title: "YES", style: .default, handler: { action in
-                self.sendCO(images: images)
-            } )
+            let alert = UIAlertController(title: "Confirm", message: "Are you sure you would like to send the \(formTypeVal)?", preferredStyle: UIAlertController.Style.alert)
+            let yes = UIAlertAction(title: "YES", style: .default, handler: { action in self.sendCO(images: images) })
             
             alert.addAction(yes)
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
             self.present(alert, animated: true, completion: nil)
             
         } else {
-            picker.showAlert(withTitle: "Single Photo", message: "You can only select 1 photo for change orders.")
+            picker.showAlert(withTitle: "Single Photo", message: "You can only select 1 photo for \(formType).")
         }
     }
     

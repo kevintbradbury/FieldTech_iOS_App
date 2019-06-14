@@ -33,7 +33,9 @@ class SuppliesRequestView: UIViewController {
     }
     
     @IBAction func addMaterialsCell(_ sender: Any) {
-        let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: Double(), material: String(), color: String())
+        let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(
+            quantity: Double(), material: String(), color: String(), width: String(), depth: String(), height: String(), panelOrLam: String()
+        )
         
         materialsCollection.append(emptyMaterial)
         
@@ -51,6 +53,7 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int { return 1 }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        tableView.rowHeight = 180
         let count = (materialsCollection.count + 1)
         return count
     }
@@ -97,12 +100,18 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
         
         if existingIndx == true {
             guard let cell = materialsTable.cellForRow(at: indxPt) as? SuppliesRequestCell,
-            let color = cell.colorField.text,
-            let material = cell.materialFIeld.text,
-            let quantity = cell.quantityField.text else { return }
+                let color = cell.colorField.text,
+                let material = cell.materialFIeld.text,
+                let quantity = cell.quantityField.text else { return }
+                let width = cell.widthField.text ?? ""
+                let depth = cell.depthField.text ?? ""
+                let height = cell.heightField.text ?? ""
+            
+            let selectedIndex = cell.panelOrLamType.selectedSegmentIndex
+            let panelOrLam = cell.panelOrLamType.titleForSegment(at: selectedIndex)
             let dbl: Double = Double(quantity) ?? 0
             
-            materialsCollection[indxPt.row] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color)
+            materialsCollection[indxPt.row] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam)
         }
     }
 }
@@ -117,13 +126,19 @@ extension SuppliesRequestView {
                 let color = suppliesCell.colorField.text,
                 let material = suppliesCell.materialFIeld.text,
                 let quantity = suppliesCell.quantityField.text else { return }
+                let width = suppliesCell.widthField.text ?? ""
+                let depth = suppliesCell.depthField.text ?? ""
+                let height = suppliesCell.heightField.text ?? ""
+            
+            let selectedIndex = suppliesCell.panelOrLamType.selectedSegmentIndex
+            let panelOrLam = suppliesCell.panelOrLamType.titleForSegment(at: selectedIndex)
             let dbl: Double = Double(quantity) ?? 0
             let existingIndx = materialsCollection.indices.contains(z)
             
             if existingIndx == true {
-                materialsCollection[z] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color)
+                materialsCollection[z] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam)
             } else {
-                materialsCollection.append(FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color))
+                materialsCollection.append(FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam))
             }
             z += 1
         }
@@ -149,5 +164,9 @@ class SuppliesRequestCell: UITableViewCell {
     @IBOutlet var materialFIeld: UITextField!
     @IBOutlet var quantityField: UITextField!
     @IBOutlet var colorField: UITextField!
+    @IBOutlet var widthField: UITextField!
+    @IBOutlet var depthField: UITextField!
+    @IBOutlet var heightField: UITextField!
+    @IBOutlet var panelOrLamType: UISegmentedControl!
     
 }
