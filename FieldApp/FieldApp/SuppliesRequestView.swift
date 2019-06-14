@@ -59,6 +59,8 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.separatorInset  = UIEdgeInsets(top: 100, left: 0, bottom: 100, right: 0)
+        cell.layoutMarginsDidChange()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

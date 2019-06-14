@@ -66,7 +66,7 @@ extension UIViewController {
             UIResponder.keyboardWillChangeFrameNotification {
             
             OperationQueue.main.addOperation {
-                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))   //   75)
+                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))
             }
         } else {
             OperationQueue.main.addOperation {

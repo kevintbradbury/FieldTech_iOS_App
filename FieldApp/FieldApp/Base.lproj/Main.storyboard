@@ -2101,7 +2101,8 @@
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="duo-0b-9ZB">
                                 <rect key="frame" x="16" y="60" width="343" height="477"/>
                                 <color key="backgroundColor" red="0.0" green="0.76273001269999996" blue="0.52718571189999996" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <color key="separatorColor" red="0.0" green="0.76273001269999996" blue="0.52718571189999996" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="separatorColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <color key="sectionIndexBackgroundColor" red="0.0" green="0.76273001269999996" blue="0.52718571189999996" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="suppliesCell" rowHeight="180" id="Swo-hu-jYq" customClass="SuppliesRequestCell" customModule="FieldApp" customModuleProvider="target">
@@ -2185,6 +2186,7 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.0" green="0.58217005076142136" blue="0.40238580824897913" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         <connections>
                                             <outlet property="colorField" destination="pbL-TW-e62" id="aGc-W5-0wh"/>
                                             <outlet property="depthField" destination="Wc7-Gc-hJu" id="9JI-Qx-gFd"/>

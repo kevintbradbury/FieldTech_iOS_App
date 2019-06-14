@@ -82,6 +82,39 @@ class ChangeOrdersView: UIViewController {
             }
     }
     
+    @objc func thisKeyboardWillChange(notification: Notification) {
+        guard let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        if notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillChangeFrameNotification {
+            print(notification.name)
+            OperationQueue.main.addOperation {
+                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 4))
+            }
+        } else {
+            OperationQueue.main.addOperation {
+                self.view.frame.origin.y = 0
+            }
+        }
+    }
+    
+    func setThisDismissableKeyboard() {
+        OperationQueue.main.addOperation {
+            self.view.frame.origin.y = 0
+            
+            self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+                
+            NotificationCenter.default.addObserver(
+                self.view, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: self.descripText.textInputView
+            )
+            NotificationCenter.default.addObserver(
+                self.view, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: self.descripText.textInputView
+            )
+            NotificationCenter.default.addObserver(
+                self.view, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: self.descripText.textInputView
+            )
+        }
+    }
+    
     func setViews() {
         descripText.text = ""
         formType.text = formTypeVal
@@ -92,7 +125,8 @@ class ChangeOrdersView: UIViewController {
         activityBckgrd.isHidden = true
         
         setJobName()
-        self.setDismissableKeyboard(vc: self)
+        setThisDismissableKeyboard()
+//        self.setDismissableKeyboard(vc: self)
         
         if formTypeVal == tool_rental {
             viewForToolRental()
