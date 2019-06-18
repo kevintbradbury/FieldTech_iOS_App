@@ -43,6 +43,7 @@ class ChangeOrdersView: UIViewController {
     let supplies_request = "Supplies Request"
     
     public var formTypeVal = "", todaysJob: String?
+    public static var jobCheckupInfo: Job.JobCheckupInfo?
     
     var changeOrder: FieldActions.ChangeOrders?
     var toolRentalForm: FieldActions.ToolRental?
@@ -228,6 +229,7 @@ class ChangeOrdersView: UIViewController {
     }
     
     func generateSuppliesReqForm(co: FieldActions.ChangeOrders) {
+        let thisJobCheckUp = ChangeOrdersView.jobCheckupInfo ?? nil
         let srForm = FieldActions.SuppliesRequest(
             formType: formTypeVal,
             jobName: todaysJob,
@@ -236,7 +238,8 @@ class ChangeOrdersView: UIViewController {
             location: co.location,
             neededBy: co.neededBy,
             description: co.description,
-            suppliesCollection: materialsCollection
+            suppliesCollection: materialsCollection,
+            jobCheckUp: thisJobCheckUp
         )
         suppliesRequestForm = srForm
     }

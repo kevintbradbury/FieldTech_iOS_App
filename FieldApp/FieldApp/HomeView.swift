@@ -121,29 +121,38 @@ extension HomeView {
         let returnTwr = returnTomorrowSwitch.isOn,
          addedMaterial = self.requiredAddedMaterialsSwitch.isOn
         guard let po = HomeView.todaysJob.poNumber ?? UserDefaults.standard.string(forKey: "todaysJobPO") else {
+            showAlert(withTitle: "Incomplete Form", message: "Couldn't find PO information.")
             return
         }
         let checkupInfo = Job.JobCheckupInfo(
             returnTomorrow: returnTwr, numberOfWorkers: employeesToReturn, addedMaterial: addedMaterial, poNumber: po
         )
-        let jsonEncoder = JSONEncoder()
-        var body = Data()
         
-        do {
-            body = try jsonEncoder.encode(checkupInfo)
-        } catch {
-            print("error: \(error)"); return
-        }
-        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
-        
-        APICalls().sendJobCheckup(po: po, body: body, vc: self) {
+        if addedMaterial == true {
+            SuppliesRequestView.jobCheckupInfo = checkupInfo
+            ChangeOrdersView.jobCheckupInfo = checkupInfo
             HomeView.jobCheckup = nil
-            self.completedProgress()
             
-            if addedMaterial == true {
-                self.main.addOperation {
-                    self.performSegue(withIdentifier: "suppliesReq", sender: nil)
-                }
+            main.addOperation {
+                self.jobCheckUpView.isHidden = true
+                self.performSegue(withIdentifier: "suppliesReq", sender: nil)
+            }
+            
+        } else {
+            let jsonEncoder = JSONEncoder()
+            var body = Data()
+            
+            do {
+                body = try jsonEncoder.encode(checkupInfo)
+            } catch {
+                print("error: \(error)")
+                showAlert(withTitle: "Encoding Error", message: "Error encoding data for server. \(error.localizedDescription)"); return
+            }
+            inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
+            
+            APICalls().sendJobCheckup(po: po, body: body, vc: self) {
+                HomeView.jobCheckup = nil
+                self.completedProgress()
             }
         }
     }

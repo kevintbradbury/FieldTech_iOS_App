@@ -164,7 +164,6 @@ class APICalls {
             reqWithData.httpBody = body
             
             self.startSession(request: reqWithData, route: route) { json in
-                
                 callback()
             }
         }

@@ -307,7 +307,8 @@ class FieldActions {
         location: String?,
         neededBy: Double?, // Seconds from 1970
         description: String?,
-        suppliesCollection: [MaterialQuantityColor]
+        suppliesCollection: [MaterialQuantityColor],
+        jobCheckUp: Job.JobCheckupInfo?
         
         struct MaterialQuantityColor: Encodable {
             var quantity: Double,

@@ -165,9 +165,16 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     // If App is currently open
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-        AudioServicesPlaySystemSound(1003)
-        handleNotif(category: notification.request.content.categoryIdentifier, center: center, notifBody: notification.request.content.body)
+        print("notifCtr willPresent category: \(notification.request.identifier), \(notification.request.content.categoryIdentifier)")
+        var category = ""
+        
+        if notification.request.content.categoryIdentifier != nil && notification.request.content.categoryIdentifier != "" {
+            category = notification.request.content.categoryIdentifier
+        } else {
+            category = notification.request.identifier
+        }
+        
+        handleNotif(category: category, center: center, notifBody: notification.request.content.body)
         completionHandler(.alert)
     }
     
@@ -175,14 +182,21 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
-            let category = response.notification.request.content.categoryIdentifier
+            var category = ""
+            
+            if response.notification.request.content.categoryIdentifier != nil  && response.notification.request.content.categoryIdentifier != "" {
+                category = response.notification.request.content.categoryIdentifier
+            } else {
+                category = response.notification.request.identifier
+            }
+            print("notifCtr didReceive category: \(response.notification.request.identifier), \(response.notification.request.content.categoryIdentifier)")
+            
             handleNotif(category: category, center: center, notifBody: response.notification.request.content.body)
             completionHandler()
         }
     }
     
     func handleNotif(category: String, center: UNUserNotificationCenter, notifBody: String?) {
-        print("notifCtr willPresent/didReceive category: \(category)")
         let state = UIApplication.shared.applicationState
         guard let vc = self.homeViewActive else { return }
         

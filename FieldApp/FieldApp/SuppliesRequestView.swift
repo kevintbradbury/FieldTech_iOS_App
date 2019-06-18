@@ -19,7 +19,7 @@ class SuppliesRequestView: UIViewController {
     var todaysJob: Job?
     var employeeInfo: UserData.UserInfo?
     var materialsCollection: [FieldActions.SuppliesRequest.MaterialQuantityColor] = []
-    
+    public static var jobCheckupInfo: Job.JobCheckupInfo?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -157,6 +157,7 @@ extension SuppliesRequestView {
             print("materialsCollection: \(materialsCollection)")
             
             if todaysJob?.jobName != nil && todaysJob?.jobName != "" { destn.todaysJob = todaysJob?.jobName }
+            if SuppliesRequestView.jobCheckupInfo != nil { ChangeOrdersView.jobCheckupInfo = SuppliesRequestView.jobCheckupInfo }
         }
     }
     

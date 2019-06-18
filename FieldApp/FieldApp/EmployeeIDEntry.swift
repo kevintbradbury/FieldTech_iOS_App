@@ -252,7 +252,7 @@ extension EmployeeIDEntry {
         }
         
         if identifier == "clockOut" {
-            let twoHours = Double(60 * 60 * 1.9)
+            let twoHours = 5.0   // Double(60 * 60 * 1.9)
             let jobUpdate = createNotification(
                 intervalInSeconds: twoHours, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
             )
