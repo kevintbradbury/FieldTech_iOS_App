@@ -59,6 +59,10 @@ class ChangeOrdersView: UIViewController {
         
         setViews()
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
+    }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -87,8 +91,11 @@ class ChangeOrdersView: UIViewController {
         
         if notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillChangeFrameNotification {
             print(notification.name)
-            OperationQueue.main.addOperation {
-                self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 4))
+            
+            if self.descripText.isFirstResponder == true {
+                OperationQueue.main.addOperation {
+                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 4))
+                }
             }
         } else {
             OperationQueue.main.addOperation {
@@ -102,15 +109,15 @@ class ChangeOrdersView: UIViewController {
             self.view.frame.origin.y = 0
             
             self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
-                
+            
             NotificationCenter.default.addObserver(
-                self.view, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: self.descripText.textInputView
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil
             )
             NotificationCenter.default.addObserver(
-                self.view, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: self.descripText.textInputView
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil
             )
             NotificationCenter.default.addObserver(
-                self.view, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: self.descripText.textInputView
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil
             )
         }
     }
@@ -126,7 +133,6 @@ class ChangeOrdersView: UIViewController {
         
         setJobName()
         setThisDismissableKeyboard()
-//        self.setDismissableKeyboard(vc: self)
         
         if formTypeVal == tool_rental {
             viewForToolRental()

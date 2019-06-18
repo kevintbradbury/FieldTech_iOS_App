@@ -62,8 +62,7 @@ extension UIViewController {
     @objc func keyboardWillChange(notification: Notification) {
         guard let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
         
-        if notification.name == UIResponder.keyboardWillShowNotification || notification.name ==
-            UIResponder.keyboardWillChangeFrameNotification {
+        if notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillChangeFrameNotification {
             
             OperationQueue.main.addOperation {
                 self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))
@@ -76,6 +75,14 @@ extension UIViewController {
     }
     
     func setDismissableKeyboard(vc: UIViewController) {
+        OperationQueue.main.addOperation {
+            vc.view.addGestureRecognizer(
+                UITapGestureRecognizer(target: vc.view, action: #selector(UIView.endEditing(_:)))
+            )
+        }
+    }
+    
+    func setNotifsForAdjustedFrame(vc: UIViewController) {
         OperationQueue.main.addOperation {
             vc.view.frame.origin.y = 0
             
@@ -275,6 +282,23 @@ extension UIViewController {
         }
     }
     
+    func checkForNotifUpdates() {
+        if let checklistForVehicle = HomeView.vehicleCkListNotif {
+            if checklistForVehicle == true {
+                self.dismiss(animated: true, completion: nil)
+            }
+            
+        } else if let readySchedule = HomeView.scheduleReadyNotif {
+            if readySchedule == true {
+                self.dismiss(animated: true, completion: nil)
+            }
+        } else if let jobCheck = HomeView.jobCheckup {
+            if jobCheck == true {
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+        //        else if HomeView.toolRenewal != nil { extendToolRental() }
+    }
 }
 
 

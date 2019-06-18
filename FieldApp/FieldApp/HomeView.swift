@@ -501,7 +501,10 @@ extension HomeView {
     func completedProgress() {
         main.addOperation { self.jobCheckUpView.isHidden = true }
         completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
-        
+        checkForPushNotifUpdates()
+    }
+
+    func checkForPushNotifUpdates() {
         if let checklistForVehicle = HomeView.vehicleCkListNotif {
             if checklistForVehicle == true {
                 self.performSegue(withIdentifier: "vehicleCkList", sender: nil)
@@ -518,9 +521,9 @@ extension HomeView {
                 }
             }
         }
-//        else if HomeView.toolRenewal != nil { extendToolRental() }
+        //        else if HomeView.toolRenewal != nil { extendToolRental() }
     }
-
+    
     func clockedInUI() {
         guard let info = HomeView.employeeInfo else { return }
         main.addOperation {

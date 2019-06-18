@@ -35,6 +35,11 @@ class ToolSignOffView: UIViewController {
         print("toolToReturn: \(String(describing: toolToReturn))")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
+    }
+    
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func returnerTap(_ sender: Any) {
         signatureRole = "returner"
@@ -64,7 +69,7 @@ extension ToolSignOffView {
         activityIndicator.isHidden = true
         activityBckgd.isHidden = true
         
-        self.setDismissableKeyboard(vc: self)
+        setDismissableKeyboard(vc: self)
     }
     
     func sendSignatures() {
@@ -93,7 +98,6 @@ extension ToolSignOffView {
         do { formBody = try jsonEncoder.encode(returnObj) }
         catch { print("error converting ToolReturn to DATA", error); return }
         
-//        APICalls().alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
         alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
             self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: responseType, formType: "Tool Return")

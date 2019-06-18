@@ -32,6 +32,11 @@ class SuppliesRequestView: UIViewController {
         )
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
+    }
+    
     @IBAction func addMaterialsCell(_ sender: Any) {
         let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(
             quantity: Double(), material: String(), color: String(), width: String(), depth: String(), height: String(), panelOrLam: String()

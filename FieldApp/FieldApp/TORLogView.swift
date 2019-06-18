@@ -11,6 +11,11 @@ import UIKit
 
 class TORLogView: UITableViewController {
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
+    }
+    
     @IBOutlet var backBtn: UIBarButtonItem!
     
     let formatter = DateFormatter()

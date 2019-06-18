@@ -29,6 +29,10 @@ class StoresMapView: UIViewController {
         intitMap()
         findHWStores()
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
+    }
     
     @IBAction func returnHome(_ sender: Any) {
         dismiss(animated: true)

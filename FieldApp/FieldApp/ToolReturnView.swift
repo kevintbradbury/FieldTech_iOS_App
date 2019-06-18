@@ -34,6 +34,11 @@ class ToolReturnView: UITableViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
+    }
+    
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
     
 }

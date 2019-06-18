@@ -30,7 +30,6 @@ class TimeOffRequestView: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.setDismissableKeyboard(vc: self)
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         activityBckgrd.isHidden = true
@@ -38,6 +37,13 @@ class TimeOffRequestView: UIViewController {
         if employeeInfo?.userName != nil {
             userNameLbl.text = employeeInfo?.userName
         }
+        
+       
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
     }
     
     @IBAction func goBack(_ sender: Any) { self.dismiss(animated: true, completion: nil) }

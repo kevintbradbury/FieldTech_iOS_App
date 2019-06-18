@@ -32,7 +32,7 @@ class OneTimeLoginController: UIViewController {
     }
     
     func setView() {
-        self.setDismissableKeyboard(vc: self)
+        setDismissableKeyboard(vc: self)
         passwordField.isSecureTextEntry = true
         activityBkgd.isHidden = true
         activityIndicator.isHidden = true

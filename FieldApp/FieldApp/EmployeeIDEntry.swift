@@ -65,6 +65,7 @@ class EmployeeIDEntry: UIViewController {
         roleSelection.dataSource = self
         longHand.backgroundColor = .clear
         animatedClockView.backgroundColor = .clear
+        checkForNotifUpdates()
     }
     
     override func viewDidLoad() {
@@ -251,9 +252,9 @@ extension EmployeeIDEntry {
         }
         
         if identifier == "clockOut" {
-            let thirtyMin = Double(60 * 30)
+            let twoHours = Double(60 * 60 * 1.9)
             let jobUpdate = createNotification(
-                intervalInSeconds: thirtyMin, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
+                intervalInSeconds: twoHours, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
             )
             notificationCenter.add(jobUpdate) { error in
                 if error != nil {

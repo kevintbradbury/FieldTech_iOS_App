@@ -63,6 +63,11 @@ class ScheduleView: UIViewController {
         checkScheduleReady()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        checkForNotifUpdates()
+    }
+    
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func accptMoreHrsBtn(_ sender: Any) { confirmRegOrMoreHrs() }
     @IBAction func sendDaysOfWeek(_ sender: Any) { getDaysAccepted() }

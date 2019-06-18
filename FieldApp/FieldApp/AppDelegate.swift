@@ -11,6 +11,7 @@ import Firebase
 import FirebaseAuth
 import UserNotifications
 import CoreLocation
+import AudioToolbox
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -164,7 +165,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     // If App is currently open
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+        AudioServicesPlaySystemSound(1003)
         handleNotif(category: notification.request.content.categoryIdentifier, center: center, notifBody: notification.request.content.body)
         completionHandler(.alert)
     }
