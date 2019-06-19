@@ -311,7 +311,7 @@ class FieldActions {
         jobCheckUp: Job.JobCheckupInfo?
         
         struct MaterialQuantityColor: Encodable {
-            var quantity: Double,
+            var quantity: String,
             material: String,
             color:  String,
             width: String?,
@@ -356,7 +356,7 @@ class FieldActions {
         location: String?, // Address?
         material: String?,
         colorSpec: String?,
-        quantity: Double?,
+        quantity: String?,
         neededBy: Double?, // Seconds from 1970
         description: String?
     }
@@ -562,7 +562,15 @@ struct SafetyQuestion: Encodable {
     }
 }
 
-
+class DefaultKeys: Encodable {
+    public static let token = "token",
+    employeeName = "employeeName",
+    employeeID = "employeeID",
+    todaysJobLatLong = "todaysJobLatLong",
+    todaysJobPO = "todaysJobPO",
+    todaysJobName = "todaysJobName",
+    hadLunch = "hadLunch"
+}
 
 
 

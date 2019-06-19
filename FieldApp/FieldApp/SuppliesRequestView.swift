@@ -39,7 +39,7 @@ class SuppliesRequestView: UIViewController {
     
     @IBAction func addMaterialsCell(_ sender: Any) {
         let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(
-            quantity: Double(), material: String(), color: String(), width: String(), depth: String(), height: String(), panelOrLam: String()
+            quantity: String(), material: String(), color: String(), width: String(), depth: String(), height: String(), panelOrLam: String()
         )
         
         materialsCollection.append(emptyMaterial)
@@ -79,10 +79,6 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
             
             cell.colorField.text = material.color
             cell.materialFIeld.text = material.material
-            
-            if material.quantity > 0 {
-                cell.quantityField.text = "\(material.quantity)"
-            }
         }
         
         return cell
@@ -116,9 +112,10 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
             
             let selectedIndex = cell.panelOrLamType.selectedSegmentIndex
             let panelOrLam = cell.panelOrLamType.titleForSegment(at: selectedIndex)
-            let dbl: Double = Double(quantity) ?? 0
             
-            materialsCollection[indxPt.row] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam)
+            materialsCollection[indxPt.row] = FieldActions.SuppliesRequest.MaterialQuantityColor(
+                quantity: quantity, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam
+            )
         }
     }
 }
@@ -139,24 +136,23 @@ extension SuppliesRequestView {
             
             let selectedIndex = suppliesCell.panelOrLamType.selectedSegmentIndex
             let panelOrLam = suppliesCell.panelOrLamType.titleForSegment(at: selectedIndex)
-            let dbl: Double = Double(quantity) ?? 0
             let existingIndx = materialsCollection.indices.contains(z)
             
             if existingIndx == true {
-                materialsCollection[z] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam)
+                materialsCollection[z] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam)
             } else {
-                materialsCollection.append(FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: dbl, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam))
+                materialsCollection.append(FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam))
             }
             z += 1
         }
         
         if segue.identifier == "suppliesReqForm" {
-            guard let destn = segue.destination as? ChangeOrdersView else { return }
-            destn.materialsCollection = materialsCollection
-            destn.formTypeVal = "Supplies Request"
+            guard let vc = segue.destination as? ChangeOrdersView else { return }
+            vc.materialsCollection = materialsCollection
+            vc.formTypeVal = "Supplies Request"
             print("materialsCollection: \(materialsCollection)")
             
-            if todaysJob?.jobName != nil && todaysJob?.jobName != "" { destn.todaysJob = todaysJob?.jobName }
+            if let jbNm = todaysJob?.jobName { vc.todaysJob = jbNm }
             if SuppliesRequestView.jobCheckupInfo != nil { ChangeOrdersView.jobCheckupInfo = SuppliesRequestView.jobCheckupInfo }
         }
     }

@@ -77,7 +77,7 @@ class ChangeOrdersView: UIViewController {
     @IBAction func uploadCO(_ sender: Any) {
         view.frame.origin.y = 0
 
-            self.getTextVals() { co in
+            getTextVals() { co in
                 
                 if self.formTypeVal == self.tool_rental { self.generateToolForm(co: co) }
                 else if self.formTypeVal == self.change_order { self.changeOrder = co }
@@ -91,7 +91,6 @@ class ChangeOrdersView: UIViewController {
         guard let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
         
         if notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillChangeFrameNotification {
-            print(notification.name)
             
             if self.descripText.isFirstResponder == true {
                 OperationQueue.main.addOperation {
@@ -171,23 +170,24 @@ class ChangeOrdersView: UIViewController {
                 showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
                 return
         }
-        todaysJob = po
+        let tdyJob = todaysJob ?? UserDefaults.standard.string(forKey: DefaultKeys.todaysJobName) ?? self.jobNameLabel.text ?? po
+        
         var changeOrderObj = FieldActions.ChangeOrders(
             formType: formTypeVal,
-            jobName: "",
+            jobName: tdyJob,
             poNumber: po,
             requestedBy: employee,
             location: location,
             material: "",
             colorSpec: "",
-            quantity: 0.0,
+            quantity: "",
             neededBy: chosenDate,
             description: descrip
         )
         if formTypeVal == change_order || formTypeVal == tool_rental {
             guard let material = materialText.text,
                 let colorspec = colorSpecText.text,
-                let quantity: Double = Double(quantityText.text!) else {
+                let quantity = quantityText.text else {
                     showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
                     return
             }
@@ -197,12 +197,7 @@ class ChangeOrdersView: UIViewController {
             changeOrderObj.quantity = quantity
         }
         
-        if todaysJob != nil && todaysJob != "" {
-            changeOrderObj.jobName = todaysJob
-            callback(changeOrderObj)
-            
-        } else if UserDefaults.standard.string(forKey: "todaysJobName") != "" {
-            changeOrderObj.jobName = UserDefaults.standard.string(forKey: "todaysJobName")
+        if changeOrderObj.jobName != nil && changeOrderObj.jobName != "" {
             callback(changeOrderObj)
             
         } else {
@@ -212,6 +207,7 @@ class ChangeOrdersView: UIViewController {
     }
     
     func generateToolForm(co: FieldActions.ChangeOrders) {
+        let quantity: Double = Double(co.quantity!) ?? 0.0
         let rentForm = FieldActions.ToolRental(
             formType: co.formType,
             jobName: co.jobName,
@@ -220,7 +216,7 @@ class ChangeOrdersView: UIViewController {
             toolType: co.location,
             brand: co.material,
             duration: Int(co.colorSpec!),
-            quantity: co.quantity,
+            quantity: quantity,
             neededBy: co.neededBy,
             location: co.description
         )
@@ -232,7 +228,7 @@ class ChangeOrdersView: UIViewController {
         let thisJobCheckUp = ChangeOrdersView.jobCheckupInfo ?? nil
         let srForm = FieldActions.SuppliesRequest(
             formType: formTypeVal,
-            jobName: todaysJob,
+            jobName: co.jobName,
             poNumber: todaysJobPO,
             requestedBy: co.requestedBy,
             location: co.location,
@@ -271,7 +267,8 @@ class ChangeOrdersView: UIViewController {
         descripLabel.text = "Location"
         colorSpecLabel.text = "Duration"
         colorSpecText.placeholder = "Number of Days"
-        colorSpecText.keyboardType = .numberPad
+        colorSpecText.keyboardType = .decimalPad
+        quantityText.keyboardType = .decimalPad
     }
     
     func viewForSuppliesReq() {
@@ -369,6 +366,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
         
         alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
             let resType = responseType
+            HomeView.jobCheckup = nil
             self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
             self.handleResponseType(responseType: resType, formType: self.formTypeVal)
         }
