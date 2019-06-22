@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import CoreLocation
 import MapKit
+import MLPAutoCompleteTextField
 
 
 struct UsernameAndPassword: Codable {
@@ -572,5 +573,44 @@ class DefaultKeys: Encodable {
     hadLunch = "hadLunch"
 }
 
+class AutoCompleteObj: NSObject, MLPAutoCompletionObject {
+    var poNumber: NSString = ""
+    
+    override init() { super.init() }
+    
+    func initWithPO(po: String) -> AutoCompleteObj {
+        self.poNumber = po as NSString
+        return self
+    }
+    
+    func autocompleteString() -> String! {
+        return self.poNumber as String
+    }
+}
 
+class AutoCompleteDataSrc: NSObject, MLPAutoCompleteTextFieldDataSource {
+    var testWithAutoCompleteObjectsInsteadOfStrings = false
+    var simulateLatency = false
+    var poNums: [String] = [String]()
+    
+    override init() { super.init() }
+    
+    func initialize(pos: [String]) -> AutoCompleteDataSrc {
+        self.poNums = pos
+        return self
+    }
+    
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, possibleCompletionsFor string: String!) -> [Any]! {
+        guard let typedText = string else { return [""]}
+        var possibleMatches = [AutoCompleteObj]()
+        
+        for i in poNums {
+            if i.contains(typedText) {
+                let match = AutoCompleteObj().initWithPO(po: i)
+                possibleMatches.append(match)
+            }
+        }
+        return possibleMatches
+    }
+}
 

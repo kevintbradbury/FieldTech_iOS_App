@@ -308,6 +308,25 @@ class APICalls {
             }
         }
     }
+    
+    func getJobNames(errorAndJobs cb: @escaping (String?, [String]?)-> ()) {
+        let route = "getJobs"
+
+        setupRequest(route: route, method: "GET") { request in
+            
+            self.startSession(request: request, route: route) { json in
+                var jobs: [String]?
+                var err: String?
+                
+                if let theseJobs = json["jobs"] as? [String] {
+                    jobs = theseJobs
+                } else if let error = json["error"] {
+                    err = error as? String
+                }
+                cb(err, jobs)
+            }
+        }
+    }
 }
 
 

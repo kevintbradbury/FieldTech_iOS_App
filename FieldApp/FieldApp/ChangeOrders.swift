@@ -11,12 +11,13 @@ import UIKit
 import UserNotifications
 import NotificationCenter
 import ImagePicker
+import MLPAutoCompleteTextField
 
-class ChangeOrdersView: UIViewController {
+class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTextFieldDelegate, MLPAutoCompleteTextFieldDataSource {
     
     @IBOutlet weak var formType: UILabel!
     @IBOutlet weak var jobNameLabel: UILabel!
-    @IBOutlet var poNumberField: UITextField!
+    @IBOutlet var poNumberField: MLPAutoCompleteTextField!
     @IBOutlet weak var requestedByLabel: UILabel!
     @IBOutlet var locationLabel: UILabel!
     @IBOutlet var materialLabel: UILabel!
@@ -41,6 +42,7 @@ class ChangeOrdersView: UIViewController {
     let tool_rental = "Tool Rental"
     let change_order = "Change Order"
     let supplies_request = "Supplies Request"
+    var dtSrc: MLPAutoCompleteTextFieldDataSource?
     
     public var formTypeVal = "", todaysJob: String?
     public static var jobCheckupInfo: Job.JobCheckupInfo?
@@ -59,6 +61,7 @@ class ChangeOrdersView: UIViewController {
         datePickerFields.setValue(UIColor.white, forKey: "textColor")
         
         setViews()
+        setAutoCmpltField()
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -107,7 +110,6 @@ class ChangeOrdersView: UIViewController {
     func setThisDismissableKeyboard() {
         OperationQueue.main.addOperation {
             self.view.frame.origin.y = 0
-            
             self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
             
             NotificationCenter.default.addObserver(
@@ -119,6 +121,27 @@ class ChangeOrdersView: UIViewController {
             NotificationCenter.default.addObserver(
                 self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil
             )
+        }
+    }
+    
+    func setAutoCmpltField() {
+        poNumberField.delegate = self
+        poNumberField.autoCompleteDelegate = self
+        poNumberField.maximumNumberOfAutoCompleteRows = 10
+        poNumberField.autoCompleteTableCellBackgroundColor = .black
+        poNumberField.autoCompleteTableCellTextColor = .white
+        
+        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator, showProgress: false)
+        APICalls().getJobNames() { err, jobs in
+            self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
+            
+            if err != nil {
+                guard let safeErr = err else { return }
+                self.showAlert(withTitle: "Error", message: safeErr)
+            } else if let theseJobs = jobs {
+                self.dtSrc = AutoCompleteDataSrc().initialize(pos: theseJobs)
+                self.poNumberField.autoCompleteDataSource = self.dtSrc
+            }
         }
     }
     
@@ -338,7 +361,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
         } else {
             completeProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
             showAlert(withTitle: "Error", message: "An employee name or PO number is required for COs, Tool Rentals, & Supplies Reqs.")
-        };
+        }
     }
     
     func checkFormType(images: [UIImage], po: String, employee: String) {
@@ -374,5 +397,19 @@ extension ChangeOrdersView: ImagePickerDelegate {
     
 }
 
-
+extension ChangeOrdersView {    // MLPAutoCompleteTextFieldDelegate
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldConfigureCell cell: UITableViewCell!, withAutoComplete autocompleteString: String!, with boldedString: NSAttributedString!, forAutoComplete autocompleteObject: MLPAutoCompletionObject!, forRowAt indexPath: IndexPath!) -> Bool {
+        return true
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, willShowAutoComplete autoCompleteTableView: UITableView!) { }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldStyleAutoComplete autoCompleteTableView: UITableView!, for borderStyle: UITextField.BorderStyle) -> Bool {
+        return true
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, didSelectAutoComplete selectedString: String!, withAutoComplete selectedObject: MLPAutoCompletionObject!, forRowAt indexPath: IndexPath!) {
+        print("didSelectAutoComplete")
+        let split = selectedString.components(separatedBy: " - ")
+        poNumberField.text = split[0]
+        jobNameLabel.text = split[1]
+    }
+}
 
