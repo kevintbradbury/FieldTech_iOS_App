@@ -565,7 +565,7 @@ extension HomeView {
         case "changeOrder":
             let vc = segue.destination as! ChangeOrdersView
             let jbName = HomeView.todaysJob.jobName
-            vc.todaysJob = jbName ?? ""
+            vc.todaysJob = jbName
             vc.formTypeVal = "Change Order"
         case "suppliesReq":
             let vc = segue.destination as! SuppliesRequestView
@@ -574,7 +574,7 @@ extension HomeView {
         case "toolRental":
             let vc = segue.destination as! ChangeOrdersView
             let jbName = HomeView.todaysJob.jobName
-            vc.todaysJob = jbName ?? ""
+            vc.todaysJob = jbName
             vc.formTypeVal = "Tool Rental"
         case "toolReturn":
             let vc = segue.destination as! ToolReturnView
@@ -583,7 +583,7 @@ extension HomeView {
         case "map":
             let vc = segue.destination as! StoresMapView
             let jbName = HomeView.todaysJob.jobName
-            vc.todaysJob = jbName ?? ""
+            vc.todaysJob = jbName
         case "timeOff":
             let vc = segue.destination as! TimeOffRequestView
             guard let emplyInformation = HomeView.employeeInfo else { return }

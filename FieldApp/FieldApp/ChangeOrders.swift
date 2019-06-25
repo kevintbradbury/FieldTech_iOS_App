@@ -178,9 +178,26 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
         }
     }
     
+    func getTodaysJob() -> String {
+        var tdyJob = ""
+        
+        if let thisJob = todaysJob {
+            tdyJob = thisJob
+        } else if let thisJob2 = UserDefaults.standard.string(forKey: DefaultKeys.todaysJobName) {
+            tdyJob = thisJob2
+        } else if let thisJob3 = self.jobNameLabel.text {
+            tdyJob = thisJob3
+        } else if let po = poNumberField.text {
+            tdyJob = po
+        }
+        
+        return tdyJob
+    }
+    
     func getTextVals(callback: @escaping (FieldActions.ChangeOrders) -> ()) {
         let chosenDate = datePickerFields.date.timeIntervalSince1970
         let now = Date().timeIntervalSince1970 - (60 * 60 * 12)
+        let tdyJob = getTodaysJob()
         
         if chosenDate < now {
             showAlert(withTitle: "Date Error", message: "Can't pick a date earlier than today."); return
@@ -193,19 +210,10 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
                 showAlert(withTitle: "Incomplete", message: String("The " + formTypeVal + " form is missing values.") )
                 return
         }
-        let tdyJob = todaysJob ?? UserDefaults.standard.string(forKey: DefaultKeys.todaysJobName) ?? self.jobNameLabel.text ?? po
         
         var changeOrderObj = FieldActions.ChangeOrders(
-            formType: formTypeVal,
-            jobName: tdyJob,
-            poNumber: po,
-            requestedBy: employee,
-            location: location,
-            material: "",
-            colorSpec: "",
-            quantity: "",
-            neededBy: chosenDate,
-            description: descrip
+            formType: formTypeVal, jobName: tdyJob, poNumber: po, requestedBy: employee, location: location,
+            material: "", colorSpec: "", quantity: "", neededBy: chosenDate, description: descrip
         )
         if formTypeVal == change_order || formTypeVal == tool_rental {
             guard let material = materialText.text,
@@ -224,7 +232,6 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
             callback(changeOrderObj)
             
         } else {
-            dismiss(animated: true, completion: nil)
             showAlert(withTitle: "Error", message: "Couldn't find a Job name for this form.")
         }
     }
@@ -395,13 +402,22 @@ extension ChangeOrdersView: ImagePickerDelegate {
         }
     }
     
+    @objc func choosePOnum(autocompleteString: String) {
+        print("choosePOnum")
+        let split = autocompleteString.components(separatedBy: " - ")
+        self.poNumberField.text = split[0]
+        self.jobNameLabel.text = split[1]
+    }
 }
 
 extension ChangeOrdersView {    // MLPAutoCompleteTextFieldDelegate
+    
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, willShowAutoComplete autoCompleteTableView: UITableView!) {
+        print("autoCompleteTextField: willShowAutoComplete")
+    }
     func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldConfigureCell cell: UITableViewCell!, withAutoComplete autocompleteString: String!, with boldedString: NSAttributedString!, forAutoComplete autocompleteObject: MLPAutoCompletionObject!, forRowAt indexPath: IndexPath!) -> Bool {
         return true
     }
-    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, willShowAutoComplete autoCompleteTableView: UITableView!) { }
     func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldStyleAutoComplete autoCompleteTableView: UITableView!, for borderStyle: UITextField.BorderStyle) -> Bool {
         return true
     }
@@ -412,4 +428,5 @@ extension ChangeOrdersView {    // MLPAutoCompleteTextFieldDelegate
         jobNameLabel.text = split[1]
     }
 }
+
 
