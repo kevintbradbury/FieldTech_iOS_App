@@ -123,8 +123,12 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
 extension SuppliesRequestView {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
+        let allRows = materialsTable.numberOfRows(inSection: 1) - 1
         var z = 0
-        for cell in materialsTable.visibleCells {
+        
+        for i in 0...allRows {
+            let indxPath = IndexPath(row: i, section: 1)
+            let cell = materialsTable.cellForRow(at: indxPath)
             
             guard let suppliesCell = cell as? SuppliesRequestCell,
                 let color = suppliesCell.colorField.text,
