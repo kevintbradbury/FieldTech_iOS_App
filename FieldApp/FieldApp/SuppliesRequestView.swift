@@ -16,9 +16,16 @@ class SuppliesRequestView: UIViewController {
     @IBOutlet var addMaterialBtn: UIButton!
     @IBOutlet var continueBtn: UIButton!
     
+    let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(
+        quantity: String(), material: String(), color: String(), width: String(), depth: String(), height: String()
+    )
+    
     var todaysJob: Job?
     var employeeInfo: UserData.UserInfo?
-    var materialsCollection: [FieldActions.SuppliesRequest.MaterialQuantityColor] = []
+    var materialsCollection: [FieldActions.SuppliesRequest.MaterialQuantityColor] = [FieldActions.SuppliesRequest.MaterialQuantityColor(
+        quantity: String(), material: String(), color: String(), width: String(), depth: String(), height: String()
+        )]
+    var indexToAdjust: Int = 0
     public static var jobCheckupInfo: Job.JobCheckupInfo?
     
     override func viewDidLoad() {
@@ -38,14 +45,14 @@ class SuppliesRequestView: UIViewController {
     }
     
     @IBAction func addMaterialsCell(_ sender: Any) {
-        let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(
-            quantity: String(), material: String(), color: String(), width: String(), depth: String(), height: String(), panelOrLam: String()
-        )
         
-        materialsCollection.append(emptyMaterial)
+        if materialsCollection.count == materialsTable.numberOfRows(inSection: 0) {
+            materialsCollection.append(emptyMaterial)
+        }
+        let rw = materialsTable.numberOfRows(inSection: 0) - 1
         
         materialsTable.beginUpdates()
-        materialsTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: UITableView.RowAnimation.automatic)
+        materialsTable.insertRows(at: [IndexPath(row: rw, section: 0)], with: UITableView.RowAnimation.automatic)
         materialsTable.endUpdates()
     }
     
@@ -59,7 +66,7 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         tableView.rowHeight = 180
-        let count = (materialsCollection.count + 1)
+        let count = materialsCollection.count
         return count
     }
     
@@ -72,13 +79,25 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "suppliesCell") as? SuppliesRequestCell else {
                 return UITableViewCell()
         }
-        let existingIndx = materialsCollection.indices.contains(indexPath.row)
         
+        cell.materialFIeld.delegate = self
+        cell.colorField.delegate = self
+        cell.quantityField.delegate = self
+        cell.widthField.delegate = self
+        cell.heightField.delegate = self
+        cell.depthField.delegate = self
+        
+        let existingIndx = materialsCollection.indices.contains(indexPath.row)
+   
         if existingIndx == true {
-            let material = materialsCollection[indexPath.row]
+            let item = materialsCollection[indexPath.row]
             
-            cell.colorField.text = material.color
-            cell.materialFIeld.text = material.material
+            cell.materialFIeld.text = item.material
+            cell.colorField.text = item.color
+            cell.quantityField.text = item.quantity
+            cell.widthField.text = item.width
+            cell.depthField.text = item.depth
+            cell.heightField.text = item.height
         }
         
         return cell
@@ -88,67 +107,38 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete {
             materialsTable.beginUpdates()
             
-            if materialsCollection.indices.contains(indexPath.row) == true { materialsCollection.remove(at: indexPath.row) }
-            else { materialsTable.endUpdates(); return }
+            if materialsCollection.indices.contains(indexPath.row) == true {
+                materialsTable.deleteRows(at: [indexPath], with: UITableView.RowAnimation.left)
+                materialsCollection.remove(at: indexPath.row)
+            } else {
+                guard let cell = materialsTable.dequeueReusableCell(withIdentifier: "suppliesCell", for: indexPath) as? SuppliesRequestCell else { return }
+                cell.materialFIeld.text = nil
+                cell.colorField.text = nil
+                cell.quantityField.text = nil
+                cell.widthField.text = nil
+                cell.heightField.text = nil
+                cell.depthField.text = nil
+            }
             
-            materialsTable.deleteRows(at: [indexPath], with: UITableView.RowAnimation.automatic)
             materialsTable.endUpdates()
         }
     }
     
-    
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
         guard let indxPt: IndexPath = indexPath else { return }
-        let existingIndx = materialsCollection.indices.contains(indxPt.row)
-        
-        if existingIndx == true {
-            guard let cell = materialsTable.cellForRow(at: indxPt) as? SuppliesRequestCell,
-                let color = cell.colorField.text,
-                let material = cell.materialFIeld.text,
-                let quantity = cell.quantityField.text else { return }
-                let width = cell.widthField.text ?? ""
-                let depth = cell.depthField.text ?? ""
-                let height = cell.heightField.text ?? ""
-            
-            let selectedIndex = cell.panelOrLamType.selectedSegmentIndex
-            let panelOrLam = cell.panelOrLamType.titleForSegment(at: selectedIndex)
-            
-            materialsCollection[indxPt.row] = FieldActions.SuppliesRequest.MaterialQuantityColor(
-                quantity: quantity, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam
-            )
-        }
+    }
+    
+}
+
+extension SuppliesRequestView: UITextFieldDelegate {
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        setMaterials()
     }
 }
 
 extension SuppliesRequestView {
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        let allRows = materialsTable.numberOfRows(inSection: 1) - 1
-        var z = 0
-        
-        for i in 0...allRows {
-            let indxPath = IndexPath(row: i, section: 1)
-            let cell = materialsTable.cellForRow(at: indxPath)
-            
-            guard let suppliesCell = cell as? SuppliesRequestCell,
-                let color = suppliesCell.colorField.text,
-                let material = suppliesCell.materialFIeld.text,
-                let quantity = suppliesCell.quantityField.text else { return }
-                let width = suppliesCell.widthField.text ?? ""
-                let depth = suppliesCell.depthField.text ?? ""
-                let height = suppliesCell.heightField.text ?? ""
-            
-            let selectedIndex = suppliesCell.panelOrLamType.selectedSegmentIndex
-            let panelOrLam = suppliesCell.panelOrLamType.titleForSegment(at: selectedIndex)
-            let existingIndx = materialsCollection.indices.contains(z)
-            
-            if existingIndx == true {
-                materialsCollection[z] = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam)
-            } else {
-                materialsCollection.append(FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height, panelOrLam: panelOrLam))
-            }
-            z += 1
-        }
         
         if segue.identifier == "suppliesReqForm" {
             guard let vc = segue.destination as? ChangeOrdersView else { return }
@@ -161,6 +151,34 @@ extension SuppliesRequestView {
         }
     }
     
+    func setMaterials() {
+        var z = 0
+        
+        for cell in materialsTable.visibleCells {
+            
+            guard let suppliesCell = cell as? SuppliesRequestCell,
+                let color = suppliesCell.colorField.text,
+                let material = suppliesCell.materialFIeld.text,
+                let quantity = suppliesCell.quantityField.text else { return }
+            let width = suppliesCell.widthField.text
+            let depth = suppliesCell.depthField.text
+            let height = suppliesCell.heightField.text
+            
+            if color == "" { continue }
+            else if material == "" { continue }
+            else if quantity == "" { continue }
+            else {
+                //            let selectedIndex = suppliesCell.panelOrLamType.selectedSegmentIndex
+                //            let panelOrLam = suppliesCell.panelOrLamType.titleForSegment(at: selectedIndex)
+                
+                let existingIndx = materialsCollection.indices.contains(z)
+                let oneMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height)
+                
+                if existingIndx == true { materialsCollection[z] = oneMaterial }
+            }
+            z += 1
+        }
+    }
 }
 
 
@@ -176,5 +194,5 @@ class SuppliesRequestCell: UITableViewCell {
     @IBOutlet var depthField: UITextField!
     @IBOutlet var heightField: UITextField!
     @IBOutlet var panelOrLamType: UISegmentedControl!
-    
+ 
 }

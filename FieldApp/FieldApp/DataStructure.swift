@@ -317,8 +317,7 @@ class FieldActions {
             color:  String,
             width: String?,
             depth: String?,
-            height: String?,
-            panelOrLam: String?
+            height: String?
         }
     }
     
