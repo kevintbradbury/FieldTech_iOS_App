@@ -176,7 +176,8 @@ extension EmployeeIDEntry {
         } else if manualPO == true {
             showPONumEntryWin()
         } else if err != "" {
-            showAlert(withTitle: "Error", message: err); finishedLoading()
+            showAlert(withTitle: "Error", message: err)
+            finishedLoading()
         } else {
             incorrectID(success: success)
         }
@@ -219,8 +220,9 @@ extension EmployeeIDEntry {
             
         } else {
             
-            if self.hadLunch == false {
+            if hadLunch == false {
                 UserDefaults.standard.set(true, forKey: "hadLunch")
+                
                 APICalls().getSafetyQs() { safetyQuestions in
                     self.safetyQs = safetyQuestions
                     self.completedProgress()
@@ -252,7 +254,7 @@ extension EmployeeIDEntry {
         }
         
         if identifier == "clockOut" {
-            let twoHours = 5.0   // Double(60 * 60 * 1.9)
+            let twoHours = Double(60 * 60 * 1.9)
             let jobUpdate = createNotification(
                 intervalInSeconds: twoHours, title: "Progress Checkup", message: "Hows the job going?", identifier: "jobCheckup"
             )
@@ -399,7 +401,19 @@ extension EmployeeIDEntry {
             self.activityIndicator.hidesWhenStopped = true
             self.activityIndicator.stopAnimating()
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
-            self.performSegue(withIdentifier: "return", sender: self)
+            
+            if self.hadLunch == true {
+                let breakPopup = UIAlertController(title: "Clocked Out", message: "You clocked out for a meal break.", preferredStyle: .alert)
+                let ok = UIAlertAction(title: "Ok", style: .default) { action in
+                    self.performSegue(withIdentifier: "return", sender: self)
+                }
+                
+                breakPopup.addAction(ok)
+                
+                self.present(breakPopup, animated: true, completion: nil)
+            } else {
+                self.performSegue(withIdentifier: "return", sender: self)
+            }
         }
     }
     

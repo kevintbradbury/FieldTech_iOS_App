@@ -181,12 +181,12 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
     func getTodaysJob() -> String {
         var tdyJob = ""
         
-        if let thisJob = todaysJob {
+        if let thisJob3 = self.jobNameLabel.text {
+            tdyJob = thisJob3
+        } else if let thisJob = todaysJob {
             tdyJob = thisJob
         } else if let thisJob2 = UserDefaults.standard.string(forKey: DefaultKeys.todaysJobName) {
             tdyJob = thisJob2
-        } else if let thisJob3 = self.jobNameLabel.text {
-            tdyJob = thisJob3
         } else if let po = poNumberField.text {
             tdyJob = po
         }
@@ -259,7 +259,7 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
         let srForm = FieldActions.SuppliesRequest(
             formType: formTypeVal,
             jobName: co.jobName,
-            poNumber: todaysJobPO,
+            poNumber: co.poNumber,
             requestedBy: co.requestedBy,
             location: co.location,
             neededBy: co.neededBy,
@@ -357,13 +357,8 @@ extension ChangeOrdersView: ImagePickerDelegate {
     func sendCO(images: [UIImage]) {
         inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator, showProgress: true)
         
-        if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
-            let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-            
-            checkFormType(images: images, po: po, employee: emply)
-        } else if let emply =  UserDefaults.standard.string(forKey: "employeeName"),
-            let poNum = todaysJob {
-            checkFormType(images: images, po: poNum, employee: emply)
+        if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
+            checkFormType(images: images, employee: emply)
         
         } else {
             completeProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
@@ -371,28 +366,36 @@ extension ChangeOrdersView: ImagePickerDelegate {
         }
     }
     
-    func checkFormType(images: [UIImage], po: String, employee: String) {
-        let route = "changeOrder/\(po)", jsonEncoder = JSONEncoder()
+    func checkFormType(images: [UIImage], employee: String) {
+        let jsonEncoder = JSONEncoder()
+        var poNum = ""
         var data = Data()
         
         if formTypeVal == tool_rental {
-            guard let toolRental = toolRentalForm else { return }
+            guard let toolRental = toolRentalForm,
+                let po = toolRental.poNumber else { return }
+            poNum = po
             
             do { data = try jsonEncoder.encode(toolRental) }
             catch { print("error converting \(formTypeVal) to DATA: \(error)"); return }
             
         } else if formTypeVal == change_order {
-            guard let co = changeOrder else { return }
+            guard let co = changeOrder,
+                let po = co.poNumber else { return }
+            poNum = po
             
             do { data = try jsonEncoder.encode(co) }
             catch { print("error converting \(formTypeVal) to DATA: \(error)"); return }
             
         } else  if formTypeVal == supplies_request {
-            guard let srForm = suppliesRequestForm else { return }
+            guard let srForm = suppliesRequestForm,
+                let po = srForm.poNumber else { return }
+            poNum = po
             
             do { data = try jsonEncoder.encode(srForm) }
             catch { print("error converting \(formTypeVal) to DATA: \(error)"); return }
         }
+        let route = "changeOrder/\(poNum)"
         
         alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
             let resType = responseType
