@@ -49,10 +49,9 @@ class SuppliesRequestView: UIViewController {
         if materialsCollection.count == materialsTable.numberOfRows(inSection: 0) {
             materialsCollection.append(emptyMaterial)
         }
-        let rw = materialsTable.numberOfRows(inSection: 0) - 1
         
         materialsTable.beginUpdates()
-        materialsTable.insertRows(at: [IndexPath(row: rw, section: 0)], with: UITableView.RowAnimation.automatic)
+        materialsTable.insertRows(at: [IndexPath(row: 0, section: 0)], with: UITableView.RowAnimation.automatic)
         materialsTable.endUpdates()
     }
     
@@ -61,7 +60,7 @@ class SuppliesRequestView: UIViewController {
 }
 
 extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
-
+    
     func numberOfSections(in tableView: UITableView) -> Int { return 1 }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -77,7 +76,7 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "suppliesCell") as? SuppliesRequestCell else {
-                return UITableViewCell()
+            return UITableViewCell()
         }
         
         cell.materialFIeld.delegate = self
@@ -88,8 +87,8 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
         cell.depthField.delegate = self
         
         let existingIndx = materialsCollection.indices.contains(indexPath.row)
-   
-        if existingIndx == true {
+        
+        if existingIndx == true && indexPath.row != 0 {
             let item = materialsCollection[indexPath.row]
             
             cell.materialFIeld.text = item.material
@@ -152,39 +151,35 @@ extension SuppliesRequestView {
     }
     
     func setMaterials() {
-        var z = 0
+        var z = materialsTable.numberOfRows(inSection: 0) - 1
         
         for cell in materialsTable.visibleCells {
             
             guard let suppliesCell = cell as? SuppliesRequestCell,
                 let color = suppliesCell.colorField.text,
                 let material = suppliesCell.materialFIeld.text,
-                let quantity = suppliesCell.quantityField.text else { return }
+                let quantity = suppliesCell.quantityField.text else {
+                    z -= 1; continue
+            }
             let width = suppliesCell.widthField.text
             let depth = suppliesCell.depthField.text
             let height = suppliesCell.heightField.text
             
-            if color == "" { continue }
-            else if material == "" { continue }
-            else if quantity == "" { continue }
-            else {
-                //            let selectedIndex = suppliesCell.panelOrLamType.selectedSegmentIndex
-                //            let panelOrLam = suppliesCell.panelOrLamType.titleForSegment(at: selectedIndex)
-                
-                let existingIndx = materialsCollection.indices.contains(z)
-                let oneMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height)
-                
-                if existingIndx == true { materialsCollection[z] = oneMaterial }
-            }
-            z += 1
+            if color == "" || quantity == "" || material == "" { z -= 1; continue }
+            //            let selectedIndex = suppliesCell.panelOrLamType.selectedSegmentIndex
+            //            let panelOrLam = suppliesCell.panelOrLamType.titleForSegment(at: selectedIndex)
+            
+            let existingIndx = materialsCollection.indices.contains(z)
+            let oneMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height)
+            
+            if existingIndx == true { materialsCollection[z] = oneMaterial }
+            z -= 1
         }
     }
 }
 
 
 // -------
-
-
 class SuppliesRequestCell: UITableViewCell {
     
     @IBOutlet var materialFIeld: UITextField!
@@ -194,5 +189,5 @@ class SuppliesRequestCell: UITableViewCell {
     @IBOutlet var depthField: UITextField!
     @IBOutlet var heightField: UITextField!
     @IBOutlet var panelOrLamType: UISegmentedControl!
- 
+    
 }

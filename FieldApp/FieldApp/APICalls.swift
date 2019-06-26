@@ -29,8 +29,8 @@ class APICalls {
         }
         
         if let resourceFileDIctionaryContent = resourceDictionary {
-//            APICalls.host = resourceFileDIctionaryContent["TEST_SERVER"] as? String ?? ""
-            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
+            APICalls.host = resourceFileDIctionaryContent["TEST_SERVER"] as? String ?? ""
+//            APICalls.host = resourceFileDIctionaryContent["HOST_SERVER"] as? String ?? ""
         }
     }
     
