@@ -312,12 +312,16 @@ class FieldActions {
         jobCheckUp: Job.JobCheckupInfo?
         
         struct MaterialQuantityColor: Encodable {
-            var quantity: String,
-            material: String,
+            var material: String,
             color:  String,
+            quantity: String,
+            quantityType: String,
             width: String?,
+            widthIsFeet: Bool?,
             depth: String?,
-            height: String?
+            depthIsFeet: Bool?,
+            height: String?,
+            heightIsFeet: Bool?
         }
     }
     

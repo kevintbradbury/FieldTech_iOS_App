@@ -17,13 +17,25 @@ class SuppliesRequestView: UIViewController {
     @IBOutlet var continueBtn: UIButton!
     
     let emptyMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(
-        quantity: String(), material: String(), color: String(), width: String(), depth: String(), height: String()
+        material: String(),
+        color: String(),
+        quantity: String(),
+        quantityType: String(),
+        width: String(), widthIsFeet: false,
+        depth: String(), depthIsFeet: false,
+        height: String(), heightIsFeet: false
     )
     
     var todaysJob: Job?
     var employeeInfo: UserData.UserInfo?
     var materialsCollection: [FieldActions.SuppliesRequest.MaterialQuantityColor] = [FieldActions.SuppliesRequest.MaterialQuantityColor(
-        quantity: String(), material: String(), color: String(), width: String(), depth: String(), height: String()
+        material: String(),
+        color: String(),
+        quantity: String(),
+        quantityType: String(),
+        width: String(), widthIsFeet: false,
+        depth: String(), depthIsFeet: false,
+        height: String(), heightIsFeet: false
         )]
     var indexToAdjust: Int = 0
     public static var jobCheckupInfo: Job.JobCheckupInfo?
@@ -64,7 +76,7 @@ extension SuppliesRequestView: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int { return 1 }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        tableView.rowHeight = 180
+        tableView.rowHeight = 260
         let count = materialsCollection.count
         return count
     }
@@ -158,7 +170,9 @@ extension SuppliesRequestView {
             guard let suppliesCell = cell as? SuppliesRequestCell,
                 let color = suppliesCell.colorField.text,
                 let material = suppliesCell.materialFIeld.text,
-                let quantity = suppliesCell.quantityField.text else {
+                let quantity = suppliesCell.quantityField.text,
+                let selectedIndex = suppliesCell.quantityTypeSelector.selectedSegmentIndex as? Int,
+                let qntyType = suppliesCell.quantityTypeSelector.titleForSegment(at: selectedIndex) else {
                     z -= 1; continue
             }
             let width = suppliesCell.widthField.text
@@ -166,11 +180,19 @@ extension SuppliesRequestView {
             let height = suppliesCell.heightField.text
             
             if color == "" || quantity == "" || material == "" { z -= 1; continue }
-            //            let selectedIndex = suppliesCell.panelOrLamType.selectedSegmentIndex
-            //            let panelOrLam = suppliesCell.panelOrLamType.titleForSegment(at: selectedIndex)
+            let widthAsFt = suppliesCell.widthIsFeetSwitch.isOn
+            let depthAsFt = suppliesCell.depthIsFeetSwitch.isOn
+            let heightAsFt = suppliesCell.heightIsFeetSwitch.isOn
             
             let existingIndx = materialsCollection.indices.contains(z)
-            let oneMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(quantity: quantity, material: material, color: color, width: width, depth: depth, height: height)
+            let oneMaterial = FieldActions.SuppliesRequest.MaterialQuantityColor(
+                material: material,
+                color: color,
+                quantity: quantity, quantityType: qntyType,
+                width: width, widthIsFeet: widthAsFt,
+                depth: depth, depthIsFeet: depthAsFt,
+                height: height, heightIsFeet: heightAsFt
+            )
             
             if existingIndx == true { materialsCollection[z] = oneMaterial }
             z -= 1
@@ -184,10 +206,14 @@ class SuppliesRequestCell: UITableViewCell {
     
     @IBOutlet var materialFIeld: UITextField!
     @IBOutlet var quantityField: UITextField!
+    @IBOutlet var quantityTypeSelector: UISegmentedControl!
     @IBOutlet var colorField: UITextField!
     @IBOutlet var widthField: UITextField!
+    @IBOutlet var widthIsFeetSwitch: UISwitch!
     @IBOutlet var depthField: UITextField!
+    @IBOutlet var depthIsFeetSwitch: UISwitch!
     @IBOutlet var heightField: UITextField!
-    @IBOutlet var panelOrLamType: UISegmentedControl!
+    @IBOutlet var heightIsFeetSwitch: UISwitch!
+    
     
 }
