@@ -68,6 +68,9 @@ class SuppliesRequestView: UIViewController {
     }
     
     @IBAction func goBack(_ sender: Any) { self.dismiss(animated: true, completion: nil) }
+    @IBAction func continueToCOview(_ sender: Any) {
+        collectionHasNilVals() { hasVals in self.performSegue(withIdentifier: "suppliesReqForm", sender: nil) }
+    }
     
 }
 
@@ -149,15 +152,32 @@ extension SuppliesRequestView: UITextFieldDelegate {
 
 extension SuppliesRequestView {
     
+    func collectionHasNilVals(cb: @escaping (Bool) -> ()) {
+        var hasNilVals = false
+        
+        for materialItem in materialsCollection {
+            if materialItem.material != "" && materialItem.color != "" && materialItem.quantity != "" {
+                continue
+            } else {
+                showAlert(withTitle: "Incomplete FIelds", message: "Supplies requests require: Material, Color/Spec and Quantity.")
+                return
+            }
+        }
+        
+        cb(hasNilVals)
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if segue.identifier == "suppliesReqForm" {
             guard let vc = segue.destination as? ChangeOrdersView else { return }
-            vc.materialsCollection = materialsCollection
-            vc.formTypeVal = "Supplies Request"
-            print("materialsCollection: \(materialsCollection)")
             
-            if let jbNm = todaysJob?.jobName { vc.todaysJob = jbNm }
+            
+            vc.materialsCollection = self.materialsCollection
+            vc.formTypeVal = "Supplies Request"
+            print("materialsCollection: \(self.materialsCollection)")
+            
+            if let jbNm = self.todaysJob?.jobName { vc.todaysJob = jbNm }
             if SuppliesRequestView.jobCheckupInfo != nil { ChangeOrdersView.jobCheckupInfo = SuppliesRequestView.jobCheckupInfo }
         }
     }
@@ -168,8 +188,8 @@ extension SuppliesRequestView {
         for cell in materialsTable.visibleCells {
             
             guard let suppliesCell = cell as? SuppliesRequestCell,
-                let color = suppliesCell.colorField.text,
                 let material = suppliesCell.materialFIeld.text,
+                let color = suppliesCell.colorField.text,
                 let quantity = suppliesCell.quantityField.text,
                 let selectedIndex = suppliesCell.quantityTypeSelector.selectedSegmentIndex as? Int,
                 let qntyType = suppliesCell.quantityTypeSelector.titleForSegment(at: selectedIndex) else {

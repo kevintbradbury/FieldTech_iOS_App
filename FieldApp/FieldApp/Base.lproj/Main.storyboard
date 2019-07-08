@@ -2076,7 +2076,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                                 <connections>
-                                    <segue destination="bP6-Xq-Etq" kind="presentation" identifier="suppliesReqForm" id="pr2-xA-kxu"/>
+                                    <action selector="continueToCOview:" destination="UOg-nS-YY1" eventType="touchUpInside" id="czN-7h-Wym"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="q2V-2y-vD7">
@@ -2316,6 +2316,7 @@
                         <outlet property="backBtn" destination="0Qv-nQ-AaU" id="0TN-5k-8fs"/>
                         <outlet property="continueBtn" destination="d4g-ot-PnT" id="DV8-Dl-3kf"/>
                         <outlet property="materialsTable" destination="duo-0b-9ZB" id="Js6-B7-yvl"/>
+                        <segue destination="bP6-Xq-Etq" kind="presentation" identifier="suppliesReqForm" id="kTn-vv-wSP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TqS-ls-jE2" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2944,7 +2945,7 @@
         <image name="signature" width="350" height="350"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="pr2-xA-kxu"/>
+        <segue reference="kTn-vv-wSP"/>
         <segue reference="nXk-h0-2cs"/>
     </inferredMetricsTieBreakers>
 </document>
