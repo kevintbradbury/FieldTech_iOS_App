@@ -549,7 +549,7 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         let startTm = getTime(date: dt.installDate)
         let address = "\(jb.jobAddress), \(jb.jobCity), \(jb.jobState)"
         
-        var labelTxt = "\(jobName) \(startTm) \n\(address) \n\(jb.supervisor) | \(jb.fieldLead) \n"
+        var labelTxt = "\(jobName) \(startTm) \n\(address) \nSuper: \(jb.supervisor) | Lead: \(jb.fieldLead) \nEmployees: "
         
         jb.assignedEmployees.enumerated().map { (index, oneEmployee) in
             if index == (jb.assignedEmployees.count - 1) {

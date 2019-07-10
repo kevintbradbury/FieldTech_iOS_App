@@ -335,7 +335,7 @@ class FieldActions {
         duration: Int?, // Number of Days
         quantity: Double?,
         neededBy: Double?, // Seconds from 1970
-        location: String?
+        description: String?
         
         let reminderPeriods = [24, 48, 72, 96]
     }
@@ -407,11 +407,7 @@ class FieldActions {
             
             for oneTool in tools {
                 
-                if
-                    let dictionary = oneTool as? Dictionary<String, Any>,
-                    let photoStr = dictionary["photo"] as? String,
-                    let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
-                    let image = UIImage(data: photoDecoded),
+                if let dictionary = oneTool as? Dictionary<String, Any>,
                     let duration = dictionary["duration"] as? Int,
                     let quantity = dictionary["quantity"] as? Int
                 {
@@ -423,7 +419,7 @@ class FieldActions {
                     let toolType = FieldActions.nilOrString(val: dictionary["toolType"])
                     let brand = FieldActions.nilOrString(val: dictionary["brand"])
                     let neededBy = FieldActions.nilOrString(val: dictionary["neededBy"])
-                    let location = FieldActions.nilOrString(val: dictionary["location"])
+                    let description = FieldActions.nilOrString(val: dictionary["description"])
                     
                     let neededDate = Job.UserJob.stringToDate(string: neededBy)
                     let needDouble = neededDate.timeIntervalSince1970
@@ -438,10 +434,17 @@ class FieldActions {
                         duration: duration,
                         quantity: Double(quantity),
                         neededBy: needDouble,
-                        location: location
+                        description: description
                     )
                     boxOtools.append(toolToAdd)
-                    toolImages.append(image)
+                    
+                    if let photoStr = dictionary["photo"] as? String,
+                        let photoDecoded = Data(base64Encoded: photoStr, options: .ignoreUnknownCharacters),
+                        let image = UIImage(data: photoDecoded) {
+                        toolImages.append(image)
+                    } else {
+                        if let img = UIImage(named: "tools") { toolImages.append(img) }
+                    }
                 } else {
                     print("Failed parsing Tool json.")
                 }

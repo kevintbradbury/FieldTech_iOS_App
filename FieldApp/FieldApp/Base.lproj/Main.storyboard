@@ -2726,7 +2726,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="78.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="35A-U8-rda">
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tools" translatesAutoresizingMaskIntoConstraints="NO" id="35A-U8-rda">
                                             <rect key="frame" x="16" y="0.0" width="110" height="78.5"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="110" id="LeS-rz-Gmt"/>
@@ -2943,6 +2943,7 @@
         <image name="lunch" width="700" height="700"/>
         <image name="profile_white" width="350" height="350"/>
         <image name="signature" width="350" height="350"/>
+        <image name="tools" width="350" height="350"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="kTn-vv-wSP"/>

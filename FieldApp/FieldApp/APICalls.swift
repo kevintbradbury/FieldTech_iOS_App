@@ -269,7 +269,6 @@ class APICalls {
                     print("JSON")
                     let toolsNphotos = FieldActions.fromJSONtoTool(json: json)
                     let sendBackObj = FieldActions.ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1)
-                    print("tools & images count: ", toolsNphotos.0.count, toolsNphotos.1.count)
                     
                     callback(sendBackObj)
                 } else {

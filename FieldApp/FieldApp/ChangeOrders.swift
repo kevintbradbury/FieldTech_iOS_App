@@ -248,7 +248,7 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
             duration: Int(co.colorSpec!),
             quantity: quantity,
             neededBy: co.neededBy,
-            location: co.description
+            description: co.description
         )
         
         toolRentalForm = rentForm
@@ -294,7 +294,7 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
         
         locationLabel.text = "Tool Type"
         materialLabel.text = "Brand"
-        descripLabel.text = "Location"
+//        descripLabel.text = "Location"
         colorSpecLabel.text = "Duration"
         colorSpecText.placeholder = "Number of Days"
         colorSpecText.keyboardType = .decimalPad
