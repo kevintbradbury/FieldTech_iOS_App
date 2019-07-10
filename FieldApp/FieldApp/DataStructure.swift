@@ -341,7 +341,7 @@ class FieldActions {
     }
     
     struct ToolReturn: Encodable {
-        let rental: FieldActions.ToolRental, signedDate: String, printedNames: [String]
+        let rental: FieldActions.ToolRental, signedDate: Double, printedNames: [String]
     }
     
     struct ToolsNImages {

@@ -67,15 +67,16 @@ extension ToolReturnView {
             let toolRntl = safeRentals[index] as? FieldActions.ToolRental else { return cell }
         
         if let img = images[index] as? UIImage,
+            let poNm = toolRntl.poNumber,
+            let jobNm = toolRntl.jobName,
             let toolName = toolRntl.toolType,
             let brand = toolRntl.brand,
-            let jobNm = toolRntl.jobName,
             let rentDt = toolRntl.neededBy,
             let secs = rentDt as? TimeInterval {
             
             let dt = Date(timeIntervalSince1970: secs)
             let dtReadable = ScheduleView().getMonthDayYear(date: dt)
-            let txt = String("\(jobNm)\n \(brand) : \(toolName) \n Rental Date: \(dtReadable)")
+            let txt = String("PO: \(poNm) \n\(jobNm)\n \(brand) : \(toolName) \n Rental Date: \(dtReadable)")
             
             cell.toolImg.image = img
             cell.toolInfoLabel.text = txt

@@ -32,7 +32,6 @@ class ToolSignOffView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setGesturesAndViews()
-        print("toolToReturn: \(String(describing: toolToReturn))")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -60,6 +59,40 @@ class ToolSignOffView: UIViewController {
 
 extension ToolSignOffView {
     
+    @objc func thisKeyboardWillChange(notification: Notification) {
+        guard let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        if notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillChangeFrameNotification {
+            
+            if self.printNameReceiverField.isFirstResponder == true {
+                OperationQueue.main.addOperation {
+                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 4))
+                }
+            }
+        } else {
+            OperationQueue.main.addOperation {
+                self.view.frame.origin.y = 0
+            }
+        }
+    }
+    
+    func setThisDismissableKeyboard() {
+        OperationQueue.main.addOperation {
+            self.view.frame.origin.y = 0
+            self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+            
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil
+            )
+        }
+    }
+    
     func setGesturesAndViews() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, YYYY"
@@ -69,7 +102,8 @@ extension ToolSignOffView {
         activityIndicator.isHidden = true
         activityBckgd.isHidden = true
         
-        setDismissableKeyboard(vc: self)
+        setThisDismissableKeyboard()
+        //        setDismissableKeyboard(vc: self)
     }
     
     func sendSignatures() {
@@ -86,7 +120,7 @@ extension ToolSignOffView {
         }
         inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: true)
         
-        let dt =  dateFormatter.string(from: Date()),
+        let dt = Date().timeIntervalSince1970,
         images = [returnerSig, receiverSig],
         printedNames = [returnerNm, receiverNm],
         jsonEncoder = JSONEncoder(),
