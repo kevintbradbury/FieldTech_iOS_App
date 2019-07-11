@@ -41,11 +41,13 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     let firebaseAuth =  Auth.auth()
     let colors: [Color] = [
         Color.green, Color.blue, Color.teal, Color.red, Color.fuchsia,
-        Color.navy, Color.purple, Color.yellow, Color(val: 0xFF9742)
+        Color.purple, Color.yellow, Color(val: 0xFF9742)
+        //        Color.navy,
     ]
     let icons = [
         "hotel_req", "tools", "materials", "form", "vacation",
-        "safety", "camera", "clock_blue", "schedule"
+        "camera", "clock_blue", "schedule"
+        //        "safety",
     ]
 
     var employeesToReturn = 0
@@ -212,7 +214,10 @@ extension HomeView {
         
         if i >= self.questionAlerts.count && incorrectAnswer > -1 {
             for alr in questionAlerts { alr.dismiss(animated: false, completion: nil) }
-            self.present(questionAlerts[0], animated: true, completion: nil)
+            
+            if questionAlerts.count > 0 && questionAlerts[0] != nil {
+                self.present(questionAlerts[0], animated: true, completion: nil)
+            }
             incorrectAnswer = -1
             indexVal = 1
             
@@ -220,8 +225,10 @@ extension HomeView {
             HomeView.safetyQs = []
             questionAlerts = []
             
-        } else if self.questionAlerts[i] != nil {
-            self.present(self.questionAlerts[i], animated: true, completion: nil)
+        } else {
+            if i < questionAlerts.count && i >= 0 {
+                self.present(self.questionAlerts[i], animated: true, completion: nil)
+            }
             indexVal += 1
         }
     }
@@ -258,19 +265,21 @@ extension HomeView {
     }
     
     func makeAlert(correct: String, msg: String) {
+        let cornerRadius = CGFloat(integerLiteral: 20)
+        
         if correctAnswerVal == false {
             incrtAnswerLabel.text = msg
             incrtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
             incrtOKbtn.layer.borderWidth = 1
-            incrtOKbtn.layer.cornerRadius = 20
-            incorrectAnswerVw.layer.cornerRadius = 20
+            incrtOKbtn.layer.cornerRadius = cornerRadius - 10
+            incorrectAnswerVw.layer.cornerRadius = cornerRadius
             incorrectAnswerVw.isHidden = false
         } else {
             crtAnswerLabel.text = msg
             crtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
             crtOKbtn.layer.borderWidth = 1
-            crtOKbtn.layer.cornerRadius = 20
-            correctAnswerVw.layer.cornerRadius = 20
+            crtOKbtn.layer.cornerRadius = cornerRadius - 10
+            correctAnswerVw.layer.cornerRadius = cornerRadius
             correctAnswerVw.isHidden = false
         }
     }

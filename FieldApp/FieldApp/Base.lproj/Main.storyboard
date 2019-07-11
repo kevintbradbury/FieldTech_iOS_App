@@ -486,7 +486,7 @@
                                         <rect key="frame" x="60" y="348" width="180" height="31"/>
                                         <color key="backgroundColor" red="0.0" green="0.76273001269999996" blue="0.52718571189999996" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <state key="normal" title="Submit">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
                                         <connections>
                                             <action selector="sendJobCheckup:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="seS-NY-G4J"/>
@@ -546,19 +546,18 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CORRECT" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Flo-i3-7mj">
                                         <rect key="frame" x="85" y="10" width="77.5" height="22.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Answer goes here " textAlignment="center" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="djx-W6-1wr">
                                         <rect key="frame" x="20" y="50" width="207.5" height="22.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <color key="textColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lwK-ZO-kvf">
                                         <rect key="frame" x="0.0" y="99" width="247.5" height="34"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal" title="OK">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
                                         <connections>
                                             <action selector="hideCorrectAnswVw:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="Emu-p8-h94"/>
@@ -566,7 +565,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.0" green="0.32666416949999999" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.0" green="0.76273001269999996" blue="0.52718571189999996" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstItem="djx-W6-1wr" firstAttribute="top" secondItem="Flo-i3-7mj" secondAttribute="bottom" constant="17.5" id="4Y4-OF-zpV"/>
                                     <constraint firstAttribute="bottom" secondItem="lwK-ZO-kvf" secondAttribute="bottom" id="7sa-v6-PPI"/>
@@ -588,26 +587,25 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="INCORRECT !" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6vX-6f-pRC">
                                         <rect key="frame" x="72" y="10" width="103.5" height="22.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Answer goes here " textAlignment="center" lineBreakMode="wordWrap" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cXa-na-mw1">
                                         <rect key="frame" x="20" y="50" width="207.5" height="22.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XhE-pX-V8w">
                                         <rect key="frame" x="0.0" y="99" width="247.5" height="34"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal" title="OK">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
                                         <connections>
                                             <action selector="hideIncorrectAnswVw:" destination="dvo-Ab-kYb" eventType="touchUpInside" id="1Of-kv-3dD"/>
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.5" green="0.11530746710000001" blue="0.054244892009999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstItem="cXa-na-mw1" firstAttribute="leading" secondItem="sI9-eT-GnF" secondAttribute="leading" constant="20" id="3Rc-jw-ivS"/>
                                     <constraint firstItem="6vX-6f-pRC" firstAttribute="top" secondItem="sI9-eT-GnF" secondAttribute="top" constant="10" id="4mo-aW-f5t"/>
@@ -1949,7 +1947,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="Khl-WD-EGT">
-                                <rect key="frame" x="47" y="432.5" width="281" height="137"/>
+                                <rect key="frame" x="47" y="432.5" width="281.00000000000006" height="137"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Normal Shift Hours" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VvL-Ly-PJi">
@@ -2818,7 +2816,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="Q6i-Qn-2bI" userLabel="Returner Signature View">
-                                <rect key="frame" x="16" y="100" width="343" height="168"/>
+                                <rect key="frame" x="16" y="100" width="343.00000000000006" height="168"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <gestureRecognizers/>
                                 <connections>
@@ -2826,7 +2824,7 @@
                                 </connections>
                             </imageView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="lny-yJ-T6d">
-                                <rect key="frame" x="16" y="353.5" width="343" height="167"/>
+                                <rect key="frame" x="16" y="353.5" width="343.00000000000006" height="167"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <gestureRecognizers/>
                                 <connections>
@@ -2938,15 +2936,15 @@
         </scene>
     </scenes>
     <resources>
-        <image name="clockIn" width="350" height="350"/>
-        <image name="clockOut" width="350" height="350"/>
-        <image name="lunch" width="700" height="700"/>
-        <image name="profile_white" width="350" height="350"/>
-        <image name="signature" width="350" height="350"/>
-        <image name="tools" width="350" height="350"/>
+        <image name="clockIn" width="348" height="304.5"/>
+        <image name="clockOut" width="348.5" height="303.5"/>
+        <image name="lunch" width="697" height="613"/>
+        <image name="profile_white" width="348" height="306"/>
+        <image name="signature" width="347" height="305.5"/>
+        <image name="tools" width="348.5" height="303.5"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="kTn-vv-wSP"/>
+        <segue reference="ZaQ-ls-SCW"/>
         <segue reference="nXk-h0-2cs"/>
     </inferredMetricsTieBreakers>
 </document>

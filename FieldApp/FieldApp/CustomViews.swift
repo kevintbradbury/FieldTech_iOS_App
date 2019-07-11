@@ -39,7 +39,7 @@ public class AnimatedClock: MacawView {
         let w = (UIScreen.main.bounds.width / 2)
         let clockimg = Image(
             src: "clock",
-            w: Int(w), h: Int(w),
+            w: Int(w), h: Int(w * 0.8),
             place: Transform.move(dx: 0, dy: 0)
         )
         
