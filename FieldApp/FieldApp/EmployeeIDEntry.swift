@@ -148,15 +148,19 @@ extension EmployeeIDEntry {
         anmation.cycle().play()
         inProgressVw()
         
-        var po = ""
-        if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") { po = validPO }
-        
-        APICalls().sendCoordinates(
-            employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole, po: po, override: false
-        ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-            self.handleSuccess(
-                success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err
-            )
+//        var po = ""
+        if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") {
+            //            po = validPO
+            
+            APICalls().sendCoordinates(
+                employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole, po: validPO, override: false
+            ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                self.handleSuccess(
+                    success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err
+                )
+            }
+        } else {
+            showPONumEntryWin()
         }
     }
     
@@ -310,21 +314,11 @@ extension EmployeeIDEntry {
     func showPONumEntryWin() {
         guard let coordinate = UserLocation.instance.currentCoordinate,
             let uwrappedUsr = EmployeeIDEntry.foundUser,
-            let unwrappedRole = self.role else { return }
-        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        
-        if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") {
-            self.inProgressVw()
-
-            APICalls().sendCoordinates(
-                employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: unwrappedRole, po: validPO, override: true
-            ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-                self.handleSuccess(
-                    success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
-                ); return
-            }
+            let unwrappedRole = self.role else {
+                print("no coordinates, user or role found")
+                return
         }
-        
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         let alert = UIAlertController(
             title: "Manual PO Entry", message: "No PO found for this time/date. \nEnter PO number manually?", preferredStyle: .alert
         )
