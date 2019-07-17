@@ -13,6 +13,7 @@ import UserNotificationsUI
 import EPSignature
 import MapKit
 import Alamofire
+import MLPAutoCompleteTextField
 
 
 extension UIViewController {
@@ -126,7 +127,7 @@ extension UIViewController {
                 
                 alert.addAction(action)
                 self.present(alert, animated: true, completion: nil)
-            
+                
             } else if let msg = responseType["msg"] {
                 self.showAlert(withTitle: "Upload Status", message: msg)
                 
@@ -219,7 +220,7 @@ extension UIViewController {
         UsernameAndPassword.getUsernmAndPasswd() { userNpass in
             headers.updateValue(userNpass.username, forKey: "username")
             headers.updateValue(userNpass.password, forKey: "password")
-
+            
             APICalls.getFIRidToken() { idToken in
                 headers.updateValue(idToken, forKey: "Authorization")
                 headers.updateValue("close", forKey: "Connection")
@@ -300,40 +301,69 @@ extension UIViewController {
         //        else if HomeView.toolRenewal != nil { extendToolRental() }
     }
     
-    func showPOEntryWindow(foundUser: UserData.UserInfo?, role: String, cb: @escaping(String) -> ()) {
+    func showPOEntryWindow(foundUser: UserData.UserInfo?, role: String) {
         guard let coordinate = UserLocation.instance.currentCoordinate,
             let uwrappedUsr = foundUser else {
                 print("no coordinates, user or role found")
                 return
         }
-        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        let locationArray = ["\(coordinate.latitude)", "\(coordinate.longitude)"]
         let alert = UIAlertController(
             title: "Manual PO Entry", message: "No PO found. \nEnter PO number manually?", preferredStyle: .alert
         )
-        let cancel = UIAlertAction(title: "Cancel", style: .destructive) { action in
-//            self.finishedLoading()
-        }
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
         let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
-//            self.inProgressVw()
             let poNumber = alert.textFields![0]
-            var po = "";
             
             if poNumber.text != nil && poNumber.text != "" {
-                po = poNumber.text!
+                let po = poNumber.text!
                 
-                cb(po)
-                // handle po here, may need to assign to VC
+                APICalls().sendCoordinates(
+                    employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: role, po: po, override: true
+                ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                    // do smth here
+                }
             }
         }
         
-        alert.addTextField { textFieldPhoneNumber in
-            textFieldPhoneNumber.placeholder = "PO number"; textFieldPhoneNumber.keyboardType = UIKeyboardType.asciiCapableNumberPad
-        }
         alert.addAction(manualPOentry)
         alert.addAction(cancel)
-        
+        alert.addTextField { textFieldPOnum in
+            textFieldPOnum.placeholder = "PO number"; textFieldPOnum.keyboardType = UIKeyboardType.asciiCapableNumberPad
+        }
         OperationQueue.main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
+    
+    
+    func roundCorners(corners: UIRectCorner, radius: CGFloat, vw: UIView) {
+        let path = UIBezierPath(roundedRect: vw.bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        vw.layer.mask = mask
+    }
+    
+    func addBackgroundBlur(vw: UIView) {
+        let blurEffect = UIBlurEffect(style: .dark)
+        
+        OperationQueue.main.addOperation {
+            let blurView = UIVisualEffectView(effect: blurEffect)
+            blurView.frame = self.view.bounds
+            blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            blurView.accessibilityIdentifier = "backgroundBlurView"
+            vw.addSubview(blurView)
+        }
+    }
+    
+    func removeSubviewWithIdentifier(identifier: String, vw: UIView) {
+        for subView in vw.subviews {
+            if subView.accessibilityIdentifier == identifier {
+                OperationQueue.main.addOperation { subView.removeFromSuperview() }
+            }
+        }
+    }
+    
 }
 
-
+//extension UIViewController: UITextFieldDelegate, MLPAutoCompleteTextFieldDelegate, MLPAutoCompleteTextFieldDataSource {
+//
+//}

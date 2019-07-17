@@ -127,7 +127,7 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
     func setAutoCmpltField() {
         poNumberField.delegate = self
         poNumberField.autoCompleteDelegate = self
-        poNumberField.maximumNumberOfAutoCompleteRows = 10
+//        poNumberField.maximumNumberOfAutoCompleteRows = 10
         poNumberField.autoCompleteTableCellBackgroundColor = .black
         poNumberField.autoCompleteTableCellTextColor = .white
         

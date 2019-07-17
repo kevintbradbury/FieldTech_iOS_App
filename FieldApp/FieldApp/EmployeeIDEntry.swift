@@ -20,9 +20,10 @@ import ImagePicker
 import Alamofire
 import EventKit
 import Macaw
+import MLPAutoCompleteTextField
 
 
-class EmployeeIDEntry: UIViewController {
+class EmployeeIDEntry: UIViewController, UITextFieldDelegate, MLPAutoCompleteTextFieldDelegate, MLPAutoCompleteTextFieldDataSource {
     
     @IBOutlet weak var backBtn: UIButton!
     @IBOutlet var roleSelection: UIPickerView!
@@ -36,6 +37,10 @@ class EmployeeIDEntry: UIViewController {
     @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet var animatedClockView: AnimatedClock!
     @IBOutlet var longHand: LongHandAnimated!
+    @IBOutlet var manualPOentryVw: UIView!
+    @IBOutlet var poNumberField: MLPAutoCompleteTextField!
+    @IBOutlet var sendManualPOBtn: UIButton!
+    @IBOutlet var cancelManualBtn: UIButton!
     
     
     let firebaseAuth = Auth.auth()
@@ -43,6 +48,7 @@ class EmployeeIDEntry: UIViewController {
     let notificationCenter = UNUserNotificationCenter.current()
     let imgPicker = ImagePickerController()
     let dataSource = ["Field", "Shop", "Drive Time", "Measurements"]
+    var autoCompleteDtSrc: MLPAutoCompleteTextFieldDataSource?
     
     var jobAddress = ""
     var jobs: [Job.UserJob] = []
@@ -57,7 +63,7 @@ class EmployeeIDEntry: UIViewController {
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(imgPicker.stack.assets)
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         imgPicker.delegate = self
@@ -74,15 +80,11 @@ class EmployeeIDEntry: UIViewController {
         setRoles()
         checkAppDelANDnotif()
         UserLocation.instance.locationManager.startUpdatingLocation()
-        activityIndicator.isHidden = true
-        activityIndicator.hidesWhenStopped = true
         hideTextfield()
         
         let btns = [sendButton!, clockIn!, clockOut!, lunchBreakBtn!]
         setShadows(btns: btns)
-        
-        clockIn.isHidden = true
-        clockOut.isHidden = true
+        setThisDismissableKeyboard()
     }
     
     @IBAction func sendIDNumber(_ sender: Any) { clockInClockOut() }
@@ -91,10 +93,49 @@ class EmployeeIDEntry: UIViewController {
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
     @IBAction func animatedClockPress(_ sender: Any) { animateOrWrapUp() }
+    @IBAction func sendManualPOentry(_ sender: Any) {
+        sendManualEntry()
+    }
+    @IBAction func hideManualPOview(_ sender: Any) { manualPOentryVw.isHidden = true }
+    
     
 }
 
 extension EmployeeIDEntry {
+    
+    func setThisDismissableKeyboard() {
+        OperationQueue.main.addOperation {
+            self.view.frame.origin.y = 0
+            self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+            
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil
+            )
+        }
+    }
+    
+    @objc func thisKeyboardWillChange(notification: Notification) {
+        guard let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        if notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillChangeFrameNotification {
+            
+            if self.poNumberField.isFirstResponder == true {
+                OperationQueue.main.addOperation {
+                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 5))
+                }
+            }
+        } else {
+            OperationQueue.main.addOperation {
+                self.view.frame.origin.y = 0
+            }
+        }
+    }
     
     func animateOrWrapUp() {
         if EmployeeIDEntry.foundUser?.punchedIn == true {
@@ -148,9 +189,7 @@ extension EmployeeIDEntry {
         anmation.cycle().play()
         inProgressVw()
         
-//        var po = ""
         if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") {
-            //            po = validPO
             
             APICalls().sendCoordinates(
                 employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole, po: validPO, override: false
@@ -168,7 +207,7 @@ extension EmployeeIDEntry {
         
         if success == true {
             UserDefaults.standard.set(poNumber, forKey: "todaysJobPO")
-
+            
             print("punched in / out: \(String(describing: EmployeeIDEntry.foundUser?.punchedIn))")
             self.todaysJob.jobName = currentJob
             self.todaysJob.poNumber = poNumber
@@ -311,46 +350,65 @@ extension EmployeeIDEntry {
         }
     }
     
-    func showPONumEntryWin() {
+    func sendManualEntry() {
         guard let coordinate = UserLocation.instance.currentCoordinate,
             let uwrappedUsr = EmployeeIDEntry.foundUser,
-            let unwrappedRole = self.role else {
+            let unwrappedRole = self.role,
+            let po = poNumberField.text else {
                 print("no coordinates, user or role found")
                 return
         }
         let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
-        let alert = UIAlertController(
-            title: "Manual PO Entry", message: "No PO found for this time/date. \nEnter PO number manually?", preferredStyle: .alert
-        )
-        let cancel = UIAlertAction(title: "Cancel", style: .destructive) { action in self.finishedLoading() }
-        let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
-            self.inProgressVw()
-            let poNumber = alert.textFields![0]
-            var po = "";
+        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
+        
+        APICalls().sendCoordinates(
+            employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: unwrappedRole, po: po, override: true
+        ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+            self.handleSuccess(
+                success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
+            )
+        }
+    }
+    
+    func showPONumEntryWin() {
+        poNumberField.autoCompleteDelegate = self
+        
+        main.addOperation {
+            self.manualPOentryVw.isHidden = false
+            self.manualPOentryVw.layer.cornerRadius = 10
             
-            if poNumber.text != nil && poNumber.text != "" {
-                po = poNumber.text!
-                
-                APICalls().sendCoordinates(
-                    employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: unwrappedRole, po: po, override: true
-                ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
-                    self.handleSuccess(
-                        success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
-                    )
-                }
+            self.poNumberField.delegate = self
+            self.poNumberField.autoCompleteTableCellBackgroundColor = .black
+            self.poNumberField.autoCompleteTableCellTextColor = .white
+            
+            self.roundCorners(corners: [.bottomLeft], radius: 10, vw: self.sendManualPOBtn)
+            self.roundCorners(corners: [.bottomRight], radius: 10, vw: self.cancelManualBtn)
+        }
+        
+        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
+        
+        APICalls().getJobNames() { err, jobs in
+            self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+            
+            if err != nil {
+                guard let safeErr = err else { return }
+                self.showAlert(withTitle: "Error", message: safeErr)
+            } else if let theseJobs = jobs {
+                self.autoCompleteDtSrc = AutoCompleteDataSrc().initialize(pos: theseJobs)
+                self.poNumberField.autoCompleteDataSource = self.autoCompleteDtSrc
             }
         }
-        
-        alert.addTextField { textFieldPhoneNumber in
-            textFieldPhoneNumber.placeholder = "PO number"; textFieldPhoneNumber.keyboardType = UIKeyboardType.asciiCapableNumberPad
-        }
-        alert.addAction(manualPOentry)
-        alert.addAction(cancel)
-        
-        self.main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
     
     func hideTextfield() {
+        main.addOperation {
+            self.manualPOentryVw.isHidden = true
+            self.activityIndicator.isHidden = true
+            self.activityIndicator.hidesWhenStopped = true
+            self.clockIn.isHidden = true
+            self.clockOut.isHidden = true
+        }
+        
         if EmployeeIDEntry.foundUser != nil {
             guard let punchedIn = EmployeeIDEntry.foundUser?.punchedIn else { return }
             self.main.addOperation {
@@ -502,11 +560,11 @@ extension EmployeeIDEntry {
         if HomeView.employeeInfo?.employeeID != nil {
             print("punched in -- \(String(describing: HomeView.employeeInfo!.punchedIn))")
             HomeView().checkPunchStatus()
-
+            
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgressVw()
-
+                
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!, vc: self) { user, addressInfo  in
                     HomeView.employeeInfo = user
                     HomeView.addressInfo = addressInfo
@@ -539,11 +597,11 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         print("wrapper did press")
         imagePicker.expandGalleryView()
     }
-
+    
     func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage]) {
         let imgs = imageAssets
         print("images to upload: \(imgs.count)")
-
+        
         if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             if imgs.count < 11 {
                 inProgressVw()
@@ -562,7 +620,7 @@ extension EmployeeIDEntry: ImagePickerDelegate {
             }
         }
     }
-
+    
     func cancelButtonDidPress(_ imagePicker: ImagePickerController) {
         imagePicker.dismiss(animated: true, completion: nil)
     }
@@ -610,4 +668,22 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
 }
 
 
-
+extension EmployeeIDEntry {    // MLPAutoCompleteTextFieldDelegate
+    
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, willShowAutoComplete autoCompleteTableView: UITableView!) {
+        print("autoCompleteTextField: willShowAutoComplete")
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldConfigureCell cell: UITableViewCell!, withAutoComplete autocompleteString: String!, with boldedString: NSAttributedString!, forAutoComplete autocompleteObject: MLPAutoCompletionObject!, forRowAt indexPath: IndexPath!) -> Bool {
+        return true
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldStyleAutoComplete autoCompleteTableView: UITableView!, for borderStyle: UITextField.BorderStyle) -> Bool {
+        return true
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, didSelectAutoComplete selectedString: String!, withAutoComplete selectedObject: MLPAutoCompletionObject!, forRowAt indexPath: IndexPath!) {
+        print("didSelectAutoComplete")
+        let split = selectedString.components(separatedBy: " - ")
+        textField.text = split[0]
+        //        poNumberField.text = split[0]
+        //        jobNameLabel.text = split[1]
+    }
+}

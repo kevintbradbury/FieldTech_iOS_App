@@ -266,22 +266,19 @@ extension HomeView {
     }
     
     func makeAlert(correct: String, msg: String) {
-        let cornerRadius = CGFloat(integerLiteral: 20)
+        let r = CGFloat(integerLiteral: 20)
         
         if correctAnswerVal == false {
             incrtAnswerLabel.text = msg
-            incrtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
-            incrtOKbtn.layer.borderWidth = 1
-            incrtOKbtn.layer.cornerRadius = cornerRadius - 10
-            incorrectAnswerVw.layer.cornerRadius = cornerRadius
+            incorrectAnswerVw.layer.cornerRadius = r
             incorrectAnswerVw.isHidden = false
+            roundCorners(corners: [.bottomLeft, .bottomRight], radius: r, vw: incrtOKbtn)
+            
         } else {
             crtAnswerLabel.text = msg
-            crtOKbtn.layer.borderColor = UIColor.lightGray.cgColor
-            crtOKbtn.layer.borderWidth = 1
-            crtOKbtn.layer.cornerRadius = cornerRadius - 10
-            correctAnswerVw.layer.cornerRadius = cornerRadius
+            correctAnswerVw.layer.cornerRadius = r
             correctAnswerVw.isHidden = false
+            roundCorners(corners: [.bottomLeft, .bottomRight], radius: r, vw: crtOKbtn)
         }
     }
 

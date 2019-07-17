@@ -285,6 +285,65 @@
                                     <action selector="animatedClockPress:" destination="bq0-eu-ofj" eventType="touchUpInside" id="F3g-yl-C6f"/>
                                 </connections>
                             </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hak-Ih-NGT" userLabel="manualPOentryVw">
+                                <rect key="frame" x="37.5" y="267" width="300" height="200"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Manual PO Entry" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0O6-hy-QxU">
+                                        <rect key="frame" x="83.5" y="20" width="133" height="21"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No PO found for this time/date. Enter PO number manually?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Oct-z9-3Jx">
+                                        <rect key="frame" x="62" y="46" width="176.5" height="29"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="PO number" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="O31-aQ-Ggi" customClass="MLPAutoCompleteTextField">
+                                        <rect key="frame" x="30" y="100" width="240" height="30"/>
+                                        <nil key="textColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PXl-1o-gi1">
+                                        <rect key="frame" x="0.0" y="164" width="148.5" height="36"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <state key="normal" title="Send"/>
+                                        <connections>
+                                            <action selector="sendManualPOentry:" destination="bq0-eu-ofj" eventType="touchUpInside" id="7Ng-xa-Mfd"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MVa-jk-HqU">
+                                        <rect key="frame" x="151.5" y="164" width="148.5" height="36"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <state key="normal" title="Cancel">
+                                            <color key="titleColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="hideManualPOview:" destination="bq0-eu-ofj" eventType="touchUpInside" id="7JM-Pm-wXH"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="0.92220497999999995" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="0O6-hy-QxU" firstAttribute="centerX" secondItem="hak-Ih-NGT" secondAttribute="centerX" id="5RM-Ot-Ccq"/>
+                                    <constraint firstItem="PXl-1o-gi1" firstAttribute="width" secondItem="hak-Ih-NGT" secondAttribute="width" multiplier="0.495" id="6dn-gl-3gP"/>
+                                    <constraint firstAttribute="bottom" secondItem="MVa-jk-HqU" secondAttribute="bottom" id="C4a-yb-xhs"/>
+                                    <constraint firstItem="PXl-1o-gi1" firstAttribute="height" secondItem="O31-aQ-Ggi" secondAttribute="height" multiplier="1.2" id="CEa-k9-b2Q"/>
+                                    <constraint firstItem="O31-aQ-Ggi" firstAttribute="top" secondItem="hak-Ih-NGT" secondAttribute="centerY" id="IzF-Xv-ILO"/>
+                                    <constraint firstItem="O31-aQ-Ggi" firstAttribute="width" secondItem="hak-Ih-NGT" secondAttribute="width" multiplier="0.8" id="Lpe-Gn-Ym5"/>
+                                    <constraint firstAttribute="bottom" secondItem="PXl-1o-gi1" secondAttribute="bottom" id="O0S-1X-Y6y"/>
+                                    <constraint firstItem="Oct-z9-3Jx" firstAttribute="centerX" secondItem="hak-Ih-NGT" secondAttribute="centerX" id="RkJ-xL-wpD"/>
+                                    <constraint firstItem="MVa-jk-HqU" firstAttribute="width" secondItem="hak-Ih-NGT" secondAttribute="width" multiplier="0.495" id="bd7-qE-gOj"/>
+                                    <constraint firstAttribute="trailing" secondItem="MVa-jk-HqU" secondAttribute="trailing" id="fFZ-Us-dLw"/>
+                                    <constraint firstItem="O31-aQ-Ggi" firstAttribute="centerX" secondItem="hak-Ih-NGT" secondAttribute="centerX" id="h5Z-SW-chg"/>
+                                    <constraint firstItem="0O6-hy-QxU" firstAttribute="top" secondItem="hak-Ih-NGT" secondAttribute="top" constant="20" id="kXZ-5n-e2Z"/>
+                                    <constraint firstItem="PXl-1o-gi1" firstAttribute="leading" secondItem="hak-Ih-NGT" secondAttribute="leading" id="lLq-Wb-KBv"/>
+                                    <constraint firstItem="MVa-jk-HqU" firstAttribute="height" secondItem="PXl-1o-gi1" secondAttribute="height" id="mrV-Cv-URt"/>
+                                    <constraint firstItem="Oct-z9-3Jx" firstAttribute="top" secondItem="0O6-hy-QxU" secondAttribute="bottom" constant="5" id="qRp-tK-qv0"/>
+                                </constraints>
+                            </view>
                             <view hidden="YES" opaque="NO" alpha="0.80000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SjV-jM-1u8">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" red="0.92754600249999997" green="0.92754600249999997" blue="0.92754600249999997" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -323,13 +382,17 @@
                             <constraint firstItem="Xgx-TL-7uV" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="9fr-4L-0Id"/>
                             <constraint firstItem="piG-9y-UJK" firstAttribute="height" secondItem="eoh-Qc-nCh" secondAttribute="height" id="AS4-Yb-TwN"/>
                             <constraint firstItem="cRn-CE-CNR" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="Ckc-PT-RTV"/>
+                            <constraint firstItem="hak-Ih-NGT" firstAttribute="width" secondItem="pLG-Ve-Unv" secondAttribute="width" multiplier="0.8" id="EUF-s5-cGO"/>
                             <constraint firstItem="8V0-xo-CLS" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="F6A-AU-53E"/>
                             <constraint firstItem="SPc-Hz-1lf" firstAttribute="firstBaseline" secondItem="eoh-Qc-nCh" secondAttribute="centerY" multiplier="0.95" id="Fq0-GL-dFf"/>
+                            <constraint firstItem="hak-Ih-NGT" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="GAD-Es-Tsq"/>
                             <constraint firstItem="i9j-eu-RJ9" firstAttribute="leading" secondItem="pLG-Ve-Unv" secondAttribute="leadingMargin" id="Hmf-5b-tL5"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="top" secondItem="eoh-Qc-nCh" secondAttribute="bottom" constant="25" id="I7L-fg-S0E"/>
                             <constraint firstItem="piG-9y-UJK" firstAttribute="centerX" secondItem="eoh-Qc-nCh" secondAttribute="centerX" id="JFK-tu-wif"/>
                             <constraint firstAttribute="trailingMargin" secondItem="i9j-eu-RJ9" secondAttribute="trailing" id="Kyk-2l-k46"/>
                             <constraint firstItem="JJN-tO-qBs" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="LdX-qm-4TB"/>
+                            <constraint firstItem="hak-Ih-NGT" firstAttribute="height" secondItem="pLG-Ve-Unv" secondAttribute="height" multiplier="0.3" id="Lwa-fJ-ouT"/>
+                            <constraint firstItem="hak-Ih-NGT" firstAttribute="centerY" secondItem="pLG-Ve-Unv" secondAttribute="centerY" multiplier="1.1" id="MCz-0C-bhl"/>
                             <constraint firstItem="SPc-Hz-1lf" firstAttribute="height" secondItem="eoh-Qc-nCh" secondAttribute="height" multiplier="0.275" id="ObB-4g-jG4"/>
                             <constraint firstItem="AFE-De-iRq" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="QSy-8b-F1a"/>
                             <constraint firstItem="Mkf-uE-ifr" firstAttribute="centerX" secondItem="pLG-Ve-Unv" secondAttribute="centerX" id="UuU-Er-A2k"/>
@@ -357,21 +420,25 @@
                         <outlet property="activityIndicator" destination="Xgx-TL-7uV" id="Vfo-7v-hPP"/>
                         <outlet property="animatedClockView" destination="eoh-Qc-nCh" id="Zcm-in-syv"/>
                         <outlet property="backBtn" destination="Nct-pa-u5V" id="SVx-UC-uSR"/>
+                        <outlet property="cancelManualBtn" destination="MVa-jk-HqU" id="Gh3-ae-DZB"/>
                         <outlet property="clockIn" destination="AFE-De-iRq" id="KLp-QQ-Whp"/>
                         <outlet property="clockOut" destination="Mkf-uE-ifr" id="XNj-f5-aZ7"/>
                         <outlet property="employeeID" destination="cgM-Ze-PLd" id="ang-Xn-Vpj"/>
                         <outlet property="enterIDText" destination="cRn-CE-CNR" id="vT9-eK-YLF"/>
                         <outlet property="longHand" destination="SPc-Hz-1lf" id="IF5-Yc-9Cq"/>
                         <outlet property="lunchBreakBtn" destination="JJN-tO-qBs" id="xhy-im-VUa"/>
+                        <outlet property="manualPOentryVw" destination="hak-Ih-NGT" id="fE0-AD-kha"/>
+                        <outlet property="poNumberField" destination="O31-aQ-Ggi" id="ETL-64-5bX"/>
                         <outlet property="roleSelection" destination="i9j-eu-RJ9" id="4Dj-zO-hs0"/>
                         <outlet property="sendButton" destination="8V0-xo-CLS" id="Mw3-Qj-lTu"/>
+                        <outlet property="sendManualPOBtn" destination="PXl-1o-gi1" id="Mqc-d5-EPU"/>
                         <segue destination="dvo-Ab-kYb" kind="presentation" identifier="return" id="PNM-CA-SzQ"/>
                         <segue destination="bP6-Xq-Etq" kind="show" identifier="clockTOchange" id="iSq-Lv-Ec5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LGY-O2-z5N" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2311.875" y="-733.09859154929575"/>
+            <point key="canvasLocation" x="2311.1999999999998" y="-733.5832083958021"/>
         </scene>
         <!--Home View-->
         <scene sceneID="kAf-eN-8VW">
@@ -2944,7 +3011,7 @@
         <image name="tools" width="348.5" height="303.5"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="ZaQ-ls-SCW"/>
-        <segue reference="nXk-h0-2cs"/>
+        <segue reference="iSq-Lv-Ec5"/>
+        <segue reference="PNM-CA-SzQ"/>
     </inferredMetricsTieBreakers>
 </document>

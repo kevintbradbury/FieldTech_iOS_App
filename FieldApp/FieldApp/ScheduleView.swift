@@ -468,9 +468,7 @@ extension ScheduleView {
                 }
             } else {
                     for subVw in cell.subviews {
-                        if subVw.accessibilityIdentifier == "jobTab" {
-                            subVw.removeFromSuperview()
-                        }
+                        if subVw.accessibilityIdentifier == "jobTab" { subVw.removeFromSuperview() }
                     }
             }
         }
