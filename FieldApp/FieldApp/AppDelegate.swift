@@ -234,6 +234,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 HomeView.toolCount = toolCount
             }
             
+        case "mealWaiver":
+            HomeView.presentWaiverAlrt = true
+            if state == UIApplication.State.active {
+                OperationQueue.main.addOperation { vc.show2ndMealWaiverAlert() }
+            }
             
         default:
             print("Received notification w/ category: \(category)")

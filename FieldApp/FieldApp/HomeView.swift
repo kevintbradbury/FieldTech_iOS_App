@@ -14,6 +14,7 @@ import Firebase
 import FirebaseAuth
 import ImagePicker
 import Macaw
+import EPSignature
 
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
@@ -42,12 +43,10 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     let colors: [Color] = [
         Color.green, Color.blue, Color.teal, Color.red, Color.fuchsia,
         Color.purple, Color.yellow, Color(val: 0xFF9742)
-        //        Color.navy,
     ]
     let icons = [
         "hotel_req", "tools", "materials", "form", "vacation",
         "camera", "clock_blue", "schedule"
-        //        "safety",
     ]
 
     var employeesToReturn = 0
@@ -55,6 +54,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var jobs: [Job.UserJob] = []
     var main = OperationQueue.main
     var menuOpen = false
+    var mealWaiverSIgnature: UIImage?
     var profileUpload: Bool?
     var questionAlerts: [UIAlertController] = []
     var indexVal = 0
@@ -72,7 +72,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     todaysPO: String?,
     vehicleCkListNotif: Bool?,
     toolRenewal: String?,
-    toolCount: Int?
+    toolCount: Int?,
+    presentWaiverAlrt: Bool?
     
     var imageAssets: [UIImage] {
         return AssetManager.resolveAssets(picker.stack.assets)
@@ -122,7 +123,7 @@ extension HomeView {
     func getJobCheckupInfo() {
         let returnTwr = returnTomorrowSwitch.isOn,
          addedMaterial = self.requiredAddedMaterialsSwitch.isOn
-        guard let po = HomeView.todaysJob.poNumber ?? UserDefaults.standard.string(forKey: "todaysJobPO") else {
+        guard let po = HomeView.todaysJob.poNumber ?? UserDefaults.standard.string(forKey: DefaultKeys.todaysJobPO) else {
             showAlert(withTitle: "Incomplete Form", message: "Couldn't find PO information.")
             return
         }
@@ -295,7 +296,6 @@ extension HomeView {
                 NSAttributedString.Key.font : UIFont.preferredFont(forTextStyle: .body),
                 NSAttributedString.Key.foregroundColor: UIColor.black
                 ])
-            // Include phone number in future
 
             let alert = UIAlertController(title: "Employee Info", message: msg, preferredStyle: .alert)
             let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
@@ -379,7 +379,6 @@ extension HomeView {
                 withTitle: "Reminder",
                 message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. "
             )
-            //        case "safety":
             //        case "hotel_req":
 
         default:
@@ -534,12 +533,26 @@ extension HomeView {
             }
         } else if let jobCheck = HomeView.jobCheckup {
             if jobCheck == true {
-                main.addOperation {
-                    self.jobCheckUpView.isHidden = false
-                }
+                main.addOperation { self.jobCheckUpView.isHidden = false }
+            }
+        } else if let showWaiver = HomeView.presentWaiverAlrt {
+            if showWaiver == true {
+                show2ndMealWaiverAlert()
             }
         }
         //        else if HomeView.toolRenewal != nil { extendToolRental() }
+    }
+    
+    public  func show2ndMealWaiverAlert() {
+        let alert = UIAlertController(title: "Waive Meal?", message: "Would you like to waive your 2nd meal break?", preferredStyle: .alert)
+        let no = UIAlertAction(title: "NO", style: .cancel)
+        let yes = UIAlertAction(title: "YES", style: .default) { action in
+            self.main.addOperation { self.presentSignature(vc: self, subTitle: "This is to waive your 2nd meal.", title: "Sign Here") }
+        }
+        
+        alert.addAction(no)
+        alert.addAction(yes)
+        main.addOperation { self.present(alert, animated: true, completion: nil) }
     }
     
     func clockedInUI() {
@@ -866,3 +879,44 @@ extension Notification.Name {
 }
 
 
+extension HomeView: EPSignatureDelegate {
+    
+    func convertSomeInfo(cb: @escaping(String, Data)->()) {
+        let jsonEncoder = JSONEncoder()
+        var data = Data()
+        
+        guard let employee = HomeView.employeeInfo,
+            let poNum = HomeView.todaysPO ?? UserDefaults.standard.string(forKey: DefaultKeys.todaysJobPO) else {
+            return
+        }
+        
+        do {
+            let codableInfo = UserData.UserInfoCodeable(
+                userName: employee.userName, employeeID: "\(employee.employeeID)", coordinateLat: "", coordinateLong: "", currentRole: "", po: poNum
+            )
+            data = try jsonEncoder.encode(codableInfo)
+            
+        } catch { print("Error: \(error)") }
+        
+        cb(employee.userName, data)
+    }
+    
+    func epSignature(_: EPSignatureViewController, didSign signatureImage: UIImage, boundingRect: CGRect) {
+        mealWaiverSIgnature = signatureImage
+        HomeView.presentWaiverAlrt = nil
+        
+        convertSomeInfo() { emply, body in
+            let route = "mealWaiverSigned/"
+            
+            self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
+            
+            self.alamoUpload(route: route, headers: ["employee", emply], formBody: body, images: [signatureImage], uploadType: "mealWaiver") { dict in
+                self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+            }
+        }
+    }
+    
+    func epSignature(_: EPSignatureViewController, didCancel error: NSError) {
+        HomeView.presentWaiverAlrt = nil
+    }
+}

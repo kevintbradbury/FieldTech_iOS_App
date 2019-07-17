@@ -299,6 +299,41 @@ extension UIViewController {
         }
         //        else if HomeView.toolRenewal != nil { extendToolRental() }
     }
+    
+    func showPOEntryWindow(foundUser: UserData.UserInfo?, role: String, cb: @escaping(String) -> ()) {
+        guard let coordinate = UserLocation.instance.currentCoordinate,
+            let uwrappedUsr = foundUser else {
+                print("no coordinates, user or role found")
+                return
+        }
+        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+        let alert = UIAlertController(
+            title: "Manual PO Entry", message: "No PO found. \nEnter PO number manually?", preferredStyle: .alert
+        )
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive) { action in
+//            self.finishedLoading()
+        }
+        let manualPOentry = UIAlertAction(title: "Send", style: .default) { action in
+//            self.inProgressVw()
+            let poNumber = alert.textFields![0]
+            var po = "";
+            
+            if poNumber.text != nil && poNumber.text != "" {
+                po = poNumber.text!
+                
+                cb(po)
+                // handle po here, may need to assign to VC
+            }
+        }
+        
+        alert.addTextField { textFieldPhoneNumber in
+            textFieldPhoneNumber.placeholder = "PO number"; textFieldPhoneNumber.keyboardType = UIKeyboardType.asciiCapableNumberPad
+        }
+        alert.addAction(manualPOentry)
+        alert.addAction(cancel)
+        
+        OperationQueue.main.addOperation { self.present(alert, animated: true, completion: nil) }
+    }
 }
 
 
