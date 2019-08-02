@@ -153,7 +153,7 @@ extension HomeView {
             }
             inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
             
-            APICalls().sendJobCheckup(po: po, body: body, vc: self) {
+            APICalls().sendJobCheckup(po: po, body: body) {
                 HomeView.jobCheckup = nil
                 self.completedProgress()
             }

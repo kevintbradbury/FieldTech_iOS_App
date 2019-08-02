@@ -303,12 +303,11 @@ extension UIViewController {
     }
     
     func showPOEntryWindow(foundUser: UserData.UserInfo?, role: String) {
-        guard let coordinate = UserLocation.instance.currentCoordinate,
+        guard let coordinates = UserLocation.instance.currentCoordinate,
             let uwrappedUsr = foundUser else {
                 print("no coordinates, user or role found")
                 return
         }
-        let locationArray = ["\(coordinate.latitude)", "\(coordinate.longitude)"]
         let alert = UIAlertController(
             title: "Manual PO Entry", message: "No PO found. \nEnter PO number manually?", preferredStyle: .alert
         )
@@ -320,7 +319,7 @@ extension UIViewController {
                 let po = poNumber.text!
                 
                 APICalls().sendCoordinates(
-                    employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: role, po: po, override: true
+                    employee: uwrappedUsr, location: coordinates, autoClockOut: false, role: role, po: po, override: true
                 ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
                     // do smth here
                 }

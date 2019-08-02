@@ -82,7 +82,7 @@ class APICalls {
         }
     }
     
-    func sendCoordinates(employee: UserData.UserInfo, location: [String], autoClockOut: Bool, role: String, po: String, override: Bool, callback: @escaping (Bool, String, String, [Double], Bool, String) -> ()) {
+    func sendCoordinates(employee: UserData.UserInfo, location: CLLocationCoordinate2D, autoClockOut: Bool, role: String, po: String, override: Bool, callback: @escaping (Bool, String, String, [Double], Bool, String?) -> ()) {
         var route = "employee/\(employee.employeeID)"
         if override == true {
             route += "/override/\(po)"
@@ -99,40 +99,34 @@ class APICalls {
             requestWithData.addValue(auto, forHTTPHeaderField: "autoClockOut")
             
             self.startSession(request: requestWithData, route: route) { json in
-                
-                guard let successfulPunch = json["success"] as? Bool else {
-                    print("APICalls > sendCoordinates > successfulPunch failed")
-                    callback(false, "", "", [0.0], false, "APICalls > sendCoordinates > successfulPunch failed")
-                    return
-                }
+                let successfulPunch = json["success"] as? Bool ?? false
+                let clockedIn = json["punchedIn"] as? Bool ?? employee.punchedIn!
                 
                 if let err = json["error"] as? String {
                     print("APICalls > sendCoordinates > Error \(err)");
-                    callback(successfulPunch, "", "", [0.0], false, err)
+                    callback(successfulPunch, "", "", [0.0], clockedIn, err)
 
-                } else if let currentJob = json["job"] as? String,
-                    let poNumber = json["poNumber"] as? String,
-                    let jobLatLong = json["jobLatLong"] as? [Double],
-                    let clockedIn = json["punchedIn"] as? Bool {
-                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, "")
-
-                } else if autoClockOut == true {
-                    callback(successfulPunch, "", "", [0.0], false, "")
+                } else {
+                    let currentJob = json["job"] as? String ?? ""
+                    let poNumber = json["poNumber"] as? String ?? ""
+                    let jobLatLong = json["jobLatLong"] as? [Double] ?? [0.0]
+                    callback(successfulPunch, currentJob, poNumber, jobLatLong, clockedIn, nil)
                 }
             }
         }
     }
     
-    func justCheckCoordinates(location: [String], callback: @escaping (Bool) -> ()) {
-        guard let employee = UserDefaults.standard.string(forKey: "employeeName"),
-            let emplyID = UserDefaults.standard.string(forKey: "employeeID"),
-            let po = UserDefaults.standard.string(forKey: "todaysJobPO") else { return }
+    func justCheckCoordinates(location: CLLocationCoordinate2D, callback: @escaping (Bool) -> ()) {
+        guard let employee = UserDefaults.standard.string(forKey: DefaultKeys.employeeName),
+            let emplyID = UserDefaults.standard.string(forKey: DefaultKeys.employeeID),
+            let po = UserDefaults.standard.string(forKey: DefaultKeys.todaysJobPO) else { return }
         
         let route = "checkCoordinates/\(employee)"
         let person = UserData.UserInfoCodeable(
             userName: employee,
             employeeID: emplyID,
-            coordinateLat: location[0], coordinateLong: location[1],
+            coordinateLat: "\(location.latitude)",
+            coordinateLong: "\(location.longitude)",
             currentRole: "-",    //  CurrentRole set from DB, no need to send here
             po: po
         )
@@ -156,8 +150,8 @@ class APICalls {
         }
     }
     
-    func sendJobCheckup(po: String, body: Data, vc:UIViewController, callback: @escaping () -> ()){
-        let route = "jobCheckupInfo/" + String(po)
+    func sendJobCheckup(po: String, body: Data, callback: @escaping () -> ()){
+        let route = "jobCheckupInfo/\(po)"
         
         setupRequest(route: route, method: "POST") { request in
             var reqWithData = request
@@ -169,7 +163,7 @@ class APICalls {
         }
     }
     
-    func fetchEmployee(employeeId: Int, vc:UIViewController, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
         let route = "employee/" + String(employeeId)
         
         setupRequest(route: route, method: "GET") { request in
@@ -418,12 +412,13 @@ extension APICalls {
         return holidays
     }
     
-    func convertToJSON(employee: UserData.UserInfo, location: [String], role: String, po: String) -> Data {
+    func convertToJSON(employee: UserData.UserInfo, location: CLLocationCoordinate2D, role: String, po: String) -> Data {
+        
         let person = UserData.UserInfoCodeable(
             userName: employee.userName,
             employeeID: String(employee.employeeID),
-            coordinateLat: location[0],
-            coordinateLong: location[1],
+            coordinateLat: "\(location.latitude)",
+            coordinateLong: "\(location.longitude)",
             currentRole: role,
             po: po
         )

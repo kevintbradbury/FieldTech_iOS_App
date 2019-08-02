@@ -121,16 +121,15 @@ extension UserLocation {
     func handleGeoFenceEvent(forRegion region: CLRegion) {
         print("handleGeoFenceEvent EXIT region: \(region)")
         guard let employeeName = UserDefaults.standard.string(forKey: "employeeName"),
-            let coordinate = UserLocation.instance.currentCoordinate else {
+            let coordinates = UserLocation.instance.currentCoordinate else {
                 print("failed on employeeName or coordinate or employeeID"); return
         }
         let employeeID = UserDefaults.standard.integer(forKey: "employeeID")
         let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
-        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         let role: String
         
         APICalls().sendCoordinates(
-            employee: userInfo, location: locationArray, autoClockOut: true, role: "-", po: "", override: false
+            employee: userInfo, location: coordinates, autoClockOut: true, role: "-", po: "", override: false
         ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             
             if clockedIn == false && success == true {

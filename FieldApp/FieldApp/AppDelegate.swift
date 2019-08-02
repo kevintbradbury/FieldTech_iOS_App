@@ -77,10 +77,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         if action == "gps Update" {
-            guard let coordinate = UserLocation.instance.currentCoordinate else { return }
-            let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
+            guard let coordinates = UserLocation.instance.currentCoordinate else { return }
             
-            APICalls().justCheckCoordinates(location: locationArray) { success in
+            APICalls().justCheckCoordinates(location: coordinates) { success in
                 if success != true { completionHandler(.failed) }
                 else { completionHandler(.newData); print("didReceiveRemoteNotification: coordinate check succeeded") }
             }

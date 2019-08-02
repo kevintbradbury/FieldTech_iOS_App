@@ -181,10 +181,9 @@ extension EmployeeIDEntry {
     }
     
     func makePunchCall(user: UserData.UserInfo) {
-        guard let coordinate = UserLocation.instance.currentCoordinate,
+        guard let coordinates = UserLocation.instance.currentCoordinate,
             let unwrappedRole = role else { return }
         
-        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         let anmation = longHand.node.placeVar.animation(angle: -3.20, x: 0, y: 0, during: 1, delay: 0)
         anmation.cycle().play()
         inProgressVw()
@@ -192,8 +191,9 @@ extension EmployeeIDEntry {
         if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") {
             
             APICalls().sendCoordinates(
-                employee: user, location: locationArray, autoClockOut: false, role: unwrappedRole, po: validPO, override: false
+                employee: user, location: coordinates, autoClockOut: false, role: unwrappedRole, po: validPO, override: false
             ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
+                
                 self.handleSuccess(
                     success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: true, err: err
                 )
@@ -203,7 +203,7 @@ extension EmployeeIDEntry {
         }
     }
     
-    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String) {
+    func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String?) {
         
         if success == true {
             UserDefaults.standard.set(poNumber, forKey: "todaysJobPO")
@@ -218,8 +218,13 @@ extension EmployeeIDEntry {
             
         } else if manualPO == true {
             showPONumEntryWin()
-        } else if err != "" {
-            showAlert(withTitle: "Error", message: err)
+        } else if err != nil {
+            guard let error = err else {
+                showAlert(withTitle: "Error", message: "Unable to fetch info from Server.")
+                finishedLoading()
+                return
+            }
+            showAlert(withTitle: "Error", message: error)
             finishedLoading()
         } else {
             incorrectID(success: success)
@@ -351,18 +356,17 @@ extension EmployeeIDEntry {
     }
     
     func sendManualEntry() {
-        guard let coordinate = UserLocation.instance.currentCoordinate,
+        guard let coordinates = UserLocation.instance.currentCoordinate,
             let uwrappedUsr = EmployeeIDEntry.foundUser,
             let unwrappedRole = self.role,
             let po = poNumberField.text else {
                 print("no coordinates, user or role found")
                 return
         }
-        let locationArray = [String(coordinate.latitude), String(coordinate.longitude)]
         inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
         
         APICalls().sendCoordinates(
-            employee: uwrappedUsr, location: locationArray, autoClockOut: false, role: unwrappedRole, po: po, override: true
+            employee: uwrappedUsr, location: coordinates, autoClockOut: false, role: unwrappedRole, po: po, override: true
         ) { success, currentJob, poNumber, jobLatLong, clockedIn, err in
             self.handleSuccess(
                 success: success, currentJob: currentJob, poNumber: poNumber, jobLatLong: jobLatLong, clockedIn: clockedIn, manualPO: false, err: err
@@ -565,7 +569,7 @@ extension EmployeeIDEntry {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
                 inProgressVw()
                 
-                APICalls().fetchEmployee(employeeId: Int(employeeID)!, vc: self) { user, addressInfo  in
+                APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
                     HomeView.employeeInfo = user
                     HomeView.addressInfo = addressInfo
                     HomeView().checkPunchStatus()
