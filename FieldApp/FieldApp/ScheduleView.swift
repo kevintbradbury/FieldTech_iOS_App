@@ -157,7 +157,7 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         if let unwrappedEmployee = self.employee {
             let idToString = String(unwrappedEmployee.employeeID)
             
-            APICalls().fetchJobInfo(employeeID: idToString, vc: self) { (jobs, timeOffReqs, holidayss) in
+            APICalls().fetchJobInfo(employeeID: idToString) { (jobs, timeOffReqs, holidayss) in
                 self.jobsArray = jobs
                 self.jobsArray.sort { ($0.jobName < $1.jobName) }
                 self.timeOreqs = timeOffReqs

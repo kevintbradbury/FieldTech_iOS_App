@@ -3,26 +3,9 @@
     {
       "orientation" : "portrait",
       "idiom" : "iphone",
+      "filename" : "Logo_black_ver 3.png",
       "minimum-system-version" : "7.0",
       "subtype" : "retina4",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "iphone",
-      "subtype" : "retina4",
-      "filename" : "millwork_brothers_large-1.jpg",
-      "minimum-system-version" : "7.0",
-      "orientation" : "portrait",
-      "unassigned" : true,
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "iphone",
-      "subtype" : "retina4",
-      "filename" : "millwork_brothers_large.jpg",
-      "minimum-system-version" : "7.0",
-      "orientation" : "portrait",
-      "unassigned" : true,
       "scale" : "2x"
     }
   ],

@@ -16,7 +16,6 @@ import UserNotificationsUI
 import Firebase
 
 
-
 class APICalls {
     static var host = ""
     let jsonEncoder = JSONEncoder()
@@ -58,13 +57,14 @@ class APICalls {
                 if error != nil {
                     print("Error in updateToken: \(error)"); return
                 } else {
+                    // need to send validation 
                     print("updateToken successfully"); return
                 }
             }; task.resume()
         }
     }
     
-    func fetchJobInfo(employeeID: String, vc: UIViewController, callback: @escaping ([Job.UserJob], [TimeOffReq], [Holiday]) -> ()) {
+    func fetchJobInfo(employeeID: String, callback: @escaping ([Job.UserJob], [TimeOffReq], [Holiday]) -> ()) {
         let route = "employee/" + employeeID + "/jobs"
         
         setupRequest(route: route, method: "GET") { request in

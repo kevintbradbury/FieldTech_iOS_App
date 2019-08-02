@@ -17,6 +17,7 @@ import MLPAutoCompleteTextField
 
 
 extension UIViewController {
+
     func setShadows(btns: [UIButton]) {
         for button in btns {
             button.layer.shadowColor = UIColor.darkGray.cgColor
@@ -251,7 +252,7 @@ extension UIViewController {
                                 
                                 guard response.result.isSuccess else {
                                     guard let err = response.error as? String else {
-                                        APICalls.succeedOrFailUpload(msg: "Error occured with upload.", uploadType: uploadType, success: false)
+                                        APICalls.succeedOrFailUpload(msg: "Error occured with upload. ", uploadType: uploadType, success: false)
                                         callback(["error" : response.result.description]); return
                                     }
                                     print("error while uploading file: \(err)");
@@ -269,7 +270,7 @@ extension UIViewController {
                                 }
                             }
                         case .failure(let encodingError):
-                            print(encodingError);
+                            print("encodingError: \(encodingError)");
                             APICalls.succeedOrFailUpload(msg: "Failed to upload: ", uploadType: uploadType, success: false)
                             callback(["error": encodingError.localizedDescription]); return
                             

@@ -51,9 +51,9 @@ class VehicleCheckListView: UITableViewController {
         activityIndicator.hidesWhenStopped = true
         activityIndicator.isHidden = true
         
-        self.view.addGestureRecognizer(
-            UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:)))
-        )
+        OperationQueue.main.addOperation {
+            self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+        }
     }
     
     @IBAction func pressedBack(_ sender: Any) {

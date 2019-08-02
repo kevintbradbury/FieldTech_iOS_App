@@ -37,8 +37,9 @@ class TimeOffRequestView: UIViewController {
         if employeeInfo?.userName != nil {
             userNameLbl.text = employeeInfo?.userName
         }
-        
-       
+        OperationQueue.main.addOperation {
+            self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {

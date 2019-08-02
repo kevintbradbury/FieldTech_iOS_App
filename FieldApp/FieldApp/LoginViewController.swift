@@ -26,6 +26,9 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicator.hidesWhenStopped = true
+        OperationQueue.main.addOperation {
+            self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
