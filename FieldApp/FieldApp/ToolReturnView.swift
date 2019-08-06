@@ -25,11 +25,12 @@ class ToolReturnView: UITableViewController {
         
         APICalls().getToolRentals(employeeID: employeeID!) { toolsNimgs in
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
-            self.rentals = toolsNimgs.tools
-            self.images = toolsNimgs.images
-            self.tableView.reloadData()
+            if let validToolsNimgs = toolsNimgs {
+                self.rentals = validToolsNimgs.tools
+                self.images = validToolsNimgs.images
+                self.tableView.reloadData()
+            }
             guard let safeRentals = self.rentals else { return }
-            
             if safeRentals.count == 0 { self.showAlert(withTitle: "No Tools", message: "Didn't find any tools rented.") }
         }
     }

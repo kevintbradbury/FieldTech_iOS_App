@@ -40,7 +40,7 @@ class APICalls {
         setupRequest(route: route, method: "GET") { request in
             self.startSession(request: request, route: route) { json in
             
-                if let yesHasToken = json["hasToken"] as? Bool { hasToken = yesHasToken }
+                let hasToken = json["hasToken"] as? Bool ?? false
                 callback(hasToken)
             }
         }
@@ -75,7 +75,7 @@ class APICalls {
                 
                 if let hldys = json["holidays"] as? NSArray { holidays = self.parseHolidays(from: hldys) }
                 if let jobs = json["employeeJobs"] as? NSArray { employeeJobs = self.parseJobs(from: jobs) }
-                if let tORS = json["timeOffReqs"] as? NSArray { timeOffReqs = self.parseTORS(from: tORS) }
+                if let tORs = json["timeOffReqs"] as? NSArray { timeOffReqs = self.parseTORS(from: tORs) }
                 
                 callback(employeeJobs, timeOffReqs, holidays)
             }
@@ -163,18 +163,20 @@ class APICalls {
         }
     }
     
-    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo, UserData.AddressInfo) -> ()){
+    func fetchEmployee(employeeId: Int, callback: @escaping (UserData.UserInfo?, UserData.AddressInfo?) -> ()){
         let route = "employee/" + String(employeeId)
         
         setupRequest(route: route, method: "GET") { request in
             self.startSession(request: request, route: route) { json in
                 
-                guard let user = UserData.UserInfo.fromJSON(dictionary: json),
-                    let dictionary = json["addressInfo"] as? NSDictionary,
-                    let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary) else {
-                        print("failed to parse UserData"); return
+                var user: UserData.UserInfo?
+                let dictionary = json["addressInfo"] as? NSDictionary ?? ["":""]
+                let addressInfo = UserData.AddressInfo.fromJSON(dictionary: dictionary)
+                
+                if let validUser = UserData.UserInfo.fromJSON(dictionary: json) {
+                    user = validUser
+                    UserDefaults.standard.set(validUser.userName, forKey: DefaultKeys.employeeName)
                 }
-                UserDefaults.standard.set(user.userName, forKey: "employeeName")
                 callback(user, addressInfo)
             }
         }
@@ -225,7 +227,7 @@ class APICalls {
         }
     }
     
-    func acceptMoreHrs(employee: String, moreDays: AcceptMoreDays, vc:UIViewController, callback: @escaping (Bool)->()) {
+    func acceptMoreHrs(employee: String, moreDays: AcceptMoreDays, callback: @escaping (Bool)->()) {
         let route = "acceptMoreHours/\(employee)"
         var data = Data()
         
@@ -241,13 +243,13 @@ class APICalls {
 
             self.startSession(request: req, route: route) { json in
                 print("\(route): success \(json["success"])")
-                guard let success = json["success"] as? Bool else { return }
+                let success = json["success"] as? Bool ?? false
                 callback(success)
             }
         }
     }
     
-    func getToolRentals(employeeID: Int, callback: @escaping (FieldActions.ToolsNImages) -> ()) {
+    func getToolRentals(employeeID: Int, callback: @escaping (FieldActions.ToolsNImages?) -> ()) {
         let route = APICalls.host + "toolRentals/\(employeeID)"
         
         APICalls.getFIRidToken() { idToken in
@@ -258,16 +260,16 @@ class APICalls {
                 headers.updateValue(userNpass.password, forKey: "password")
             }
             Alamofire.request(route, headers: headers).responseJSON() { response in
+                var sendBackObj: FieldActions.ToolsNImages?
                 
                 if let json = response.result.value {
-                    print("JSON")
-                    let toolsNphotos = FieldActions.fromJSONtoTool(json: json)
-                    let sendBackObj = FieldActions.ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1)
+                     var toolsNphotos = FieldActions.fromJSONtoTool(json: json)
+                     sendBackObj = FieldActions.ToolsNImages(tools: toolsNphotos.0, images: toolsNphotos.1) as? FieldActions.ToolsNImages
                     
-                    callback(sendBackObj)
                 } else {
                     print("Error parsing Tools json: \(String(describing: response.error))")
                 }
+                callback(sendBackObj)
             }
         }
     }

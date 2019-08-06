@@ -20,6 +20,20 @@
                ReferencedContainer = "container:FieldApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0AC8EF5E1F71826200E86DD6"
+               BuildableName = "FieldAppTests.xctest"
+               BlueprintName = "FieldAppTests"
+               ReferencedContainer = "container:FieldApp.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -38,6 +52,10 @@
                BlueprintName = "FieldAppTests"
                ReferencedContainer = "container:FieldApp.xcodeproj">
             </BuildableReference>
+            <LocationScenarioReference
+               identifier = "com.apple.dt.IDEFoundation.CurrentLocationScenarioIdentifier"
+               referenceType = "1">
+            </LocationScenarioReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
@@ -54,8 +72,8 @@
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -80,7 +98,7 @@
       </LocationScenarioReference>
    </LaunchAction>
    <ProfileAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"

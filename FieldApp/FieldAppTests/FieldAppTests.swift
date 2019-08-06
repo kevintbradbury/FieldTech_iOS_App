@@ -73,7 +73,6 @@ class APICallsTests: XCTestCase {
         APICalls().fetchJobInfo(employeeID: "9999") { (userJob, tmOff, holidays) in
             promiseNoInfo.fulfill()
         }
-        
         wait(for: [promiseWithInfo, promiseNoInfo], timeout: 10)
     }
     
@@ -128,7 +127,6 @@ class APICallsTests: XCTestCase {
             XCTAssertNotNil(currentJob); XCTAssertNotNil(poNum); XCTAssertNotNil(jobCoords); XCTAssertNotNil(clockedIn)
             promiseWithSuccess.fulfill()
         }
-        
         wait(for: [promiseWithSuccess, promiseFail], timeout: 20)
     }
     
@@ -150,7 +148,6 @@ class APICallsTests: XCTestCase {
             XCTAssertFalse(success)
             promise.fulfill()
         }
-        
         wait(for: [promise], timeout: 10)
     }
     
@@ -175,19 +172,66 @@ class APICallsTests: XCTestCase {
         APICalls().sendJobCheckup(po: "2020", body: actualData) {
             promise.fulfill()
         }
-        
         wait(for: [promise], timeout: 15)
     }
     
     func testFetchEmply() {
         let promise = expectation(description: "Finished getting employee info")
+        promise.expectedFulfillmentCount = 2
         
         APICalls().fetchEmployee(employeeId: 200) { (usrInfo, userAdrs) in
             XCTAssertNotNil(usrInfo)
             XCTAssertNotNil(userAdrs)
             promise.fulfill()
         }
-        
+        APICalls().fetchEmployee(employeeId: 9999) { (usrInfo, userAdrs) in
+            promise.fulfill()
+        }
         wait(for: [promise], timeout: 10)
     }
+    
+    func testGetSafetyQs() {
+        let promise = expectation(description: "Gets 2 Safety Qs from Server.")
+        
+        APICalls().getSafetyQs() { safetyQs in
+            XCTAssertNotNil(safetyQs)
+            XCTAssertEqual(safetyQs.count, 2)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 10)
+    }
+    
+    func testAcceptMoreDays() {
+        let daysToAccept = AcceptMoreDays(sun: true, mon: true, tue: true, wed: true, thu: true, fri: true, sat: true)
+        let promise = expectation(description: "Returns successfully if employee exists.")
+        promise.expectedFulfillmentCount  = 2
+        
+        APICalls().acceptMoreHrs(employee: "Loyd_Christmas", moreDays: daysToAccept) { success in
+            XCTAssertTrue(success)
+            promise.fulfill()
+        }
+        APICalls().acceptMoreHrs(employee: "", moreDays: daysToAccept) { success in
+            XCTAssertFalse(success)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 10)
+    }
+
+    func testGetToolsNimages() {
+        let promise = expectation(description: "Returns successfully if has Tools and Images.")
+        promise.expectedFulfillmentCount = 2
+        
+        APICalls().getToolRentals(employeeID: 200) { toolsNimgs in
+            XCTAssertNotNil(toolsNimgs)
+            XCTAssertNotNil(toolsNimgs!.images)
+            XCTAssertNotNil(toolsNimgs!.tools)
+            promise.fulfill()
+        }
+        APICalls().getToolRentals(employeeID: 9999) { toolsNimgs in
+            XCTAssertNil(toolsNimgs)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 15)
+    }
+    
 }

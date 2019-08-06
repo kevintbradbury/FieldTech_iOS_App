@@ -570,8 +570,11 @@ extension EmployeeIDEntry {
                 inProgressVw()
                 
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
-                    HomeView.employeeInfo = user
-                    HomeView.addressInfo = addressInfo
+                    if let validUser = user as? UserData.UserInfo,
+                        let validAddress = addressInfo as? UserData.AddressInfo {                        
+                        HomeView.employeeInfo = user
+                        HomeView.addressInfo = addressInfo
+                    }
                     HomeView().checkPunchStatus()
                 }
             } else { completedProgress() }

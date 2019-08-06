@@ -240,7 +240,7 @@ extension ScheduleView {
             showAlert(withTitle: "Select Nights", message: "You must select at least 2 nights."); return
         }
         activityIndicator.startAnimating()
-        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs, vc: self) { success in
+        APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs) { success in
             self.main.addOperation {
                 self.activityIndicator.stopAnimating()
             }
