@@ -233,6 +233,7 @@ class Job: Codable {
         }
         
         static func stringToDate(string: String) -> Date {
+            print(string)
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
             dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")

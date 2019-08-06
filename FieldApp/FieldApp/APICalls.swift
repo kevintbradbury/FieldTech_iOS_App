@@ -140,11 +140,7 @@ class APICalls {
             requestWithData.httpBody = data
             
             self.startSession(request: requestWithData, route: route) { json in
-                
-                guard let successfulPunch = json["success"] as? Bool else {
-                    print("APICalls > justCheckCoordinates > failed on data or json or successfulPunch")
-                    callback(false); return
-                }
+                let successfulPunch = json["success"] as? Bool ?? false
                 callback(successfulPunch)
             }
         }
@@ -291,7 +287,8 @@ class APICalls {
         
         do { data = try self.jsonEncoder.encode(toolData) }
         catch let err {
-            print("Erro in extendRental, w/ err: \(err)"); cb(["error":"Unable to encode data for server."])
+            print("Erro in extendRental, w/ err: \(err)")
+            return
         }
         
         setupRequest(route: route, method: "POST") { request in

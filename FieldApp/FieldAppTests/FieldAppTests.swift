@@ -234,4 +234,111 @@ class APICallsTests: XCTestCase {
         wait(for: [promise], timeout: 15)
     }
     
+    func testGetFIRtoken() {
+        let promise = expectation(description: "Should get Firebase token for valid phone number")
+        
+        APICalls.getFIRidToken() { token in
+            XCTAssertNotNil(token)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 10)
+    }
+    
+    func testExtendRental() {
+        let promise = expectation(description: "Returns a JSON dictionary")
+        let rentalExt = FieldActions.ToolRentalExtension(requestedBy: "Loyd_Christmas", toolType: "hammer", brand: "chinese", duration: "5")
+        let wrongRental = FieldActions.ToolRentalExtension(requestedBy: "", toolType: "", brand: "", duration: "")
+        promise.expectedFulfillmentCount = 2
+        
+        APICalls().extendRental(toolData: rentalExt) { success in
+            XCTAssertNotNil(success)
+            promise.fulfill()
+        }
+        APICalls().extendRental(toolData: wrongRental) { success in
+            XCTAssertNotNil(success)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 10)
+    }
+ 
+    func testGetJobNames() {
+        let promise = expectation(description: "Returns with existing job names or Error")
+        
+        APICalls().getJobNames { (error, jobNames) in
+            if error != nil {
+                XCTFail("\(error)")
+            }
+            XCTAssertNotNil(jobNames)
+            XCTAssertGreaterThan(jobNames!.count, 0)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 10)
+    }
+    
+    func testSetReq() {
+        let promise = expectation(description: "Receives properly setup Http Request")
+        
+        APICalls().setupRequest(route: "jobs", method: "POST") { (req) in
+            let url = URL(string: "\(APICalls.host)jobs")
+            XCTAssertNotNil(req)
+            XCTAssertNotNil(req.url)
+            XCTAssertEqual(req.httpMethod, "POST")
+            XCTAssertEqual(req.url, url)
+            XCTAssertNotNil(req.allHTTPHeaderFields)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 10)
+    }
+    
+    func testStartSesh() {
+        let promise = expectation(description: "Initiates sesh and comes back w/ json or error")
+        let request = URLRequest(url: URL(string: APICalls.host)!)
+        let wrongRequest = URLRequest(url: URL(string: "\(APICalls.host)/wrongDirection")!)
+        
+        APICalls().startSession(request: request, route: "host URL") { (json) in
+            XCTAssertNotNil(json)
+            promise.fulfill()
+        }
+        APICalls().startSession(request: wrongRequest, route: "wrong Request") { (json) in
+            XCTAssertNotNil(json)
+            promise.fulfill()
+        }
+        wait(for: [promise], timeout: 10)
+    }
+    
+    func testParseJbs() {
+        let validJbs = [
+            [
+                "name" : "Fullerton and Imperial", "poNumber" : "905499", "jobLocation" : [ ],
+                "dates" : [[ "installDate" : "2019-07-14T15:00:00.000Z", "endDate" : "2019-07-20T00:00:00.000Z" ]]
+            ],
+            [
+                "name" : "Fullerton and Imperial", "poNumber" : "905499", "jobLocation" : [ ],
+                "dates" : [[ "installDate" : "2019-07-14T15:00:00.000Z", "endDate" : "2019-07-20T00:00:00.000Z" ]]
+            ]
+        ]
+        let parsedJobs = APICalls().parseJobs(from: NSArray(array: validJbs) )
+        
+        XCTAssertNotNil(parsedJobs)
+        XCTAssertNotNil(parsedJobs[0])
+        XCTAssertNotNil(parsedJobs[1])
+        XCTAssertEqual(parsedJobs[0].jobName, "\(validJbs[0]["name"]!)")
+        XCTAssertEqual(parsedJobs[0].poNumber, "\(validJbs[0]["poNumber"]!)")
+    }
+    
+    func testParsetORs() {
+        let tmOff = [
+            [
+             "end" : "2019-04-13T18:33:040Z", "start" : "2019-04-12T18:33:040Z", "username" : "GarciaMiguel", "signedDate" : "2019-04-11T18:33:25.097Z", "shiftHours" : "9-5", "employeeID" : "9758", "department" : "shop", "signaturePath" : "timeOffRequests/GarciaMiguel-Apr 12, 2019.jpg"
+            ]
+        ]
+        
+        let timeOffReqs = APICalls().parseTORS(from: NSArray(array: tmOff) )
+        XCTAssertNotNil(timeOffReqs)
+        XCTAssertNotNil(timeOffReqs[0])
+        XCTAssertEqual(timeOffReqs[0].username, "\(tmOff[0]["username"]!)")
+    }
+    
+    func test
+
 }
