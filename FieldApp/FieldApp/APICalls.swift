@@ -422,13 +422,14 @@ extension APICalls {
             po: po
         )
         var data = Data()
-        var combinedString = person.userName + " -- " + person.employeeID  + " |"
-        combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.currentRole
+        var combinedString = ""
         
         do {
             data = try self.jsonEncoder.encode(person)
         } catch {
             print(error)
+            combinedString = person.userName + " -- " + person.employeeID  + " |"
+            combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.currentRole
             data = combinedString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
         }
         return data

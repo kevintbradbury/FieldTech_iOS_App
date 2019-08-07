@@ -23,15 +23,6 @@ class FieldAppTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        //        self.measure { /* Put the code you want to measure the time of here.  */ }
-    }
 }
 
 class APICallsTests: XCTestCase {
@@ -306,17 +297,18 @@ class APICallsTests: XCTestCase {
         wait(for: [promise], timeout: 10)
     }
     
-    func testParseJbs() {
-        let validJbs = [
-            [
-                "name" : "Fullerton and Imperial", "poNumber" : "905499", "jobLocation" : [ ],
-                "dates" : [[ "installDate" : "2019-07-14T15:00:00.000Z", "endDate" : "2019-07-20T00:00:00.000Z" ]]
-            ],
-            [
-                "name" : "Fullerton and Imperial", "poNumber" : "905499", "jobLocation" : [ ],
-                "dates" : [[ "installDate" : "2019-07-14T15:00:00.000Z", "endDate" : "2019-07-20T00:00:00.000Z" ]]
-            ]
+    let validJbs = [
+        [
+            "name" : "Fullerton and Imperial", "poNumber" : "905499", "jobLocation" : [ ],
+            "dates" : [[ "installDate" : "2019-07-14T15:00:00.000Z", "endDate" : "2019-07-20T00:00:00.000Z" ]]
+        ],
+        [
+            "name" : "Fullerton and Imperial", "poNumber" : "905499", "jobLocation" : [ ],
+            "dates" : [[ "installDate" : "2019-07-14T15:00:00.000Z", "endDate" : "2019-07-20T00:00:00.000Z" ]]
         ]
+    ]
+    
+    func testParseJbs() {
         let parsedJobs = APICalls().parseJobs(from: NSArray(array: validJbs) )
         
         XCTAssertNotNil(parsedJobs)
@@ -339,6 +331,23 @@ class APICallsTests: XCTestCase {
         XCTAssertEqual(timeOffReqs[0].username, "\(tmOff[0]["username"]!)")
     }
     
-    func test
+    func testConvertUserInfo() {
+        let dates = Job.UserJob.JobDates(installDate: Date(), endDate: Date())
+        let coords = CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)
+        let validJb = Job.UserJob(
+            poNumber: "2020", jobName: "Fullerton and Imperial",
+            dates: [dates],
+            jobLocation: coords,
+            jobAddress: "", jobCity: "", jobState: "",
+            projCoord: "", fieldLead: "", supervisor: "", assignedEmployees: [""]
+        )
+        let validInfo = UserData.UserInfo(employeeID: 200, userName: "Loyd_Christmas", employeeJobs: [validJb], punchedIn: true)
+        let preparedData = APICalls().convertToJSON(employee: validInfo, location: coords, role: "Field", po: validJb.poNumber)
+        
+        XCTAssertNotNil(preparedData)
+        XCTAssertFalse(preparedData.isEmpty)
+    }
 
 }
+
+

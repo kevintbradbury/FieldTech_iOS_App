@@ -47,15 +47,11 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0AC8EF5E1F71826200E86DD6"
-               BuildableName = "FieldAppTests.xctest"
-               BlueprintName = "FieldAppTests"
+               BlueprintIdentifier = "0AC8EF691F71826200E86DD6"
+               BuildableName = "FieldAppUITests.xctest"
+               BlueprintName = "FieldAppUITests"
                ReferencedContainer = "container:FieldApp.xcodeproj">
             </BuildableReference>
-            <LocationScenarioReference
-               identifier = "com.apple.dt.IDEFoundation.CurrentLocationScenarioIdentifier"
-               referenceType = "1">
-            </LocationScenarioReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
