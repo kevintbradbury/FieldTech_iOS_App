@@ -29,7 +29,22 @@ pod 'MLPAutoCompleteTextField', '~> 1.5'
   end
 
   target 'FieldAppUITests' do
-    inherit! :search_paths
+    # project: 'FieldApp.xcworkspace'
+    inherit! :complete
+    # 'Firebase/Core'
+    # 'Firebase/Auth'
+    # 'Firebase/Database'
+    # 'Firebase/Storage'
+    # 'Firebase/Messaging'
+    # 'Alamofire'
+    # 'SwiftyJSON'
+    # 'JTAppleCalendar'
+    # 'ImagePicker'
+    # 'EPSignature'
+    # 'Macaw'
+    # 'FanMenu'
+    # 'SwiftGifOrigin'
+    # 'MLPAutoCompleteTextField'
     # Pods for testing
   end
 

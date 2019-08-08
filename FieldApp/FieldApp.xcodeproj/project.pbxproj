@@ -13,6 +13,8 @@
 		062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062005A51FFC642900F1E193 /* ScheduleView.swift */; };
 		0623249B21DD81C1000025E3 /* TimeOffRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0623249A21DD81C1000025E3 /* TimeOffRequestView.swift */; };
 		062A32D5215C09A0001B6703 /* ToolReturnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D4215C09A0001B6703 /* ToolReturnView.swift */; };
+		065D029922FB788600A326F1 /* Pods_FieldAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E5FF5170009DCF06A1F5DCB /* Pods_FieldAppTests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		065D029A22FB788600A326F1 /* Pods_FieldAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7181653153D0F18EBA34A99C /* Pods_FieldAppUITests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		065E63D721E4266D0063A572 /* SuppliesRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63D621E4266D0063A572 /* SuppliesRequestView.swift */; };
 		065E63DB21E82B5B0063A572 /* VehicleCheckListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
@@ -36,6 +38,7 @@
 		0AC8EF811F71E31000E86DD6 /* GeoCodingAPIcall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF801F71E31000E86DD6 /* GeoCodingAPIcall.swift */; };
 		0AC8EF831F71E69400E86DD6 /* APICalls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC8EF821F71E69400E86DD6 /* APICalls.swift */; };
 		2F4D7BF475FD4EE1F885BF52 /* Pods_FieldAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7181653153D0F18EBA34A99C /* Pods_FieldAppUITests.framework */; };
+		4DEFED55348FE40880C7F834 /* Pods_FieldApp_FieldAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 093C30704F3A5514D5765FAC /* Pods_FieldApp_FieldAppUITests.framework */; };
 		5CC99E1036DD650DF02B24A3 /* Pods_FieldAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E5FF5170009DCF06A1F5DCB /* Pods_FieldAppTests.framework */; };
 		AF4CDCFB76E60B8495FB2312 /* Pods_FieldApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F19D11D58E9D802CF19CB069 /* Pods_FieldApp.framework */; };
 /* End PBXBuildFile section */
@@ -58,6 +61,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		01F54A7B46D42EE1CAF2CBE1 /* Pods-FieldApp-FieldAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FieldApp-FieldAppUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FieldApp-FieldAppUITests/Pods-FieldApp-FieldAppUITests.release.xcconfig"; sourceTree = "<group>"; };
 		0601ED20224ED84F0013BD72 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolSignOffView.swift; sourceTree = "<group>"; };
 		0618A7C82169280C00A05EEE /* MacawButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacawButtonView.swift; sourceTree = "<group>"; };
@@ -66,6 +70,31 @@
 		062A32D4215C09A0001B6703 /* ToolReturnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolReturnView.swift; sourceTree = "<group>"; };
 		063B7AA522F3A1D9003259B5 /* FieldApp_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldApp_Tests.swift; sourceTree = "<group>"; };
 		063B7AA722F3A1D9003259B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		065D026722FB76C900A326F1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		065D026922FB788600A326F1 /* Alamofire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Alamofire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D026B22FB788600A326F1 /* EPSignature.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = EPSignature.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D026D22FB788600A326F1 /* FanMenu.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FanMenu.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D026F22FB788600A326F1 /* FirebaseAuth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseAuth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027122FB788600A326F1 /* FirebaseCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027322FB788600A326F1 /* FirebaseCoreDiagnostics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseCoreDiagnostics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027522FB788600A326F1 /* FirebaseDatabase.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseDatabase.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027722FB788600A326F1 /* FirebaseInstanceID.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseInstanceID.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027922FB788600A326F1 /* FirebaseMessaging.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseMessaging.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027B22FB788600A326F1 /* FirebaseStorage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = FirebaseStorage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027D22FB788600A326F1 /* GoogleDataTransport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = GoogleDataTransport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D027F22FB788600A326F1 /* GoogleDataTransportCCTSupport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = GoogleDataTransportCCTSupport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028122FB788600A326F1 /* GoogleUtilities.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = GoogleUtilities.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028322FB788600A326F1 /* GTMSessionFetcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = GTMSessionFetcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028522FB788600A326F1 /* ImagePicker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ImagePicker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028722FB788600A326F1 /* JTAppleCalendar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = JTAppleCalendar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028922FB788600A326F1 /* leveldb.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = leveldb.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028B22FB788600A326F1 /* Macaw.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Macaw.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028D22FB788600A326F1 /* MLPAutoCompleteTextField.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = MLPAutoCompleteTextField.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D028F22FB788600A326F1 /* nanopb.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = nanopb.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D029122FB788600A326F1 /* Protobuf.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Protobuf.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D029322FB788600A326F1 /* SwiftGifOrigin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftGifOrigin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D029522FB788600A326F1 /* SwiftyJSON.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyJSON.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		065D029722FB788600A326F1 /* SWXMLHash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SWXMLHash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		065E63D621E4266D0063A572 /* SuppliesRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuppliesRequestView.swift; sourceTree = "<group>"; };
 		065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleCheckListView.swift; sourceTree = "<group>"; };
 		066223362150322800B9C8E2 /* StoresMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMapView.swift; sourceTree = "<group>"; };
@@ -78,6 +107,7 @@
 		06E18B472255654B0058974B /* FanMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanMenu.swift; sourceTree = "<group>"; };
 		06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		06F161C221F77E0C001E0312 /* TORLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TORLogView.swift; sourceTree = "<group>"; };
+		093C30704F3A5514D5765FAC /* Pods_FieldApp_FieldAppUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FieldApp_FieldAppUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0AB8AE7C1F7AB86500E1ACFC /* FieldApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FieldApp.entitlements; sourceTree = "<group>"; };
 		0AB8AE7D1F7ABE5800E1ACFC /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		0AC8EF4B1F71826200E86DD6 /* FieldApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FieldApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -98,6 +128,7 @@
 		0AC8EF821F71E69400E86DD6 /* APICalls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APICalls.swift; sourceTree = "<group>"; };
 		1E2024522E793B4144CFC3AA /* Pods-FieldAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FieldAppTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FieldAppTests/Pods-FieldAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		24A6F559D4010D6CA18EDEC4 /* Pods-FieldAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FieldAppUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FieldAppUITests/Pods-FieldAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		2F05A59AF22C5D9A4812AEA8 /* Pods-FieldApp-FieldAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FieldApp-FieldAppUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FieldApp-FieldAppUITests/Pods-FieldApp-FieldAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		7181653153D0F18EBA34A99C /* Pods_FieldAppUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FieldAppUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E5FF5170009DCF06A1F5DCB /* Pods_FieldAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FieldAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AFACD789E909EE0A8C92ECD /* Pods-FieldAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FieldAppUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FieldAppUITests/Pods-FieldAppUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -112,6 +143,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				065D029922FB788600A326F1 /* Pods_FieldAppTests.framework in Frameworks */,
+				065D029A22FB788600A326F1 /* Pods_FieldAppUITests.framework in Frameworks */,
 				AF4CDCFB76E60B8495FB2312 /* Pods_FieldApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -129,6 +162,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F4D7BF475FD4EE1F885BF52 /* Pods_FieldAppUITests.framework in Frameworks */,
+				4DEFED55348FE40880C7F834 /* Pods_FieldApp_FieldAppUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,9 +265,35 @@
 		4504DF052AA8FCB5FA367516 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				065D026922FB788600A326F1 /* Alamofire.framework */,
+				065D026B22FB788600A326F1 /* EPSignature.framework */,
+				065D026D22FB788600A326F1 /* FanMenu.framework */,
+				065D026F22FB788600A326F1 /* FirebaseAuth.framework */,
+				065D027122FB788600A326F1 /* FirebaseCore.framework */,
+				065D027322FB788600A326F1 /* FirebaseCoreDiagnostics.framework */,
+				065D027522FB788600A326F1 /* FirebaseDatabase.framework */,
+				065D027722FB788600A326F1 /* FirebaseInstanceID.framework */,
+				065D027922FB788600A326F1 /* FirebaseMessaging.framework */,
+				065D027B22FB788600A326F1 /* FirebaseStorage.framework */,
+				065D027D22FB788600A326F1 /* GoogleDataTransport.framework */,
+				065D027F22FB788600A326F1 /* GoogleDataTransportCCTSupport.framework */,
+				065D028122FB788600A326F1 /* GoogleUtilities.framework */,
+				065D028322FB788600A326F1 /* GTMSessionFetcher.framework */,
+				065D028522FB788600A326F1 /* ImagePicker.framework */,
+				065D028722FB788600A326F1 /* JTAppleCalendar.framework */,
+				065D028922FB788600A326F1 /* leveldb.framework */,
+				065D028B22FB788600A326F1 /* Macaw.framework */,
+				065D028D22FB788600A326F1 /* MLPAutoCompleteTextField.framework */,
+				065D028F22FB788600A326F1 /* nanopb.framework */,
+				065D029122FB788600A326F1 /* Protobuf.framework */,
+				065D029322FB788600A326F1 /* SwiftGifOrigin.framework */,
+				065D029522FB788600A326F1 /* SwiftyJSON.framework */,
+				065D029722FB788600A326F1 /* SWXMLHash.framework */,
+				065D026722FB76C900A326F1 /* XCTest.framework */,
 				F19D11D58E9D802CF19CB069 /* Pods_FieldApp.framework */,
 				7E5FF5170009DCF06A1F5DCB /* Pods_FieldAppTests.framework */,
 				7181653153D0F18EBA34A99C /* Pods_FieldAppUITests.framework */,
+				093C30704F3A5514D5765FAC /* Pods_FieldApp_FieldAppUITests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -247,6 +307,8 @@
 				B2EC9BA5659450164CA78ABF /* Pods-FieldAppTests.release.xcconfig */,
 				24A6F559D4010D6CA18EDEC4 /* Pods-FieldAppUITests.debug.xcconfig */,
 				9AFACD789E909EE0A8C92ECD /* Pods-FieldAppUITests.release.xcconfig */,
+				2F05A59AF22C5D9A4812AEA8 /* Pods-FieldApp-FieldAppUITests.debug.xcconfig */,
+				01F54A7B46D42EE1CAF2CBE1 /* Pods-FieldApp-FieldAppUITests.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -300,6 +362,7 @@
 				0AC8EF661F71826200E86DD6 /* Sources */,
 				0AC8EF671F71826200E86DD6 /* Frameworks */,
 				0AC8EF681F71826200E86DD6 /* Resources */,
+				2F2B37E17E021EDEC25880D2 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -447,6 +510,56 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FieldApp/Pods-FieldApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		2F2B37E17E021EDEC25880D2 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-FieldApp-FieldAppUITests/Pods-FieldApp-FieldAppUITests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/EPSignature/EPSignature.framework",
+				"${BUILT_PRODUCTS_DIR}/FanMenu/FanMenu.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
+				"${BUILT_PRODUCTS_DIR}/ImagePicker/ImagePicker.framework",
+				"${BUILT_PRODUCTS_DIR}/JTAppleCalendar/JTAppleCalendar.framework",
+				"${BUILT_PRODUCTS_DIR}/MLPAutoCompleteTextField/MLPAutoCompleteTextField.framework",
+				"${BUILT_PRODUCTS_DIR}/Macaw/Macaw.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/SWXMLHash/SWXMLHash.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftGifOrigin/SwiftGifOrigin.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EPSignature.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FanMenu.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ImagePicker.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/JTAppleCalendar.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MLPAutoCompleteTextField.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Macaw.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SWXMLHash.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftGifOrigin.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FieldApp-FieldAppUITests/Pods-FieldApp-FieldAppUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		79B9E339BE6C7F85C898DA1D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -458,7 +571,7 @@
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-FieldAppUITests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-FieldApp-FieldAppUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -778,9 +891,9 @@
 		};
 		0AC8EF7A1F71826200E86DD6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 24A6F559D4010D6CA18EDEC4 /* Pods-FieldAppUITests.debug.xcconfig */;
+			baseConfigurationReference = 2F05A59AF22C5D9A4812AEA8 /* Pods-FieldApp-FieldAppUITests.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = FieldAppUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -793,9 +906,9 @@
 		};
 		0AC8EF7B1F71826200E86DD6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9AFACD789E909EE0A8C92ECD /* Pods-FieldAppUITests.release.xcconfig */;
+			baseConfigurationReference = 01F54A7B46D42EE1CAF2CBE1 /* Pods-FieldApp-FieldAppUITests.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = FieldAppUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
