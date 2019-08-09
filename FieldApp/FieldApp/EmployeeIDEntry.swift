@@ -76,6 +76,7 @@ class EmployeeIDEntry: UIViewController, UITextFieldDelegate, MLPAutoCompleteTex
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.accessibilityIdentifier = "EmployeeIDentry View"
         
         setRoles()
         checkAppDelANDnotif()
@@ -405,6 +406,24 @@ extension EmployeeIDEntry {
     }
     
     func hideTextfield() {
+        view.accessibilityIdentifier = "EmployeeIDentry View"
+        
+        roleSelection.accessibilityIdentifier = "IDentry_roleSelection"
+        enterIDText.accessibilityIdentifier = "IDentry_enterIDText"
+        employeeID.accessibilityIdentifier = "IDentry_employeeID"
+        sendButton.accessibilityIdentifier = "IDentry_sendButton"
+        activityIndicator.accessibilityIdentifier = "IDentry_activityIndicator"
+        clockIn.accessibilityIdentifier = "IDentry_clockIn"
+        clockOut.accessibilityIdentifier = "IDentry_clockOut"
+        lunchBreakBtn.accessibilityIdentifier = "IDentry_lunchBreakBtn"
+        activityBckgd.accessibilityIdentifier = "IDentry_activityBckgd"
+        animatedClockView.accessibilityIdentifier = "IDentry_animatedClockView"
+        longHand.accessibilityIdentifier = "IDentry_longHand"
+        manualPOentryVw.accessibilityIdentifier = "IDentry_manualPOentryVw"
+        poNumberField.accessibilityIdentifier = "IDentry_poNumberField"
+        sendManualPOBtn.accessibilityIdentifier = "IDentry_sendManualPOBtn"
+        cancelManualBtn.accessibilityIdentifier = "IDentry_cancelManualBtn"
+        
         main.addOperation {
             self.manualPOentryVw.isHidden = true
             self.activityIndicator.isHidden = true
@@ -661,7 +680,8 @@ extension EmployeeIDEntry: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         let pickerLabel = UILabel()
-        
+        roleSelection.accessibilityIdentifier = "IDentry_roleSelection"
+
         pickerLabel.font = UIFont(name: "Helvetica", size: 28)
         pickerLabel.textAlignment = .center
         pickerLabel.text = dataSource[row]

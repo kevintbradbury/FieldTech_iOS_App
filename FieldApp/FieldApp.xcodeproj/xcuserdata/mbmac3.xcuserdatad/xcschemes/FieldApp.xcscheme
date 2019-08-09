@@ -54,6 +54,12 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "FieldAppUITests/testCOandAutoCompletePOfields()">
+               </Test>
+               <Test
+                  Identifier = "FieldAppUITests/testCOcompleteToCameraVw()">
+               </Test>
+               <Test
                   Identifier = "FieldAppUITests/testExample()">
                </Test>
                <Test

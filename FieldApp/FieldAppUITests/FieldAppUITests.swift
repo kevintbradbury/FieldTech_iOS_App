@@ -14,7 +14,7 @@ import Macaw
 @testable import FieldApp
 
 class FieldAppUITests: XCTestCase {
-    var app: XCUIApplication!
+//    var app: XCUIApplication!
     
     override func setUp() {
         super.setUp()
@@ -45,9 +45,6 @@ class FieldAppUITests: XCTestCase {
         XCTAssertTrue(showsHome)
         XCTAssertTrue(showsBkgdView)
         
-//        let window = app.children(matching: .window).element(boundBy: 0)
-//        let element = window.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element(boundBy: 0).children(matching: .other).element
-//        element.tap()
         let FanMenu = app.otherElements["Home_homeFanMenu"]
         FanMenu.tap() // Opens
         
@@ -66,35 +63,73 @@ class FieldAppUITests: XCTestCase {
         ProfileBtn.tap()
     }
     
-    func testCOview() {
+    func testCOandAutoCompletePOfields() {
         let app = XCUIApplication()
         let FanMenu = app.otherElements["Home_homeFanMenu"]
         FanMenu.tap()
         // Manually segue to CO vc
         
-        let showsCOviews = [
-            app.otherElements["ChangeOrders View"].exists,
-            app.otherElements["CO_backButton"].exists,
-            app.otherElements["CO_colorSpecLabel"].exists,
-            app.otherElements["CO_colorSpecText"].exists,
-            app.otherElements["CO_datePickerFields"].exists,
-            app.otherElements["CO_descripLabel"].exists,
-            app.otherElements["CO_descripText"].exists,
-            app.otherElements["CO_formType"].exists,
-            app.otherElements["CO_jobNameLabel"].exists,
-            app.otherElements["CO_locationLabel"].exists,
-            app.otherElements["CO_locationText"].exists,
-            app.otherElements["CO_materialLabel"].exists,
-            app.otherElements["CO_materialText"].exists,
-            app.otherElements["CO_quantityLabel"].exists,
-            app.otherElements["CO_quantityText"].exists,
-            app.otherElements["CO_requestedByLabel"].exists,
-            app.otherElements["CO_sendButton"].exists
-        ]
+        XCTAssertTrue(app.otherElements["ChangeOrders View"].exists)
+        XCTAssertTrue(app.buttons["CO_backButton"].exists)
+        XCTAssertTrue(app.staticTexts["CO_colorSpecLabel"].exists)
+        XCTAssertTrue(app.textFields["CO_colorSpecText"].exists)
+        XCTAssertTrue(app.datePickers["CO_datePickerFields"].exists)
+        XCTAssertTrue(app.staticTexts["CO_descripLabel"].exists)
+        XCTAssertTrue(app.textViews["CO_descripText"].exists)
+        XCTAssertTrue(app.staticTexts["CO_formType"].exists)
+        XCTAssertTrue(app.staticTexts["CO_jobNameLabel"].exists)
+        XCTAssertTrue(app.staticTexts["CO_locationLabel"].exists)
+        XCTAssertTrue(app.textFields["CO_locationText"].exists)
+        XCTAssertTrue(app.staticTexts["CO_materialLabel"].exists)
+        XCTAssertTrue(app.textFields["CO_materialText"].exists)
+        XCTAssertTrue(app.staticTexts["CO_quantityLabel"].exists)
+        XCTAssertTrue(app.textFields["CO_quantityText"].exists)
+        XCTAssertTrue(app.staticTexts["CO_requestedByLabel"].exists)
+        XCTAssertTrue(app.buttons["CO_sendButton"].exists)
         
-        for truefalse in showsCOviews {
-            XCTAssertTrue(truefalse)
-        }
+        XCUIDevice.shared.orientation = .portrait
+    }
+
+    func testCOcompleteToCameraVw() {
+        let app = XCUIApplication()
+        let FanMenu = app.otherElements["Home_homeFanMenu"]
+        FanMenu.tap()
+        // Manually segue to CO vc
+        
+        let changeOrdersVw = app.otherElements["ChangeOrders View"]
+        XCTAssertTrue(changeOrdersVw.exists)
+        
+        app/*@START_MENU_TOKEN@*/.buttons["CO_sendButton"]/*[[".otherElements[\"ChangeOrders View\"]",".buttons[\"SUBMIT\"]",".buttons[\"CO_sendButton\"]"],[[[-1,2],[-1,1],[-1,0,1]],[[-1,2],[-1,1]]],[0]]@END_MENU_TOKEN@*/.tap()
+        XCUIDevice.shared.orientation = .portrait
+        app.buttons["Cancel"].tap()
+    }
+    
+    func testEmployeeIDentryVC() {
+        let app = XCUIApplication()
+        let FanMenu = app.otherElements["Home_homeFanMenu"]
+        FanMenu.tap()
+        // Manually segue to EmployeeID vc
+        
+        let employeeIDentryView = app.otherElements["EmployeeIDentry View"]
+        XCTAssertTrue(app.otherElements["IDentry_animatedClockView"].exists)
+        XCTAssertTrue(app.otherElements["IDentry_longHand"].exists)
+        XCTAssertTrue(app.pickers["IDentry_roleSelection"].exists)
+        XCTAssertTrue(employeeIDentryView.exists)
+        
+        XCUIApplication().otherElements["EmployeeIDentry View"].children(matching: .button).element(boundBy: 1).tap()
+        
+        XCTAssertTrue(app.otherElements["IDentry_manualPOentryVw"].exists)
+        XCTAssertTrue(app.textFields["IDentry_poNumberField"].exists)
+        XCTAssertTrue(app.buttons["IDentry_sendManualPOBtn"].exists)
+        XCTAssertTrue(app.buttons["IDentry_cancelManualBtn"].exists)
+        
+        //        XCTAssertTrue(app.activityIndicators["IDentry_activityIndicator"].exists)
+        //        XCTAssertTrue(app.otherElements["IDentry_activityBckgd"].exists)
+        //        XCTAssertTrue(app.textFields["IDentry_enterIDText"].exists)
+        //        XCTAssertTrue(app.textFields["IDentry_employeeID"].exists)
+        //        XCTAssertTrue(app.buttons["IDentry_sendButton"].exists)
+        //        XCTAssertTrue(app.buttons["IDentry_lunchBreakBtn"].exists)
+        
     }
     
 }
