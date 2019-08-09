@@ -9,6 +9,8 @@
 import XCTest
 import FirebaseCore
 import CoreLocation
+import UIKit
+import Macaw
 @testable import FieldApp
 
 class FieldAppTests: XCTestCase {

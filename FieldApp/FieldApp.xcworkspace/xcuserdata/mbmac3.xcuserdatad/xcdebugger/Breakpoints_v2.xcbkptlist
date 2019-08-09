@@ -48,15 +48,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/ChangeOrders.swift"
-            timestampString = "586913622.821434"
+            timestampString = "587002499.1919"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "409"
-            endingLineNumber = "409"
+            startingLineNumber = "426"
+            endingLineNumber = "426"
             landmarkName = "choosePOnum(autocompleteString:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -68,11 +68,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/HomeView.swift"
-            timestampString = "586916624.532469"
+            timestampString = "587002499.1924191"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "889"
-            endingLineNumber = "889"
+            startingLineNumber = "902"
+            endingLineNumber = "902"
             landmarkName = "convertSomeInfo(cb:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -227,6 +227,22 @@
             startingLineNumber = "237"
             endingLineNumber = "237"
             landmarkName = "stringToDate(string:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "FieldAppUITests/FieldAppUITests.swift"
+            timestampString = "587002499.1927789"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
+            landmarkName = "testCOview()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

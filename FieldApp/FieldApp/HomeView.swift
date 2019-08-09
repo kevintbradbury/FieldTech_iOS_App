@@ -94,6 +94,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         picker.delegate = self
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
+        setIdentifiers()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -119,6 +120,14 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 
 
 extension HomeView {
+    
+    func setIdentifiers() {
+        view.accessibilityIdentifier = "Home View"
+        bkgdView.accessibilityIdentifier = "Home_bkgdView"
+        homeFanMenu.accessibilityIdentifier = "Home_homeFanMenu"
+        userLabel.accessibilityIdentifier = "Home_userLabel"
+        profileBtn.accessibilityIdentifier = "Home_profileBtn"
+    }
     
     func getJobCheckupInfo() {
         let returnTwr = returnTomorrowSwitch.isOn,
@@ -170,6 +179,7 @@ extension HomeView {
             }
             guard let currentTxt = userLabel.text else { return }
             userLabel.text = "\(currentTxt) \n\(toolicons)"
+            userLabel.accessibilityValue = "\(currentTxt) \n\(toolicons)"
         }
     }
     
@@ -325,6 +335,7 @@ extension HomeView {
         menuView.button = FanMenuButton(
             id: "main", image: "MB_logo", color: Color.clear
         )
+        
         menuView.items = colors.enumerated().map { (index, item) in
             FanMenuButton(
                 id: String(index), image: String(icons[index]), color: item
@@ -336,6 +347,7 @@ extension HomeView {
 
             if button.id != "main" { self.chooseSegue(image: button.image) }
         }
+        menuView.accessibilityIdentifier = "Home_menuView"
         
         homeFanMenu.addSubview(menuView)
         for subVw in homeFanMenu.subviews {
@@ -463,6 +475,7 @@ extension HomeView {
             self.userLabel.textColor = UIColor.white
             self.userLabel.backgroundColor = UIColor.blue
             self.userLabel.text = "Hello \n" + (HomeView.employeeInfo?.userName)!
+            self.userLabel.accessibilityValue = "Hello \n" + (HomeView.employeeInfo?.userName)!
             HomeView.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
             self.completedProgress()
         }

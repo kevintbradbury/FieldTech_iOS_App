@@ -154,6 +154,24 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
         activityIndicator.isHidden = true
         activityBckgrd.isHidden = true
         
+        view.accessibilityIdentifier = "ChangeOrders View"
+        self.backButton.accessibilityIdentifier = "CO_backButton"
+        self.colorSpecLabel.accessibilityIdentifier = "CO_colorSpecLabel"
+        self.colorSpecText.accessibilityIdentifier = "CO_colorSpecText"
+        self.datePickerFields.accessibilityIdentifier = "CO_datePickerFields"
+        self.descripLabel.accessibilityIdentifier = "CO_descripLabel"
+        self.descripText.accessibilityIdentifier = "CO_descripText"
+        self.formType.accessibilityIdentifier = "CO_formType"
+        self.jobNameLabel.accessibilityIdentifier = "CO_jobNameLabel"
+        self.locationLabel.accessibilityIdentifier = "CO_locationLabel"
+        self.locationText.accessibilityIdentifier = "CO_locationText"
+        self.materialLabel.accessibilityIdentifier = "CO_materialLabel"
+        self.materialText.accessibilityIdentifier = "CO_materialText"
+        self.quantityLabel.accessibilityIdentifier = "CO_quantityLabel"
+        self.quantityText.accessibilityIdentifier = "CO_quantityText"
+        self.requestedByLabel.accessibilityIdentifier = "CO_requestedByLabel"
+        self.sendButton.accessibilityIdentifier = "CO_sendButton"
+        
         setJobName()
         setThisDismissableKeyboard()
         
@@ -250,7 +268,6 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
             neededBy: co.neededBy,
             description: co.description
         )
-        
         toolRentalForm = rentForm
     }
     
@@ -281,11 +298,11 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
         }
         let calendar = Calendar.current
         let components = calendar.dateComponents([.month, .day, .year], from: date)
-        guard let humanReadableDt = calendar.date(from: components) else {
+        guard let actualDate = calendar.date(from: components) else {
             print("failed to cast calendar components to Date"); return Date()
         }
         
-        return humanReadableDt
+        return actualDate
     }
     
     func viewForToolRental() {

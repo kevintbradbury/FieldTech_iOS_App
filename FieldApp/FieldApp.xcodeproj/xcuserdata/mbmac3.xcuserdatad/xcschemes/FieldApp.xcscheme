@@ -52,6 +52,14 @@
                BlueprintName = "FieldAppUITests"
                ReferencedContainer = "container:FieldApp.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "FieldAppUITests/testExample()">
+               </Test>
+               <Test
+                  Identifier = "FieldAppUITests/testHomeVw()">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

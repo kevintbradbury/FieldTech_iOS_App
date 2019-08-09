@@ -145,7 +145,10 @@ class FanMenuScene {
         }
         
         buttonsNode = fanMenu.items.map {
-            return FanMenuScene.createFanButtonNode(button: $0, fanMenu: fanMenu)
+            let buttonItem = FanMenuScene.createFanButtonNode(button: $0, fanMenu: fanMenu)
+            buttonItem.accessibilityActivate()
+            buttonItem.accessibilityLabel = $0.image
+            return buttonItem
             }.group()
         
         
@@ -251,7 +254,6 @@ class FanMenuScene {
                 opaque: true, opacity: 1.0,
                 visible: true
             )
-
             contents.append(image)
         }
         let node = Group(contents: contents)
@@ -264,6 +266,7 @@ class FanMenuScene {
                 fanMenu.onItemDidClick?(button)
             }
         }
+        
         return node
     }
     
