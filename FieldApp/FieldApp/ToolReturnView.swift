@@ -23,6 +23,11 @@ class ToolReturnView: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.accessibilityIdentifier = "ToolReturn View"
+        tableView.accessibilityIdentifier = "ToolRtn_table"
+        navBar.accessibilityIdentifier = "ToolRtn_navBar"
+        backButton.accessibilityIdentifier = "ToolRtn_backButton"
+        
         APICalls().getToolRentals(employeeID: employeeID!) { toolsNimgs in
             UIApplication.shared.isNetworkActivityIndicatorVisible = false
             if let validToolsNimgs = toolsNimgs {
@@ -81,6 +86,8 @@ extension ToolReturnView {
             
             cell.toolImg.image = img
             cell.toolInfoLabel.text = txt
+            cell.accessibilityIdentifier = "PO: \(poNm) - \(toolName)"
+            cell.accessibilityValue = "PO: \(poNm) - \(toolName)"
         }
 
         return cell

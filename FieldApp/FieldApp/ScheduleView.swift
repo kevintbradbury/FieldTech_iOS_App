@@ -86,6 +86,27 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     
     func initialCalSetup() {
 //        HomeView.scheduleReadyNotif = false
+        view.accessibilityIdentifier = "Schedule View"
+        jobsTable.accessibilityIdentifier = "Sched_jobsTable"
+        monthLabel.accessibilityIdentifier = "Sched_monthLabel"
+        yearLabel.accessibilityIdentifier = "Sched_yearLabel"
+        backButton.accessibilityIdentifier = "Sched_backButton"
+        activityIndicator.accessibilityIdentifier = "Sched_activityIndicator"
+        jobDetailView.accessibilityIdentifier = "Sched_jobDetailView"
+        jobNameLbl.accessibilityIdentifier = "Sched_jobNameLbl"
+        poNumberLbl.accessibilityIdentifier = "Sched_poNumberLbl"
+        installDateLbl.accessibilityIdentifier = "Sched_installDateLbl"
+        directionsBtn.accessibilityIdentifier = "Sched_directionsBtn"
+        daysOfWeekView.accessibilityIdentifier = "Sched_daysOfWeekView"
+        sundaySwitch.accessibilityIdentifier = "Sched_sundaySwitch"
+        mondaySwitch.accessibilityIdentifier = "Sched_mondaySwitch"
+        tuesdaySwitch.accessibilityIdentifier = "Sched_tuesdaySwitch"
+        wednesdaySwitch.accessibilityIdentifier = "Sched_wednesdaySwitch"
+        thursdaySwitch.accessibilityIdentifier = "Sched_thursdaySwitch"
+        fridaySwitch.accessibilityIdentifier = "Sched_fridaySwitch"
+        saturdaySwitch.accessibilityIdentifier = "Sched_saturdaySwitch"
+        submitBtn.accessibilityIdentifier = "Sched_submitBtn"
+        cancelBtn.accessibilityIdentifier = "Sched_cancelBtn"
         
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
@@ -98,9 +119,11 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
             self.getCalendarInfo()
             self.setMonthYearElements(visibleDates: visibleDates)
         }
+        calendarView.accessibilityIdentifier = "Sched_calendarView"
     }
     
     func configureCalendar(_ calendar: JTAppleCalendarView) -> ConfigurationParameters {
+        calendar.accessibilityIdentifier = "Sched_calendarView"
         let calndr = Calendar.current
         
         formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
@@ -126,12 +149,14 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
     }
     
     func calendar(_ calendar: JTAppleCalendarView, cellForItemAt date: Date, cellState: CellState, indexPath: IndexPath) -> JTAppleCell {
+        calendar.accessibilityIdentifier = "Sched_calendarView"
         let tableCell = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
         return tableCell
     }
     
     func calendar(_ calendar: JTAppleCalendarView, willDisplay cell: JTAppleCell, forItemAt date: Date, cellState: CellState, indexPath: IndexPath) {
         _ = setViewForCell(calendar: calendar, date: date, cellState: cellState, indexPath: indexPath)
+        calendar.accessibilityIdentifier = "Sched_calendarView"
     }
     
     func calendar(_ calendar: JTAppleCalendarView, didSelectDate date: Date, cell: JTAppleCell?, cellState: CellState) {
@@ -538,6 +563,7 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
         blkBkgd.backgroundColor = .darkGray
         
         cell.selectedBackgroundView = blkBkgd
+        cell.accessoryView?.accessibilityIdentifier = "Sched_directionsBtn"
 
         return cell
     }
@@ -565,6 +591,8 @@ extension ScheduleView: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath)
+        cell?.accessoryView?.accessibilityIdentifier = "Sched_directionsBtn"
         showDirectionsAlert(indexPath: indexPath)
     }
     

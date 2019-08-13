@@ -37,6 +37,8 @@ class ToolSignOffView: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         checkForNotifUpdates()
+        returnerSIgnatureView.accessibilityIdentifier = "ToolSgn_returnerSIgnatureView"
+        receiverSignatureView.accessibilityIdentifier = "ToolSgn_receiverSignatureView"
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -94,6 +96,18 @@ extension ToolSignOffView {
     }
     
     func setGesturesAndViews() {
+        view.accessibilityIdentifier = "ToolSignOff View"
+        dateLabel.accessibilityIdentifier = "ToolSgn_dateLabel"
+        backBtn.accessibilityIdentifier = "ToolSgn_backBtn"
+        returnerBtn.accessibilityIdentifier = "ToolSgn_returnerBtn"
+        printNameRenterField.accessibilityIdentifier = "ToolSgn_printNameRenterField"
+        receiverBtn.accessibilityIdentifier = "ToolSgn_receiverBtn"
+        printNameReceiverField.accessibilityIdentifier = "ToolSgn_printNameReceiverField"
+        sendButton.accessibilityIdentifier = "ToolSgn_sendButton"
+        activityIndicator.accessibilityIdentifier = "ToolSgn_activityIndicator"
+        activityBckgd.accessibilityIdentifier = "ToolSgn_activityBckgd"
+        
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, YYYY"
         dateLabel.text = dateFormatter.string(from: Date())
