@@ -195,7 +195,15 @@ class APICallsTests: XCTestCase {
     }
     
     func testAcceptMoreDays() {
-        let daysToAccept = AcceptMoreDays(sun: true, mon: true, tue: true, wed: true, thu: true, fri: true, sat: true)
+        let daysToAccept = AcceptMoreDays(
+            sun: AcceptMoreDays.DayOrNight(day: true, night: false),
+            mon: AcceptMoreDays.DayOrNight(day: true, night: false),
+            tue: AcceptMoreDays.DayOrNight(day: true, night: false),
+            wed: AcceptMoreDays.DayOrNight(day: true, night: false),
+            thu: AcceptMoreDays.DayOrNight(day: true, night: false),
+            fri: AcceptMoreDays.DayOrNight(day: true, night: false),
+            sat: AcceptMoreDays.DayOrNight(day: true, night: false)
+        )
         let promise = expectation(description: "Returns successfully if employee exists.")
         promise.expectedFulfillmentCount  = 2
         

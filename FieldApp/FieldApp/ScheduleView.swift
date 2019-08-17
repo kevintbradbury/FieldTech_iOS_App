@@ -26,15 +26,22 @@ class ScheduleView: UIViewController {
     @IBOutlet weak var installDateLbl: UILabel!
     @IBOutlet weak var directionsBtn: UIButton!
     @IBOutlet var daysOfWeekView: UIView!
-    @IBOutlet var sundaySwitch: UISwitch!
-    @IBOutlet var mondaySwitch: UISwitch!
-    @IBOutlet var tuesdaySwitch: UISwitch!
-    @IBOutlet var wednesdaySwitch: UISwitch!
-    @IBOutlet var thursdaySwitch: UISwitch!
-    @IBOutlet var fridaySwitch: UISwitch!
-    @IBOutlet var saturdaySwitch: UISwitch!
-    @IBOutlet var submitBtn: UIButton!
+    @IBOutlet var sundayDaySwitch: UISwitch!
+    @IBOutlet var mondayDaySwitch: UISwitch!
+    @IBOutlet var tuesdayDaySwitch: UISwitch!
+    @IBOutlet var wednesdayDaySwitch: UISwitch!
+    @IBOutlet var thursdayDaySwitch: UISwitch!
+    @IBOutlet var fridayDaySwitch: UISwitch!
+    @IBOutlet var saturdayDaySwitch: UISwitch!
+    @IBOutlet var sundayNightSwitch: UISwitch!
+    @IBOutlet var mondayNightSwitch: UISwitch!
+    @IBOutlet var tuesdayNightSwitch: UISwitch!
+    @IBOutlet var wednesdayNightSwitch: UISwitch!
+    @IBOutlet var thursdayNightSwitch: UISwitch!
+    @IBOutlet var fridayNightSwitch: UISwitch!
+    @IBOutlet var saturdayNightSwitch: UISwitch!
     @IBOutlet var cancelBtn: UIButton!
+    @IBOutlet var submitButton: UIButton!
     
     
     let formatter = DateFormatter()
@@ -70,7 +77,7 @@ class ScheduleView: UIViewController {
     
     @IBAction func dismissVC(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func accptMoreHrsBtn(_ sender: Any) { confirmRegOrMoreHrs() }
-    @IBAction func sendDaysOfWeek(_ sender: Any) { getDaysAccepted() }
+    @IBAction func submitDaysOfWeek(_ sender: Any) { getDaysAccepted() }
     @IBAction func cancelMoreHours(_ sender: Any) { daysOfWeekView.isHidden = true }
     @IBAction func goGetDirections(_ sender: Any) {
         if jobNameLbl.text != "" {
@@ -98,15 +105,11 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
         installDateLbl.accessibilityIdentifier = "Sched_installDateLbl"
         directionsBtn.accessibilityIdentifier = "Sched_directionsBtn"
         daysOfWeekView.accessibilityIdentifier = "Sched_daysOfWeekView"
-        sundaySwitch.accessibilityIdentifier = "Sched_sundaySwitch"
-        mondaySwitch.accessibilityIdentifier = "Sched_mondaySwitch"
-        tuesdaySwitch.accessibilityIdentifier = "Sched_tuesdaySwitch"
-        wednesdaySwitch.accessibilityIdentifier = "Sched_wednesdaySwitch"
-        thursdaySwitch.accessibilityIdentifier = "Sched_thursdaySwitch"
-        fridaySwitch.accessibilityIdentifier = "Sched_fridaySwitch"
-        saturdaySwitch.accessibilityIdentifier = "Sched_saturdaySwitch"
-        submitBtn.accessibilityIdentifier = "Sched_submitBtn"
         cancelBtn.accessibilityIdentifier = "Sched_cancelBtn"
+        
+        submitButton.bringSubviewToFront(submitButton)
+        submitButton.isUserInteractionEnabled = true
+        submitButton.addTarget(self, action: #selector(getDaysAccepted), for: .touchUpInside)
         
         calendarView.calendarDelegate = self
         calendarView.calendarDataSource = self
@@ -226,7 +229,9 @@ extension ScheduleView: JTAppleCalendarViewDataSource, JTAppleCalendarViewDelega
 }
 
 struct AcceptMoreDays: Encodable {
-    let sun: Bool, mon: Bool, tue: Bool, wed: Bool, thu: Bool, fri: Bool, sat: Bool
+    let sun: DayOrNight, mon: DayOrNight, tue: DayOrNight, wed: DayOrNight, thu: DayOrNight, fri: DayOrNight, sat: DayOrNight
+    
+    struct DayOrNight: Encodable { let day: Bool, night: Bool }
 }
 
 extension ScheduleView {
@@ -240,34 +245,39 @@ extension ScheduleView {
         }
     }
     
-    func getDaysAccepted() {
+    @objc func getDaysAccepted() {
         let acceptMoreHrs = AcceptMoreDays(
-            sun: sundaySwitch.isOn,
-            mon: mondaySwitch.isOn,
-            tue: tuesdaySwitch.isOn,
-            wed: wednesdaySwitch.isOn,
-            thu: thursdaySwitch.isOn,
-            fri: fridaySwitch.isOn,
-            sat: saturdaySwitch.isOn
+            sun: AcceptMoreDays.DayOrNight(day: sundayDaySwitch.isOn, night: sundayNightSwitch.isOn),
+            mon: AcceptMoreDays.DayOrNight(day: mondayDaySwitch.isOn, night: mondayNightSwitch.isOn),
+            tue: AcceptMoreDays.DayOrNight(day: tuesdayDaySwitch.isOn, night: tuesdayNightSwitch.isOn),
+            wed: AcceptMoreDays.DayOrNight(day: wednesdayDaySwitch.isOn, night: wednesdayNightSwitch.isOn),
+            thu: AcceptMoreDays.DayOrNight(day: thursdayDaySwitch.isOn, night: thursdayNightSwitch.isOn),
+            fri: AcceptMoreDays.DayOrNight(day: fridayDaySwitch.isOn, night: fridayNightSwitch.isOn),
+            sat: AcceptMoreDays.DayOrNight(day: saturdayDaySwitch.isOn, night: saturdayNightSwitch.isOn)
         )
         guard let user = employee?.userName else { return }
+        
         let mirror = Mirror(reflecting: acceptMoreHrs)
         var acceptedDays = 0
         
-        for (property, val) in mirror.children {
-            guard let boool = val as? Bool else { return }
-            if boool == true {
-                acceptedDays += 1
+        for (_, val) in mirror.children {
+            if let dayNnight = val as? AcceptMoreDays.DayOrNight {
+                if dayNnight.day == true || dayNnight.night == true {
+                    acceptedDays += 1
+                }
             }
         }
-        
         if (acceptedDays < 2) {
-            showAlert(withTitle: "Select Nights", message: "You must select at least 2 nights."); return
+            showAlert(withTitle: "Select days", message: "You must select at least 2 options."); return
         }
+        
+        activityIndicator.isHidden = false
         activityIndicator.startAnimating()
+        
         APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs) { success in
-            self.main.addOperation {
-                self.activityIndicator.stopAnimating()
+            self.main.addOperation { self.activityIndicator.stopAnimating() }
+            if success == false {
+                self.showAlert(withTitle: "Error", message: "Error sending availability.")
             }
         }
     }
@@ -275,7 +285,7 @@ extension ScheduleView {
     func confirmRegOrMoreHrs() {
         daysOfWeekView.isHidden = false
         daysOfWeekView.layer.cornerRadius = 20
-        submitBtn.layer.cornerRadius = 10
+        submitButton.layer.cornerRadius = 10
         cancelBtn.layer.cornerRadius = 10
         ScheduleView.scheduleRdy = nil
         HomeView.scheduleReadyNotif = nil
