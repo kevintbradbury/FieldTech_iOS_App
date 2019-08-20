@@ -34,8 +34,8 @@ class TimeOffRequestView: UIViewController {
         activityIndicator.hidesWhenStopped = true
         activityBckgrd.isHidden = true
         
-        if employeeInfo?.userName != nil {
-            userNameLbl.text = employeeInfo?.userName
+        if employeeInfo?.username != nil {
+            userNameLbl.text = employeeInfo?.username
         }
         OperationQueue.main.addOperation {
             self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
@@ -64,7 +64,7 @@ class TimeOffRequestView: UIViewController {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
         
-        guard let usrnm = employeeInfo?.userName,
+        guard let usrnm = employeeInfo?.username,
             let id = employeeInfo?.employeeID,
             let dprtmt = departmentField.text,
             let shftHrs = shiftHrsField.text,
@@ -76,7 +76,9 @@ class TimeOffRequestView: UIViewController {
                 return
         }
         
-        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator, showProgress: false)
+        inProgress(
+//            activityBckgd: activityBckgrd, activityIndicator: activityIndicator,
+            showProgress: false)
         
         let tmOffForm = TimeOffReq(
             username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,
@@ -92,7 +94,9 @@ class TimeOffRequestView: UIViewController {
         
         alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { responseType in
 
-            self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
+            self.completeProgress(
+//                activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator
+            )
             self.handleResponseType(responseType: responseType, formType: "Time Off Request")
         }
     }

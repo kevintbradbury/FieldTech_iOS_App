@@ -30,11 +30,9 @@ class EmployeeIDEntry: UIViewController, UITextFieldDelegate, MLPAutoCompleteTex
     @IBOutlet weak var enterIDText: UILabel!
     @IBOutlet weak var employeeID: UITextField!
     @IBOutlet weak var sendButton: UIButton!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var clockIn: UIButton!
     @IBOutlet weak var clockOut: UIButton!
     @IBOutlet weak var lunchBreakBtn: UIButton!
-    @IBOutlet weak var activityBckgd: UIView!
     @IBOutlet var animatedClockView: AnimatedClock!
     @IBOutlet var longHand: LongHandAnimated!
     @IBOutlet var manualPOentryVw: UIView!
@@ -128,7 +126,7 @@ extension EmployeeIDEntry {
             
             if self.poNumberField.isFirstResponder == true {
                 OperationQueue.main.addOperation {
-                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 5))
+                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 4))
                 }
             }
         } else {
@@ -189,7 +187,7 @@ extension EmployeeIDEntry {
         anmation.cycle().play()
         inProgressVw()
         
-        if let validPO = UserDefaults.standard.string(forKey: "todaysJobPO") {
+        if let validPO = UserDefaults.standard.string(forKey: DefaultKeys.todaysJobPO) {
             
             APICalls().sendCoordinates(
                 employee: user, location: coordinates, autoClockOut: false, role: unwrappedRole, po: validPO, override: false
@@ -205,6 +203,7 @@ extension EmployeeIDEntry {
     }
     
     func handleSuccess(success: Bool, currentJob: String, poNumber: String, jobLatLong: [Double], clockedIn: Bool, manualPO: Bool, err: String?) {
+        completeProgress()
         
         if success == true {
             UserDefaults.standard.set(poNumber, forKey: "todaysJobPO")
@@ -222,11 +221,11 @@ extension EmployeeIDEntry {
         } else if err != nil {
             guard let error = err else {
                 showAlert(withTitle: "Error", message: "Unable to fetch info from Server.")
-                finishedLoading()
+                completeProgress()
                 return
             }
             showAlert(withTitle: "Error", message: error)
-            finishedLoading()
+            completeProgress()
         } else {
             incorrectID(success: success)
         }
@@ -238,10 +237,8 @@ extension EmployeeIDEntry {
             else { return "Your location did not match the job location." }
         }
         
-        finishedLoading()
-        self.main.addOperation {
-            self.showAlert(withTitle: "Alert", message: actionMsg)
-        }
+        completeProgress()
+        self.main.addOperation { self.showAlert(withTitle: "Alert", message: actionMsg) }
     }
     
     func setClockInNotifcs(clockedIn: Bool) {
@@ -256,13 +253,13 @@ extension EmployeeIDEntry {
                 hadLunch = false;
                 UserDefaults.standard.set(false, forKey: "hadLunch")
                 title = "Clock Out Reminder"; message = "Time to wrap up for the day."; identifier = "clockOut";
-                self.completedProgress()
+                self.completedIDcheckProgress()
                 
             } else {
                 title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
                 APICalls().getSafetyQs() { safetyQuestions in
                     self.safetyQs = safetyQuestions
-                    self.completedProgress()
+                    self.completedIDcheckProgress()
                 }
             }
             setBreakNotifcs(twoHrs: twoHours, fourHrs: fourHours, title: title, msg: message, identifier: identifier)
@@ -274,10 +271,10 @@ extension EmployeeIDEntry {
                 
                 APICalls().getSafetyQs() { safetyQuestions in
                     self.safetyQs = safetyQuestions
-                    self.completedProgress()
+                    self.completedIDcheckProgress()
                 }
             } else {
-                self.completedProgress()
+                self.completedIDcheckProgress()
             }
         }
     }
@@ -317,8 +314,8 @@ extension EmployeeIDEntry {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let id = segue.identifier
-        UserDefaults.standard.set(EmployeeIDEntry.foundUser?.employeeID, forKey: "employeeID")
-        UserDefaults.standard.set(EmployeeIDEntry.foundUser?.userName, forKey: "employeeName")
+        UserDefaults.standard.set(EmployeeIDEntry.foundUser?.employeeID, forKey: DefaultKeys.employeeID)
+        UserDefaults.standard.set(EmployeeIDEntry.foundUser?.username, forKey: DefaultKeys.employeeName)
         
         if id == "return" {
             HomeView.employeeInfo = EmployeeIDEntry.foundUser
@@ -364,7 +361,7 @@ extension EmployeeIDEntry {
                 print("no coordinates, user or role found")
                 return
         }
-        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
+        inProgress(showProgress: false)
         
         APICalls().sendCoordinates(
             employee: uwrappedUsr, location: coordinates, autoClockOut: false, role: unwrappedRole, po: po, override: true
@@ -383,6 +380,7 @@ extension EmployeeIDEntry {
             self.manualPOentryVw.layer.cornerRadius = 10
             
             self.poNumberField.delegate = self
+            self.poNumberField.autoCompleteTableAppearsAsKeyboardAccessory = true
             self.poNumberField.autoCompleteTableCellBackgroundColor = .black
             self.poNumberField.autoCompleteTableCellTextColor = .white
             
@@ -390,10 +388,10 @@ extension EmployeeIDEntry {
             self.roundCorners(corners: [.bottomRight], radius: 10, vw: self.cancelManualBtn)
         }
         
-        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
+        inProgress(showProgress: false)
         
         APICalls().getJobNames() { err, jobs in
-            self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+            self.completeProgress()
             
             if err != nil {
                 guard let safeErr = err else { return }
@@ -412,22 +410,22 @@ extension EmployeeIDEntry {
         enterIDText.accessibilityIdentifier = "IDentry_enterIDText"
         employeeID.accessibilityIdentifier = "IDentry_employeeID"
         sendButton.accessibilityIdentifier = "IDentry_sendButton"
-        activityIndicator.accessibilityIdentifier = "IDentry_activityIndicator"
         clockIn.accessibilityIdentifier = "IDentry_clockIn"
         clockOut.accessibilityIdentifier = "IDentry_clockOut"
         lunchBreakBtn.accessibilityIdentifier = "IDentry_lunchBreakBtn"
-        activityBckgd.accessibilityIdentifier = "IDentry_activityBckgd"
         animatedClockView.accessibilityIdentifier = "IDentry_animatedClockView"
         longHand.accessibilityIdentifier = "IDentry_longHand"
         manualPOentryVw.accessibilityIdentifier = "IDentry_manualPOentryVw"
         poNumberField.accessibilityIdentifier = "IDentry_poNumberField"
         sendManualPOBtn.accessibilityIdentifier = "IDentry_sendManualPOBtn"
         cancelManualBtn.accessibilityIdentifier = "IDentry_cancelManualBtn"
+        //        activityIndicator.accessibilityIdentifier = "IDentry_activityIndicator"
+        //        activityBckgd.accessibilityIdentifier = "IDentry_activityBckgd"
         
         main.addOperation {
             self.manualPOentryVw.isHidden = true
-            self.activityIndicator.isHidden = true
-            self.activityIndicator.hidesWhenStopped = true
+//            self.activityIndicator.isHidden = true
+//            self.activityIndicator.hidesWhenStopped = true
             self.clockIn.isHidden = true
             self.clockOut.isHidden = true
         }
@@ -465,39 +463,29 @@ extension EmployeeIDEntry {
     func inProgressVw() {
         self.main.addOperation {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            self.activityBckgd.isHidden = false
-            self.activityIndicator.startAnimating()
+//            self.activityBckgd.isHidden = false
+//            self.activityIndicator.startAnimating()
         }
     }
     
-    func completedProgress() {
-        self.main.addOperation {
-            self.activityBckgd.isHidden = true
-            self.activityIndicator.hidesWhenStopped = true
-            self.activityIndicator.stopAnimating()
-            UIApplication.shared.isNetworkActivityIndicatorVisible = false
-            
-            if self.hadLunch == true {
-                let breakPopup = UIAlertController(title: "Clocked Out", message: "You clocked out for a meal break.", preferredStyle: .alert)
-                let ok = UIAlertAction(title: "Ok", style: .default) { action in
-                    self.performSegue(withIdentifier: "return", sender: self)
-                }
-                
-                breakPopup.addAction(ok)
-                
-                self.present(breakPopup, animated: true, completion: nil)
-            } else {
+    func completedIDcheckProgress() {
+        
+        //            self.activityBckgd.isHidden = true
+        //            self.activityIndicator.hidesWhenStopped = true
+        //            self.activityIndicator.stopAnimating()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        
+        if self.hadLunch == true {
+            let breakPopup = UIAlertController(title: "Clocked Out", message: "You clocked out for a meal break.", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "Ok", style: .default) { action in
                 self.performSegue(withIdentifier: "return", sender: self)
             }
-        }
-    }
-    
-    func finishedLoading() {
-        self.main.addOperation {
-            self.activityBckgd.isHidden = true
-            self.activityIndicator.hidesWhenStopped = true
-            self.activityIndicator.stopAnimating()
-            UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            
+            breakPopup.addAction(ok)
+            
+            self.main.addOperation { self.present(breakPopup, animated: true, completion: nil) }
+        } else {
+            self.main.addOperation { self.performSegue(withIdentifier: "return", sender: self) }
         }
     }
 }
@@ -596,12 +584,12 @@ extension EmployeeIDEntry {
                     }
                     HomeView().checkPunchStatus()
                 }
-            } else { completedProgress() }
+            } else { completedIDcheckProgress() }
         }
     }
     
     func checkSuccess(responseType: [String: String]) {
-        completedProgress()
+        completedIDcheckProgress()
         self.handleResponseType(responseType: responseType, formType: "Image(s) Upload")
     }
     
@@ -710,7 +698,5 @@ extension EmployeeIDEntry {    // MLPAutoCompleteTextFieldDelegate
         print("didSelectAutoComplete")
         let split = selectedString.components(separatedBy: " - ")
         textField.text = split[0]
-        //        poNumberField.text = split[0]
-        //        jobNameLabel.text = split[1]
     }
 }

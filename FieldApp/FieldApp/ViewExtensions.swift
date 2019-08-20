@@ -141,48 +141,55 @@ extension UIViewController {
         }
     }
     
-    func inProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView, showProgress: Bool) {
-        activityBckgd.accessibilityIdentifier = "activityBckgd"
+    func inProgress(
+//        activityBckgd: UIView, activityIndicator: UIActivityIndicatorView,
+        showProgress: Bool
+        ) {
+        
+        let blurredView = UIVisualEffectView()
+        blurredView.frame = view.frame
+        blurredView.effect = UIBlurEffect(style: .regular)
+        
+        let indicator = UIActivityIndicatorView(frame: view.frame)
+        indicator.style = .whiteLarge
+        indicator.color = UIColor.blue
+        indicator.hidesWhenStopped = true
+        indicator.startAnimating()
+        
+        OperationQueue.main.addOperation {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+            self.view.addSubview(blurredView)
+            self.view.addSubview(indicator)
+        }
         
         if showProgress == true {
-            let w = CGFloat(activityBckgd.frame.width / 2)
+            let w = CGFloat(view.frame.width / 2)
             let progressLabel = UIProgressView(
                 frame: CGRect(
-                    x: CGFloat(activityIndicator.center.x - (w / 2)),
-                    y: CGFloat(activityIndicator.center.y + (activityIndicator.frame.height * 2)),
+                    x: CGFloat(view.center.x - (w / 2)),
+                    y: CGFloat(view.center.y + (view.frame.height * 2)),
                     width: w,
-                    height: CGFloat(activityIndicator.frame.height)
+                    height: CGFloat(view.frame.height)
                 )
             )
-            
             progressLabel.accessibilityIdentifier = "progressLabel"
             progressLabel.progress = 0.0
             progressLabel.trackTintColor = .black
             
-            activityBckgd.addSubview(progressLabel)
-            
-        } else {
-            OperationQueue.main.addOperation {
-                for subVw in activityBckgd.subviews {
-                    if subVw.accessibilityIdentifier == "progressLabel" {
-                        activityBckgd.willRemoveSubview(subVw)
-                    }
-                }
-            }
-        }
-        
-        OperationQueue.main.addOperation {
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            activityBckgd.isHidden = false
-            activityIndicator.startAnimating()
+            OperationQueue.main.addOperation { self.view.addSubview(progressLabel) }
         }
     }
     
-    func completeProgress(activityBckgd: UIView, activityIndicator: UIActivityIndicatorView) {
-        OperationQueue.main.addOperation {
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
-            activityBckgd.isHidden = true
-            activityIndicator.stopAnimating()
+    func completeProgress() {
+        for vw in self.view.subviews {
+            
+            if vw.isKind(of: UIVisualEffectView.self) ||
+                vw.isKind(of: UIActivityIndicatorView.self) ||
+                vw.isKind(of: UIProgressView.self) {
+                
+                OperationQueue.main.addOperation { vw.removeFromSuperview() }
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+            }
         }
     }
     

@@ -53,7 +53,7 @@ struct UsernameAndPassword: Codable {
 class UserData {
     
     var userID: Int?,
-    userName: String?,
+    username: String?,
     userLocation: CLLocationCoordinate2D?,
     proximityConfirm: Bool?,
     timeIn: Int?,
@@ -66,7 +66,7 @@ class UserData {
     locationConfirm: Bool?
     
     struct UserInfoCodeable: Encodable {
-        let userName: String,
+        let username: String,
         employeeID: String,
         coordinateLat: String,
         coordinateLong: String,
@@ -91,7 +91,7 @@ class UserData {
     struct UserInfo {
         
         var employeeID: Int,
-        userName: String,
+        username: String,
         employeeJobs: [Job.UserJob],
         punchedIn: Bool?
         //                let workWeekHours: Int?
@@ -119,7 +119,7 @@ class UserData {
             }
             
             return UserInfo(
-                employeeID: userId, userName: userName, employeeJobs: jobsToAdd, punchedIn: clocked
+                employeeID: userId, username: userName, employeeJobs: jobsToAdd, punchedIn: clocked
             )
         }
     }

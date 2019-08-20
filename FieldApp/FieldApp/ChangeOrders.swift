@@ -127,13 +127,13 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
     func setAutoCmpltField() {
         poNumberField.delegate = self
         poNumberField.autoCompleteDelegate = self
-//        poNumberField.maximumNumberOfAutoCompleteRows = 10
+        poNumberField.autoCompleteTableAppearsAsKeyboardAccessory = true
         poNumberField.autoCompleteTableCellBackgroundColor = .black
         poNumberField.autoCompleteTableCellTextColor = .white
         
-        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator, showProgress: false)
+        inProgress(showProgress: false)
         APICalls().getJobNames() { err, jobs in
-            self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
+            self.completeProgress()
             
             if err != nil {
                 guard let safeErr = err else { return }
@@ -311,7 +311,6 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
         
         locationLabel.text = "Tool Type"
         materialLabel.text = "Brand"
-//        descripLabel.text = "Location"
         colorSpecLabel.text = "Duration"
         colorSpecText.placeholder = "Number of Days"
         colorSpecText.keyboardType = .decimalPad
@@ -372,13 +371,13 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
     
     func sendCO(images: [UIImage]) {
-        inProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator, showProgress: true)
+        inProgress(showProgress: true)
         
         if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             checkFormType(images: images, employee: emply)
         
         } else {
-            completeProgress(activityBckgd: activityBckgrd, activityIndicator: activityIndicator)
+            completeProgress()
             showAlert(withTitle: "Error", message: "An employee name or PO number is required for COs, Tool Rentals, & Supplies Reqs.")
         }
     }
@@ -417,7 +416,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
         alamoUpload(route: route, headers: ["formType", formTypeVal], formBody: data, images: images, uploadType: "changeOrder") { responseType in
             let resType = responseType
             HomeView.jobCheckup = nil
-            self.completeProgress(activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator)
+            self.completeProgress()
             self.handleResponseType(responseType: resType, formType: self.formTypeVal)
         }
     }
@@ -430,7 +429,7 @@ extension ChangeOrdersView: ImagePickerDelegate {
     }
 }
 
-extension ChangeOrdersView {    // MLPAutoCompleteTextFieldDelegate
+extension ChangeOrdersView {
     
     func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, willShowAutoComplete autoCompleteTableView: UITableView!) {
         print("autoCompleteTextField: willShowAutoComplete")

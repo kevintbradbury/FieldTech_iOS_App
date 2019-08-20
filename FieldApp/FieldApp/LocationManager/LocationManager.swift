@@ -125,7 +125,7 @@ extension UserLocation {
                 print("failed on employeeName or coordinate or employeeID"); return
         }
         let employeeID = UserDefaults.standard.integer(forKey: "employeeID")
-        let userInfo = UserData.UserInfo(employeeID: employeeID, userName: employeeName, employeeJobs: [], punchedIn: true)
+        let userInfo = UserData.UserInfo(employeeID: employeeID, username: employeeName, employeeJobs: [], punchedIn: true)
         let role: String
         
         APICalls().sendCoordinates(

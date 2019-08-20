@@ -132,7 +132,9 @@ extension ToolSignOffView {
             let employeeID = UserDefaults.standard.string(forKey: "employeeID") else {
                 showAlert(withTitle: "Incomplete", message: "Fill out all fields before submitting."); return
         }
-        inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: true)
+        inProgress(
+//            activityBckgd: activityBckgd, activityIndicator: activityIndicator,
+            showProgress: true)
         
         let dt = Date().timeIntervalSince1970,
         images = [returnerSig, receiverSig],
@@ -147,7 +149,9 @@ extension ToolSignOffView {
         catch { print("error converting ToolReturn to DATA", error); return }
         
         alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
-            self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+            self.completeProgress(
+//                activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator
+            )
             self.handleResponseType(responseType: responseType, formType: "Tool Return")
         }
     }

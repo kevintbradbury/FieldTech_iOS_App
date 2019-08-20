@@ -20,8 +20,6 @@ import EPSignature
 class HomeView: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet var userLabel: UILabel!
-    @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var activityBckgd: UIView!
     @IBOutlet var profileBtn: UIButton!
     @IBOutlet var bkgdView: HomeBkgd!
     @IBOutlet var homeFanMenu: UIView!
@@ -36,6 +34,8 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     @IBOutlet var correctAnswerVw: UIView!
     @IBOutlet var crtAnswerLabel: UILabel!
     @IBOutlet var crtOKbtn: UIButton!
+    //    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    //    @IBOutlet var activityBckgd: UIView!
     
     let notificationCenter = UNUserNotificationCenter.current()
     let picker = ImagePickerController()
@@ -92,8 +92,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         loadProfilePic()
 
         picker.delegate = self
-        activityIndicator.isHidden = true
-        activityIndicator.hidesWhenStopped = true
         setIdentifiers()
     }
 
@@ -160,7 +158,7 @@ extension HomeView {
                 print("error: \(error)")
                 showAlert(withTitle: "Encoding Error", message: "Error encoding data for server. \(error.localizedDescription)"); return
             }
-            inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
+            inProgress(showProgress: false)
             
             APICalls().sendJobCheckup(po: po, body: body) {
                 HomeView.jobCheckup = nil
@@ -266,7 +264,7 @@ extension HomeView {
             correctAnswerVal = true
             makeAlert(correct: "CORRECT", msg: "Answer: \(answer) \(fullAnswer)")
          
-            guard let user = HomeView.employeeInfo?.userName as? String else { return }
+            guard let user = HomeView.employeeInfo?.username as? String else { return }
             APICalls().addPoints(employee: user, pts: 2)
         } else {
             incorrectAnswer = i - 1
@@ -460,7 +458,7 @@ extension HomeView {
 
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
-                self.inProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator, showProgress: false)
+                self.inProgress(showProgress: false)
 
                 fetchEmployee(employeeId: Int(employeeID)!) { user in
                     HomeView.employeeInfo = user
@@ -474,8 +472,8 @@ extension HomeView {
         self.main.addOperation {
             self.userLabel.textColor = UIColor.white
             self.userLabel.backgroundColor = UIColor.blue
-            self.userLabel.text = "Hello \n" + (HomeView.employeeInfo?.userName)!
-            self.userLabel.accessibilityValue = "Hello \n" + (HomeView.employeeInfo?.userName)!
+            self.userLabel.text = "Hello \n" + (HomeView.employeeInfo?.username)!
+            self.userLabel.accessibilityValue = "Hello \n" + (HomeView.employeeInfo?.username)!
             HomeView.todaysJob.poNumber = UserDefaults.standard.string(forKey: "todaysJobPO")
             self.completedProgress()
         }
@@ -527,7 +525,7 @@ extension HomeView {
 
     func completedProgress() {
         main.addOperation { self.jobCheckUpView.isHidden = true }
-        completeProgress(activityBckgd: activityBckgd, activityIndicator: activityIndicator)
+        completeProgress()
         checkForPushNotifUpdates()
     }
 
@@ -568,14 +566,14 @@ extension HomeView {
     func clockedInUI() {
         guard let info = HomeView.employeeInfo else { return }
         main.addOperation {
-            self.userLabel.text = "\(info.userName) \nID#: \(info.employeeID) \nClocked IN"
+            self.userLabel.text = "\(info.username) \nID#: \(info.employeeID) \nClocked IN"
             self.completedProgress()
         }
     }
     func clockedOutUI() {
         guard let info = HomeView.employeeInfo else { return }
         main.addOperation {
-            self.userLabel.text = "\(info.userName) \nID#: \(info.employeeID) \nClocked OUT"
+            self.userLabel.text = "\(info.username) \nID#: \(info.employeeID) \nClocked OUT"
             self.completedProgress()
         }
     }
@@ -631,8 +629,8 @@ extension HomeView {
     }
 
     public func checkPunchStatus() {
-        if HomeView.employeeInfo?.userName != nil {
-            UserDefaults.standard.set(HomeView.employeeInfo?.userName, forKey: "employeeName")
+        if HomeView.employeeInfo?.username != nil {
+            UserDefaults.standard.set(HomeView.employeeInfo?.username, forKey: "employeeName")
 
             if HomeView.employeeInfo?.punchedIn == true {
                 UserLocation.instance.locationManager.startUpdatingLocation()
@@ -797,9 +795,9 @@ extension HomeView: ImagePickerDelegate {
         if profileUpload == true && imageAssets.count == 1 {
 
             picker.dismiss(animated: true) {
-                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
+                self.inProgress(showProgress: true)
                 
-                guard let emply = HomeView.employeeInfo?.userName,
+                guard let emply = HomeView.employeeInfo?.username,
                     let idNum = UserDefaults.standard.string(forKey: "employeeID") else { return }
                 
                 let route = "employee/\(idNum)/profileUpload",
@@ -823,7 +821,7 @@ extension HomeView: ImagePickerDelegate {
 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO"),
                     let emply =  UserDefaults.standard.string(forKey: "employeeName") {
-                    self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
+                    self.inProgress(showProgress: true)
                     
                     self.uploadJobImages(images: self.imageAssets, jobNumber: po, employee: emply) { responseType in
                         self.checkSuccess(responseType: responseType)
@@ -853,7 +851,7 @@ extension HomeView: ImagePickerDelegate {
                     empl = safeEmployee
                 }
                 
-                self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
+                self.inProgress(showProgress: true)
                 
                 self.uploadJobImages(images: self.imageAssets, jobNumber: poNumber, employee: empl) { responseType in
                     self.checkSuccess(responseType: responseType)
@@ -902,13 +900,13 @@ extension HomeView: EPSignatureDelegate {
         
         do {
             let codableInfo = UserData.UserInfoCodeable(
-                userName: employee.userName, employeeID: "\(employee.employeeID)", coordinateLat: "", coordinateLong: "", currentRole: "", po: poNum
+                username: employee.username, employeeID: "\(employee.employeeID)", coordinateLat: "", coordinateLong: "", currentRole: "", po: poNum
             )
             data = try jsonEncoder.encode(codableInfo)
             
         } catch { print("Error: \(error)") }
         
-        cb(employee.userName, data)
+        cb(employee.username, data)
     }
     
     func epSignature(_: EPSignatureViewController, didSign signatureImage: UIImage, boundingRect: CGRect) {
@@ -918,10 +916,10 @@ extension HomeView: EPSignatureDelegate {
         convertSomeInfo() { emply, body in
             let route = "mealWaiverSigned/"
             
-            self.inProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator, showProgress: true)
+            self.inProgress(showProgress: true)
             
             self.alamoUpload(route: route, headers: ["employee", emply], formBody: body, images: [signatureImage], uploadType: "mealWaiver") { dict in
-                self.completeProgress(activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator)
+                self.completeProgress()
             }
         }
     }

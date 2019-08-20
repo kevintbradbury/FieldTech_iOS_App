@@ -123,7 +123,7 @@ class APICalls {
         
         let route = "checkCoordinates/\(employee)"
         let person = UserData.UserInfoCodeable(
-            userName: employee,
+            username: employee,
             employeeID: emplyID,
             coordinateLat: "\(location.latitude)",
             coordinateLong: "\(location.longitude)",
@@ -171,7 +171,7 @@ class APICalls {
                 
                 if let validUser = UserData.UserInfo.fromJSON(dictionary: json) {
                     user = validUser
-                    UserDefaults.standard.set(validUser.userName, forKey: DefaultKeys.employeeName)
+                    UserDefaults.standard.set(validUser.username, forKey: DefaultKeys.employeeName)
                 }
                 callback(user, addressInfo)
             }
@@ -414,7 +414,7 @@ extension APICalls {
     func convertToJSON(employee: UserData.UserInfo, location: CLLocationCoordinate2D, role: String, po: String) -> Data {
         
         let person = UserData.UserInfoCodeable(
-            userName: employee.userName,
+            username: employee.username,
             employeeID: String(employee.employeeID),
             coordinateLat: "\(location.latitude)",
             coordinateLong: "\(location.longitude)",
@@ -428,7 +428,7 @@ extension APICalls {
             data = try self.jsonEncoder.encode(person)
         } catch {
             print(error)
-            combinedString = person.userName + " -- " + person.employeeID  + " |"
+            combinedString = person.username + " -- " + person.employeeID  + " |"
             combinedString += person.coordinateLat + ", " + person.coordinateLong + "|" + person.currentRole
             data = combinedString.data(using: String.Encoding(rawValue: String.Encoding.utf8.rawValue))!
         }

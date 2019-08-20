@@ -50,10 +50,14 @@ class OneTimeLoginController: UIViewController {
         
         userNpass = UsernameAndPassword(username: usrnm, password: psswrd)
         
-        inProgress(activityBckgd: activityBkgd, activityIndicator: activityIndicator, showProgress: false)
+        inProgress(
+//            activityBckgd: activityBkgd, activityIndicator: activityIndicator,
+            showProgress: false)
         
         fetchEmployee(employeeId: employeeId) { success in
-            self.completeProgress(activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator)
+            self.completeProgress(
+//                activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator
+            )
             
             if success == true && self.userInfo != nil {
                 guard let unwrappedUsrAndPass = self.userNpass else { return }
@@ -102,7 +106,9 @@ class OneTimeLoginController: UIViewController {
                 guard let user = UserData.UserInfo.fromJSON(dictionary: json) else {
                         
                         print("failed to parse UserData from json: \(json)");
-                        self.completeProgress(activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator)
+                        self.completeProgress(
+//                            activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator
+                    )
                         
                         guard let resMsg = json as? [String:String] else { return }
                     self.handleResponseType(responseType: resMsg, formType: "fetchEmployee")

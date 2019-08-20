@@ -255,7 +255,7 @@ extension ScheduleView {
             fri: AcceptMoreDays.DayOrNight(day: fridayDaySwitch.isOn, night: fridayNightSwitch.isOn),
             sat: AcceptMoreDays.DayOrNight(day: saturdayDaySwitch.isOn, night: saturdayNightSwitch.isOn)
         )
-        guard let user = employee?.userName else { return }
+        guard let user = employee?.username else { return }
         
         let mirror = Mirror(reflecting: acceptMoreHrs)
         var acceptedDays = 0
@@ -270,12 +270,13 @@ extension ScheduleView {
         if (acceptedDays < 2) {
             showAlert(withTitle: "Select days", message: "You must select at least 2 options."); return
         }
-        
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
+        inProgress(
+//            activityBckgd: view, activityIndicator: self.activityIndicator,
+            showProgress: false)
         
         APICalls().acceptMoreHrs(employee: user, moreDays: acceptMoreHrs) { success in
-            self.main.addOperation { self.activityIndicator.stopAnimating() }
+            self.completeProgress()
+            
             if success == false {
                 self.showAlert(withTitle: "Error", message: "Error sending availability.")
             }
