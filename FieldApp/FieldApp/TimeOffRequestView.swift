@@ -76,9 +76,7 @@ class TimeOffRequestView: UIViewController {
                 return
         }
         
-        inProgress(
-//            activityBckgd: activityBckgrd, activityIndicator: activityIndicator,
-            showProgress: false)
+        inProgress(showProgress: false)
         
         let tmOffForm = TimeOffReq(
             username: usrnm, employeeID: id, department: dprtmt, shiftHours: shftHrs,

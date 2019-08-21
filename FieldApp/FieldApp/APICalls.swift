@@ -320,6 +320,27 @@ class APICalls {
         }
     }
     
+    func getTimesheet(
+        username: String, date: Date
+//       , completion: (Timecard) -> ()
+        ) {
+        let route = "timeclock/\(username)/mobile"
+        let date = ["date": date]
+        var data = Data()
+        
+        do { data = try self.jsonEncoder.encode(date) }
+        catch { print("error \(error)"); return }
+        
+        setupRequest(route: route, method: "POST") { req in
+            var request = req
+            request.httpBody = data
+            
+            self.startSession(request: request, route: route) { json in
+                print(json)
+                
+            }
+        }
+    }
     
 }
 

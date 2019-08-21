@@ -50,14 +50,10 @@ class OneTimeLoginController: UIViewController {
         
         userNpass = UsernameAndPassword(username: usrnm, password: psswrd)
         
-        inProgress(
-//            activityBckgd: activityBkgd, activityIndicator: activityIndicator,
-            showProgress: false)
+        inProgress(showProgress: false)
         
         fetchEmployee(employeeId: employeeId) { success in
-            self.completeProgress(
-//                activityBckgd: self.activityBkgd, activityIndicator: self.activityIndicator
-            )
+            self.completeProgress()
             
             if success == true && self.userInfo != nil {
                 guard let unwrappedUsrAndPass = self.userNpass else { return }

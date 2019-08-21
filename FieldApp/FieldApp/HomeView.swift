@@ -45,7 +45,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
         Color.purple, Color.yellow, Color(val: 0xFF9742)
     ]
     let icons = [
-        "hotel_req", "tools", "materials", "form", "vacation",
+        "time_off", "tools", "materials", "form", "vacation",
         "camera", "clock_blue", "schedule"
     ]
 
@@ -386,7 +386,8 @@ extension HomeView {
                 withTitle: "Reminder",
                 message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. "
             )
-            //        case "hotel_req":
+        case "time_off":
+            performSegue(withIdentifier: "time_card", sender: nil)
 
         default:
             showAlert(
@@ -618,6 +619,9 @@ extension HomeView {
             let vc = segue.destination as! TimeOffRequestView
             guard let emplyInformation = HomeView.employeeInfo else { return }
             vc.employeeInfo = emplyInformation
+        case "time_card":
+            guard let emplyInformation = HomeView.employeeInfo else { return }
+            TimeCardView.employeeInfo = emplyInformation
 
         default:
             showAlert(withTitle: "Sorry", message: "That's not a shortcut we recognize.")

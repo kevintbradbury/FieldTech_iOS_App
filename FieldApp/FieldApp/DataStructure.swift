@@ -124,46 +124,79 @@ class UserData {
         }
     }
     
-    struct TimeCard {
+    struct TimeCard: Decodable {
         
-        let weekBeginDate: String?,
-        sunday: NSDictionary?,
-        monday: NSDictionary?,
-        tuesday: NSDictionary?,
-        wednesday: NSDictionary?,
-        thursday: NSDictionary?,
-        friday: NSDictionary?,
-        saturday: NSDictionary?,
-        totalHours: Int?
-        
-        static func fromJSON(dictionary: NSDictionary) -> TimeCard? {
+        struct yearMonthDate: Decodable {
+            let ye: Int, mo: Int, da: Int
             
-            guard let beginDate = dictionary["weekBeginDate"] as? String,
-                let sunday = dictionary["sunday"] as? NSDictionary,
-                let monday = dictionary["monday"] as? NSDictionary,
-                let tuesday = dictionary["tuesday"] as? NSDictionary,
-                let wednesday = dictionary["wednesday"] as? NSDictionary,
-                let thursday = dictionary["thursday"] as? NSDictionary,
-                let friday = dictionary["friday"] as? NSDictionary,
-                let saturday = dictionary["saturday"] as? NSDictionary,
-                let total = dictionary["totalHours"] as? Int
-                else {
-                    print("failed fromJSON method, in TimeCard Struct")
-                    return nil
+            init(ye: Int, mo: Int, da: Int) {
+                self.ye = ye
+                self.mo = mo
+                self.da = da
             }
-            
-            return TimeCard(
-                weekBeginDate: beginDate,
-                sunday: sunday,
-                monday: monday,
-                tuesday: tuesday,
-                wednesday: wednesday,
-                thursday: thursday,
-                friday: friday,
-                saturday: saturday,
-                totalHours: total
-            )
+            enum CodingKeys: String, CodingKey { case ye, mo, da }
         }
+        
+        struct hoursMin: Decodable {
+            let hours: Int, min: Int
+            init(hours: Int, min: Int) {
+                self.hours = hours
+                self.min = min
+            }
+            enum CodingKeys: String, CodingKey { case hours, min }
+        }
+        struct dayObj: Decodable {
+            let duration: hoursMin, date: Date, punchTimes: [[String: String]], reimbursementMiles: Double, POs: [String: String]
+            
+        }
+        
+        let userANDdateID: String,
+        employeeID: Int,
+        weekBeginDate: Date,
+        yearMonthDate: yearMonthDate,
+        username: String,
+        totalHours: hoursMin,
+        overTime: hoursMin,
+        doubleTime: hoursMin,
+        sunday: dayObj,
+        monday: dayObj,
+        tuesday: dayObj,
+        wednesday: dayObj,
+        thursday: dayObj,
+        friday: dayObj,
+        saturday: dayObj
+
+        
+        
+//        static func fromJSON(dictionary: NSDictionary) -> TimeCard? {
+//
+//            guard let beginDate = dictionary["weekBeginDate"] as? String,
+//                let sunday = dictionary["sunday"] as? NSDictionary,
+//                let monday = dictionary["monday"] as? NSDictionary,
+//                let tuesday = dictionary["tuesday"] as? NSDictionary,
+//                let wednesday = dictionary["wednesday"] as? NSDictionary,
+//                let thursday = dictionary["thursday"] as? NSDictionary,
+//                let friday = dictionary["friday"] as? NSDictionary,
+//                let saturday = dictionary["saturday"] as? NSDictionary,
+//                let total = dictionary["totalHours"] as? Int
+//                else {
+//                    print("failed fromJSON method, in TimeCard Struct")
+//                    return nil
+//            }
+//
+//            return TimeCard(
+//                weekBeginDate: beginDate,
+//                sunday: sunday,
+//                monday: monday,
+//                tuesday: tuesday,
+//                wednesday: wednesday,
+//                thursday: thursday,
+//                friday: friday,
+//                saturday: saturday,
+//                totalHours: total
+//            )
+//        }
+        
     }
 }
 
@@ -236,7 +269,7 @@ class Job: Codable {
             print(string)
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-            dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+//            dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
             
             guard let dateString = dateFormatter.date(from: string) else { fatalError("failed to cast string to type: date") }
             

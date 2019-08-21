@@ -17,6 +17,7 @@
 		065D029A22FB788600A326F1 /* Pods_FieldAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7181653153D0F18EBA34A99C /* Pods_FieldAppUITests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		065E63D721E4266D0063A572 /* SuppliesRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63D621E4266D0063A572 /* SuppliesRequestView.swift */; };
 		065E63DB21E82B5B0063A572 /* VehicleCheckListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */; };
+		0668F7F3230DAE2A00D3DE66 /* TimeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0668F7F2230DAE2A00D3DE66 /* TimeCardView.swift */; };
 		067365A9213858DD00F1F8A8 /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 067365A8213858DD00F1F8A8 /* ViewExtensions.swift */; };
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06903AE4228641C6000373E8 /* OneTimeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06903AE3228641C6000373E8 /* OneTimeLoginController.swift */; };
@@ -98,6 +99,7 @@
 		065E63D621E4266D0063A572 /* SuppliesRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuppliesRequestView.swift; sourceTree = "<group>"; };
 		065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleCheckListView.swift; sourceTree = "<group>"; };
 		066223362150322800B9C8E2 /* StoresMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresMapView.swift; sourceTree = "<group>"; };
+		0668F7F2230DAE2A00D3DE66 /* TimeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeCardView.swift; sourceTree = "<group>"; };
 		067365A8213858DD00F1F8A8 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		067365AB2139A0EE00F1F8A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		06775988213DDE1C001F8802 /* ChangeOrders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeOrders.swift; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 				062005A51FFC642900F1E193 /* ScheduleView.swift */,
 				066223362150322800B9C8E2 /* StoresMapView.swift */,
 				065E63D621E4266D0063A572 /* SuppliesRequestView.swift */,
+				0668F7F2230DAE2A00D3DE66 /* TimeCardView.swift */,
 				0623249A21DD81C1000025E3 /* TimeOffRequestView.swift */,
 				062A32D4215C09A0001B6703 /* ToolReturnView.swift */,
 				0618A7C6216579AB00A05EEE /* ToolSignOffView.swift */,
@@ -636,6 +639,7 @@
 				06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */,
 				062005A61FFC642900F1E193 /* ScheduleView.swift in Sources */,
 				0AC8EF4F1F71826200E86DD6 /* AppDelegate.swift in Sources */,
+				0668F7F3230DAE2A00D3DE66 /* TimeCardView.swift in Sources */,
 				065E63D721E4266D0063A572 /* SuppliesRequestView.swift in Sources */,
 				0AC8EF7D1F71842F00E86DD6 /* LocationManager.swift in Sources */,
 				065E63DB21E82B5B0063A572 /* VehicleCheckListView.swift in Sources */,
