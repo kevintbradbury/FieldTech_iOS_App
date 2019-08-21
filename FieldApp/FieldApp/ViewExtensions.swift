@@ -141,22 +141,19 @@ extension UIViewController {
         }
     }
     
-    func inProgress(
-//        activityBckgd: UIView, activityIndicator: UIActivityIndicatorView,
-        showProgress: Bool
-        ) {
-        
-        let blurredView = UIVisualEffectView()
-        blurredView.frame = view.frame
-        blurredView.effect = UIBlurEffect(style: .regular)
-        
-        let indicator = UIActivityIndicatorView(frame: view.frame)
-        indicator.style = .whiteLarge
-        indicator.color = UIColor.blue
-        indicator.hidesWhenStopped = true
-        indicator.startAnimating()
+    func inProgress(showProgress: Bool) {
         
         OperationQueue.main.addOperation {
+            let blurredView = UIVisualEffectView()
+            blurredView.frame = self.view.frame
+            blurredView.effect = UIBlurEffect(style: .regular)
+            
+            let indicator = UIActivityIndicatorView(frame: self.view.frame)
+            indicator.style = .whiteLarge
+            indicator.color = UIColor.blue
+            indicator.hidesWhenStopped = true
+            indicator.startAnimating()
+            
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             self.view.addSubview(blurredView)
             self.view.addSubview(indicator)
@@ -181,14 +178,12 @@ extension UIViewController {
     }
     
     func completeProgress() {
-        for vw in self.view.subviews {
-            
-            if vw.isKind(of: UIVisualEffectView.self) ||
-                vw.isKind(of: UIActivityIndicatorView.self) ||
-                vw.isKind(of: UIProgressView.self) {
-                
-                OperationQueue.main.addOperation { vw.removeFromSuperview() }
-                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        OperationQueue.main.addOperation {
+            for vw in self.view.subviews {
+                if vw.isKind(of: UIVisualEffectView.self) || vw.isKind(of: UIActivityIndicatorView.self) || vw.isKind(of: UIProgressView.self) {
+                    vw.removeFromSuperview()
+                    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                }
             }
         }
     }

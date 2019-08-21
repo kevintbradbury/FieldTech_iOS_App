@@ -128,8 +128,6 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
         poNumberField.delegate = self
         poNumberField.autoCompleteDelegate = self
         poNumberField.autoCompleteTableAppearsAsKeyboardAccessory = true
-        poNumberField.autoCompleteTableCellBackgroundColor = .black
-        poNumberField.autoCompleteTableCellTextColor = .white
         
         inProgress(showProgress: false)
         APICalls().getJobNames() { err, jobs in

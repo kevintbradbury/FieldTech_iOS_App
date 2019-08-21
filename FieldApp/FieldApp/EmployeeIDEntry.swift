@@ -76,6 +76,8 @@ class EmployeeIDEntry: UIViewController, UITextFieldDelegate, MLPAutoCompleteTex
         super.viewDidLoad()
         view.accessibilityIdentifier = "EmployeeIDentry View"
         
+        print("current loc: \(location)")
+        
         setRoles()
         checkAppDelANDnotif()
         UserLocation.instance.locationManager.startUpdatingLocation()
@@ -92,9 +94,7 @@ class EmployeeIDEntry: UIViewController, UITextFieldDelegate, MLPAutoCompleteTex
     @IBAction func goClockOut(_ sender: Any) { wrapUpAlert() }
     @IBAction func lunchBrkPunchOut(_ sender: Any) { chooseBreakLength() }
     @IBAction func animatedClockPress(_ sender: Any) { animateOrWrapUp() }
-    @IBAction func sendManualPOentry(_ sender: Any) {
-        sendManualEntry()
-    }
+    @IBAction func sendManualPOentry(_ sender: Any) { sendManualEntry() }
     @IBAction func hideManualPOview(_ sender: Any) { manualPOentryVw.isHidden = true }
     
     
@@ -183,9 +183,7 @@ extension EmployeeIDEntry {
         guard let coordinates = UserLocation.instance.currentCoordinate,
             let unwrappedRole = role else { return }
         
-        let anmation = longHand.node.placeVar.animation(angle: -3.20, x: 0, y: 0, during: 1, delay: 0)
-        anmation.cycle().play()
-        inProgressVw()
+        inProgress(showProgress: false)
         
         if let validPO = UserDefaults.standard.string(forKey: DefaultKeys.todaysJobPO) {
             
@@ -354,11 +352,12 @@ extension EmployeeIDEntry {
     }
     
     func sendManualEntry() {
+        
         guard let coordinates = UserLocation.instance.currentCoordinate,
             let uwrappedUsr = EmployeeIDEntry.foundUser,
             let unwrappedRole = self.role,
             let po = poNumberField.text else {
-                print("no coordinates, user or role found")
+                print("no coordinates, user, role, or PO found")
                 return
         }
         inProgress(showProgress: false)
@@ -381,8 +380,6 @@ extension EmployeeIDEntry {
             
             self.poNumberField.delegate = self
             self.poNumberField.autoCompleteTableAppearsAsKeyboardAccessory = true
-            self.poNumberField.autoCompleteTableCellBackgroundColor = .black
-            self.poNumberField.autoCompleteTableCellTextColor = .white
             
             self.roundCorners(corners: [.bottomLeft], radius: 10, vw: self.sendManualPOBtn)
             self.roundCorners(corners: [.bottomRight], radius: 10, vw: self.cancelManualBtn)
@@ -460,20 +457,8 @@ extension EmployeeIDEntry {
         }
     }
     
-    func inProgressVw() {
-        self.main.addOperation {
-            UIApplication.shared.isNetworkActivityIndicatorVisible = true
-//            self.activityBckgd.isHidden = false
-//            self.activityIndicator.startAnimating()
-        }
-    }
-    
     func completedIDcheckProgress() {
-        
-        //            self.activityBckgd.isHidden = true
-        //            self.activityIndicator.hidesWhenStopped = true
-        //            self.activityIndicator.stopAnimating()
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        completeProgress()
         
         if self.hadLunch == true {
             let breakPopup = UIAlertController(title: "Clocked Out", message: "You clocked out for a meal break.", preferredStyle: .alert)
@@ -574,7 +559,7 @@ extension EmployeeIDEntry {
             
         } else {
             if let employeeID = UserDefaults.standard.string(forKey: "employeeID") {
-                inProgressVw()
+                inProgress(showProgress: false)
                 
                 APICalls().fetchEmployee(employeeId: Int(employeeID)!) { user, addressInfo  in
                     if let validUser = user as? UserData.UserInfo,
@@ -618,7 +603,7 @@ extension EmployeeIDEntry: ImagePickerDelegate {
         
         if let emply =  UserDefaults.standard.string(forKey: "employeeName") {
             if imgs.count < 11 {
-                inProgressVw()
+                inProgress(showProgress: false)
                 
                 if let po = UserDefaults.standard.string(forKey: "todaysJobPO") {
                     uploadJobImages(images: imgs, jobNumber: po, employee: emply) { responseType in

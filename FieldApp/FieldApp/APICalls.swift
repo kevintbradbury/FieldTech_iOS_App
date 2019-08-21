@@ -327,7 +327,10 @@ class APICalls {
 extension APICalls {
     
     func setupRequest(route: String, method: String, cb: @escaping(URLRequest)-> ())  {
-        let url = URL(string: APICalls.host + route)!
+        guard let url = URL(string: "\(APICalls.host)\(route)") else {
+            print("setupRequest > Invalid URL")
+            return
+        }
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
         request.httpMethod = method
         request.addValue("application/json", forHTTPHeaderField: "Accept")
