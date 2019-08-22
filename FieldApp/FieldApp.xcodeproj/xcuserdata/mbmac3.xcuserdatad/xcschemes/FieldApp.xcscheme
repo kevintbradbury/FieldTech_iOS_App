@@ -43,42 +43,6 @@
       codeCoverageEnabled = "YES"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0AC8EF691F71826200E86DD6"
-               BuildableName = "FieldAppUITests.xctest"
-               BlueprintName = "FieldAppUITests"
-               ReferencedContainer = "container:FieldApp.xcodeproj">
-            </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "FieldAppUITests/testCOandAutoCompletePOfields()">
-               </Test>
-               <Test
-                  Identifier = "FieldAppUITests/testCOcompleteToCameraVw()">
-               </Test>
-               <Test
-                  Identifier = "FieldAppUITests/testEmployeeIDentryVC()">
-               </Test>
-               <Test
-                  Identifier = "FieldAppUITests/testExample()">
-               </Test>
-               <Test
-                  Identifier = "FieldAppUITests/testHomeVw()">
-               </Test>
-               <Test
-                  Identifier = "FieldAppUITests/testSchedule()">
-               </Test>
-               <Test
-                  Identifier = "FieldAppUITests/testSuppliesReq()">
-               </Test>
-               <Test
-                  Identifier = "FieldAppUITests/testToolRental()">
-               </Test>
-            </SkippedTests>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

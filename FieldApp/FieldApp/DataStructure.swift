@@ -126,47 +126,82 @@ class UserData {
     
     struct TimeCard: Decodable {
         
-        struct yearMonthDate: Decodable {
+        struct YearMonthDate: Decodable {
             let ye: Int, mo: Int, da: Int
             
-            init(ye: Int, mo: Int, da: Int) {
-                self.ye = ye
-                self.mo = mo
-                self.da = da
+            init(dict: NSDictionary) {
+                self.ye = dict["ye"] as? Int ?? 0
+                self.mo = dict["mo"] as? Int ?? 0
+                self.da = dict["da"] as? Int ?? 0
             }
-            enum CodingKeys: String, CodingKey { case ye, mo, da }
         }
         
         struct hoursMin: Decodable {
             let hours: Int, min: Int
-            init(hours: Int, min: Int) {
-                self.hours = hours
-                self.min = min
-            }
-            enum CodingKeys: String, CodingKey { case hours, min }
-        }
-        struct dayObj: Decodable {
-            let duration: hoursMin, date: Date, punchTimes: [[String: String]], reimbursementMiles: Double, POs: [String: String]
             
+            init(dict: NSDictionary) {
+                self.hours = dict["hours"] as? Int ?? 0
+                self.min = dict["min"] as? Int ?? 0
+            }
+        }
+        
+        struct latLong: Decodable {
+            let lat: String, long: String
+            init(dict: NSDictionary) {
+                self.lat = dict["lat"] as? String ?? ""
+                self.long = dict["long"] as? String ?? ""
+            }
+        }
+        
+        struct onePunch: Decodable {
+            let coordinates: latLong?, ms: Int, po: String, role: String, string: String
+            
+            init(dict: NSDictionary) {
+                self.coordinates = dict["coordinates"] as? latLong
+                self.ms = dict["ms"] as? Int ?? 0
+                self.po = dict["po"] as? String ?? ""
+                self.role = dict["role"] as? String ?? ""
+                self.string = dict["string"] as? String ?? ""
+            }
+        }
+        
+        struct dayObj: Decodable {
+            let duration: hoursMin, date: Date?, punchTimes: [onePunch?], reimbursementMiles: Double?, POs: [String: String]?
+            
+            init(dict: NSDictionary) {
+                self.duration = dict["duration"] as? hoursMin ?? hoursMin(dict: [ "hours": 0, "min": 0 ])
+                self.date = dict["date"] as? Date
+                self.punchTimes = [dict["punchTimes"] as? onePunch]
+                self.reimbursementMiles = dict["reimbursementMiles"] as? Double
+                self.POs = dict["POs"] as? [String : String]
+            }
         }
         
         let userANDdateID: String,
         employeeID: Int,
         weekBeginDate: Date,
-        yearMonthDate: yearMonthDate,
         username: String,
-        totalHours: hoursMin,
-        overTime: hoursMin,
-        doubleTime: hoursMin,
-        sunday: dayObj,
-        monday: dayObj,
-        tuesday: dayObj,
-        wednesday: dayObj,
-        thursday: dayObj,
-        friday: dayObj,
-        saturday: dayObj
+        totalHours: hoursMin, overTime: hoursMin, doubleTime: hoursMin,
+        sunday: dayObj, monday: dayObj, tuesday: dayObj, wednesday: dayObj, thursday: dayObj, friday: dayObj, saturday: dayObj,
+        yearMonthDate: YearMonthDate
 
-        
+        init(dict: NSDictionary) {
+            self.userANDdateID = dict["userANDdateID"] as? String ?? ""
+            self.employeeID = dict["employeeID"] as? Int ?? 00
+            self.weekBeginDate = dict["weekBeginDate"] as? Date ?? Date()
+            self.username = dict["username"] as? String ?? ""
+            self.totalHours = hoursMin.init(dict: dict["totalHours"] as! NSDictionary)
+            self.overTime = hoursMin.init(dict: dict["overTime"] as! NSDictionary)
+            self.doubleTime = hoursMin.init(dict: dict["doubleTime"] as! NSDictionary)
+            self.sunday = dayObj.init(dict: dict["sunday"] as! NSDictionary)
+            self.monday = dayObj.init(dict: dict["monday"] as! NSDictionary)
+            self.tuesday = dayObj.init(dict: dict["tuesday"] as! NSDictionary)
+            self.wednesday = dayObj.init(dict: dict["wednesday"] as! NSDictionary)
+            self.thursday = dayObj.init(dict: dict["thursday"] as! NSDictionary)
+            self.friday = dayObj.init(dict: dict["friday"] as! NSDictionary)
+            self.saturday = dayObj.init(dict: dict["saturday"] as! NSDictionary)
+            self.yearMonthDate = YearMonthDate.init(dict: dict["yearMonthDate"] as! NSDictionary)
+        }
         
 //        static func fromJSON(dictionary: NSDictionary) -> TimeCard? {
 //
@@ -370,8 +405,6 @@ class FieldActions {
         quantity: Double?,
         neededBy: Double?, // Seconds from 1970
         description: String?
-        
-        let reminderPeriods = [24, 48, 72, 96]
     }
     
     struct ToolReturn: Encodable {

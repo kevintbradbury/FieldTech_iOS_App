@@ -22,8 +22,10 @@ class TimeCardView: UIViewController {
     
     public static var employeeInfo: UserData.UserInfo?
     var date = Date()
+    var timesheet: UserData.TimeCard?
+    
     let dateFormatter = DateFormatter()
-    let signature =
+    let daysOweek = [ "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,25 +36,59 @@ class TimeCardView: UIViewController {
         dateLabel.text = dateFormatter.string(from: date)
         
         dateStepper.value = Double(date.timeIntervalSince1970)
+        dateStepper.stepValue = Double(60 * 60 * 24 * 7)
         
         if let info = TimeCardView.employeeInfo {
             employeeLabel.text = info.username
         }
+        getTSdata()
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func showSIgnature(_ sender: Any) { self.presentSignature(vc: self, subTitle: "Please sign here", title: "Sign") }
-    
     @IBAction func didChangeDate(_ sender: Any) {
+        date = Date(timeIntervalSince1970: dateStepper.value)
+        dateLabel.text = dateFormatter.string(from: date)
         
+        // fetch TS for date
     }
     
     func getTSdata() {
-        guard let info = TimeCardView.employeeInfo else { return }
-        APICalls().getTimesheet(username: info.username, date: date)
+        inProgress(showProgress: false)
         
+        guard let info = TimeCardView.employeeInfo else { return }
+        APICalls().getTimesheet(username: info.username, date: date.timeIntervalSince1970) { timecard in
+            self.completeProgress()
+            self.timesheet = timecard
+        }
     }
     
+    func getDayOb(day: String) -> UserData.TimeCard.dayObj {
+        var dayObj = UserData.TimeCard.dayObj(dict: ["":""])
+        
+        if let validTS = timesheet {
+            switch day {
+            case "sunday":
+                dayObj = validTS.sunday
+            case "monday":
+                dayObj = validTS.monday
+            case "tuesday":
+                dayObj = validTS.tuesday
+            case "wednesday":
+                dayObj = validTS.wednesday
+            case "thursday":
+                dayObj = validTS.thursday
+            case "friday":
+                dayObj = validTS.friday
+            case "saturday":
+                dayObj = validTS.saturday
+                
+            default:
+                break;
+            }
+        }
+        return dayObj
+    }
 }
 
 extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
@@ -61,13 +97,24 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 7
+        return daysOweek.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "dayOweek") as? TimeCardCell else {
             return UITableViewCell()
         }
-        // add timesheet data here
+        let thisDay = daysOweek[indexPath.row]
+        var txt = ""
+        let dayObj = getDayOb(day: thisDay)
+        
+        txt = "\(daysOweek[indexPath.row]): \(dayObj.date) \n"
+        
+        for pnch in dayObj.punchTimes {
+            if let completePnch = pnch {
+                txt += "PO: \(completePnch.po) - \(completePnch.string)"
+            }
+        }
+        cell.dayOweekLbl.text = txt
         
         return cell
     }
@@ -83,5 +130,6 @@ extension TimeCardView: EPSignatureDelegate {
 }
 
 class TimeCardCell: UITableViewCell {
+    @IBOutlet var dayOweekLbl: UILabel!
     
 }

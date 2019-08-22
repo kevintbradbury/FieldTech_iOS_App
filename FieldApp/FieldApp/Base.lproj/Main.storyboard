@@ -2038,7 +2038,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="Khl-WD-EGT">
-                                <rect key="frame" x="47" y="432.5" width="281.00000000000006" height="137"/>
+                                <rect key="frame" x="47" y="432.5" width="281" height="137"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Normal Shift Hours" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VvL-Ly-PJi">
@@ -2510,7 +2510,7 @@
                                 <rect key="frame" x="20" y="159" width="335" height="367"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="dayOweek" rowHeight="71" id="9Zq-YM-9Ip">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="dayOweek" rowHeight="71" id="9Zq-YM-9Ip" customClass="TimeCardCell" customModule="FieldApp" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="335" height="71"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="9Zq-YM-9Ip" id="KPN-Vu-nxh">
@@ -2518,23 +2518,27 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Day Of Week" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rf8-g8-Y0E">
-                                                    <rect key="frame" x="10" y="25" width="315" height="20.5"/>
+                                                    <rect key="frame" x="10" y="11" width="315" height="49"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="rf8-g8-Y0E" secondAttribute="bottom" constant="10.5" id="1aR-Vt-r1r"/>
                                                 <constraint firstAttribute="trailing" secondItem="rf8-g8-Y0E" secondAttribute="trailing" constant="10" id="49h-Sg-H2z"/>
-                                                <constraint firstItem="rf8-g8-Y0E" firstAttribute="centerY" secondItem="KPN-Vu-nxh" secondAttribute="centerY" id="7Ez-hw-mp5"/>
                                                 <constraint firstItem="rf8-g8-Y0E" firstAttribute="leading" secondItem="KPN-Vu-nxh" secondAttribute="leading" constant="10" id="OKc-6w-72J"/>
+                                                <constraint firstItem="rf8-g8-Y0E" firstAttribute="top" secondItem="KPN-Vu-nxh" secondAttribute="top" constant="11" id="Xo4-T2-HSS"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="dayOweekLbl" destination="rf8-g8-Y0E" id="0uc-LG-bTm"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="exm-O4-AS6">
-                                <rect key="frame" x="62" y="534" width="251.00000000000006" height="84"/>
+                                <rect key="frame" x="62" y="534" width="251" height="84"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sJ8-k8-31r">
                                 <rect key="frame" x="93.5" y="542.5" width="188" height="67.5"/>
@@ -3033,7 +3037,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="Q6i-Qn-2bI" userLabel="Returner Signature View">
-                                <rect key="frame" x="16" y="100" width="343.00000000000006" height="168"/>
+                                <rect key="frame" x="16" y="100" width="343" height="168"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <gestureRecognizers/>
                                 <connections>
@@ -3041,7 +3045,7 @@
                                 </connections>
                             </imageView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="signature" translatesAutoresizingMaskIntoConstraints="NO" id="lny-yJ-T6d">
-                                <rect key="frame" x="16" y="353.5" width="343.00000000000006" height="167"/>
+                                <rect key="frame" x="16" y="353.5" width="343" height="167"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <gestureRecognizers/>
                                 <connections>

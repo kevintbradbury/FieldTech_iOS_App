@@ -321,11 +321,11 @@ class APICalls {
     }
     
     func getTimesheet(
-        username: String, date: Date
-//       , completion: (Timecard) -> ()
+        username: String, date: TimeInterval
+       , completion: @escaping (UserData.TimeCard) -> ()
         ) {
         let route = "timeclock/\(username)/mobile"
-        let date = ["date": date]
+        let date = [ "date" : date ]
         var data = Data()
         
         do { data = try self.jsonEncoder.encode(date) }
@@ -338,6 +338,8 @@ class APICalls {
             self.startSession(request: request, route: route) { json in
                 print(json)
                 
+                let timecard = UserData.TimeCard.init(dict: json)
+                completion(timecard)
             }
         }
     }
@@ -382,8 +384,9 @@ extension APICalls {
             }
             guard let verifiedData = data as? Data,
                 let json = (try? JSONSerialization.jsonObject(with: verifiedData, options: [])) as? NSDictionary else {
-                        print("APICalls > startSession > data/json error in route: \(route) \n \(String(describing: response)) \n \(data)")
-                        callback(["error":"unable to parse JSON"]); return
+                    print("APICalls > startSession > data/json error in route: \(route) \n \(String(describing: response)) \n \(data)")
+                    callback(["error":"unable to parse JSON"]);
+                    return
             }
             callback(json)
         }
