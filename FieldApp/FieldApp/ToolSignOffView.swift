@@ -23,8 +23,8 @@ class ToolSignOffView: UIViewController {
     @IBOutlet var receiverSignatureView: UIImageView!
     @IBOutlet var printNameReceiverField: UITextField!
     @IBOutlet var sendButton: UIButton!
-    @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var activityBckgd: UIView!
+//    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+//    @IBOutlet var activityBckgd: UIView!
     
     public var toolToReturn: FieldActions.ToolRental?
     var signatureRole = ""
@@ -104,20 +104,13 @@ extension ToolSignOffView {
         receiverBtn.accessibilityIdentifier = "ToolSgn_receiverBtn"
         printNameReceiverField.accessibilityIdentifier = "ToolSgn_printNameReceiverField"
         sendButton.accessibilityIdentifier = "ToolSgn_sendButton"
-        activityIndicator.accessibilityIdentifier = "ToolSgn_activityIndicator"
-        activityBckgd.accessibilityIdentifier = "ToolSgn_activityBckgd"
         
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM dd, YYYY"
         dateLabel.text = dateFormatter.string(from: Date())
         
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.isHidden = true
-        activityBckgd.isHidden = true
-        
         setThisDismissableKeyboard()
-        //        setDismissableKeyboard(vc: self)
     }
     
     func sendSignatures() {
@@ -132,9 +125,7 @@ extension ToolSignOffView {
             let employeeID = UserDefaults.standard.string(forKey: "employeeID") else {
                 showAlert(withTitle: "Incomplete", message: "Fill out all fields before submitting."); return
         }
-        inProgress(
-//            activityBckgd: activityBckgd, activityIndicator: activityIndicator,
-            showProgress: true)
+        inProgress(showProgress: true)
         
         let dt = Date().timeIntervalSince1970,
         images = [returnerSig, receiverSig],
@@ -149,9 +140,7 @@ extension ToolSignOffView {
         catch { print("error converting ToolReturn to DATA", error); return }
         
         alamoUpload(route: route, headers: headers, formBody: formBody, images: images, uploadType: "toolReturn") { responseType in
-            self.completeProgress(
-//                activityBckgd: self.activityBckgd, activityIndicator: self.activityIndicator
-            )
+            self.completeProgress()
             self.handleResponseType(responseType: responseType, formType: "Tool Return")
         }
     }

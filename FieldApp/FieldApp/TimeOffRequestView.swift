@@ -22,17 +22,17 @@ class TimeOffRequestView: UIViewController {
     @IBOutlet var signatureImg: UIImageView!
     @IBOutlet var sendBtn: UIButton!
     @IBOutlet var backBtn: UIButton!
-    @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var activityBckgrd: UIView!
+//    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+//    @IBOutlet var activityBckgrd: UIView!
     
     var employeeInfo: UserData.UserInfo?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        activityIndicator.isHidden = true
-        activityIndicator.hidesWhenStopped = true
-        activityBckgrd.isHidden = true
+//        activityIndicator.isHidden = true
+//        activityIndicator.hidesWhenStopped = true
+//        activityBckgrd.isHidden = true
         backBtn.accessibilityIdentifier = "backBtn"
         
         if employeeInfo?.username != nil {
@@ -93,9 +93,7 @@ class TimeOffRequestView: UIViewController {
         
         alamoUpload(route: route, headers: headers, formBody: data, images: [signature], uploadType: "timeOffRequest") { responseType in
 
-            self.completeProgress(
-//                activityBckgd: self.activityBckgrd, activityIndicator: self.activityIndicator
-            )
+            self.completeProgress()
             self.handleResponseType(responseType: responseType, formType: "Time Off Request")
         }
     }

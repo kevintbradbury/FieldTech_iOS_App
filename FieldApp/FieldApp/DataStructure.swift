@@ -168,7 +168,7 @@ class UserData {
         
         struct dayObj: Decodable {
             let duration: hoursMin, punchTimes: [onePunch?], reimbursementMiles: Double?, POs: [[String: String]]?
-            //            date: Date?,
+            , date: Date?
             
             init(dict: [String: Any]) {
                 //                { "date": 2019-08-21T20:54:34.902Z, "POs": { "F-9003_I-8762" = 0; }, "duration": { hours = 0; min = 0; }
@@ -191,7 +191,7 @@ class UserData {
                 dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
                 
 //                guard let actualDate = isoDTformatter.date(from: dateStr) else { fatalError("failed to cast string to type: date") }
-//                guard let actualDate = dateFormatter.date(from: dateStr) else { fatalError("failed to cast string to type: date") }
+                let actualDate = dateFormatter.date(from: dateStr) ?? nil
                 
                 if let punches = dict["punchTimes"] as? NSArray {
                     for pnch in punches {
@@ -212,7 +212,7 @@ class UserData {
                 self.reimbursementMiles = dict["reimbursementMiles"] as? Double ?? 0.0
                 self.POs = poS
                 self.punchTimes = validPunches
-                //                self.date = actualDate
+                self.date = actualDate
                 
                 print(
                     dict["duration"], self.duration

@@ -38,9 +38,11 @@ class TimeCardView: UIViewController {
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
     @IBAction func showSIgnature(_ sender: Any) { self.presentSignature(vc: self, subTitle: "Please sign here", title: "Sign") }
     @IBAction func didChangeDate(_ sender: Any) {
-        let dateToAdjust = date.timeIntervalSince1970 + dateStepper.value
-        date = Date(timeIntervalSince1970: dateToAdjust)
-        dateLabel.text = dateFormatter.string(from: date)
+        print(dateStepper.value)
+        
+//        let dateToAdjust = date.timeIntervalSince1970 + dateStepper.value
+//        date = Date(timeIntervalSince1970: dateToAdjust)
+//        dateLabel.text = dateFormatter.string(from: date)
         
         // fetch TS for date
     }
@@ -50,14 +52,19 @@ class TimeCardView: UIViewController {
         timeCardTable.dataSource = self
         backBtn.accessibilityIdentifier = "backBtn"
         
-        dateFormatter.dateFormat = "MM-dd-yy"
-        dateLabel.text = dateFormatter.string(from: date)
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        dateLabel.text = " \(dateFormatter.string(from: date)) "
         
-        dateStepper.value = Double(date.timeIntervalSince1970)
-        dateStepper.stepValue = Double(60 * 60 * 24 * 7)
+        let oneWeek = Double(60 * 60 * 24 * 7)
+        let now = Double(date.timeIntervalSince1970)
+        
+        dateStepper.minimumValue = Double(now - 60 * 60 * 24 * 365)
+        dateStepper.maximumValue = Double(now + oneWeek)
+        dateStepper.value = now
+        dateStepper.stepValue = oneWeek
         
         if let info = TimeCardView.employeeInfo {
-            employeeLabel.text = info.username
+            employeeLabel.text = " \(info.username) "
         }
     }
     
@@ -72,7 +79,7 @@ class TimeCardView: UIViewController {
                 guard let validTS = self.timesheet else { return }
                 
                 self.timeCardTable.reloadData()
-                self.totalHrsLbl.text = "Total - \(validTS.totalHours.hours)h: \(validTS.totalHours.min)m"
+                self.totalHrsLbl.text = " Total - \(validTS.totalHours.hours)h: \(validTS.totalHours.min)m "
             }
             self.completeProgress()
         }
@@ -116,36 +123,40 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
         return daysOweek.count
     }
     
-    func setTxt(thisDay: String) -> String {
-        var txt = "\(thisDay)"
-        let dayObj = getDayOb(day: thisDay)
-        
-        if dayObj.duration.hours > 0 || dayObj.duration.min > 0 {
-            txt += " - \(dayObj.duration.hours)h: \(dayObj.duration.min)m"
-        }
-        
-        txt += "\n"
+    func setTxt(thisDay: String, dayObj: UserData.TimeCard.dayObj) -> String {
+        var txt = ""
         
         for (index, value) in dayObj.punchTimes.enumerated() {
             guard let completePnch = value else { continue }
             
-            if index == (dayObj.punchTimes.count - 1) {
-                txt += "\(completePnch.string)"; continue
+            if index == 0 {
+                txt += "Clock In/Out: \n \(completePnch.string) - "
+            } else if index == (dayObj.punchTimes.count - 1) {
+                txt += "\(completePnch.string)"
+            } else if Int(index % 4) == 0 {
+                txt += "\n \(completePnch.string) - "
+            } else {
+                txt += "\(completePnch.string) - "
             }
-            txt += "\(completePnch.string), "
         }
         
-        txt += "\n"
-        
         if let validPOs = dayObj.POs {
-            for p in validPOs {
-                guard let kNv = p.first else { continue }
+            for (indx, val) in validPOs.enumerated() {
+                guard let kNv = val.first else { continue }
+                
+                if indx == 0 { txt += "\n Totals by PO: \n" }
                 
                 if kNv.key != nil && kNv.key != "" {
-                    let onePO = "PO: \(kNv.key) - \(kNv.value)h "
+                    let onePO = "PO: \(kNv.key) - \(kNv.value)h \n "
                     txt += onePO
                 }
             }
+        }
+        
+        txt += "\n "
+        
+        if dayObj.duration.hours > 0 || dayObj.duration.min > 0 || dayObj.punchTimes.count > 0 {
+            txt += " Total hrs: \(dayObj.duration.hours)h: \(dayObj.duration.min)m"
         }
         
         return txt
@@ -156,26 +167,16 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
             return UITableViewCell()
         }
         let thisDay = daysOweek[indexPath.row]
-        var txt = setTxt(thisDay: thisDay)
+        let dayObj = getDayOb(day: thisDay)
+        var txt = setTxt(thisDay: thisDay, dayObj: dayObj)
         
-//        let dayObj = getDayOb(day: thisDay)
-//        if dayObj.duration.hours > 0 && dayObj.duration.min > 0 {
-//            txt = "\(daysOweek[indexPath.row]) - \(dayObj.duration.hours)h: \(dayObj.duration.min)m\n"
-//        }
-//        for pnch in dayObj.punchTimes {
-//            if let completePnch = pnch { txt += "\(completePnch.string), " }
-//        }
-//        txt += "\n"
-//        if let validPOs = dayObj.POs {
-//            for p in validPOs {
-//                guard let kNv = p.first else { continue }
-//                if kNv.key != nil && kNv.key != "" {
-//                    let onePO = "PO: \(kNv.key) - \(kNv.value)h | "
-//                    txt += onePO
-//                }
-//            }
-//        }
-        
+        if let validDt = dayObj.date {
+            dateFormatter.dateFormat = "d"
+            let dt = dateFormatter.string(from: validDt)
+         
+            cell.cellDateLgLbl.text = dt
+        }
+        cell.cellDayNmLbl.text = thisDay
         cell.dayOweekLbl.text = txt
         
         return cell
@@ -193,5 +194,7 @@ extension TimeCardView: EPSignatureDelegate {
 
 class TimeCardCell: UITableViewCell {
     @IBOutlet var dayOweekLbl: UILabel!
+    @IBOutlet var cellDateLgLbl: UILabel!
+    @IBOutlet var cellDayNmLbl: UILabel!
     
 }

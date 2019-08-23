@@ -14,15 +14,14 @@ class StoresMapView: UIViewController {
 
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var backButton: UIButton!
-    @IBOutlet var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var loadingBkgd: UIView!
+//    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+//    @IBOutlet var loadingBkgd: UIView!
     
     let main = OperationQueue.main
     public var todaysJob: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        activityIndicator.hidesWhenStopped = true
         
         UserLocation.instance.initialize()
 
@@ -52,7 +51,8 @@ class StoresMapView: UIViewController {
     }
     
     func findHWStores() {
-        showLoading()
+//        showLoading()
+        inProgress(showProgress: false)
 
         if mapView.annotations.count > 0 {
             let annotations: [MKAnnotation] = mapView.annotations
@@ -67,7 +67,8 @@ class StoresMapView: UIViewController {
         search.start { (response, error) in
             if error != nil {
                 self.showAlert(withTitle: "Error", message: "Failed completing map search request.")
-                self.stopLoading()
+//                self.stopLoading()
+                self.completeProgress()
                 
             } else if let searchResults = response?.mapItems {
                 self.setMapAnnotations(searchResults: searchResults)
@@ -122,22 +123,23 @@ class StoresMapView: UIViewController {
             self.mapView.addAnnotations(custmAnntns)
         }
         
-        self.stopLoading()
+//        self.stopLoading()
+        self.completeProgress()
     }
     
-    func showLoading() {
-        main.addOperation {
-            self.activityIndicator.startAnimating()
-            self.loadingBkgd.isHidden = false
-        }
-    }
-    
-    func stopLoading() {
-        main.addOperation {
-            self.activityIndicator.stopAnimating()
-            self.loadingBkgd.isHidden = true
-        }
-    }
+//    func showLoading() {
+//        main.addOperation {
+//            self.activityIndicator.startAnimating()
+//            self.loadingBkgd.isHidden = false
+//        }
+//    }
+//
+//    func stopLoading() {
+//        main.addOperation {
+//            self.activityIndicator.stopAnimating()
+//            self.loadingBkgd.isHidden = true
+//        }
+//    }
     
     func makePhoneCall(phoneStr: String) {
         var phoneNumber = ""
