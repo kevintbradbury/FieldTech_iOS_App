@@ -43,6 +43,7 @@ class SuppliesRequestView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        backBtn.accessibilityIdentifier = "backBtn"
         materialsTable.delegate = self
         materialsTable.dataSource = self
         

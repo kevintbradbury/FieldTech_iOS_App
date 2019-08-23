@@ -33,6 +33,7 @@ class TimeOffRequestView: UIViewController {
         activityIndicator.isHidden = true
         activityIndicator.hidesWhenStopped = true
         activityBckgrd.isHidden = true
+        backBtn.accessibilityIdentifier = "backBtn"
         
         if employeeInfo?.username != nil {
             userNameLbl.text = employeeInfo?.username

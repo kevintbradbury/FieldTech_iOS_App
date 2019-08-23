@@ -98,7 +98,7 @@ extension ToolSignOffView {
     func setGesturesAndViews() {
         view.accessibilityIdentifier = "ToolSignOff View"
         dateLabel.accessibilityIdentifier = "ToolSgn_dateLabel"
-        backBtn.accessibilityIdentifier = "ToolSgn_backBtn"
+        backBtn.accessibilityIdentifier = "backBtn"
         returnerBtn.accessibilityIdentifier = "ToolSgn_returnerBtn"
         printNameRenterField.accessibilityIdentifier = "ToolSgn_printNameRenterField"
         receiverBtn.accessibilityIdentifier = "ToolSgn_receiverBtn"

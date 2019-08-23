@@ -157,6 +157,12 @@ extension UIViewController {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             self.view.addSubview(blurredView)
             self.view.addSubview(indicator)
+            
+            for vw in self.view.subviews {
+                if vw.isKind(of: UIButton.self) && vw.accessibilityIdentifier == "backBtn" {
+                    self.view.bringSubviewToFront(vw)
+                }
+            }
         }
         
         if showProgress == true {

@@ -75,7 +75,7 @@ class EmployeeIDEntry: UIViewController, UITextFieldDelegate, MLPAutoCompleteTex
     override func viewDidLoad() {
         super.viewDidLoad()
         view.accessibilityIdentifier = "EmployeeIDentry View"
-        
+        backBtn.accessibilityIdentifier = "backBtn"
         print("current loc: \(location)")
         
         setRoles()

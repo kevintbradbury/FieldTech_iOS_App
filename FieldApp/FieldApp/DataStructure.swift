@@ -129,7 +129,7 @@ class UserData {
         struct YearMonthDate: Decodable {
             let ye: Int, mo: Int, da: Int
             
-            init(dict: NSDictionary) {
+            init(dict: [String: Any]) {
                 self.ye = dict["ye"] as? Int ?? 0
                 self.mo = dict["mo"] as? Int ?? 0
                 self.da = dict["da"] as? Int ?? 0
@@ -139,7 +139,7 @@ class UserData {
         struct hoursMin: Decodable {
             let hours: Int, min: Int
             
-            init(dict: NSDictionary) {
+            init(dict: [String: Any]) {
                 self.hours = dict["hours"] as? Int ?? 0
                 self.min = dict["min"] as? Int ?? 0
             }
@@ -147,7 +147,8 @@ class UserData {
         
         struct latLong: Decodable {
             let lat: String, long: String
-            init(dict: NSDictionary) {
+            
+            init(dict: [String: Any]) {
                 self.lat = dict["lat"] as? String ?? ""
                 self.long = dict["long"] as? String ?? ""
             }
@@ -156,8 +157,8 @@ class UserData {
         struct onePunch: Decodable {
             let coordinates: latLong?, ms: Int, po: String, role: String, string: String
             
-            init(dict: NSDictionary) {
-                self.coordinates = dict["coordinates"] as? latLong
+            init(dict: [String: Any]) {
+                self.coordinates = latLong.init(dict: dict["coordinates"] as? [String : Any] ?? ["":""])
                 self.ms = dict["ms"] as? Int ?? 0
                 self.po = dict["po"] as? String ?? ""
                 self.role = dict["role"] as? String ?? ""
@@ -166,71 +167,89 @@ class UserData {
         }
         
         struct dayObj: Decodable {
-            let duration: hoursMin, date: Date?, punchTimes: [onePunch?], reimbursementMiles: Double?, POs: [String: String]?
+            let duration: hoursMin, punchTimes: [onePunch?], reimbursementMiles: Double?, POs: [[String: String]]?
+            //            date: Date?,
             
-            init(dict: NSDictionary) {
-                self.duration = dict["duration"] as? hoursMin ?? hoursMin(dict: [ "hours": 0, "min": 0 ])
-                self.date = dict["date"] as? Date
-                self.punchTimes = [dict["punchTimes"] as? onePunch]
-                self.reimbursementMiles = dict["reimbursementMiles"] as? Double
-                self.POs = dict["POs"] as? [String : String]
+            init(dict: [String: Any]) {
+                //                { "date": 2019-08-21T20:54:34.902Z, "POs": { "F-9003_I-8762" = 0; }, "duration": { hours = 0; min = 0; }
+                //                    "punchTimes": [
+                //                        {coordinates = { lat = "34.0977516"; long = "-118.2925843"; };ms = 1566420859434;po = "F-9003_I-8762";role = "<null>";string = "13:54";},
+                //                        {coordinates = { lat = "34.0977516"; long = "-118.2925843"; };ms = 1566420874891;po = "F-9003_I-8762";string = "13:54";}
+                //                    ],
+                //                }
+                
+                var validPunches = [onePunch]()
+                
+//                let isoDTformatter = ISO8601DateFormatter()
+//                isoDTformatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+//                isoDTformatter.timeZone = TimeZone(identifier: "GMT")
+                
+                let dateStr = dict["date"] as? String ?? ""
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+                
+//                guard let actualDate = isoDTformatter.date(from: dateStr) else { fatalError("failed to cast string to type: date") }
+//                guard let actualDate = dateFormatter.date(from: dateStr) else { fatalError("failed to cast string to type: date") }
+                
+                if let punches = dict["punchTimes"] as? NSArray {
+                    for pnch in punches {
+                        let oneValidPnch = onePunch.init(dict: pnch as? [ String : Any ] ?? ["":""])
+                        validPunches.append(oneValidPnch)
+                    }
+                }
+                
+                var poS = [[String: String]]()
+                let poDict = dict["POs"] as? NSDictionary ?? ["":""]
+                
+                poDict.enumerateKeysAndObjects() { (key, val, unsafePointer) in
+                    let keyNval = ["\(key)": "\(val)"]
+                    poS.append(keyNval)
+                }
+                
+                self.duration = hoursMin.init(dict: dict["duration"] as? [ String : Any ] ?? ["":""])
+                self.reimbursementMiles = dict["reimbursementMiles"] as? Double ?? 0.0
+                self.POs = poS
+                self.punchTimes = validPunches
+                //                self.date = actualDate
+                
+                print(
+                    dict["duration"], self.duration
+                    //                    , self.POs, self.punchTimes, self.reimbursementMiles
+                    //                    self.date,
+                )
             }
         }
         
         let userANDdateID: String,
         employeeID: Int,
-        weekBeginDate: Date,
         username: String,
         totalHours: hoursMin, overTime: hoursMin, doubleTime: hoursMin,
         sunday: dayObj, monday: dayObj, tuesday: dayObj, wednesday: dayObj, thursday: dayObj, friday: dayObj, saturday: dayObj,
         yearMonthDate: YearMonthDate
+//        weekBeginDate: Date
 
         init(dict: NSDictionary) {
+//            let dateFrmt = DateFormatter()
+//            dateFrmt.dateFormat = "MM-dd-yy"
+//            self.weekBeginDate = dateFrmt.date(from: dict["weekBeginDate"] as? String ?? "") ?? Date()
+            
             self.userANDdateID = dict["userANDdateID"] as? String ?? ""
             self.employeeID = dict["employeeID"] as? Int ?? 00
-            self.weekBeginDate = dict["weekBeginDate"] as? Date ?? Date()
             self.username = dict["username"] as? String ?? ""
-            self.totalHours = hoursMin.init(dict: dict["totalHours"] as! NSDictionary)
-            self.overTime = hoursMin.init(dict: dict["overTime"] as! NSDictionary)
-            self.doubleTime = hoursMin.init(dict: dict["doubleTime"] as! NSDictionary)
-            self.sunday = dayObj.init(dict: dict["sunday"] as! NSDictionary)
-            self.monday = dayObj.init(dict: dict["monday"] as! NSDictionary)
-            self.tuesday = dayObj.init(dict: dict["tuesday"] as! NSDictionary)
-            self.wednesday = dayObj.init(dict: dict["wednesday"] as! NSDictionary)
-            self.thursday = dayObj.init(dict: dict["thursday"] as! NSDictionary)
-            self.friday = dayObj.init(dict: dict["friday"] as! NSDictionary)
-            self.saturday = dayObj.init(dict: dict["saturday"] as! NSDictionary)
-            self.yearMonthDate = YearMonthDate.init(dict: dict["yearMonthDate"] as! NSDictionary)
+            self.totalHours = hoursMin.init(dict: dict["totalHours"] as! [String: Any])
+            self.overTime = hoursMin.init(dict: dict["overTime"] as! [String: Any])
+            self.doubleTime = hoursMin.init(dict: dict["doubleTime"] as! [String: Any])
+            self.sunday = dayObj.init(dict: dict["sunday"] as! [String: Any])
+            self.monday = dayObj.init(dict: dict["monday"] as! [String: Any])
+            self.tuesday = dayObj.init(dict: dict["tuesday"] as! [String: Any])
+            self.wednesday = dayObj.init(dict: dict["wednesday"] as! [String: Any])
+            self.thursday = dayObj.init(dict: dict["thursday"] as! [String: Any])
+            self.friday = dayObj.init(dict: dict["friday"] as! [String: Any])
+            self.saturday = dayObj.init(dict: dict["saturday"] as! [String: Any])
+            self.yearMonthDate = YearMonthDate.init(dict: dict["yearMonthDate"] as! [String: Any])
         }
-        
-//        static func fromJSON(dictionary: NSDictionary) -> TimeCard? {
-//
-//            guard let beginDate = dictionary["weekBeginDate"] as? String,
-//                let sunday = dictionary["sunday"] as? NSDictionary,
-//                let monday = dictionary["monday"] as? NSDictionary,
-//                let tuesday = dictionary["tuesday"] as? NSDictionary,
-//                let wednesday = dictionary["wednesday"] as? NSDictionary,
-//                let thursday = dictionary["thursday"] as? NSDictionary,
-//                let friday = dictionary["friday"] as? NSDictionary,
-//                let saturday = dictionary["saturday"] as? NSDictionary,
-//                let total = dictionary["totalHours"] as? Int
-//                else {
-//                    print("failed fromJSON method, in TimeCard Struct")
-//                    return nil
-//            }
-//
-//            return TimeCard(
-//                weekBeginDate: beginDate,
-//                sunday: sunday,
-//                monday: monday,
-//                tuesday: tuesday,
-//                wednesday: wednesday,
-//                thursday: thursday,
-//                friday: friday,
-//                saturday: saturday,
-//                totalHours: total
-//            )
-//        }
         
     }
 }
@@ -306,9 +325,9 @@ class Job: Codable {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 //            dateFormatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
             
-            guard let dateString = dateFormatter.date(from: string) else { fatalError("failed to cast string to type: date") }
+            guard let actualDate = dateFormatter.date(from: string) else { fatalError("failed to cast string to type: date") }
             
-            return dateString
+            return actualDate
         }
         
         static func checkForArray(datesObj: Any?, dictionary: NSDictionary) -> [JobDates] {

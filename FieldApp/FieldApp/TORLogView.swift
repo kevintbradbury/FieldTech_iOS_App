@@ -24,6 +24,7 @@ class TORLogView: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        backBtn.accessibilityIdentifier = "backBtn"
         formatter.dateFormat = "MMM dd, yyyy"
         tableView.allowsSelection = false
         

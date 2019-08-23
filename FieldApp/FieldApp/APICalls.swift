@@ -336,9 +336,9 @@ class APICalls {
             request.httpBody = data
             
             self.startSession(request: request, route: route) { json in
-                print(json)
-                
+//                print(json)
                 let timecard = UserData.TimeCard.init(dict: json)
+                
                 completion(timecard)
             }
         }
