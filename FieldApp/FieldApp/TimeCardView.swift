@@ -62,11 +62,15 @@ class TimeCardView: UIViewController {
         let revisionRequested = reqRevisionSwitch.isOn
         let route = "timeclock/\(userANDdateID)/mobile/confirm"
         
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        let dtPOSIX = dateFormatter.string(from: date)
+        
         struct ConfirmTS: Encodable {
-            let revisionRequested: Bool, userANDdateID: String, username: String, date: Date
+            let revisionRequested: Bool, userANDdateID: String, username: String, date: String
         }
         let body = ConfirmTS(
-            revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: date
+            revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: dtPOSIX
         )
         
         var signature: UIImage?
