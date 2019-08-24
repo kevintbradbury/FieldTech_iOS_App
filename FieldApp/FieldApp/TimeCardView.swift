@@ -21,10 +21,16 @@ class TimeCardView: UIViewController {
     @IBOutlet var signatureBtn: UIButton!
     @IBOutlet var confirmBtn: UIButton!
     @IBOutlet var backBtn: UIButton!
+    @IBOutlet var revisionLbl: UILabel!
+    @IBOutlet var noLbl: UILabel!
+    @IBOutlet var yesLbl: UILabel!
+    @IBOutlet var reqRevisionSwitch: UISwitch!
+    
     
     public static var employeeInfo: UserData.UserInfo?
     var date = Date()
     var timesheet: UserData.TimeCard?
+    var employeeSignature: UIImage?
     
     let dateFormatter = DateFormatter()
     let daysOweek = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -32,19 +38,60 @@ class TimeCardView: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpViews()
-        getTSdata()
+        getTSdata(date: date)
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
-    @IBAction func showSIgnature(_ sender: Any) { self.presentSignature(vc: self, subTitle: "Please sign here", title: "Sign") }
+    @IBAction func showSIgnature(_ sender: Any) {
+        self.presentSignature(vc: self, subTitle: "Please sign here", title: "Sign")
+    }
     @IBAction func didChangeDate(_ sender: Any) {
-        print(dateStepper.value)
+        let newDt = Date(timeIntervalSince1970: dateStepper.value)
+        date = newDt
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        dateLabel.text = dateFormatter.string(from: date)
         
-//        let dateToAdjust = date.timeIntervalSince1970 + dateStepper.value
-//        date = Date(timeIntervalSince1970: dateToAdjust)
-//        dateLabel.text = dateFormatter.string(from: date)
+        getTSdata(date: newDt)
+    }
+    @IBAction func sendTSconfirmation(_ sender: Any) { getUserDateForTSAndCheckSigntr() }
+    
+    
+    func getUserDateForTSAndCheckSigntr() {
+        guard let validTS = timesheet else { return }
+        let userANDdateID = validTS.userANDdateID
+        let revisionRequested = reqRevisionSwitch.isOn
+        let route = "timeclock/\(userANDdateID)/mobile/confirm"
         
-        // fetch TS for date
+        struct ConfirmTS: Encodable {
+            let revisionRequested: Bool, userANDdateID: String, username: String, date: Date
+        }
+        let body = ConfirmTS(
+            revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: date
+        )
+        
+        var signature: UIImage?
+        
+        if revisionRequested == false {
+            signature = employeeSignature
+            
+            if signature == nil {
+                showAlert(withTitle: "No Signature", message: "Please provide signature to verify timesheet or request revisions.")
+                return
+            }
+        }
+        
+        var data = Data()
+        
+        do {
+            let jsonEncoder = JSONEncoder(); data = try jsonEncoder.encode(body)
+        } catch {
+            print("Couldn't encode body to json data."); return
+        }
+        
+        inProgress(showProgress: true)
+        alamoUpload(route: route, headers: ["", ""], formBody: data, images: [signature], uploadType: "confirmTS", callback: { (json) in
+            self.completeProgress()
+        })
     }
     
     func setUpViews() {
@@ -68,16 +115,23 @@ class TimeCardView: UIViewController {
         }
     }
     
-    func getTSdata() {
+    func getTSdata(date: Date) {
         inProgress(showProgress: false)
         
-        guard let info = TimeCardView.employeeInfo else { return }
-        APICalls().getTimesheet(username: info.username, date: date.timeIntervalSince1970) { timecard in
-            self.timesheet = timecard
+        guard let info = TimeCardView.employeeInfo else {
+            showAlert(withTitle: "Error", message: "No employee info.")
+            completeProgress()
+            return
+        }
+        APICalls().getTimesheet(username: info.username, date: date) { (err, timecard) in
+            guard let validTS = timecard else {
+                self.completeProgress()
+                if let er = err { self.showAlert(withTitle: "Error", message: er) }
+                return
+            }
+            self.timesheet = validTS
             
             OperationQueue.main.addOperation {
-                guard let validTS = self.timesheet else { return }
-                
                 self.timeCardTable.reloadData()
                 self.totalHrsLbl.text = " Total - \(validTS.totalHours.hours)h: \(validTS.totalHours.min)m "
             }
@@ -130,7 +184,7 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
             guard let completePnch = value else { continue }
             
             if index == 0 {
-                txt += "Clock In/Out: \n \(completePnch.string) - "
+                txt += " Clock In/Out: \n \(completePnch.string) - "
             } else if index == (dayObj.punchTimes.count - 1) {
                 txt += "\(completePnch.string)"
             } else if Int(index % 4) == 0 {
@@ -144,16 +198,14 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
             for (indx, val) in validPOs.enumerated() {
                 guard let kNv = val.first else { continue }
                 
-                if indx == 0 { txt += "\n Totals by PO: \n" }
-                
                 if kNv.key != nil && kNv.key != "" {
-                    let onePO = "PO: \(kNv.key) - \(kNv.value)h \n "
+                    if indx == 0 { txt += "\n Totals by PO: \n" }
+                    
+                    let onePO = " PO: \(kNv.key) - \(kNv.value)h \n "
                     txt += onePO
                 }
             }
         }
-        
-        txt += "\n "
         
         if dayObj.duration.hours > 0 || dayObj.duration.min > 0 || dayObj.punchTimes.count > 0 {
             txt += " Total hrs: \(dayObj.duration.hours)h: \(dayObj.duration.min)m"
@@ -186,6 +238,7 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
 extension TimeCardView: EPSignatureDelegate {
     func epSignature(_: EPSignatureViewController, didSign signatureImage: UIImage, boundingRect: CGRect) {
         signatureImg.image = signatureImage
+        employeeSignature = signatureImage
     }
     
     func epSignature(_: EPSignatureViewController, didCancel error: NSError) {

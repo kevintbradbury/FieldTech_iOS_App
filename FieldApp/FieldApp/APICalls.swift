@@ -320,12 +320,12 @@ class APICalls {
         }
     }
     
-    func getTimesheet(
-        username: String, date: TimeInterval
-       , completion: @escaping (UserData.TimeCard) -> ()
-        ) {
+    func getTimesheet(username: String, date: Date, completion: @escaping (String?, UserData.TimeCard?) -> () ) {
         let route = "timeclock/\(username)/mobile"
-        let date = [ "date" : date ]
+        let dateFrmt = DateFormatter()
+        dateFrmt.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        let formattedDt = dateFrmt.string(from: date)
+        let date = [ "date" : formattedDt ]
         var data = Data()
         
         do { data = try self.jsonEncoder.encode(date) }
@@ -336,10 +336,12 @@ class APICalls {
             request.httpBody = data
             
             self.startSession(request: request, route: route) { json in
-//                print(json)
+                if let err = json["error"] as? String {
+                    completion(err, nil)
+                    return
+                }
                 let timecard = UserData.TimeCard.init(dict: json)
-                
-                completion(timecard)
+                completion(nil, timecard)
             }
         }
     }

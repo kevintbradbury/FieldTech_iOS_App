@@ -220,7 +220,7 @@ extension UIViewController {
         }
     }
     
-    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage], uploadType: String, callback: @escaping ([String: String]) -> ()) {
+    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage?], uploadType: String, callback: @escaping ([String: String]) -> ()) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         let url = "\(APICalls.host)\(route)"
         var headers: HTTPHeaders = [
@@ -239,7 +239,8 @@ extension UIViewController {
                         multipartFormData.append(formBody, withName: uploadType)
                         var i = 0
                         for img in images {
-                            guard let imageData = img.jpegData(compressionQuality: 1) else { return }
+                            guard let validImage = img else { continue }
+                            guard let imageData = validImage.jpegData(compressionQuality: 1) else { return }
                             let nm = "\(uploadType)_\(i)"
                             
                             multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")

@@ -386,6 +386,7 @@ extension HomeView {
                 withTitle: "Reminder",
                 message: "Make sure to clear area of tools, cables, debris, or other materials, before taking a photo. "
             )
+            // Under construction
         case "time_off":
             performSegue(withIdentifier: "time_card", sender: nil)
 
