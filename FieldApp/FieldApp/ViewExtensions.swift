@@ -214,15 +214,16 @@ extension UIViewController {
     func uploadJobImages(images: [UIImage], jobNumber: String, employee: String, callback: @escaping ([String : String]) -> () ) {
         let route = "job/\(jobNumber)/upload"
         let headers = ["employee", employee]
+        let uploadType = "job_\(jobNumber)"
         
-        alamoUpload(route: route, headers: headers, formBody: Data(), images: images, uploadType: "job_\(jobNumber)") { responseType in
+        alamoUpload(route: route, headers: headers, formBody: Data(), images: images, uploadType: uploadType) { responseType in
             callback(responseType)
         }
     }
     
-    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage?], uploadType: String, callback: @escaping ([String: String]) -> ()) {
+    func alamoUpload(route: String, headers: [String], formBody: Data, images: [UIImage?], uploadType: String, callback: @escaping ([String: String]) -> () ) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        let url = "\(APICalls.host)\(route)"
+        guard let url = URL(string: "\(APICalls.host)\(route)") else { return }
         var headers: HTTPHeaders = [
             "Content-type" : "multipart/form-data", headers[0] : headers[1]
         ]
@@ -237,27 +238,33 @@ extension UIViewController {
                 Alamofire.upload(
                     multipartFormData: { multipartFormData in
                         multipartFormData.append(formBody, withName: uploadType)
-                        var i = 0
-                        for img in images {
-                            guard let validImage = img else { continue }
-                            guard let imageData = validImage.jpegData(compressionQuality: 1) else { return }
-                            let nm = "\(uploadType)_\(i)"
-                            
-                            multipartFormData.append( imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")
-                            i += 1
-                        }
+                        
+                            for (i, val) in images.enumerated() {
+                                guard let validImage = val as? UIImage else { continue }
+                                guard let imageData = validImage.jpegData(compressionQuality: 1) else { return }
+                                let nm = "\(uploadType)_\(i)"
+
+                                multipartFormData.append(imageData, withName: nm, fileName: "\(nm).jpg", mimeType: "image/jpeg")
+                            }
                 },
-                    usingThreshold: UInt64.init(), to: url, method: .post, headers: headers,
+                    usingThreshold: UInt64.init(),
+                    to: url,
+                    headers: headers,
                     encodingCompletion: { encodingResult in
+                        
                         switch encodingResult {
+                            
                         case .success(let upload, _, _):
                             var progressLabel = self.getProgressLabel()
+                            OperationQueue.main.addOperation { self.view.bringSubviewToFront(progressLabel) }
+                            
                             upload.uploadProgress { progress in
                                 let percent = Float(progress.fractionCompleted * 100).rounded()
-                                progressLabel.setProgress(percent, animated: true)
+                                OperationQueue.main.addOperation { progressLabel.setProgress(percent, animated: true) }
                             }
                             upload.validate()
-                            upload.responseString { response in
+                            upload.responseString() { response in
+                                print("Alamofire upload: response: \n\(response)")
                                 
                                 guard response.result.isSuccess else {
                                     guard let err = response.error as? String else {
@@ -265,7 +272,7 @@ extension UIViewController {
                                         callback(["error" : response.result.description]); return
                                     }
                                     print("error while uploading file: \(err)");
-                                    APICalls.succeedOrFailUpload(msg: "Error occured: \(err) with upload: ", uploadType: uploadType, success: false)
+                                    APICalls.succeedOrFailUpload(msg: "Error occured with upload: \(err)", uploadType: uploadType, success: false)
                                     callback(["error" : err]); return
                                 }
                                 guard let msg = response.result.value,
@@ -280,15 +287,15 @@ extension UIViewController {
                             }
                         case .failure(let encodingError):
                             print("encodingError: \(encodingError)");
-                            APICalls.succeedOrFailUpload(msg: "Failed to upload: ", uploadType: uploadType, success: false)
+                            APICalls.succeedOrFailUpload(msg: "Failed to encode photos.", uploadType: uploadType, success: false)
                             callback(["error": encodingError.localizedDescription]); return
                             
                         default:
-                            APICalls.succeedOrFailUpload(msg: "Failed with error.", uploadType: uploadType, success: false)
+                            APICalls.succeedOrFailUpload(msg: "Failed with unknown error.", uploadType: uploadType, success: false)
                             callback(["error": "Unknown error"]); return
                         }
-                }
-                );  UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                })
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
             }
         }
     }

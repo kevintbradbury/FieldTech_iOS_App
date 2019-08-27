@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import EPSignature
+import Alamofire
 
 
 class TimeCardView: UIViewController {
@@ -66,36 +67,36 @@ class TimeCardView: UIViewController {
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         let dtPOSIX = dateFormatter.string(from: date)
         
-        struct ConfirmTS: Encodable {
-            let revisionRequested: Bool, userANDdateID: String, username: String, date: String
-        }
+        struct ConfirmTS: Encodable { let revisionRequested: Bool, userANDdateID: String, username: String, date: String }
         let body = ConfirmTS(
             revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: dtPOSIX
         )
         
-        var signature: UIImage?
+        var data = Data()
+        var signatureArray = [UIImage]()
+        let jsonEncoder = JSONEncoder();
+        
+        do { data = try jsonEncoder.encode(body) }
+        catch { print("Couldn't encode body to json data."); return }
         
         if revisionRequested == false {
-            signature = employeeSignature
-            
-            if signature == nil {
-                showAlert(withTitle: "No Signature", message: "Please provide signature to verify timesheet or request revisions.")
-                return
+            guard let validSignature = employeeSignature else {
+                showAlert(withTitle: "No Signature", message: "Please provide signature to verify timesheet or request revisions."); return
             }
-        }
-        
-        var data = Data()
-        
-        do {
-            let jsonEncoder = JSONEncoder(); data = try jsonEncoder.encode(body)
-        } catch {
-            print("Couldn't encode body to json data."); return
+            signatureArray.append(validSignature)
         }
         
         inProgress(showProgress: true)
-        alamoUpload(route: route, headers: ["", ""], formBody: data, images: [signature], uploadType: "confirmTS", callback: { (json) in
+        
+        alamoUpload(route: route, headers: ["", ""], formBody: data, images: signatureArray, uploadType: "confirmTS", callback: { (json) in
             self.completeProgress()
         })
+        
+//        else {
+//            alamoUpload(route: route, headers: ["", ""], formBody: data, images: [nil], uploadType: "confirmTS", callback: { (json) in
+//                self.completeProgress()
+//            })
+//        }
     }
     
     func setUpViews() {
