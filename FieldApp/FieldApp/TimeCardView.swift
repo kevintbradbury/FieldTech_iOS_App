@@ -32,6 +32,7 @@ class TimeCardView: UIViewController {
     var date = Date()
     var timesheet: UserData.TimeCard?
     var employeeSignature: UIImage?
+    var revisionRequestNotes = ""
     
     let dateFormatter = DateFormatter()
     let daysOweek = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -67,9 +68,9 @@ class TimeCardView: UIViewController {
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         let dtPOSIX = dateFormatter.string(from: date)
         
-        struct ConfirmTS: Encodable { let revisionRequested: Bool, userANDdateID: String, username: String, date: String }
+        struct ConfirmTS: Encodable { let revisionRequested: Bool, userANDdateID: String, username: String, date: String, revisionNotes: String }
         let body = ConfirmTS(
-            revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: dtPOSIX
+            revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: dtPOSIX, revisionNotes: revisionRequestNotes
         )
         
         var data = Data()
@@ -91,18 +92,17 @@ class TimeCardView: UIViewController {
         alamoUpload(route: route, headers: ["", ""], formBody: data, images: signatureArray, uploadType: "confirmTS", callback: { (json) in
             self.completeProgress()
         })
-        
-//        else {
-//            alamoUpload(route: route, headers: ["", ""], formBody: data, images: [nil], uploadType: "confirmTS", callback: { (json) in
-//                self.completeProgress()
-//            })
-//        }
     }
     
     func setUpViews() {
         timeCardTable.delegate = self
         timeCardTable.dataSource = self
         backBtn.accessibilityIdentifier = "backBtn"
+        
+        dateStepper.setDecrementImage(UIImage(named: "back_arrow"), for: .normal)
+        dateStepper.setIncrementImage(UIImage(named: "forward_arrow"), for: .normal)
+        
+        dateStepper.translatesAutoresizingMaskIntoConstraints = false
         
         dateFormatter.dateFormat = "MMM d, yyyy"
         dateLabel.text = " \(dateFormatter.string(from: date)) "
@@ -115,8 +115,28 @@ class TimeCardView: UIViewController {
         dateStepper.value = now
         dateStepper.stepValue = oneWeek
         
+        reqRevisionSwitch.addTarget(self.view, action: #selector(showRevisionNotesPopup), for: .touchUpInside)
+        
         if let info = TimeCardView.employeeInfo {
             employeeLabel.text = " \(info.username) "
+        }
+    }
+    
+    @objc func showRevisionNotesPopup() {
+        if reqRevisionSwitch.isOn {
+            let popup = UIAlertController(title: "Timesheet Revisions", message: "Please type the revisions in the text field below.", preferredStyle: .alert)
+            let submit = UIAlertAction(title: "Submit", style: .default) { (action) in
+                guard let txtFields = popup.textFields,
+                 let notes = txtFields[0].text else { return }
+                self.revisionRequestNotes = notes
+                popup.dismiss(animated: true, completion: nil)
+            }
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+            
+            popup.addAction(submit)
+            popup.addAction(cancel)
+            
+            self.present(popup, animated: true, completion: nil)
         }
     }
     

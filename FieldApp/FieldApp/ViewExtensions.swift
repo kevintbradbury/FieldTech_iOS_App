@@ -179,7 +179,10 @@ extension UIViewController {
             progressLabel.progress = 0.0
             progressLabel.trackTintColor = .black
             
-            OperationQueue.main.addOperation { self.view.addSubview(progressLabel) }
+            OperationQueue.main.addOperation {
+                self.view.addSubview(progressLabel)
+                self.view.bringSubviewToFront(progressLabel)
+            }
         }
     }
     
@@ -263,8 +266,9 @@ extension UIViewController {
                                 OperationQueue.main.addOperation { progressLabel.setProgress(percent, animated: true) }
                             }
                             upload.validate()
+                           
                             upload.responseString() { response in
-                                print("Alamofire upload: response: \n\(response)")
+                                print("Alamofire upload: response: \n\(response.response) \n\(response.error)")
                                 
                                 guard response.result.isSuccess else {
                                     guard let err = response.error as? String else {

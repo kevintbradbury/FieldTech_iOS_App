@@ -79,7 +79,7 @@
       <AdditionalOptions>
       </AdditionalOptions>
       <LocationScenarioReference
-         identifier = "../stbxSunset.gpx"
+         identifier = "../STBX-Century_City.gpx"
          referenceType = "0">
       </LocationScenarioReference>
    </LaunchAction>
