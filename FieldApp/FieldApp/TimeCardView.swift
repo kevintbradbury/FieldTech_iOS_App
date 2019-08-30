@@ -165,6 +165,8 @@ class TimeCardView: UIViewController {
             completeProgress()
             return
         }
+        clearVals()
+
         APICalls().getTimesheet(username: info.username, date: date) { (err, timecard) in
             guard let validTS = timecard else {
                 self.completeProgress()
@@ -179,6 +181,19 @@ class TimeCardView: UIViewController {
                 self.totalHrsLbl.text = " Total - \(validTS.totalHours.hours)h: \(validTS.totalHours.min)m "
             }
             self.completeProgress()
+        }
+    }
+    
+    func clearVals() {
+        self.timesheet = nil
+        employeeSignature = nil
+        revisionRequestNotes = ""
+        
+        OperationQueue.main.addOperation {
+            self.totalHrsLbl.text = ""
+            self.timeCardTable.reloadData()
+            self.reqRevisionSwitch.isOn = false
+            self.signatureImg.image = UIImage(named: "signature")
         }
     }
     
@@ -243,8 +258,9 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
                 
                 if kNv.key != nil && kNv.key != "" {
                     if indx == 0 { txt += "\n Totals by PO: \n" }
-                    
-                    let onePO = " PO: \(kNv.key) - \(kNv.value)h \n "
+                    let unrounded = Double(kNv.value) ?? 0.0
+                    let hrs = Double(unrounded * 100).rounded() / 100
+                    let onePO = " PO: \(kNv.key) - \(hrs)h \n "
                     txt += onePO
                 }
             }
@@ -270,12 +286,13 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
             let dt = dateFormatter.string(from: validDt)
          
             cell.cellDateLgLbl.text = dt
+            cell.dayOweekLbl.text = txt
         } else {
             cell.cellDateLgLbl.text = "--"
+            cell.dayOweekLbl.text = ""
         }
         
         cell.cellDayNmLbl.text = thisDay
-        cell.dayOweekLbl.text = txt
         
         return cell
     }
@@ -293,6 +310,7 @@ extension TimeCardView: EPSignatureDelegate {
 }
 
 class TimeCardCell: UITableViewCell {
+    
     @IBOutlet var dayOweekLbl: UILabel!
     @IBOutlet var cellDateLgLbl: UILabel!
     @IBOutlet var cellDayNmLbl: UILabel!
