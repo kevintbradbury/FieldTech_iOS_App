@@ -268,7 +268,7 @@ extension UIViewController {
                             upload.validate()
                            
                             upload.responseString() { response in
-                                print("Alamofire upload: response: \n\(response.response) \n\(response.error)")
+//                                print("Alamofire upload: response: \n\(response.response)")
                                 
                                 guard response.result.isSuccess else {
                                     guard let err = response.error as? String else {

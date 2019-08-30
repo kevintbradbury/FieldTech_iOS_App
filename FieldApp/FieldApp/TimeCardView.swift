@@ -49,14 +49,23 @@ class TimeCardView: UIViewController {
     }
     @IBAction func didChangeDate(_ sender: Any) {
         let newDt = Date(timeIntervalSince1970: dateStepper.value)
-        date = newDt
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        dateLabel.text = dateFormatter.string(from: date)
         
+        setWeekBgDate(dt: newDt, fromTS: false)
         getTSdata(date: newDt)
     }
+    @IBAction func touchRevisionSwitch(_ sender: Any) { showRevisionNotesPopup() }
     @IBAction func sendTSconfirmation(_ sender: Any) { getUserDateForTSAndCheckSigntr() }
     
+    func setWeekBgDate(dt: Date, fromTS: Bool) {
+        date = dt
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        
+        if fromTS == true {
+            dateLabel.text = "Week beginning: \(dateFormatter.string(from: date))"
+        } else {
+            dateLabel.text = dateFormatter.string(from: date)
+        }
+    }
     
     func getUserDateForTSAndCheckSigntr() {
         guard let validTS = timesheet else { return }
@@ -68,7 +77,9 @@ class TimeCardView: UIViewController {
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         let dtPOSIX = dateFormatter.string(from: date)
         
-        struct ConfirmTS: Encodable { let revisionRequested: Bool, userANDdateID: String, username: String, date: String, revisionNotes: String }
+        struct ConfirmTS: Encodable {
+            let revisionRequested: Bool, userANDdateID: String, username: String, date: String, revisionNotes: String
+        }
         let body = ConfirmTS(
             revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: dtPOSIX, revisionNotes: revisionRequestNotes
         )
@@ -85,13 +96,39 @@ class TimeCardView: UIViewController {
                 showAlert(withTitle: "No Signature", message: "Please provide signature to verify timesheet or request revisions."); return
             }
             signatureArray.append(validSignature)
+        } else {
+            if revisionRequestNotes == "" {
+                showAlert(withTitle: "Missing Revisions", message: "Please add revision notes.")
+                return
+            }
         }
         
         inProgress(showProgress: true)
         
-        alamoUpload(route: route, headers: ["", ""], formBody: data, images: signatureArray, uploadType: "confirmTS", callback: { (json) in
+        alamoUpload(route: route, headers: ["employee", body.username], formBody: data, images: signatureArray, uploadType: "confirmTS", callback: { (json) in
             self.completeProgress()
         })
+    }
+    
+    func showRevisionNotesPopup() {
+        if reqRevisionSwitch.isOn {
+            let popup = UIAlertController(title: "Timesheet Revisions", message: "Please type the revisions in the text field below.", preferredStyle: .alert)
+            let submit = UIAlertAction(title: "Submit", style: .default) { (action) in
+                guard let txtFields = popup.textFields,
+                    let notes = txtFields[0].text else { return }
+                self.revisionRequestNotes = notes
+                popup.dismiss(animated: true, completion: nil)
+            }
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+            popup.addTextField { (txtField) in
+                txtField.placeholder = "Enter revision(s) here."
+            }
+            
+            popup.addAction(submit)
+            popup.addAction(cancel)
+            
+            present(popup, animated: true, completion: nil)
+        }
     }
     
     func setUpViews() {
@@ -115,28 +152,8 @@ class TimeCardView: UIViewController {
         dateStepper.value = now
         dateStepper.stepValue = oneWeek
         
-        reqRevisionSwitch.addTarget(self.view, action: #selector(showRevisionNotesPopup), for: .touchUpInside)
-        
         if let info = TimeCardView.employeeInfo {
             employeeLabel.text = " \(info.username) "
-        }
-    }
-    
-    @objc func showRevisionNotesPopup() {
-        if reqRevisionSwitch.isOn {
-            let popup = UIAlertController(title: "Timesheet Revisions", message: "Please type the revisions in the text field below.", preferredStyle: .alert)
-            let submit = UIAlertAction(title: "Submit", style: .default) { (action) in
-                guard let txtFields = popup.textFields,
-                 let notes = txtFields[0].text else { return }
-                self.revisionRequestNotes = notes
-                popup.dismiss(animated: true, completion: nil)
-            }
-            let cancel = UIAlertAction(title: "Cancel", style: .cancel)
-            
-            popup.addAction(submit)
-            popup.addAction(cancel)
-            
-            self.present(popup, animated: true, completion: nil)
         }
     }
     
@@ -157,6 +174,7 @@ class TimeCardView: UIViewController {
             self.timesheet = validTS
             
             OperationQueue.main.addOperation {
+                if let weekBeginDt = validTS.weekBeginDate { self.setWeekBgDate(dt: weekBeginDt, fromTS: true) }
                 self.timeCardTable.reloadData()
                 self.totalHrsLbl.text = " Total - \(validTS.totalHours.hours)h: \(validTS.totalHours.min)m "
             }
@@ -252,7 +270,10 @@ extension TimeCardView: UITableViewDelegate, UITableViewDataSource {
             let dt = dateFormatter.string(from: validDt)
          
             cell.cellDateLgLbl.text = dt
+        } else {
+            cell.cellDateLgLbl.text = "--"
         }
+        
         cell.cellDayNmLbl.text = thisDay
         cell.dayOweekLbl.text = txt
         
@@ -264,6 +285,7 @@ extension TimeCardView: EPSignatureDelegate {
     func epSignature(_: EPSignatureViewController, didSign signatureImage: UIImage, boundingRect: CGRect) {
         signatureImg.image = signatureImage
         employeeSignature = signatureImage
+        signatureBtn.titleLabel?.text = ""
     }
     
     func epSignature(_: EPSignatureViewController, didCancel error: NSError) {

@@ -52,7 +52,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/HomeView.swift"
-            timestampString = "588555203.989419"
+            timestampString = "588803803.044523"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "906"
@@ -77,7 +77,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/APICalls.swift"
-            timestampString = "588730899.489707"
+            timestampString = "588803803.044657"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "133"
@@ -125,11 +125,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FieldApp/DataStructure.swift"
-            timestampString = "588295745.999964"
+            timestampString = "588810877.79054"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "301"
-            endingLineNumber = "301"
+            startingLineNumber = "307"
+            endingLineNumber = "307"
             landmarkName = "stringToDate(string:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -278,22 +278,6 @@
             continueAfterRunningActions = "No"
             scope = "0"
             stopOnStyle = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "FieldApp/ViewExtensions.swift"
-            timestampString = "588730899.489922"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "272"
-            endingLineNumber = "272"
-            landmarkName = "alamoUpload(route:headers:formBody:images:uploadType:callback:)"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

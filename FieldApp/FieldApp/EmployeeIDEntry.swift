@@ -204,7 +204,7 @@ extension EmployeeIDEntry {
         completeProgress()
         
         if success == true {
-            UserDefaults.standard.set(poNumber, forKey: "todaysJobPO")
+            UserDefaults.standard.set(poNumber, forKey: DefaultKeys.todaysJobPO)
             
             print("punched in / out: \(String(describing: EmployeeIDEntry.foundUser?.punchedIn))")
             self.todaysJob.jobName = currentJob

@@ -204,14 +204,11 @@ class UserData {
         username: String,
         totalHours: hoursMin, overTime: hoursMin, doubleTime: hoursMin,
         sunday: dayObj, monday: dayObj, tuesday: dayObj, wednesday: dayObj, thursday: dayObj, friday: dayObj, saturday: dayObj,
-        yearMonthDate: YearMonthDate
-//        weekBeginDate: Date
+        yearMonthDate: YearMonthDate,
+        weekBeginDate: Date?
 
         init(dict: NSDictionary) {
-//            let dateFrmt = DateFormatter()
-//            dateFrmt.dateFormat = "MM-dd-yy"
-//            self.weekBeginDate = dateFrmt.date(from: dict["weekBeginDate"] as? String ?? "") ?? Date()
-            
+
             self.userANDdateID = dict["userANDdateID"] as? String ?? ""
             self.employeeID = dict["employeeID"] as? Int ?? 00
             self.username = dict["username"] as? String ?? ""
@@ -226,6 +223,15 @@ class UserData {
             self.friday = dayObj.init(dict: dict["friday"] as? [String: Any] ?? ["":""])
             self.saturday = dayObj.init(dict: dict["saturday"] as? [String: Any] ?? ["":""])
             self.yearMonthDate = YearMonthDate.init(dict: dict["yearMonthDate"] as? [String: Any] ?? ["":""])
+                        
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            let dtString = dict["weekBeginDate"] as? String ?? ""
+            
+            let weekBeginDate = dict["weekBeginDate"] as? Date ?? dateFormatter.date(from: dtString) ?? nil
+            
+            self.weekBeginDate = weekBeginDate
         }
         
     }
