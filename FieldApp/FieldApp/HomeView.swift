@@ -270,6 +270,8 @@ extension HomeView {
             incorrectAnswer = i - 1
             correctAnswerVal = false
             makeAlert(correct: "INCORRECT", msg: "Answer: \(answer) \(fullAnswer)")
+            guard let user = HomeView.employeeInfo?.username as? String else { return }
+            APICalls().addWrongPoints(employee: user, pts: 2)
         }
     }
     

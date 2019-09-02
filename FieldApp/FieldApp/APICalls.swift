@@ -222,6 +222,24 @@ class APICalls {
             task.resume()
         }
     }
+
+    func addWrongPoints(employee: String, pts: Int) {
+        let route = "addWrongPoints/\(employee)/\(pts)"
+        
+        setupRequest(route: route, method: "GET") { request in
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if error != nil {
+                    print("Error in addPoints: \(error)"); return
+                }
+                
+                guard let verfData = data else {
+                    print("Couldnt verf data")
+                    return
+                }
+            }
+            task.resume()
+        }
+    }
     
     func acceptMoreHrs(employee: String, moreDays: AcceptMoreDays, callback: @escaping (Bool)->()) {
         let route = "acceptMoreHours/\(employee)"

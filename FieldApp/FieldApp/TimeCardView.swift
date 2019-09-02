@@ -49,12 +49,12 @@ class TimeCardView: UIViewController {
     }
     @IBAction func didChangeDate(_ sender: Any) {
         let newDt = Date(timeIntervalSince1970: dateStepper.value)
-        
         setWeekBgDate(dt: newDt, fromTS: false)
         getTSdata(date: newDt)
     }
     @IBAction func touchRevisionSwitch(_ sender: Any) { showRevisionNotesPopup() }
     @IBAction func sendTSconfirmation(_ sender: Any) { getUserDateForTSAndCheckSigntr() }
+    
     
     func setWeekBgDate(dt: Date, fromTS: Bool) {
         date = dt
