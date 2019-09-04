@@ -487,15 +487,39 @@ extension APICalls {
 extension APICalls {
     
     //Doesn't set an alarm but does add an event to calendar, which may be useful for adding jobs to internal calendar
-    func setAnAlarm(jobName: String, jobStart: Date, jobEnd: Date) {
+    static func setNOWalarm() {
         var _: EKCalendar?
         let eventstore = EKEventStore()
         
         eventstore.requestAccess(to: EKEntityType.event){ (granted, error ) -> Void in
             if granted == true { //Substitute job info in here: startDate, endDate, title
                 let event = EKEvent(eventStore: eventstore)
-                event.startDate = Date(); event.endDate = Date()
-                event.title = "Job Name"
+                event.startDate = Date()
+                event.endDate = Date()
+                event.title = "ALERT"
+                event.calendar = eventstore.defaultCalendarForNewEvents
+                event.structuredLocation = EKStructuredLocation() // Geofence location for event
+                event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))
+                
+                do {
+                    try eventstore.save(event, span: .thisEvent, commit: true)
+                } catch {
+                    print("Error: \(error) \n Couldn't setup that alarm or event: \(event.description)")
+                }
+            }
+        }
+    }
+    
+    func scheduleAnAlarm(jobName: String, jobStart: Date, jobEnd: Date) {
+        var _: EKCalendar?
+        let eventstore = EKEventStore()
+        
+        eventstore.requestAccess(to: EKEntityType.event){ (granted, error ) -> Void in
+            if granted == true { //Substitute job info in here: startDate, endDate, title
+                let event = EKEvent(eventStore: eventstore)
+                event.startDate = jobStart
+                event.endDate = jobEnd
+                event.title = "PO: \(jobName)"
                 event.calendar = eventstore.defaultCalendarForNewEvents
                 event.structuredLocation = EKStructuredLocation() // Geofence location for event
                 event.addAlarm(EKAlarm(relativeOffset: TimeInterval(10)))

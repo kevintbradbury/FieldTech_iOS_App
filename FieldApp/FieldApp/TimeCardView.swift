@@ -59,12 +59,7 @@ class TimeCardView: UIViewController {
     func setWeekBgDate(dt: Date, fromTS: Bool) {
         date = dt
         dateFormatter.dateFormat = "MMM d, yyyy"
-        
-        if fromTS == true {
-            dateLabel.text = "Week beginning: \(dateFormatter.string(from: date))"
-        } else {
-            dateLabel.text = dateFormatter.string(from: date)
-        }
+        dateLabel.text = "Week of: \(dateFormatter.string(from: date))"
     }
     
     func getUserDateForTSAndCheckSigntr() {

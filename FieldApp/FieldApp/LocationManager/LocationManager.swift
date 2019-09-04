@@ -25,7 +25,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     var currentLocation: CLLocation?
     var currentRegion: MKCoordinateRegion?
     var currentCoordinate: CLLocationCoordinate2D? { return currentLocation?.coordinate }
-//    var notificationCenter: UNUserNotificationCenter?
+    var notificationCenter: UNUserNotificationCenter?
     var regionToCheck: CLCircularRegion?
     
     func initialize() {
@@ -36,7 +36,7 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
         
-//        notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter = UNUserNotificationCenter.current()
 //        notificationCenter?.delegate = self
         
         alreadyInitialized = true
@@ -74,8 +74,12 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) { print("Location manger failed with following error: \(error)") }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        APICalls.succeedOrFailUpload(msg: "LocationManager Failed with error: \(error.localizedDescription)", uploadType: "", success: false)
+        print("Location manger failed with following error: \(error)")
+    }
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        APICalls.succeedOrFailUpload(msg: "LocationManager Failed with error: \(error.localizedDescription)", uploadType: "", success: false)
         print("monitoring failed for region w/ identifier: \(String(describing: region?.identifier))")
     }
     
@@ -104,7 +108,8 @@ extension UserLocation {
             locationManager.startMonitoring(for: region)
             
             while locationManager.monitoredRegions.count == 0 {
-                locationManager.startMonitoring(for: region); print("Locale BEING monitored: \(locationManager.monitoredRegions)")
+                locationManager.startMonitoring(for: region)
+                print("Locale BEING monitored: \(locationManager.monitoredRegions)")
             }
         }
     }
@@ -134,6 +139,7 @@ extension UserLocation {
             
             if clockedIn == false && success == true {
                 self.notifyClockOut(identifier: region.identifier)
+                
                 UserLocation.instance.stopMonitoring()
                 HomeView.employeeInfo = nil
                 NotificationCenter.default.post(name: .info, object: self, userInfo: ["employeeInfo" : userInfo])

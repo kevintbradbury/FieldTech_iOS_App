@@ -255,10 +255,7 @@ extension EmployeeIDEntry {
                 
             } else {
                 title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
-                APICalls().getSafetyQs() { safetyQuestions in
-                    self.safetyQs = safetyQuestions
-                    self.completedIDcheckProgress()
-                }
+//                APICalls().getSafetyQs() { safetyQuestions in self.safetyQs = safetyQuestions; self.completedIDcheckProgress() }
             }
             setBreakNotifcs(twoHrs: twoHours, fourHrs: fourHours, title: title, msg: message, identifier: identifier)
             
@@ -467,10 +464,22 @@ extension EmployeeIDEntry {
             }
             
             breakPopup.addAction(ok)
-            
             self.main.addOperation { self.present(breakPopup, animated: true, completion: nil) }
+            
         } else {
-            self.main.addOperation { self.performSegue(withIdentifier: "return", sender: self) }
+            var title = "Clocked "
+            if EmployeeIDEntry.foundUser?.punchedIn == true { title += "In" }
+            else { title += "Out" }
+            
+            let punchAlert = UIAlertController(title: title, message: "", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "Ok", style: .default) { action in
+                self.performSegue(withIdentifier: "return", sender: self)
+            }
+            
+            punchAlert.addAction(ok)
+            self.main.addOperation { self.present(punchAlert, animated: true, completion: nil) }
+            
+//            self.main.addOperation { self.performSegue(withIdentifier: "return", sender: self) }
         }
     }
 }

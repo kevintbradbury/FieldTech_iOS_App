@@ -12,6 +12,8 @@ import FirebaseAuth
 import UserNotifications
 import CoreLocation
 import AudioToolbox
+import AVFoundation
+import AVKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -173,7 +175,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
         
         handleNotif(category: category, center: center, notifBody: notification.request.content.body)
-        completionHandler(.alert)
+        completionHandler([.alert, .sound])
     }
     
     // If App is currently in background or phone is locked
@@ -197,6 +199,26 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func handleNotif(category: String, center: UNUserNotificationCenter, notifBody: String?) {
         let state = UIApplication.shared.applicationState
         guard let vc = self.homeViewActive else { return }
+        
+        //
+        let soundDir = "/System/Library/Audio/UISounds/ReceivedMessage.caf"
+        var player: AVAudioPlayer?
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers, .defaultToSpeaker])
+            try AVAudioSession.sharedInstance().setActive(true, options: [.notifyOthersOnDeactivation])
+            UIApplication.shared.beginReceivingRemoteControlEvents()
+            
+            let soundsURL = URL(fileURLWithPath: soundDir)
+            player = try AVAudioPlayer(contentsOf: soundURL, fileTypeHint: "caf")
+
+        } catch {
+            print("Audio session err: \(error)")
+        }
+        
+        player?.setVolume(1.0, fadeDuration: 0.5)
+        player?.play()
+        //
         
         switch category {
             
@@ -254,7 +276,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 }
-
 
 
 
