@@ -126,7 +126,7 @@ extension EmployeeIDEntry {
             
             if self.poNumberField.isFirstResponder == true {
                 OperationQueue.main.addOperation {
-                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 4))
+                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))
                 }
             }
         } else {
