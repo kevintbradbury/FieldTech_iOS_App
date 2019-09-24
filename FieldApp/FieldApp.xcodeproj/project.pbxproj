@@ -22,6 +22,7 @@
 		06775989213DDE1C001F8802 /* ChangeOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06775988213DDE1C001F8802 /* ChangeOrders.swift */; };
 		06903AE4228641C6000373E8 /* OneTimeLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06903AE3228641C6000373E8 /* OneTimeLoginController.swift */; };
 		06B7D4911FEAE42300DB5DA5 /* EmployeeIDEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */; };
+		06D24F36232164190010149F /* ringerremix.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 06D24F35232164180010149F /* ringerremix.mp3 */; };
 		06D7222D2257B575007FE483 /* CustomViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06D7222C2257B575007FE483 /* CustomViews.swift */; };
 		06E18B482255654C0058974B /* FanMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E18B472255654B0058974B /* FanMenu.swift */; };
 		06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */; };
@@ -105,6 +106,7 @@
 		06775988213DDE1C001F8802 /* ChangeOrders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeOrders.swift; sourceTree = "<group>"; };
 		06903AE3228641C6000373E8 /* OneTimeLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTimeLoginController.swift; sourceTree = "<group>"; };
 		06B7D4901FEAE42300DB5DA5 /* EmployeeIDEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployeeIDEntry.swift; sourceTree = "<group>"; };
+		06D24F35232164180010149F /* ringerremix.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = ringerremix.mp3; path = ../../../../../Downloads/ringerremix.mp3; sourceTree = "<group>"; };
 		06D7222C2257B575007FE483 /* CustomViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViews.swift; sourceTree = "<group>"; };
 		06E18B472255654B0058974B /* FanMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanMenu.swift; sourceTree = "<group>"; };
 		06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 				067365A8213858DD00F1F8A8 /* ViewExtensions.swift */,
 				0AC8EF571F71826200E86DD6 /* LaunchScreen.storyboard */,
 				0AC8EF521F71826200E86DD6 /* Main.storyboard */,
+				06D24F35232164180010149F /* ringerremix.mp3 */,
 			);
 			path = FieldApp;
 			sourceTree = "<group>";
@@ -444,6 +447,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AC8EF591F71826200E86DD6 /* LaunchScreen.storyboard in Resources */,
+				06D24F36232164190010149F /* ringerremix.mp3 in Resources */,
 				06E8AE18219B8CE500C8CA2D /* GoogleService-Info.plist in Resources */,
 				0AC8EF561F71826200E86DD6 /* Assets.xcassets in Resources */,
 				0601ED22224ED8650013BD72 /* Main.storyboard in Resources */,

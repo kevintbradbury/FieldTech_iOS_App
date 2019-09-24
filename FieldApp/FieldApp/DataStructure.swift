@@ -689,3 +689,9 @@ class AutoCompleteDataSrc: NSObject, MLPAutoCompleteTextFieldDataSource {
     }
 }
 
+struct MobileError: Encodable {
+    let username: String
+    let employeeID: String
+    let error: String
+}
+

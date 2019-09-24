@@ -75,11 +75,17 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) { handleGeoFenceEvent(forRegion: region) }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        APICalls.succeedOrFailUpload(msg: "LocationManager Failed with error: \(error.localizedDescription)", uploadType: "", success: false)
+        let errMsg = "LocationManager Failed with error: \(error.localizedDescription)"
+        
+        APICalls().sendErrorLog(errMsg: errMsg)
+        
         print("Location manger failed with following error: \(error)")
     }
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
-        APICalls.succeedOrFailUpload(msg: "LocationManager Failed with error: \(error.localizedDescription)", uploadType: "", success: false)
+        let errMsg = "LocationManager Failed with error: \(error.localizedDescription)"
+        
+        APICalls().sendErrorLog(errMsg: errMsg)
+        
         print("monitoring failed for region w/ identifier: \(String(describing: region?.identifier))")
     }
     

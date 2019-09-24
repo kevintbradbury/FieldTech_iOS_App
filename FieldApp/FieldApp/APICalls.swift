@@ -364,6 +364,27 @@ class APICalls {
         }
     }
     
+    
+    func sendErrorLog(errMsg: String) {
+        let route = "errorLogging"
+        let user = UserDefaults.standard.string(forKey: DefaultKeys.employeeName) ?? ""
+        let id = UserDefaults.standard.string(forKey: DefaultKeys.employeeID) ?? ""
+        let mobileErr = MobileError(username: user, employeeID: id, error: errMsg)
+        
+        var data = Data()
+        
+        do { data = try jsonEncoder.encode(mobileErr) }
+        catch { print("\(error)"); return }
+        
+        setupRequest(route: route, method: "POST") { req in
+            var request = req
+            request.httpBody = data
+            
+            self.startSession(request: req, route: route) { (json) in
+                // Handle JSON
+            }
+        }
+    }
 }
 
 

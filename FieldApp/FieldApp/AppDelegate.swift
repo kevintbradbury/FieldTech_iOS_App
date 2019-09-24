@@ -6,12 +6,12 @@
 //  Copyright © 2017 Kevin Bradbury. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import Firebase
 import FirebaseAuth
 import UserNotifications
 import CoreLocation
-import AudioToolbox
 import AVFoundation
 import AVKit
 
@@ -35,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         registerForPushNotif()
         didEnterBackground = false
         APICalls.getHostFromPList()
+        UIApplication.shared.beginReceivingRemoteControlEvents()
         
         print("app didFinishLaunching w/ options")
         return true
@@ -68,14 +69,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("didReceiveRemoteNotification: FireBase notification")
             completionHandler(.noData);     return
         }
-        
         print("AppDelegate > notification: \(notification)")
         
         guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
             let alert = aps[AnyHashable("alert")] as? NSDictionary,
             let action = alert[AnyHashable("action")] as? String else {
                 print("didReceiveRemoteNotification: failed parsing: aps/alert/action")
-                completionHandler(.newData);    return
+                completionHandler(.newData)
+                return
         }
         
         if action == "gps Update" {
@@ -86,7 +87,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 else { completionHandler(.newData); print("didReceiveRemoteNotification: coordinate check succeeded") }
             }
         } else {
-            print("didReceiveRemoteNotification: action: \(alert)");   completionHandler(.newData)
+            print("didReceiveRemoteNotification: action: \(alert)")
+            completionHandler(.newData)
         }
     }
     
@@ -137,6 +139,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("app will terminate")
     }
     
+    override func remoteControlReceived(with event: UIEvent?) {
+        
+    }
+    
     func registerForPushNotif() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             
@@ -175,6 +181,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
         
         handleNotif(category: category, center: center, notifBody: notification.request.content.body)
+        playSound()
         completionHandler([.alert, .sound])
     }
     
@@ -183,13 +190,14 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             var category = ""
+            let categoryID = response.notification.request.content.categoryIdentifier
             
-            if response.notification.request.content.categoryIdentifier != nil  && response.notification.request.content.categoryIdentifier != "" {
-                category = response.notification.request.content.categoryIdentifier
+            if categoryID != nil  && categoryID != "" {
+                category = categoryID
             } else {
                 category = response.notification.request.identifier
             }
-            print("notifCtr didReceive category: \(response.notification.request.identifier), \(response.notification.request.content.categoryIdentifier)")
+            print("notifCtr didReceive category: \(response.notification.request.identifier), \(categoryID)")
             
             handleNotif(category: category, center: center, notifBody: response.notification.request.content.body)
             completionHandler()
@@ -199,26 +207,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func handleNotif(category: String, center: UNUserNotificationCenter, notifBody: String?) {
         let state = UIApplication.shared.applicationState
         guard let vc = self.homeViewActive else { return }
-        
-        //
-        let soundDir = "/System/Library/Audio/UISounds/ReceivedMessage.caf"
-        var player: AVAudioPlayer?
-        
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers, .defaultToSpeaker])
-            try AVAudioSession.sharedInstance().setActive(true, options: [.notifyOthersOnDeactivation])
-            UIApplication.shared.beginReceivingRemoteControlEvents()
-            
-            let soundsURL = URL(fileURLWithPath: soundDir)
-            player = try AVAudioPlayer(contentsOf: soundURL, fileTypeHint: "caf")
-
-        } catch {
-            print("Audio session err: \(error)")
-        }
-        
-        player?.setVolume(1.0, fadeDuration: 0.5)
-        player?.play()
-        //
         
         switch category {
             
@@ -266,6 +254,35 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
     
+    func playSound() {
+        let _ = "/System/Library/Audio/UISounds/ReceivedMessage.caf"
+        let soundUrl = URL(
+            fileURLWithPath: Bundle.main.path(forResource: "ringerremix", ofType: "mp3") ?? "", isDirectory: true
+        )
+        var player: AVAudioPlayer?
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.duckOthers])
+            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
+            
+            player = try AVAudioPlayer(contentsOf: soundUrl)
+            player?.delegate = self
+            player?.prepareToPlay()
+            
+        } catch {
+            print("Audio session err: \(error)")
+        }
+        
+        if let validPlayer = player {
+            validPlayer.setVolume(1.0, fadeDuration: 0.0)
+            
+            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { (timer) in
+                validPlayer.numberOfLoops = 1
+                validPlayer.play()
+            }
+        }
+    }
+    
     func removeAutoClockNotif(center: UNUserNotificationCenter) {
         HomeView.leftJobSite = true
         
@@ -274,6 +291,15 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             center.removeDeliveredNotifications(withIdentifiers: [category])
             center.removePendingNotificationRequests(withIdentifiers: [category])
         }
+    }
+}
+
+extension AppDelegate: AVAudioPlayerDelegate {
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        
+    }
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        
     }
 }
 
