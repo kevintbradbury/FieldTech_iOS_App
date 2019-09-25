@@ -42,10 +42,12 @@ extension UIViewController {
         
         let timeInterval = TimeInterval(interval)
         let content = UNMutableNotificationContent()
+//            UNNotificationContent()
         content.title = title
         content.body = message
-        content.sound = UNNotificationSound.default
+        content.sound = UNNotificationSound.defaultCriticalSound(withAudioVolume: 1.0)
         content.badge = NSNumber(value: Int(1 + notifs))
+        
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         

@@ -72,6 +72,7 @@
 		062A32D4215C09A0001B6703 /* ToolReturnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolReturnView.swift; sourceTree = "<group>"; };
 		063B7AA522F3A1D9003259B5 /* FieldApp_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldApp_Tests.swift; sourceTree = "<group>"; };
 		063B7AA722F3A1D9003259B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		064D0996233BD75100433949 /* ringerremix.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = ringerremix.mp3; sourceTree = "<group>"; };
 		065D026722FB76C900A326F1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		065D026922FB788600A326F1 /* Alamofire.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Alamofire.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		065D026B22FB788600A326F1 /* EPSignature.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = EPSignature.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -178,6 +179,7 @@
 			children = (
 				067365AB2139A0EE00F1F8A8 /* Info.plist */,
 				06E8AE17219B8CE500C8CA2D /* GoogleService-Info.plist */,
+				064D0996233BD75100433949 /* ringerremix.mp3 */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -831,7 +833,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-Xfrontend -warn-long-function-bodies=100";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
@@ -855,7 +857,7 @@
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";

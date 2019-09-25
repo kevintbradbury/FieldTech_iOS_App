@@ -17,13 +17,15 @@ import AVKit
 import AudioToolbox
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     
     var window: UIWindow?
     var homeViewActive: HomeView?
     var myEmployeeVC: EmployeeIDEntry?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
+
+    static var audioPlayer: AVAudioPlayer?
     static let notificationCenter = UNUserNotificationCenter.current()
 
     override init() {
@@ -76,12 +78,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        guard
         let aps = notification[AnyHashable("aps")] as? [AnyHashable:Any] ?? ["":""]
         let alert = aps[AnyHashable("alert")] as? [AnyHashable:Any] ?? ["":""]
-            let action = alert[AnyHashable("action")] as? String ?? ""
-//            else {
-//                print("didReceiveRemoteNotification: failed parsing: aps/alert/action")
-//                completionHandler(.newData)
-//                return
-//        }
+        let action = alert[AnyHashable("action")] as? String ?? ""
+        //            else {
+        //                print("didReceiveRemoteNotification: failed parsing: aps/alert/action"); completionHandler(.newData); return
+        //        }
         
         if action == "gps Update" {
             guard let coordinates = UserLocation.instance.currentCoordinate else { return }
@@ -92,18 +92,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         } else {
             print("didReceiveRemoteNotification: action: \(alert)")
-            let msg = "\(aps["alert"])"
+            let msg = aps["alert"] as? String ?? ""
+            var totalNotifs = 0
+            AppDelegate.notificationCenter.getDeliveredNotifications(completionHandler: { (notifications) in
+                totalNotifs = notifications.count
+            })
             
-            
-            createLocalNotification(title: "", message: msg, identifier: "local", totalNotifs:
-//                totalNotifs
-            )
+            AppDelegate.playSound()
+            createLocalNotification(title: "", message: msg, identifier: "local", totalNotifs: totalNotifs)
             completionHandler(.newData)
         }
     }
     
-    func application(_ application: UIApplication, open url: URL,
-                     options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
+    func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
+        AppDelegate.playSound()
+    }
+    
+    func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
         if Auth.auth().canHandle(url) {
             return true
         }
@@ -138,6 +143,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             OperationQueue.main.addOperation {
                 self.homeViewActive?.checkForUserInfo()
             }
+        }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .duckOthers])
+            try AVAudioSession.sharedInstance().setActive(true, options: [.notifyOthersOnDeactivation])
+            UIApplication.shared.beginReceivingRemoteControlEvents()
+        } catch {
+            print("Audio session err: \(error)")
         }
     }
     
@@ -178,7 +190,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     
-    // If App is currently in background or phone is locked
+    // If App is currently open or a notification was opened
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         print("notifCtr willPresent category: \(notification.request.identifier), \(notification.request.content.categoryIdentifier)")
         var category = ""
@@ -190,10 +202,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
         
         handleNotif(category: category, center: center, notifTitle: notification.request.content.title, notifBody: notification.request.content.body)
-        completionHandler([.alert, .sound])
+        completionHandler([.alert, .badge, .sound])
     }
     
-    // If App is currently open or a notification was opened
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
@@ -210,6 +221,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             
             center.removeDeliveredNotifications(withIdentifiers: allIdentifiers)
             center.removePendingNotificationRequests(withIdentifiers: allIdentifiers)
+            
+            if AppDelegate.audioPlayer != nil { AppDelegate.audioPlayer!.stop() }
+            
+            var badges = UIApplication.shared.applicationIconBadgeNumber - 1
+            UIApplication.shared.applicationIconBadgeNumber = badges
+            
             handleNotif(category: category, center: center, notifTitle: response.notification.request.content.title, notifBody: response.notification.request.content.body)
             completionHandler()
         }
@@ -272,7 +289,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message
-        content.sound = UNNotificationSound.default
+        content.sound = UNNotificationSound.defaultCriticalSound(withAudioVolume: 1.0)
         content.badge = NSNumber(integerLiteral: Int(badgeCount))
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: true)
@@ -283,37 +300,35 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 print(error)
                 return
             }
-            self.playSound()
         })
     }
     
-    func playSound() {
-        let _ = "/System/Library/Audio/UISounds/ReceivedMessage.caf"
-        let soundUrl = URL(
-            fileURLWithPath: Bundle.main.path(forResource: "ringerremix", ofType: "mp3") ?? "", isDirectory: true
-        )
-        var player: AVAudioPlayer?
+    public static func playSound() {
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+        let soundUrl = URL(fileURLWithPath: Bundle.main.path(forResource: "ringerremix", ofType: "mp3") ?? "", isDirectory: true)
+        
+        var error: NSError?
         
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.duckOthers])
-            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
+            AppDelegate.audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
             
-            player = try AVAudioPlayer(contentsOf: soundUrl)
-            player?.delegate = self
-            player?.prepareToPlay()
-            
-        } catch {
+        } catch let error1 as NSError {
             print("Audio session err: \(error)")
+            error = error1
+            AppDelegate.audioPlayer = nil
         }
         
-        if let validPlayer = player {
-            validPlayer.setVolume(1.0, fadeDuration: 0.0)
-            
-            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { (timer) in
-                validPlayer.numberOfLoops = 1
-                validPlayer.play()
-            }
+        if let err = error {
+            print("audioPlayer error: \(err.localizedDescription)")
+            return
+        } else {
+//        if let validPlayer = audioPlayer {
+//            AppDelegate.audioPlayer!.delegate = self
+            AppDelegate.audioPlayer!.prepareToPlay()
         }
+        AppDelegate.audioPlayer!.setVolume(1.0, fadeDuration: 1.0)
+        AppDelegate.audioPlayer!.numberOfLoops = 1
+        AppDelegate.audioPlayer!.play()
     }
     
     func removeAutoClockNotif(center: UNUserNotificationCenter) {
@@ -327,13 +342,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
 }
 
-extension AppDelegate: AVAudioPlayerDelegate {
-    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        
-    }
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        
-    }
+extension AppDelegate {
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {}
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {}
 }
 
 
