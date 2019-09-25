@@ -380,7 +380,7 @@ class APICalls {
             var request = req
             request.httpBody = data
             
-            self.startSession(request: req, route: route) { (json) in
+            self.startSession(request: request, route: route) { (json) in
                 // Handle JSON
             }
         }

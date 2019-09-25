@@ -37,11 +37,15 @@ extension UIViewController {
     }
     
     func createNotification(intervalInSeconds interval: Double, title: String, message: String, identifier: String) -> UNNotificationRequest {
+        var notifs = 0
+        AppDelegate.notificationCenter.getDeliveredNotifications { (notifications) in notifs = notifications.count }
+        
         let timeInterval = TimeInterval(interval)
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = message
         content.sound = UNNotificationSound.default
+        content.badge = NSNumber(value: Int(1 + notifs))
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: false)
         let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
         

@@ -81,8 +81,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        //
-        APICalls().sendErrorLog(errMsg: "TEST ERROR MSG")
         
         Auth.auth().addStateDidChangeListener() { (auth, user) in
             if user == nil { self.dismiss(animated: true) }

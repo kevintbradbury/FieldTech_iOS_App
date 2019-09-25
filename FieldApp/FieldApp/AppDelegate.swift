@@ -14,6 +14,7 @@ import UserNotifications
 import CoreLocation
 import AVFoundation
 import AVKit
+import AudioToolbox
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -23,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var myEmployeeVC: EmployeeIDEntry?
     var didEnterBackground: Bool?
     let main = OperationQueue.main
+    static let notificationCenter = UNUserNotificationCenter.current()
 
     override init() {
         super.init()
@@ -45,9 +47,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Auth.auth().setAPNSToken(deviceToken, type: AuthAPNSTokenType.sandbox)
         
-        UNUserNotificationCenter.current().delegate = self
+        AppDelegate.notificationCenter.delegate = self
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(
+        AppDelegate.notificationCenter.requestAuthorization(
             options: authOptions,
             completionHandler: {_, _ in
                 print("user notification center authorized")
@@ -71,13 +73,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         print("AppDelegate > notification: \(notification)")
         
-        guard let aps = notification[AnyHashable("aps")] as? NSDictionary,
-            let alert = aps[AnyHashable("alert")] as? NSDictionary,
-            let action = alert[AnyHashable("action")] as? String else {
-                print("didReceiveRemoteNotification: failed parsing: aps/alert/action")
-                completionHandler(.newData)
-                return
-        }
+//        guard
+        let aps = notification[AnyHashable("aps")] as? [AnyHashable:Any] ?? ["":""]
+        let alert = aps[AnyHashable("alert")] as? [AnyHashable:Any] ?? ["":""]
+            let action = alert[AnyHashable("action")] as? String ?? ""
+//            else {
+//                print("didReceiveRemoteNotification: failed parsing: aps/alert/action")
+//                completionHandler(.newData)
+//                return
+//        }
         
         if action == "gps Update" {
             guard let coordinates = UserLocation.instance.currentCoordinate else { return }
@@ -88,6 +92,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         } else {
             print("didReceiveRemoteNotification: action: \(alert)")
+            let msg = "\(aps["alert"])"
+            
+            
+            createLocalNotification(title: "", message: msg, identifier: "local", totalNotifs:
+//                totalNotifs
+            )
             completionHandler(.newData)
         }
     }
@@ -133,8 +143,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-        UserDefaults.standard.set(nil, forKey: "employeeName")
-        UserDefaults.standard.set(nil, forKey: "todaysJobLatLong")
+        UserDefaults.standard.set(nil, forKey: DefaultKeys.todaysJobLatLong)
 
         print("app will terminate")
     }
@@ -144,10 +153,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func registerForPushNotif() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+        AppDelegate.notificationCenter.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             
             if granted == true {
-                UNUserNotificationCenter.current().getNotificationSettings { (settings) in
+                AppDelegate.notificationCenter.getNotificationSettings { (settings) in
                     
                     if settings.authorizationStatus == .authorized {
                         self.main.addOperation(UIApplication.shared.registerForRemoteNotifications)
@@ -169,7 +178,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     
-    // If App is currently open
+    // If App is currently in background or phone is locked
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         print("notifCtr willPresent category: \(notification.request.identifier), \(notification.request.content.categoryIdentifier)")
         var category = ""
@@ -180,12 +189,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             category = notification.request.identifier
         }
         
-        handleNotif(category: category, center: center, notifBody: notification.request.content.body)
-        playSound()
+        handleNotif(category: category, center: center, notifTitle: notification.request.content.title, notifBody: notification.request.content.body)
         completionHandler([.alert, .sound])
     }
     
-    // If App is currently in background or phone is locked
+    // If App is currently open or a notification was opened
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
@@ -198,13 +206,17 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                 category = response.notification.request.identifier
             }
             print("notifCtr didReceive category: \(response.notification.request.identifier), \(categoryID)")
+            let allIdentifiers = [response.notification.request.identifier]
             
-            handleNotif(category: category, center: center, notifBody: response.notification.request.content.body)
+            center.removeDeliveredNotifications(withIdentifiers: allIdentifiers)
+            center.removePendingNotificationRequests(withIdentifiers: allIdentifiers)
+            handleNotif(category: category, center: center, notifTitle: response.notification.request.content.title, notifBody: response.notification.request.content.body)
             completionHandler()
         }
     }
     
-    func handleNotif(category: String, center: UNUserNotificationCenter, notifBody: String?) {
+    func handleNotif(category: String, center: UNUserNotificationCenter, notifTitle: String, notifBody: String?) {
+        
         let state = UIApplication.shared.applicationState
         guard let vc = self.homeViewActive else { return }
         
@@ -252,6 +264,27 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         default:
             print("Received notification w/ category: \(category)")
         }
+    }
+    
+    func createLocalNotification(title: String, message: String, identifier: String, totalNotifs: Int) {
+        let timeInterval = TimeInterval(61.0)
+        let badgeCount = totalNotifs + 1
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = message
+        content.sound = UNNotificationSound.default
+        content.badge = NSNumber(integerLiteral: Int(badgeCount))
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: timeInterval, repeats: true)
+        let request = UNNotificationRequest(identifier: "\(identifier)-alarm", content: content, trigger: trigger)
+        
+        AppDelegate.notificationCenter.add(request, withCompletionHandler: { (error) in
+            if error != nil {
+                print(error)
+                return
+            }
+            self.playSound()
+        })
     }
     
     func playSound() {

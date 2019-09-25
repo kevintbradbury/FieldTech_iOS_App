@@ -50,7 +50,6 @@ class UserLocation: NSObject, CLLocationManagerDelegate {
         self.currentRegion = region
         
         onLocation?(location.coordinate)
-        print(location.coordinate)
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
