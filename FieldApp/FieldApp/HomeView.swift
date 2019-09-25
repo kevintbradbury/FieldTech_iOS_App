@@ -93,13 +93,6 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 
         picker.delegate = self
         setIdentifiers()
-        
-        //
-        let testLocal = createNotification(intervalInSeconds: 10.0, title: "TEST_LOCAL", message: "Testing local notifs", identifier: "TEST_LOCAL")
-        AppDelegate.notificationCenter.add(testLocal) { (err) in
-            if err != nil { print(err); return }
-        }
-        //
     }
 
     override func viewWillAppear(_ animated: Bool) {

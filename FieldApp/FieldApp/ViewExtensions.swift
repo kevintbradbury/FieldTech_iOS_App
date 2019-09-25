@@ -42,7 +42,6 @@ extension UIViewController {
         
         let timeInterval = TimeInterval(interval)
         let content = UNMutableNotificationContent()
-//            UNNotificationContent()
         content.title = title
         content.body = message
         content.sound = UNNotificationSound.defaultCriticalSound(withAudioVolume: 1.0)

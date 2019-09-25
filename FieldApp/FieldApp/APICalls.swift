@@ -585,8 +585,8 @@ extension APICalls {
             adjMsg += APICalls().changePunctuation(uploadType: uploadType)
         }
         
-        let completeNotif = UIViewController().createNotification(intervalInSeconds: 1, title: title, message: adjMsg, identifier: "uploadSuccess")
-        UNUserNotificationCenter.current().add(completeNotif, withCompletionHandler: { (error) in
+        let completeNotif = UIViewController().createNotification(intervalInSeconds: 0.01, title: title, message: adjMsg, identifier: "uploadSuccess")
+        AppDelegate.notificationCenter.add(completeNotif, withCompletionHandler: { (error) in
             if error != nil { return }
         })
     }

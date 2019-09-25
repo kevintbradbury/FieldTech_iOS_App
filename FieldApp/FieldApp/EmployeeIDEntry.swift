@@ -97,7 +97,6 @@ class EmployeeIDEntry: UIViewController, UITextFieldDelegate, MLPAutoCompleteTex
     @IBAction func sendManualPOentry(_ sender: Any) { sendManualEntry() }
     @IBAction func hideManualPOview(_ sender: Any) { manualPOentryVw.isHidden = true }
     
-    
 }
 
 extension EmployeeIDEntry {
@@ -255,7 +254,6 @@ extension EmployeeIDEntry {
                 
             } else {
                 title = "Meal Break Reminder"; message = "Time for Lunch."; identifier = "lunchReminder"
-//                APICalls().getSafetyQs() { safetyQuestions in self.safetyQs = safetyQuestions; self.completedIDcheckProgress() }
             }
             setBreakNotifcs(twoHrs: twoHours, fourHrs: fourHours, title: title, msg: message, identifier: identifier)
             
