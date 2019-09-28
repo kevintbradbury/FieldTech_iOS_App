@@ -691,4 +691,5 @@ extension EmployeeIDEntry {    // MLPAutoCompleteTextFieldDelegate
         let split = selectedString.components(separatedBy: " - ")
         textField.text = split[0]
     }
+    
 }

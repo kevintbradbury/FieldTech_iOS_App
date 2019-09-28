@@ -102,8 +102,11 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
+        
         checkForSafetyQs()
         checkForToolRentals()
+        
+        if AppDelegate.audioPlayer != nil { AppDelegate.audioPlayer!.stop() }
     }
 
     @IBAction func pressdProfBtn(_ sender: Any) { profilePress() }

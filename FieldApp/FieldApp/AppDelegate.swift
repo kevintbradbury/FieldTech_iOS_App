@@ -64,24 +64,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
     }
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("FAILED to register for remote notifications, with error: \(error)")
+        let errMsg = "FAILED to register for remote notifications, with error: \(error)"
+        print(errMsg)
+        APICalls().sendErrorLog(errMsg: errMsg)
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification notification: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         
         if Auth.auth().canHandleNotification(notification) {
             print("didReceiveRemoteNotification: FireBase notification")
-            completionHandler(.noData);     return
+            completionHandler(.noData)
+            return
         }
         print("AppDelegate > notification: \(notification)")
         
-//        guard
         let aps = notification[AnyHashable("aps")] as? [AnyHashable:Any] ?? ["":""]
         let alert = aps[AnyHashable("alert")] as? [AnyHashable:Any] ?? ["":""]
         let action = alert[AnyHashable("action")] as? String ?? ""
-        //            else {
-        //                print("didReceiveRemoteNotification: failed parsing: aps/alert/action"); completionHandler(.newData); return
-        //        }
         
         if action == "gps Update" {
             guard let coordinates = UserLocation.instance.currentCoordinate else { return }
@@ -99,13 +98,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
             })
             
             AppDelegate.playSound()
-            createLocalNotification(title: "", message: msg, identifier: "local", totalNotifs: totalNotifs)
+//            createLocalNotification(title: "", message: msg, identifier: "local", totalNotifs: totalNotifs)
             completionHandler(.newData)
         }
-    }
-    
-    func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
-        AppDelegate.playSound()
     }
     
     func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
@@ -175,7 +170,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AVAudioPlayerDelegate {
                         return
                     }
                 }
-            } else { fatalError("notification not granted: \(granted), \(String(describing: error))") }
+            } else {
+                let errMsg = "notification not granted: \(granted), \(String(describing: error))"
+                print(errMsg)
+                APICalls().sendErrorLog(errMsg: errMsg)
+            }
         }
     }
     
@@ -224,7 +223,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             
             if AppDelegate.audioPlayer != nil { AppDelegate.audioPlayer!.stop() }
             
-            var badges = UIApplication.shared.applicationIconBadgeNumber - 1
+            let badges = UIApplication.shared.applicationIconBadgeNumber - 1
             UIApplication.shared.applicationIconBadgeNumber = badges
             
             handleNotif(category: category, center: center, notifTitle: response.notification.request.content.title, notifBody: response.notification.request.content.body)
@@ -298,7 +297,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         AppDelegate.notificationCenter.add(request, withCompletionHandler: { (error) in
             if error != nil {
                 print(error)
-                return
             }
         })
     }
@@ -322,8 +320,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             print("audioPlayer error: \(err.localizedDescription)")
             return
         } else {
-//        if let validPlayer = audioPlayer {
-//            AppDelegate.audioPlayer!.delegate = self
             AppDelegate.audioPlayer!.prepareToPlay()
         }
         AppDelegate.audioPlayer!.setVolume(1.0, fadeDuration: 1.0)

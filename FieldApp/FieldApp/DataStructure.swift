@@ -680,7 +680,7 @@ class AutoCompleteDataSrc: NSObject, MLPAutoCompleteTextFieldDataSource {
         var possibleMatches = [AutoCompleteObj]()
         
         for i in poNums {
-            if i.contains(typedText) {
+            if i.localizedCaseInsensitiveContains(typedText) {
                 let match = AutoCompleteObj().initWithPO(po: i)
                 possibleMatches.append(match)
             }

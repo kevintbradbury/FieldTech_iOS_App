@@ -32,8 +32,7 @@ class ChangeOrdersView: UIViewController, UITextFieldDelegate, MLPAutoCompleteTe
     @IBOutlet weak var descripText: UITextView!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var backButton: UIButton!
-//    @IBOutlet var activityIndicator: UIActivityIndicatorView!
-//    @IBOutlet var activityBckgrd: UIView!
+    
     
     let employeeID = UserDefaults.standard.string(forKey: "employeeID")
     let todaysJobPO = UserDefaults.standard.string(forKey: "todaysJobPO")

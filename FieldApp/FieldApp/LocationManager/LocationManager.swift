@@ -172,7 +172,7 @@ extension UserLocation {
         }
         
         for notf in clockedOutNotifs {
-            UNUserNotificationCenter.current().add(notf) { (error) in
+            AppDelegate.notificationCenter.add(notf) { (error) in
                 if error != nil {
                     print("Error setting notification: \(error)")
                 }

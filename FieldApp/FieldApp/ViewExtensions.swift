@@ -389,6 +389,3 @@ extension UIViewController {
     
 }
 
-//extension UIViewController: UITextFieldDelegate, MLPAutoCompleteTextFieldDelegate, MLPAutoCompleteTextFieldDataSource {
-//
-//}

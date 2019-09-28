@@ -23,9 +23,11 @@ class TimeCardView: UIViewController {
     @IBOutlet var confirmBtn: UIButton!
     @IBOutlet var backBtn: UIButton!
     @IBOutlet var revisionLbl: UILabel!
-    @IBOutlet var noLbl: UILabel!
-    @IBOutlet var yesLbl: UILabel!
     @IBOutlet var reqRevisionSwitch: UISwitch!
+    @IBOutlet var noInjuriesLbl: UILabel!
+    @IBOutlet var noInjuriesSwitch: UISwitch!
+    @IBOutlet var sickTimeLbl: UILabel!
+    @IBOutlet var sickTimeField: UITextField!
     
     
     public static var employeeInfo: UserData.UserInfo?
@@ -41,6 +43,8 @@ class TimeCardView: UIViewController {
         super.viewDidLoad()
         setUpViews()
         getTSdata(date: date)
+//        setDismissableKeyboard(vc: self)
+        setThisDismissableKeyboard()
     }
     
     @IBAction func goBack(_ sender: Any) { dismiss(animated: true, completion: nil) }
@@ -56,6 +60,40 @@ class TimeCardView: UIViewController {
     @IBAction func sendTSconfirmation(_ sender: Any) { getUserDateForTSAndCheckSigntr() }
     
     
+    func setThisDismissableKeyboard() {
+        OperationQueue.main.addOperation {
+            self.view.frame.origin.y = 0
+            self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: #selector(UIView.endEditing(_:))))
+            
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil
+            )
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(self.thisKeyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil
+            )
+        }
+    }
+    
+    @objc func thisKeyboardWillChange(notification: Notification) {
+        guard let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        if notification.name == UIResponder.keyboardWillShowNotification || notification.name == UIResponder.keyboardWillChangeFrameNotification {
+            
+            if self.sickTimeField.isFirstResponder == true {
+                OperationQueue.main.addOperation {
+                    self.view.frame.origin.y = -(keyboardRect.height - (keyboardRect.height / 2))
+                }
+            }
+        } else {
+            OperationQueue.main.addOperation {
+                self.view.frame.origin.y = 0
+            }
+        }
+    }
+    
     func setWeekBgDate(dt: Date, fromTS: Bool) {
         date = dt
         dateFormatter.dateFormat = "MMM d, yyyy"
@@ -66,17 +104,21 @@ class TimeCardView: UIViewController {
         guard let validTS = timesheet else { return }
         let userANDdateID = validTS.userANDdateID
         let revisionRequested = reqRevisionSwitch.isOn
+        let injuryFree = noInjuriesSwitch.isOn
         let route = "timeclock/\(userANDdateID)/mobile/confirm"
+        
+        let sickStr = sickTimeField?.text ?? ""
+        let sickTime: Double = Double(sickStr) ?? 0.0
         
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         let dtPOSIX = dateFormatter.string(from: date)
         
         struct ConfirmTS: Encodable {
-            let revisionRequested: Bool, userANDdateID: String, username: String, date: String, revisionNotes: String
+            let revisionRequested: Bool, userANDdateID: String, username: String, date: String, revisionNotes: String, injuryFree: Bool, sickTime: Double
         }
         let body = ConfirmTS(
-            revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: dtPOSIX, revisionNotes: revisionRequestNotes
+            revisionRequested: revisionRequested, userANDdateID: userANDdateID, username: validTS.username, date: dtPOSIX, revisionNotes: revisionRequestNotes, injuryFree: injuryFree, sickTime: sickTime
         )
         
         var data = Data()
