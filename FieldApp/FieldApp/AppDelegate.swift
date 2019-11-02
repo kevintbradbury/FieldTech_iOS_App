@@ -200,6 +200,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             category = notification.request.identifier
         }
         
+        if AppDelegate.audioPlayer != nil { AppDelegate.audioPlayer!.stop() }
+
         handleNotif(category: category, center: center, notifTitle: notification.request.content.title, notifBody: notification.request.content.body)
         completionHandler([.alert, .badge, .sound])
     }

@@ -14,7 +14,6 @@
 		0623249B21DD81C1000025E3 /* TimeOffRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0623249A21DD81C1000025E3 /* TimeOffRequestView.swift */; };
 		062A32D5215C09A0001B6703 /* ToolReturnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062A32D4215C09A0001B6703 /* ToolReturnView.swift */; };
 		065D029922FB788600A326F1 /* Pods_FieldAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E5FF5170009DCF06A1F5DCB /* Pods_FieldAppTests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		065D029A22FB788600A326F1 /* Pods_FieldAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7181653153D0F18EBA34A99C /* Pods_FieldAppUITests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		065E63D721E4266D0063A572 /* SuppliesRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63D621E4266D0063A572 /* SuppliesRequestView.swift */; };
 		065E63DB21E82B5B0063A572 /* VehicleCheckListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065E63DA21E82B5B0063A572 /* VehicleCheckListView.swift */; };
 		0668F7F3230DAE2A00D3DE66 /* TimeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0668F7F2230DAE2A00D3DE66 /* TimeCardView.swift */; };
@@ -149,7 +148,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				065D029922FB788600A326F1 /* Pods_FieldAppTests.framework in Frameworks */,
-				065D029A22FB788600A326F1 /* Pods_FieldAppUITests.framework in Frameworks */,
 				AF4CDCFB76E60B8495FB2312 /* Pods_FieldApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -831,10 +829,12 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				INFOPLIST_FILE = Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.5;
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-Xfrontend -warn-long-function-bodies=100";
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -854,11 +854,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 9B58YSTSJ6;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.MBros.FieldApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

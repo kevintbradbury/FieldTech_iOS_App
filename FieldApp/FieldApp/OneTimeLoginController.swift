@@ -115,7 +115,11 @@ class OneTimeLoginController: UIViewController {
             }
         }
     }
-    
+ 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let vc = segue.destination
+        vc.modalPresentationStyle = .fullScreen
+    }
 }
 
 

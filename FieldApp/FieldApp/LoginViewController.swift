@@ -132,7 +132,11 @@ class LoginViewController: UIViewController {   //, AuthUIDelegate {
 
         self.present(alert, animated: true, completion: nil)
     }
-    
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let vc = segue.destination
+        vc.modalPresentationStyle = .fullScreen
+    }
 }
 
 

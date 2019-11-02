@@ -61,6 +61,7 @@ extension UIViewController {
         signatureVC.title = title
         
         let nav = UINavigationController(rootViewController: signatureVC)
+        nav.modalPresentationStyle = .fullScreen
         OperationQueue.main.addOperation {
             vc.present(nav, animated: true, completion: nil)
         }
