@@ -15,6 +15,7 @@ import FirebaseAuth
 import ImagePicker
 import Macaw
 import EPSignature
+import MLPAutoCompleteTextField
 
 
 class HomeView: UIViewController, UINavigationControllerDelegate {
@@ -60,6 +61,7 @@ class HomeView: UIViewController, UINavigationControllerDelegate {
     var indexVal = 0
     var correctAnswerVal = true
     var incorrectAnswer = -1
+    var autoCompleteDtSrc: MLPAutoCompleteTextFieldDataSource?
     
     public static var addressInfo: UserData.AddressInfo?,
     employeeInfo: UserData.UserInfo?,
@@ -589,11 +591,13 @@ extension HomeView {
 extension HomeView {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-
+        segue.destination.modalPresentationStyle = .fullScreen
+        
         switch segue.identifier {
         case "schedule":
             let vc = segue.destination as! ScheduleView
             vc.employee = HomeView.employeeInfo
+            
         case "clock_in":
             let vc = segue.destination as! EmployeeIDEntry
             EmployeeIDEntry.foundUser = HomeView.employeeInfo
@@ -875,7 +879,26 @@ extension HomeView: ImagePickerDelegate {
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         
-        alert.addTextField() { textField in textField.placeholder = "PO Number" }
+        alert.addTextField() { textField in
+            textField.placeholder = "PO Number"
+            guard let autoPOfield = textField as? MLPAutoCompleteTextField else {
+                print("unable to cast textfield > autoPOfield")
+                return
+            }
+            
+            APICalls().getJobNames() { err, jobs in
+                self.completeProgress()
+                
+                if err != nil {
+                    guard let safeErr = err else { return }
+                    self.showAlert(withTitle: "Error", message: safeErr)
+                } else if let theseJobs = jobs {
+                    self.autoCompleteDtSrc = AutoCompleteDataSrc().initialize(pos: theseJobs)
+                    autoPOfield.autoCompleteDataSource = self.autoCompleteDtSrc
+                }
+            }
+            
+        }
         if employee == nil {
             alert.addTextField() { textField in textField.placeholder = "Employee Name" }
         }
@@ -936,5 +959,22 @@ extension HomeView: EPSignatureDelegate {
     
     func epSignature(_: EPSignatureViewController, didCancel error: NSError) {
         HomeView.presentWaiverAlrt = nil
+    }
+}
+
+extension HomeView: MLPAutoCompleteTextFieldDelegate, MLPAutoCompleteTextFieldDataSource {
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, willShowAutoComplete autoCompleteTableView: UITableView!) {
+        print("autoCompleteTextField: willShowAutoComplete")
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldConfigureCell cell: UITableViewCell!, withAutoComplete autocompleteString: String!, with boldedString: NSAttributedString!, forAutoComplete autocompleteObject: MLPAutoCompletionObject!, forRowAt indexPath: IndexPath!) -> Bool {
+        return true
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, shouldStyleAutoComplete autoCompleteTableView: UITableView!, for borderStyle: UITextField.BorderStyle) -> Bool {
+        return true
+    }
+    func autoCompleteTextField(_ textField: MLPAutoCompleteTextField!, didSelectAutoComplete selectedString: String!, withAutoComplete selectedObject: MLPAutoCompletionObject!, forRowAt indexPath: IndexPath!) {
+        print("didSelectAutoComplete")
+        let split = selectedString.components(separatedBy: " - ")
+        textField.text = split[0]
     }
 }
